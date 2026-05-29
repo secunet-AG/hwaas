@@ -9,56 +9,7 @@ import { RouterView } from 'vue-router'
 import Sidebar from './shared/ui/sidebar/Sidebar.vue'
 import ErrorBoundary from './core/error-handling/ErrorBoundary.vue'
 import Toaster from './shared/ui/toaster/Toaster.vue'
-import { useDebounceFn, useIntervalFn } from '@vueuse/core'
-import { cacheContexts, useContextStore } from './core/stores/context-store'
-import { storeToRefs } from 'pinia'
 import Spinner from './shared/ui/loading/Spinner.vue'
-import { onMounted } from 'vue'
-
-const store = useContextStore()
-const { contexts, activeContextIndex, activeContext } = storeToRefs(store)
-const MAX = +import.meta.env.VITE_MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS
-const INTERACTION_LIFETIME_INCREMENT = 60 * 10
-const INCREMENT_LIFETIME_IF_UNDER = 60 * 10
-
-// The function used to automatically increment context lifetimes
-const incrementTime = useDebounceFn(() => {
-  const ctx = store.activeContext
-  if (ctx && ctx.lifetime + INTERACTION_LIFETIME_INCREMENT <= MAX) {
-    store.setLifetime(ctx.id, ctx.lifetime + INTERACTION_LIFETIME_INCREMENT)
-  }
-}, INTERACTION_LIFETIME_INCREMENT)
-
-// The function used to cache contexts to local storage on change. This is due to API constraints rather than performance reasons.
-store.$onAction(({ name, after }) => {
-  after(() => {
-    writeCache({ name, after })
-  })
-}, true)
-
-const writeCache = useDebounceFn(({ name, _ }) => {
-  cacheContexts({ contexts: contexts.value, activeContextIndex: activeContextIndex.value })
-  // Avoid recursion here
-  if (name !== 'setLifetime') {
-    if (!activeContext.value?.lifetime) return
-    if (activeContext.value?.lifetime <= INCREMENT_LIFETIME_IF_UNDER) {
-      incrementTime()
-    }
-  }
-}, 120)
-
-const invalidateCache = useDebounceFn(() => {
-  store.invalidateContextsCache()
-}, 800)
-
-// Interval fn to automatically cache contexts
-useIntervalFn(
-  () => {
-    invalidateCache()
-  },
-  1000 * 60 * 5,
-  { immediateCallback: true },
-)
 </script>
 
 <template>

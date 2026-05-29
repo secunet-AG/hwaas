@@ -90,7 +90,7 @@ const showNameWarningBorder = computed(
 function onMachineSelectionChange(machines: InventoryMachine[]) {
   newContext.machines = machines.map((x) => ({
     name: nameGenerator(),
-    machine_id: x.machine_id,
+    machine_id: String(x.machine_id),
     platform: x.properties.platform,
     powerState: 'unknown',
     serialPorts: [],
