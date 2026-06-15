@@ -69,7 +69,7 @@ function onContextUpload(machines: ContextConfigurationMachine) {
   Object.keys(machines).forEach((k) => {
     newMachines.push({
       name: k,
-      machine_id: machines[k].machine_id,
+      machine_id: String(machines[k].machine_id),
       platform: machines[k].platform,
       powerState: 'unknown',
       serialPorts: [],

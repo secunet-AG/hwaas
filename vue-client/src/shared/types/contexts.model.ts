@@ -7,7 +7,7 @@
 import type { LocalImage } from './images.model'
 
 // Locally, we use a different shape to more easily interact with it
-export type ContextConfigurationMachine = Record<string, { machine_id: string; platform: string }>
+export type ContextConfigurationMachine = Record<string, { machine_id: number; platform: string }>
 
 export type InventoryMachineState = 'free' | 'registered'
 

@@ -32,7 +32,7 @@ export const useContextsApi = () => {
 
     machines.forEach((machine) => {
       machinesForReservationRecord[machine.name] = {
-        machine_id: machine.machine_id as string,
+        machine_id: Number(machine.machine_id),
         platform: machine.platform,
       }
     })

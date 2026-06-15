@@ -67,9 +67,9 @@ async function onFileUpload(file: File) {
       Object.fromEntries(
         Object.entries(config.machines).map(([key, item]) => [
           key,
-          { ...item, machine_id: String(item.machine_id) },
+          { ...item, machine_id: Number(item.machine_id) },
         ]),
-      ) as Record<string, { machine_id: string; platform: string }>,
+      ) as Record<string, { machine_id: number; platform: string }>,
     )
   } catch {
     uploadContextState.value = 'failed'
