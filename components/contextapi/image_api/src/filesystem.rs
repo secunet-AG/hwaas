@@ -12,6 +12,8 @@ use tokio::io::{AsyncRead, AsyncReadExt, AsyncWriteExt, BufWriter};
 use tokio_stream::StreamExt;
 use tokio_stream::wrappers::ReadDirStream;
 
+use crate::image_handler::ImageMetadata;
+
 /// List all files with the specified file extension of the given directory.
 /// If `None` is provided as file extension, it will match all files that have no extension.
 /// For more information refer to [`std::path::Path::extension`].
@@ -42,21 +44,6 @@ where
         // the first 'Result' that is 'Err' will be returned by this collect
         .collect::<Result<Vec<_>, _>>()
         .await
-}
-
-/// Access the meta data of the given file. The returned tuple contains:
-/// - File name as specified by the user
-/// - File size
-/// - File creation time
-pub async fn get_meta_data<P>(input_path: P) -> Result<(String, u64, SystemTime), Error>
-where
-    P: AsRef<Path>,
-{
-    let mut path = input_path.as_ref().to_path_buf();
-    let meta = metadata(&path).await?;
-    path.set_extension("txt");
-    let user_specified_image_name = read_to_string(path).await?;
-    Ok((user_specified_image_name, meta.len(), meta.modified()?))
 }
 
 /// Write the given Stream to the specified filepath and return the hash of the stream content

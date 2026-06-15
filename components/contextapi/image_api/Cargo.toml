@@ -17,24 +17,39 @@ path = "src/lib.rs"
 workspace = true
 
 [dependencies]
-context_data_structures.workspace = true
-axum.workspace = true
-tracing.workspace = true
-tower-http.workspace = true
-tokio.workspace = true
-tokio-util.workspace = true
-tokio-stream.workspace = true
-futures.workspace = true
-sha2.workspace = true
-serde.workspace = true
-uuid.workspace = true
-regex.workspace = true
-bytes.workspace = true
 aide.workspace = true
-schemars.workspace = true
-bytesize.workspace = true
+anyhow.workspace = true
 async-compression.workspace = true
+axum.workspace = true
+bytes.workspace = true
+bytesize.workspace = true
+chrono.workspace = true
+context_data_structures.workspace = true
+db_interaction.workspace = true
+diesel.workspace = true
+displaydoc.workspace = true
+futures.workspace = true
+regex.workspace = true
+schemars.workspace = true
+serde.workspace = true
+sha2.workspace = true
+static_assertions.workspace = true
+thiserror.workspace = true
+tokio-stream.workspace = true
+tokio-util.workspace = true
+tokio.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+uuid.workspace = true
 workspace-hack = { version = "0.1", path = "../../workspace-hack" }
 
 [dev-dependencies]
 tempfile.workspace = true
+tracing-subscriber.workspace = true
+assert_fs.workspace = true
+# This crate is actually helpful since calling `tracing_subscriber...init()`
+# multiple times within the same test binary causes a panic inside tracing
+# since a global default subscriber has already been defined. We could check
+# and handle this error, or we just use a crate that has figured this out for
+# us.
+test-log.workspace = true

@@ -121,6 +121,8 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(bmr_image_tag_map -> bmr_image_metadatas (bmr_image_metadata_id));
+diesel::joinable!(bmr_image_tag_map -> bmr_image_tags (bmr_image_tag_id));
 diesel::joinable!(context_lifetimes -> contexts (context_id));
 diesel::joinable!(drives -> contexts (context_id));
 diesel::joinable!(enabled_ports -> networks (net_id));
@@ -134,6 +136,9 @@ diesel::joinable!(switch_connections -> machines (machine_id));
 diesel::joinable!(switch_connections -> switch_ports (id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    bmr_image_metadatas,
+    bmr_image_tag_map,
+    bmr_image_tags,
     context_lifetimes,
     contexts,
     drives,

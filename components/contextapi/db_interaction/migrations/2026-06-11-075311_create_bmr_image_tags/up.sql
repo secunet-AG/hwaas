@@ -1,6 +1,6 @@
 CREATE TABLE bmr_image_tags(
     -- Unique ID of a given tag
-    id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL PRIMARY KEY,
     -- Human readable (short) name of the tag
     name TEXT NOT NULL,
     -- Human readable description of the tag with additional information, for
