@@ -1,6 +1,6 @@
 CREATE TABLE bmr_image_metadatas(
     -- Unique ID of a given image
-    id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL PRIMARY KEY,
     -- SHA256 checksum of the full image blob
     --
     -- This will break in the face of hash collisions, but I think those are
