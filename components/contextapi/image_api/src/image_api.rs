@@ -95,9 +95,10 @@ fn api_method_doc_delete(op: TransformOperation) -> TransformOperation {
 /// The Ok value contains a HashMap with filenames and -sizes
 /// On error a corresponding status code and message is returned.
 #[instrument]
+#[axum::debug_handler]
 async fn list_images(
     State(image_handler): State<ImageHandler>,
-) -> Result<impl IntoApiResponse, (StatusCode, String)> {
+) -> Result<Json<Vec<ImageMetadata>>, (StatusCode, String)> {
     let images = image_handler.list_images().await.map_err(|err| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -128,7 +129,7 @@ async fn status_image(
     Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
 ) -> Result<impl IntoApiResponse, (StatusCode, String)> {
     let meta_data = image_handler
-        .get_image_metadata(&image_hash)
+        .get_image(&image_hash)
         .await
         .map_err(image_handler_errors_to_http)?;
     Ok(Json::from(meta_data))
@@ -224,7 +225,7 @@ async fn post_image(
 /// message String
 fn image_handler_errors_to_http(err: ImageHandlerError) -> (StatusCode, String) {
     match err {
-        ImageHandlerError::StorageError => (
+        ImageHandlerError::StorageError { .. } => (
             StatusCode::BAD_REQUEST,
             "Internal error occurred while trying to store the given image".to_string(),
         ),
