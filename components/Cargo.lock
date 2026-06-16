@@ -2109,7 +2109,6 @@ dependencies = [
  "tokio-util",
  "tower-http",
  "tracing",
- "tracing-subscriber",
  "uuid 1.27.0",
  "workspace-hack",
 ]
