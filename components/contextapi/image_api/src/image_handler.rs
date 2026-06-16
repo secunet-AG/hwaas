@@ -76,27 +76,62 @@ pub struct ImageMetadata {
 type ImageTagId = ID<i32, ImageTag>;
 
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, diesel::Queryable, diesel::Selectable)]
+#[derive(
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Debug,
+    PartialEq,
+    diesel::Queryable,
+    diesel::Selectable,
+    diesel::Identifiable,
+    diesel::AsChangeset,
+)]
 #[diesel(
     table_name = bmr_image_tags,
-    check_for_backend(diesel::sqlite::Sqlite)
+    check_for_backend(diesel::sqlite::Sqlite),
+    treat_none_as_null = true
 )]
 pub struct ImageTag {
     /// Internal ID of the database entry
     id: ImageTagId,
     /// Human-readable name of the tag as shown in the UI.
-    name: String,
+    pub name: String,
     /// Human-readable description of what this tag represents.
-    description: Option<String>,
+    pub description: Option<String>,
 }
 
 impl ImageTag {
+    /// Create a new tag for uploading into the database.
     pub fn new<N: Into<String>, D: Into<String>>(name: N, description: Option<D>) -> Self {
         Self {
             id: ImageTagId::new_empty(),
             name: name.into(),
             description: description.map(|d| d.into()),
         }
+    }
+
+    /// Create a new tag in the database.
+    ///
+    /// This function will fail if the tag being passed previously existed in the database, i.e. if
+    /// you loaded a valid tag from the database and modified it. For that application, refer to
+    /// [`ImageTag::update`].
+    pub fn insert<DB: diesel::Connection<Backend = diesel::sqlite::Sqlite>>(
+        self,
+        con: &mut DB,
+    ) -> Result<(), anyhow::Error> {
+        use db_interaction::schema::bmr_image_tags::dsl::*;
+        use diesel::ExpressionMethods;
+
+        let None = self.id.get() else {
+            anyhow::bail!("cannot modify pre-existing {} by inserting", &self.id);
+        };
+
+        diesel::insert_into(bmr_image_tags)
+            .values((name.eq(self.name), description.eq(self.description)))
+            .execute(con)
+            .map_err(|e| anyhow::Error::new(e).context("failed to add new tag to the database"))
+            .map(|_| ())
     }
 }
 
@@ -190,8 +225,6 @@ impl ImageHandler {
 
     /// List all images that are currently in the store
     pub async fn list_images(&self) -> Result<Vec<ImageMetadata>, ImageHandlerError> {
-        // TODO(hartan): Query image table with diesel
-        // TODO(hartan): Return the result
         let image = self
             .db_connection
             .spawn_call(|con| bmr_image_metadatas::table.load(con))
@@ -200,6 +233,7 @@ impl ImageHandler {
         Ok(image)
     }
 
+    #[tracing::instrument]
     pub async fn list_tags(&self) -> Result<Vec<ImageTag>, ImageHandlerError> {
         self.db_connection
             .spawn_call(|con| bmr_image_tags::table.load(con))
@@ -210,23 +244,56 @@ impl ImageHandler {
             })
     }
 
+    /// Add a new tag to the database.
+    ///
+    /// Once created, it can be attached to existing images. If you need to update an existing tag,
+    /// use [`ImageHandler::modify_tag`].
     #[tracing::instrument]
-    pub async fn add_tag(&self, tag: ImageTag) -> Result<(), ImageHandlerError> {
+    pub async fn add_tag(&self, tag: ImageTag) -> Result<ImageTag, ImageHandlerError> {
         use db_interaction::schema::bmr_image_tags::dsl::*;
         use diesel::ExpressionMethods;
+
+        if tag.id.get().is_some() {
+            error!(tag_id = %tag.id, "cannot modify pre-existing tag by inserting");
+        };
 
         self.db_connection
             .execute_on_current_thread(|con| {
                 diesel::insert_into(bmr_image_tags)
                     .values((name.eq(tag.name), description.eq(tag.description)))
-                    .execute(con)
+                    .get_result(con)
             })
             .await
             .map_err(|e| {
-                error!(error = %e, "failed to add new tag to the database");
+                error!(error = %e, "failed to add new BMR image tag to the database");
                 ImageHandlerError::MetadataError
             })
-            .map(|_| ())
+    }
+
+    /// Modify an existing tag in the database.
+    ///
+    /// If you need to create a nonexistent tag, use [`ImageHandler::add_tag`].
+    #[tracing::instrument]
+    pub async fn modify_tag(&self, tag: ImageTag) -> Result<ImageTag, ImageHandlerError> {
+        let Some(tag_id) = tag.id.get() else {
+            error!(tag_id = %tag.id, "cannot create nonexistent tag by updating");
+            return Err(ImageHandlerError::MetadataError);
+        };
+
+        self.db_connection
+            .execute_on_current_thread(|con| {
+                use db_interaction::schema::bmr_image_tags::dsl::*;
+                use diesel::prelude::*;
+
+                diesel::update(bmr_image_tags.filter(id.eq(tag_id)))
+                    .set(&tag)
+                    .get_result(con)
+            })
+            .await
+            .map_err(|e| {
+                error!(error = %e, "failed to update existing BMR image tag in the database");
+                ImageHandlerError::MetadataError
+            })
     }
 
     /// Get the metadata for the image that matches the given hash

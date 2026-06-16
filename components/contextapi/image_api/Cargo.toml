@@ -46,7 +46,6 @@ displaydoc = "0.2"
 
 [dev-dependencies]
 tempfile = "3.3.0"
-tracing-subscriber = "0.3"
 assert_fs.workspace = true
 # This crate is actually helpful since calling `tracing_subscriber...init()`
 # multiple times within the same test binary causes a panic inside tracing
