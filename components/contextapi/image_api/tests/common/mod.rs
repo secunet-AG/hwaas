@@ -78,7 +78,12 @@ where
         .flatten()
         .map_err(|e| {
             let debug_path = test_dir.into_persistent();
-            let debug_path = debug_path.canonicalize().unwrap_or(debug_path.to_path_buf());
-            e.context(format!("test failed, files have been written to {:?}", debug_path))
+            let debug_path = debug_path
+                .canonicalize()
+                .unwrap_or(debug_path.to_path_buf());
+            e.context(format!(
+                "test failed, files have been written to {:?}",
+                debug_path
+            ))
         })
 }

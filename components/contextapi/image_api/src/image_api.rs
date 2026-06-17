@@ -129,7 +129,7 @@ async fn status_image(
     Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
 ) -> Result<impl IntoApiResponse, (StatusCode, String)> {
     let meta_data = image_handler
-        .get_image(&image_hash)
+        .get_image_by_hash(&image_hash)
         .await
         .map_err(image_handler_errors_to_http)?;
     Ok(Json::from(meta_data))
@@ -141,6 +141,9 @@ async fn multipart_to_stream<'a>(
     multipart: &'a mut Multipart,
     compression: &Compression,
 ) -> Result<(Pin<Box<dyn tokio::io::AsyncRead + Send + 'a>>, String), (StatusCode, String)> {
+    // NOTE(hartan): The way this is written makes it impossible to parse other multipart form
+    // content. That is because the `field` being extracted here holds a mutable reference to the
+    // `Multipart` itself, so getting other fields is not an option.
     let field = multipart
         .next_field()
         .await
@@ -215,10 +218,11 @@ async fn post_image(
         metadata.user_file_name = user_specified_image_name;
     }
 
-    image_handler
+    let metadata = image_handler
         .store_image(stream, metadata)
         .await
-        .map_err(image_handler_errors_to_http)
+        .map_err(image_handler_errors_to_http)?;
+    Ok(Json::from(metadata))
 }
 
 /// Converts the given ImageStorageError into a pair consisting of a HTTP StatusCode and an error
