@@ -20,9 +20,7 @@ use std::marker::PhantomData;
 ///
 /// The most common way to use this type is by means of a "concrete" type alias, such as
 /// [`ImageTagId`].
-#[derive(
-    Debug, Clone, Default, Serialize, Deserialize, JsonSchema, diesel::deserialize::FromSqlRow,
-)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 pub struct ID<T: 'static, U: 'static> {
     /// Raw unique ID used to address an object in the database.
     ///
@@ -61,11 +59,49 @@ impl<T: std::fmt::Display, U> std::fmt::Display for ID<T, U> {
     }
 }
 
+// NOTE: The underlying ID type is actually nullable (`Option`) but the API ensures that the option
+// is always `Some` when propagating it to the database in operations that need it.
+impl<T, U> diesel::sql_types::SqlType for ID<T, U> {
+    type IsNull = diesel::sql_types::is_nullable::NotNull;
+}
+
+impl<T, U> diesel::sql_types::SingleValue for ID<T, U> {}
+
+impl<T, U, QS> diesel::expression::SelectableExpression<QS> for ID<T, U> where
+    ID<T, U>: diesel::expression::AppearsOnTable<QS>
+{
+}
+
+impl<T, U, QS> diesel::expression::AppearsOnTable<QS> for ID<T, U> where
+    ID<T, U>: diesel::expression::Expression
+{
+}
+
+impl<T, U, __GroupByClause> diesel::expression::ValidGrouping<__GroupByClause> for ID<T, U> {
+    type IsAggregate = diesel::expression::is_aggregate::Never;
+}
+
+impl<U> diesel::expression::Expression for ID<i32, U> {
+    type SqlType = diesel::sql_types::Integer;
+}
+
+impl<T, U> diesel::query_builder::QueryId for ID<T, U>
+where
+    T: diesel::query_builder::QueryId + 'static,
+    U: diesel::query_builder::QueryId + 'static,
+{
+    type QueryId = ID<
+        <T as diesel::query_builder::QueryId>::QueryId,
+        <U as diesel::query_builder::QueryId>::QueryId,
+    >;
+    const HAS_STATIC_QUERY_ID: bool = <T as diesel::query_builder::QueryId>::HAS_STATIC_QUERY_ID
+        && <U as diesel::query_builder::QueryId>::HAS_STATIC_QUERY_ID;
+}
+
 impl<T, U, V, DB> diesel::deserialize::FromSql<V, DB> for ID<T, U>
 where
+    // NOTE(hartan): Sketchy
     T: diesel::deserialize::FromSql<V, DB>,
-    // NOTE: This is basically the primary key column, it *must* not be null.
-    V: diesel::sql_types::SqlType<IsNull = diesel::sql_types::is_nullable::NotNull>,
     U: std::fmt::Debug,
     DB: diesel::backend::Backend,
 {
@@ -75,10 +111,22 @@ where
     }
 }
 
+impl<T, U, V, DB> diesel::deserialize::Queryable<V, DB> for ID<T, U>
+where
+    T: diesel::deserialize::FromSql<V, DB>,
+    V: diesel::sql_types::SingleValue,
+    DB: diesel::backend::Backend,
+{
+    type Row = T;
+
+    fn build(row: Self::Row) -> diesel::deserialize::Result<Self> {
+        Ok(Self::new(row))
+    }
+}
+
 impl<T, U, V, DB> diesel::serialize::ToSql<V, DB> for ID<T, U>
 where
     T: diesel::serialize::ToSql<V, DB>,
-    V: diesel::sql_types::SqlType<IsNull = diesel::sql_types::is_nullable::NotNull>,
     U: std::fmt::Debug,
     DB: diesel::backend::Backend,
 {
@@ -91,38 +139,8 @@ where
             .as_ref()
             .expect("entities should have a concrete ID when serializing to database");
 
-        <T as diesel::serialize::ToSql<V, DB>>::to_sql(&value, out)
+        <T as diesel::serialize::ToSql<V, DB>>::to_sql(value, out)
     }
-}
-
-// NOTE: The underlying ID type is actually nullable (`Option`) but the API ensures that the option
-// is always `Some` when propagating it to the database in operations that need it.
-impl<T, U> diesel::sql_types::SqlType for ID<T, U> {
-    type IsNull = diesel::sql_types::is_nullable::NotNull;
-}
-
-impl<T, U> diesel::sql_types::SingleValue for ID<T, U> {}
-
-//impl<U, V> diesel::expression::AsExpression<V> for ID<i32, U>
-//where
-//    V: diesel::expression::Expression,
-//{
-//    type Expression = diesel::sql_types::Integer;
-//
-//    fn as_expression(self) -> Self::Expression {
-//        &diesel::sql_types::Integer
-//    }
-//}
-
-//impl<T, U> Expression for Bound<T, U>
-//where
-//    T: SqlType + TypedExpressionType,
-//{
-//    type SqlType = T;
-//}
-
-impl<U> diesel::expression::Expression for ID<i32, U> {
-    type SqlType = diesel::sql_types::Integer;
 }
 
 impl<T, U> ID<T, U> {

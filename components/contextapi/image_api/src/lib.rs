@@ -11,4 +11,4 @@ pub mod sha256hash;
 
 pub use crate::image_api::get_image_api_router;
 pub use image_api_settings::ImageApiSettings;
-pub use image_handler::{ImageHandler, ImageTag, IntoImageHandler, ImageHandlerError};
+pub use image_handler::{ImageHandler, ImageHandlerError, ImageTag, IntoImageHandler};
