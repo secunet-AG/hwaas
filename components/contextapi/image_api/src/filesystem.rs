@@ -5,12 +5,8 @@
 use crate::sha256hash::Sha256Hash;
 use sha2::{Digest, Sha256};
 use std::io::Error;
-use std::path::Path;
-use std::time::SystemTime;
-use tokio::fs::{File, metadata, read_dir, read_to_string};
+use tokio::fs::File;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWriteExt, BufWriter};
-use tokio_stream::StreamExt;
-use tokio_stream::wrappers::ReadDirStream;
 
 /// Write the given Stream to the specified filepath and return the hash of the stream content
 pub async fn write_and_hash<S>(stream: S, file: File) -> Result<(Sha256Hash, usize), Error>
