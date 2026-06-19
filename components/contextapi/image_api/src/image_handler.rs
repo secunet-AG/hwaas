@@ -152,6 +152,10 @@ impl ImageHandler {
     }
 
     /// Upload a new image to the database.
+    ///
+    /// If an image with the same sha256 hash previously existed, the previous image is kept. Only
+    /// the creation time of the previous images metadata entry is updated with the current date and
+    /// time to reflect the renewed "interest" in the image.
     #[tracing::instrument(skip(self, stream))]
     pub async fn add_image<S>(
         &self,
@@ -178,13 +182,16 @@ impl ImageHandler {
                         created_utc.eq(&metadata.created_utc),
                         architecture.eq(&metadata.architecture),
                     ))
+                    .on_conflict(sha256)
+                    .do_update()
+                    .set(created_utc.eq(&metadata.created_utc))
                     .get_result(con)
             })
             .await;
         match result {
             Ok(val) => Ok(val),
             Err(error) => {
-                error!(%error, "failed to store user image metadata in database");
+                error!(?error, "failed to store user image metadata in database");
                 let image_file = self
                     .resolve_image_path(&metadata.file_name)
                     .map_err(|from| {
