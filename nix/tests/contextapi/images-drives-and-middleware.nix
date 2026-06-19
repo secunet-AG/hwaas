@@ -111,7 +111,9 @@ testers.runNixOSTest {
       assert_image_count_is(0)
       response = upload_image(genImgPath)
       assert_image_count_is(1)
-      assert response["body"] == sha_sum, f"Expected {sha_sum} but response was {response}"
+      body = json.loads(response["body"])
+      assert body["sha256"] == sha_sum, f"Expected sha256sum {sha_sum} but response was {body["sha256"]}"
+      assert body["upload_name"] == "myImageName", f"Expected upload name 'myImageName' but response was {body["upload_name"]}"
 
     # should be idempotent and not create an image duplicate
     with subtest("Upload image a second time"):
@@ -146,14 +148,14 @@ testers.runNixOSTest {
     with subtest("Get single image"):
       response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}")
       response_json = json.loads(response)
-      assert response_json["file_name"] == imgName + ".zstd"
+      assert response_json["upload_name"] == imgName + ".zstd"
 
     # Test if 'get_images' returns the right amount of images and sizes
     with subtest("Get images"):
       response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images")
       response_json = json.loads(response)
       assert len(response_json) == 1
-      assert response_json[sha_sum]["size"] == 1024 * 104800
+      assert response_json[0]["size_bytes"] == 1024 * 104800
 
     # Test if a drive can be generated from a uploaded image
     with subtest("Create drive"):

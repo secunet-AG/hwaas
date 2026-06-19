@@ -53,7 +53,9 @@ pub(crate) async fn handle_create_drive(
 
     // Initialize the drive if file exists
 
-    let src = cfg.store_path.join(image_hash);
+    let src = cfg
+        .resolve_image_path(format!("{}.bmrimg", image_hash))
+        .map_err(|_| CreateDriveError::ImageNotFound)?;
     let dst = store_path.join(drive_hash.clone());
     if !src.is_file() {
         return Err(CreateDriveError::ImageNotFound);
