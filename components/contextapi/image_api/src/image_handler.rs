@@ -2,6 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! # Handle storage of BMR images
+//!
+//! The [`ImageHandler`] manages storage space for user-provided BMR images, which are booted on
+//! BMR targets during testing.
 use anyhow::Context as _;
 use axum::extract::FromRef;
 use db_interaction::connection::DbFacade;
@@ -52,7 +56,83 @@ fn to_storage_error(details: &'static str) -> impl FnOnce(std::io::Error) -> Ima
     move |from: std::io::Error| ImageHandlerError::StorageError { from, details }
 }
 
-/// Handles storage of boot images
+/// A fully resolved image file path.
+///
+/// Note that the file this object resolves to is not guaranteed to exist. It may also describe an
+/// image file path for an image that is yet to be written.
+///
+/// # Implementation details
+///
+/// This type is primarily necessary to allow efficient use of `async` in e.g. maintenance tasks.
+/// When defining this functionality on [`ImageHandler`] directly, the requirement of `&self` as
+/// function argument prevents calling the function in `'static` contexts (such as tokios
+/// `JoinSet`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct ImageFilePath(PathBuf);
+
+type ImageFilePathResult<T> = Result<T, ImageFilePathError>;
+
+/// invalid input path {path:?}: {reason}
+#[derive(Debug, thiserror::Error, displaydoc::Display)]
+pub struct ImageFilePathError {
+    path: PathBuf,
+    reason: &'static str,
+}
+
+impl ImageFilePath {
+    fn resolve<P1: AsRef<Path>, P2: AsRef<Path>>(
+        image_store: P1,
+        image: P2,
+    ) -> Result<Self, ImageFilePathError> {
+        let rel_image_path = image.as_ref();
+        let image_store_path = image_store.as_ref();
+        let full_image_path = if rel_image_path.is_absolute() {
+            rel_image_path.to_owned()
+        } else  {
+            std::path::absolute(image_store_path.join(rel_image_path)).map_err(|_| {
+                ImageFilePathError {
+                    path: rel_image_path.to_owned(),
+                    reason: "failed to resolve absolute path for image location",
+                }
+            })?
+        };
+
+        if !full_image_path.starts_with(image_store_path) {
+            return Err(ImageFilePathError {
+                path: rel_image_path.to_owned(),
+                reason: "resolved image path points outside of the image store directory",
+            });
+        }
+
+        Ok(Self(full_image_path))
+    }
+}
+
+impl AsRef<Path> for ImageFilePath {
+    fn as_ref(&self) -> &Path {
+        &self.0
+    }
+}
+
+impl std::ops::Deref for ImageFilePath {
+    type Target = PathBuf;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+/// Handle storage of BMR images.
+///
+///
+/// ## Multiple Instances
+///
+/// It is perfectly fine to use multiple instances of the [`ImageHandler`] provided that no two
+/// instances share the same image store path or database connection (
+/// [Refer to the constructor](`ImageHandler::new`)). This is best ensured by either using only a
+/// single [`ImageHandler`] in the first place, or by making sure that two instances always receive
+/// fully distinct constructor arguments. When two [`ImageHandler`] instances share either of their
+/// arguments, the behavior is undefined.
 #[derive(Clone)]
 pub struct ImageHandler {
     /// Path to the folder where the images should be stored
