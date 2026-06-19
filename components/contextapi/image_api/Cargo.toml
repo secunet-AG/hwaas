@@ -40,9 +40,9 @@ async-compression = { version = "0.4", default-features = false, features = [
   "tokio",
 ] }
 anyhow.workspace = true
-static_assertions = "1.1.0"
-thiserror = "2.0"
-displaydoc = "0.2"
+static_assertions = { version = "1.1.0", default-features = false }
+thiserror = { version = "2.0", default-features = false, features = ["std"] }
+displaydoc = { version = "0.2", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 tempfile = "3.3.0"
