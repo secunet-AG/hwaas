@@ -1,5 +1,8 @@
 use anyhow::Context as _;
 use assert_fs::fixture::PathChild as _;
+use core::pin::Pin;
+use futures::task::Context;
+use futures::task::Poll;
 use futures::FutureExt as _;
 use image_api::ImageHandler;
 use std::cell::LazyCell;
@@ -7,8 +10,50 @@ use std::panic::UnwindSafe;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+pub struct TestStream<'a> {
+    storage: Vec<Result<&'a [u8], anyhow::Error>>,
+}
+
+impl<'a> TestStream<'a> {
+    pub fn new<V: IntoIterator<Item = T>, T: Into<&'a [u8]>>(items: V) -> Self {
+        let mut storage = items
+            .into_iter()
+            .map(|arr| Ok(arr.into()))
+            .collect::<Vec<_>>();
+        // So that popping extracts items in the order they were inserted.
+        storage.reverse();
+
+        Self { storage }
+    }
+
+    pub fn new_with_err<V: IntoIterator<Item = Result<T, anyhow::Error>>, T: Into<&'a [u8]>>(
+        items: V,
+    ) -> Self {
+        let mut storage = items
+            .into_iter()
+            .map(|result| result.map(|arr| arr.into()))
+            .collect::<Vec<_>>();
+        // So that popping extracts items in the order they were inserted.
+        storage.reverse();
+
+        Self { storage }
+    }
+}
+
+impl<'a> futures::Stream for TestStream<'a> {
+    type Item = Result<&'a [u8], anyhow::Error>;
+
+    fn poll_next(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        if let Some(byte_array) = self.get_mut().storage.pop() {
+            Poll::Ready(Some(byte_array))
+        } else {
+            Poll::Ready(None)
+        }
+    }
+}
+
 thread_local! {
-    /// Base directory where integration tests with sample databases are concluded are concluded.
+    /// Base directory where integration tests with sample databases are concluded.
     static REPO_TEST_BASEDIR: LazyCell<PathBuf> = LazyCell::new(|| {
         concat!(env!("CARGO_TARGET_TMPDIR"), "/image_api").into()
     });
@@ -86,4 +131,79 @@ where
                 debug_path
             ))
         })
+}
+
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub enum FileType {
+    File,
+    Directory,
+}
+
+pub async fn assert_files<
+    P: AsRef<std::path::Path>,
+    S: AsRef<std::ffi::OsStr>,
+    H: Into<std::collections::HashSet<(FileType, S)>>,
+>(
+    path: P,
+    expect: H,
+) -> anyhow::Result<()> {
+    let mut entry_iter = tokio::fs::read_dir(&path)
+        .await
+        .with_context(|| format!("failed to read directory entries in {:?}", path.as_ref()))?;
+    let mut expected = expect.into();
+
+    while let Some(entry) = entry_iter
+        .next_entry()
+        .await
+        .with_context(|| format!("failed to read next directory entry in {:?}", path.as_ref()))?
+    {
+        let name = entry.file_name();
+        if (name == "..") || (name == ".") {
+            continue;
+        }
+        dbg!(&name);
+
+        let meta = entry.metadata().await.with_context(|| {
+            format!(
+                "failed to read metadata of entry {:?} underneath path {:?}",
+                entry,
+                path.as_ref()
+            )
+        })?;
+
+        let len_before = expected.len();
+        expected.retain(|(expected_type, expected_name)| {
+            let result = (expected_name.as_ref() != name)
+                || match expected_type {
+                    FileType::File => !meta.is_file(),
+                    FileType::Directory => !meta.is_dir(),
+                };
+            dbg!(&name, result);
+            result
+        });
+        if expected.len() == len_before {
+            anyhow::bail!(
+                "file {:?} was not expected in path {:?}",
+                name,
+                path.as_ref()
+            );
+        }
+    }
+
+    let leftovers = expected
+        .into_iter()
+        .map(|(filetype, filename)| match filetype {
+            FileType::File => format!("file {:?}", filename.as_ref()),
+            FileType::Directory => format!("directory {:?}", filename.as_ref()),
+        })
+        .collect::<Vec<_>>();
+    if leftovers.is_empty() {
+        Ok(())
+    } else {
+        anyhow::bail!(
+            "path {:?} DID NOT contain the following expected files: {}",
+            path.as_ref(),
+            leftovers.join(", ")
+        );
+    }
 }
