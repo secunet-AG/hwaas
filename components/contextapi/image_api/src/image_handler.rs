@@ -4,13 +4,9 @@
 
 use anyhow::Context as _;
 use axum::extract::FromRef;
-use chrono::DateTime;
-use chrono::Utc;
 use db_interaction::connection::DbFacade;
-use db_interaction::schema::{bmr_image_metadatas, bmr_image_tag_map, bmr_image_tags};
+use db_interaction::schema::{bmr_image_metadatas, bmr_image_tags};
 use diesel::RunQueryDsl;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use std::{
     fs::create_dir_all,
     path::{Path, PathBuf},
@@ -23,40 +19,14 @@ use tokio::{
 use tracing::error;
 use uuid::Uuid;
 
-use crate::{filesystem::write_and_hash, image_api::ExtraImageStoreData, sha256hash::Sha256Hash};
+use crate::{
+    db::{ImageSize, ImageTagMap},
+    filesystem::write_and_hash,
+    image_api::ExtraImageStoreData,
+    sha256hash::Sha256Hash,
+};
 
-/// Magic number to represent that a numeric ID has not been initialized yet.
-// NOTE(hartan): This is a very unfortunate design decision that is more or less forced upon us by
-// the `diesel` crate. It appears there is no trivial way to create a single struct that represents
-// a full database table, while at the same time making the `id` column optional for user-facing
-// operations. This means we cannot reasonably differ between objects with "valid" IDs (i.e. taken
-// from the database) and objects with "invalid" IDs (i.e. created from scratch by users). This
-// would make for nicer API and more directed error messages, though. In a prior job I've made good
-// experiences with a generic ID type that looked something like this:
-//
-//     pub struct ID<T: 'static, U: 'static> {
-//         /// Raw unique ID used to address an object in the database.
-//         ///
-//         /// This represents the tables primary key. The option is used to distinguish between objects
-//         /// that exist in the database (`Some`) and objects that must be created in the database
-//         /// (`None`).
-//         #[serde(skip_deserializing)]
-//         raw: Option<T>,
-//         /// Phantom use of the owned datatype `U` to distinguish type instances.
-//         #[serde(skip)]
-//         _inner: PhantomData<U>,
-//     }
-//
-// This was a breeze to implement with `sqlx`, but not with `diesel`. The trait system used by the
-// latter is incredibly convoluted and the maintainers have a very strong opinion regarding the use
-// of generics with diesel:
-//
-// - <https://github.com/diesel-rs/diesel/discussions/3880>
-// - <https://github.com/diesel-rs/diesel/discussions/4821>
-//
-// After having wasted waaay to many hours trying to figure out this trait system, I hereby
-// surrender.
-const ID_I32_UNINITIALIZED: i32 = -1;
+pub use crate::db::{ImageMetadata, ImageTag};
 
 /// Name of the image store folder that uploaded images will be stored temporarily in.
 const UPLOAD_SUBDIR: &str = "uploads";
@@ -75,116 +45,6 @@ pub enum ImageHandlerError {
 
     /// failed to process image metadata
     MetadataError,
-}
-
-/// The image metadata that can be requested for each uploaded image.
-#[derive(
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    diesel::Queryable,
-    diesel::Selectable,
-    diesel::Identifiable,
-    diesel::Insertable,
-    diesel::AsChangeset,
-    Debug,
-)]
-#[diesel(
-    table_name = bmr_image_metadatas,
-    check_for_backend(diesel::sqlite::Sqlite),
-    treat_none_as_null = true,
-)]
-pub struct ImageMetadata {
-    /// Internal ID of the database entry
-    id: i32,
-    /// sha256 checksum of the full user image.
-    pub sha256: String,
-    /// Name under which the user uploaded/saved the image
-    pub upload_name: String,
-    /// Name under which the image is stored in the filesystem.
-    ///
-    /// The name is always relative to the store directory.
-    pub file_name: String,
-    /// The size of the image in bytes
-    pub size_bytes: i64,
-    /// The time when the image was first stored
-    pub created_utc: DateTime<Utc>,
-    /// Architecture the image was built for
-    pub architecture: Option<String>,
-}
-
-/// A user-defined tag that can be attached to stored BMR images.
-///
-/// The `name` and `description` can hold arbitrary content defined by the user.
-///
-/// # Examples
-///
-/// Create a new tag and persist it in the database:
-///
-/// ```ignore
-/// let new_tag = ImageTag::new("some name", Some("an optional description"));
-/// let created_tag = ImageHandler::add_tag(new_tag).await.unwrap();
-/// ```
-///
-/// Modify an existing tag:
-///
-/// ```ignore
-/// let mut existing_tag = ImageHandler::list_tags().await.unwrap().first().unwrap();
-/// existing_tag.name = "a different name";
-/// let modified_tag = ImageHandler::modify_tag(existing_tag).await.unwrap();
-/// ```
-
-#[derive(
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    Debug,
-    PartialEq,
-    diesel::Queryable,
-    diesel::Selectable,
-    diesel::Identifiable,
-    diesel::AsChangeset,
-)]
-#[diesel(
-    table_name = bmr_image_tags,
-    check_for_backend(diesel::sqlite::Sqlite),
-    treat_none_as_null = true
-)]
-pub struct ImageTag {
-    /// Internal ID of the database entry
-    id: i32,
-    /// Human-readable name of the tag as shown in the UI.
-    pub name: String,
-    /// Human-readable description of what this tag represents.
-    pub description: Option<String>,
-}
-
-impl ImageTag {
-    /// Create a new tag for uploading into the database.
-    pub fn new<N: Into<String>, D: Into<String>>(name: N, description: Option<D>) -> Self {
-        Self {
-            id: ID_I32_UNINITIALIZED,
-            name: name.into(),
-            description: description.map(|d| d.into()),
-        }
-    }
-}
-
-#[derive(
-    diesel::Queryable, diesel::Identifiable, diesel::Selectable, diesel::Associations, Debug,
-)]
-#[diesel(
-    table_name = bmr_image_tag_map,
-    belongs_to(ImageMetadata, foreign_key = bmr_image_metadata_id),
-    belongs_to(ImageTag, foreign_key = bmr_image_tag_id),
-    primary_key(bmr_image_metadata_id, bmr_image_tag_id),
-    check_for_backend(diesel::sqlite::Sqlite)
-)]
-pub struct ImageTagMap {
-    #[diesel(column_name = "bmr_image_metadata_id")]
-    image_metadata_id: i32,
-    #[diesel(column_name = "bmr_image_tag_id")]
-    image_tag_id: i32,
 }
 
 /// Handles storage of boot images
@@ -358,7 +218,7 @@ impl ImageHandler {
                         // Filter for all the fields that users are *not* meant to modify to detect
                         // a) whether the user modified any of these fields, or b) the object in the
                         // DB has changed in the meantime.
-                        id.eq(&image.id)
+                        id.eq(&image.id())
                             .and(sha256.eq(&image.sha256))
                             .and(file_name.eq(&image.file_name))
                             .and(size_bytes.eq(&image.size_bytes))
@@ -480,7 +340,7 @@ impl ImageHandler {
                 use db_interaction::schema::bmr_image_tags::dsl::*;
                 use diesel::prelude::*;
 
-                diesel::update(bmr_image_tags.filter(id.eq(tag.id)))
+                diesel::update(bmr_image_tags.filter(id.eq(tag.id())))
                     .set(&tag)
                     .get_result(con)
             })
@@ -505,7 +365,7 @@ impl ImageHandler {
                 // <//gitlab.cyberus-technology.de/cyberus/cidoka/hwaas/hwaas/-/work_items/51>
                 diesel::delete(
                     bmr_image_tags.filter(
-                        id.eq(&tag.id)
+                        id.eq(&tag.id())
                             .and(name.eq(&tag.name))
                             .and(description.eq(&tag.description)),
                     ),
@@ -662,14 +522,21 @@ impl ImageHandler {
                 details: "cannot move image from temporary to permanent storage",
             })?;
 
-        Ok(ImageMetadata {
-            id: ID_I32_UNINITIALIZED,
-            size_bytes: image_size.try_into().unwrap(),
-            file_name: image_filename,
-            created_utc: chrono::DateTime::from(std::time::SystemTime::now()),
-            sha256: calculated_image_hash.0,
-            upload_name: user_specified_image_name,
+        let raw_size = i64::try_from(image_size).map_err(|error| {
+            error!(%error, "failed to convert image size to valid format");
+            ImageHandlerError::MetadataError
+        })?;
+        let image_size = ImageSize::new(raw_size).map_err(|error| {
+            error!(%error, "image has invalid size");
+            ImageHandlerError::MetadataError
+        })?;
+
+        Ok(ImageMetadata::new(crate::db::RawImageMetadata {
+            sha256: calculated_image_hash,
+            file_name: Some(user_specified_image_name),
             architecture: None,
-        })
+            size_bytes: image_size,
+            created_utc: None,
+        }))
     }
 }
