@@ -2,13 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use bytesize::ByteSize;
 use clap::Parser;
 use context_api_lib::api::get_api;
 use context_api_lib::{ContextApiConfig, WsGatewaySettings};
 use error_stack::{Context, Report, Result, ResultExt};
 use hunt::HuntBuilder;
-use image_api::ImageApiSettings;
 use std::fmt;
 use std::fs;
 use std::path::PathBuf;
