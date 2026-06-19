@@ -47,6 +47,11 @@ pub enum ImageHandlerError {
     MetadataError,
 }
 
+/// Convenience function to create [`ImageHandlerError::StorageError`] variants.
+fn to_storage_error(details: &'static str) -> impl FnOnce(std::io::Error) -> ImageHandlerError {
+    move |from: std::io::Error| ImageHandlerError::StorageError { from, details }
+}
+
 /// Handles storage of boot images
 #[derive(Clone)]
 pub struct ImageHandler {
@@ -182,9 +187,10 @@ impl ImageHandler {
                 error!(%error, "failed to store user image metadata in database");
                 let image_file = self
                     .resolve_image_path(&metadata.file_name)
-                    .map_err(|from| ImageHandlerError::StorageError {
-                        from: std::io::Error::other(from),
-                        details: "failed to resolve image file path to storage location",
+                    .map_err(|from| {
+                        to_storage_error("failed to resolve image file path to storage location")(
+                            std::io::Error::other(from),
+                        )
                     })?;
                 if let Err(e) = tokio::fs::remove_file(&image_file).await {
                     error!(error = %e, image = ?metadata, "failed to remove obsolete user image from disk");
@@ -281,16 +287,16 @@ impl ImageHandler {
 
         let image_file = self
             .resolve_image_path(&metadata.file_name)
-            .map_err(|from| ImageHandlerError::StorageError {
-                from: std::io::Error::other(from),
-                details: "failed to resolve image file path to storage location",
+            .map_err(|from| {
+                to_storage_error("failed to resolve image file path to storage location")(
+                    std::io::Error::other(from),
+                )
             })?;
         tokio::fs::remove_file(image_file)
             .await
-            .map_err(|from| ImageHandlerError::StorageError {
-                from,
-                details: "failed to remove image blob for deleted metadata entry",
-            })
+            .map_err(to_storage_error(
+                "failed to remove image blob for deleted metadata entry",
+            ))
     }
 
     /// List all tags currently known in the database.
@@ -449,22 +455,16 @@ impl ImageHandler {
             .create_new(true)
             .open(&tmp_storage_path)
             .await
-            .map_err(|from| ImageHandlerError::StorageError {
-                from,
-                details: "cannot open temporary storage location",
-            })?;
+            .map_err(to_storage_error("cannot open temporary storage location"))?;
 
         let image_metadata = self
             .handle_image(stream, file, &tmp_storage_path, metadata.user_file_name)
             .await;
 
         // delete tmp image regardless of the success of handle_image
-        let cleanup_result = remove_file(&tmp_storage_path).await.map_err(|io_err| {
-            ImageHandlerError::StorageError {
-                from: io_err,
-                details: "cannot remove temporary image file",
-            }
-        });
+        let cleanup_result = remove_file(&tmp_storage_path)
+            .await
+            .map_err(to_storage_error("cannot remove temporary image file"));
 
         match (image_metadata, cleanup_result) {
             (Ok(ret), Ok(_)) => Ok(ret),
@@ -490,38 +490,28 @@ impl ImageHandler {
         P: AsRef<Path>,
     {
         let tmp_storage_path = path.as_ref();
-        let (calculated_image_hash, image_size) =
-            write_and_hash(stream, file).await.map_err(|io_err| {
-                ImageHandlerError::StorageError {
-                    from: io_err,
-                    details: "failed to write and hash user image",
-                }
-            })?;
+        let (calculated_image_hash, image_size) = write_and_hash(stream, file)
+            .await
+            .map_err(to_storage_error("failed to write and hash user image"))?;
 
         let image_filename = format!("{}.bmrimg", calculated_image_hash);
         let target_image = self.resolve_image_path(&image_filename).map_err(|error| {
-            ImageHandlerError::StorageError {
-                from: std::io::Error::other(error),
-                details: "failed to assemble final image store location",
-            }
+            to_storage_error("failed to assemble final image store location")(
+                std::io::Error::other(error),
+            )
         })?;
 
         if target_image.is_file() {
-            remove_file(&target_image)
-                .await
-                .map_err(|io_err| ImageHandlerError::StorageError {
-                    from: io_err,
-                    details: "failed to remove previous image with identical name",
-                })?;
+            remove_file(&target_image).await.map_err(to_storage_error(
+                "failed to remove previous image with identical name",
+            ))?;
         }
 
         hard_link(&tmp_storage_path, &target_image)
             .await
-            .map_err(|io_err| ImageHandlerError::StorageError {
-                from: io_err,
-                details: "cannot move image from temporary to permanent storage",
-            })?;
-
+            .map_err(to_storage_error(
+                "cannot move image from temporary to permanent storage",
+            ))?;
         let raw_size = i64::try_from(image_size).map_err(|error| {
             error!(%error, "failed to convert image size to valid format");
             ImageHandlerError::MetadataError
