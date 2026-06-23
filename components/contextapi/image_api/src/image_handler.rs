@@ -88,7 +88,7 @@ impl ImageFilePath {
         let image_store_path = image_store.as_ref();
         let full_image_path = if rel_image_path.is_absolute() {
             rel_image_path.to_owned()
-        } else  {
+        } else {
             std::path::absolute(image_store_path.join(rel_image_path)).map_err(|_| {
                 ImageFilePathError {
                     path: rel_image_path.to_owned(),
@@ -492,11 +492,81 @@ impl ImageHandler {
             })
             .await
             .map_err(|e| {
-                error!(error = %e, "failed to update existing BMR image tag in the database");
+                error!(error = %e, ?image, "failed to fetch BMR image tags from the database");
                 ImageHandlerError::MetadataError
-            })?;
+            })
+    }
 
-        todo!()
+    /// Add one or more tags to a BMR image.
+    ///
+    /// Returns the number of tags added to the image.
+    #[tracing::instrument(skip(self))]
+    pub async fn add_tags_to_image<'a, T: IntoIterator<Item = &'a ImageTag> + std::fmt::Debug>(
+        &'a self,
+        tags: T,
+        image: &ImageMetadata,
+    ) -> Result<usize, ImageHandlerError> {
+        use db_interaction::schema::bmr_image_tag_map::dsl::*;
+        use diesel::prelude::*;
+
+        let insert = tags
+            .into_iter()
+            .map(|tag| {
+                (
+                    bmr_image_metadata_id.eq(image.id()),
+                    bmr_image_tag_id.eq(tag.id()),
+                )
+            })
+            .collect::<Vec<_>>();
+
+        self.db_connection
+            .execute_on_current_thread(|con| {
+                diesel::insert_into(bmr_image_tag_map)
+                    .values(insert)
+                    .execute(con)
+            })
+            .await
+            .map_err(|error| {
+                error!(%error, ?image, "failed to add tags to BMR image");
+                ImageHandlerError::MetadataError
+            })
+    }
+
+    /// Remove one or more tags from an existing BMR image.
+    ///
+    /// Returns the number of tags deleted from the image.
+    #[tracing::instrument(skip(self))]
+    pub async fn remove_tags_from_image<
+        'a,
+        T: IntoIterator<Item = &'a ImageTag> + std::fmt::Debug,
+    >(
+        &'a self,
+        tags: T,
+        image: &ImageMetadata,
+    ) -> Result<usize, ImageHandlerError> {
+        use db_interaction::schema::bmr_image_tag_map::dsl::*;
+        use diesel::prelude::*;
+
+        self.db_connection
+            .execute_on_current_thread(|con| {
+                let mut count = 0;
+                for tag in tags {
+                    let num_affected = diesel::delete(bmr_image_tag_map)
+                        .filter(
+                            bmr_image_metadata_id
+                                .eq(image.id())
+                                .and(bmr_image_tag_id.eq(tag.id())),
+                        )
+                        .execute(con)?;
+                    count += num_affected
+                }
+                Ok(count)
+            })
+            .await
+            .map_err(|error| {
+                error!(%error, ?image, "failed to add tags to BMR image");
+                ImageHandlerError::MetadataError
+            })
     }
 
     /// Get the metadata for the image that matches the given hash
