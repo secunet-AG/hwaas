@@ -20,9 +20,10 @@ use tokio::{
     fs::{File, OpenOptions, hard_link, remove_file},
     io::AsyncRead,
 };
-use tracing::error;
+use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
+use crate::filesystem::read_and_hash;
 use crate::{
     db::{ImageSize, ImageTagMap},
     filesystem::write_and_hash,
@@ -34,6 +35,8 @@ pub use crate::db::{ImageMetadata, ImageTag};
 
 /// Name of the image store folder that uploaded images will be stored temporarily in.
 const UPLOAD_SUBDIR: &str = "uploads";
+/// File extension for uploaded BMR images.
+const BMR_IMAGE_EXTENSION: &str = "bmrimg";
 
 /// Enum containing all errors that can occur during image handling.
 #[derive(Debug, thiserror::Error, displaydoc::Display)]
@@ -80,6 +83,14 @@ pub struct ImageFilePathError {
 }
 
 impl ImageFilePath {
+    /// Resolve an image file path.
+    ///
+    /// Takes an `image_store` which is the base directory of the BMR image store on disk and a
+    /// `image`, which must point to a file inside the image store.
+    ///
+    /// If `image` is an absolute path, it must be a subpath of `image_store`. Otherwise, `image` is
+    /// appended to the `image_store` as relative path and the resulting filepath is turned into an
+    /// absolute path.
     fn resolve<P1: AsRef<Path>, P2: AsRef<Path>>(
         image_store: P1,
         image: P2,
@@ -157,7 +168,7 @@ impl std::fmt::Debug for ImageHandler {
 /// If the ImageAPI is nested into a 'outer' API, the 'outer' state
 /// has to implement this trait.
 /// The outer state could not be known here and hence substate
-/// extraction for [`ImageApiHandler`] via FromRef is not
+/// extraction for [`ImageHandler`] via FromRef is not
 /// implementable. But a generic implementation allows it for
 /// any type implementing this trait.
 pub trait IntoImageHandler {
@@ -174,7 +185,10 @@ where
 }
 
 impl ImageHandler {
-    /// Create a new ImageHandler that stores all images in the given folder
+    /// Create a new ImageHandler that stores all images in the given folder.
+    ///
+    /// To migrate legacy images uploaded before image metadata was kept in a separate database,
+    /// run [`ImageHandler::migrate_legacy_images`] with the returned [`ImageHandler`] instance.
     pub fn new<P>(store_path: P, db_connection: Arc<DbFacade>) -> Result<Self, anyhow::Error>
     where
         P: AsRef<Path>,
@@ -188,35 +202,228 @@ impl ImageHandler {
             )
         })?;
 
-        // TODO(hartan): I guess this is a good place to perform a metadata migration...
-
         Ok(Self {
             store_path: store.to_path_buf(),
             db_connection,
         })
     }
 
-    pub fn resolve_image_path<P: AsRef<Path>>(&self, image: P) -> anyhow::Result<PathBuf> {
-        let rel_image_path = image.as_ref();
-        if rel_image_path.is_absolute() {
-            anyhow::bail!(
-                "refusing to resolve absolute image path {:?}",
-                rel_image_path
-            );
+    /// Migrate legacy images.
+    ///
+    /// Legacy images are identified by their existence on the filesystem, along with an identically
+    /// named file with a `.txt` file extension. This function will find all such files and migrate
+    /// them. The result is a vector of [`ImageMetadata`] containing the new metadata entries for
+    /// all migrated images. A result of `Err` means that either a migration couldn't be performed,
+    /// or a migration was performed but failed.
+    ///
+    /// Note that if migration is partially successful (i.e. some images were migrated but then one
+    /// image failed to migrate), there is no indication of which migrations were successful in the
+    /// returned error value. Successful migrations aren't "undone" in this case but remain in the
+    /// database untouched.
+    ///
+    /// ## Thread safety/Data races
+    ///
+    /// This function needs to interact with both the filesystem and the backing database image
+    /// store. Hence, it is prone to data races from multiple writers working on the same data
+    /// source. By taking a mutable reference to `Self`, we circumvent the need to introduce
+    /// locking. This only works if you respect the notes about *Multiple Instances* in the
+    /// [type-level docs](ImageHandler).
+    pub async fn migrate_legacy_images(&mut self) -> anyhow::Result<Vec<ImageMetadata>> {
+        let images_in_db = self
+            .list_images()
+            .await
+            .context("failed to query known images for legacy image migration tasks")?;
+
+        // List of image files covered by database metadata entries.
+        let mut files_from_db = vec![];
+        for image in images_in_db {
+            let image_path = match self.resolve_image_path(&image.file_name) {
+                Ok(value) => value,
+                Err(error) => {
+                    error!(?error, metadata = ?image, "failed to resolve backing file path from metadata");
+                    continue;
+                }
+            };
+            files_from_db.push(image_path);
         }
 
-        let full_image_path = std::path::absolute(self.store_path.join(rel_image_path))
-            .context("failed to resolve absolute path for image location")?;
+        let mut any_errors = false;
+        let mut migrated_images = vec![];
+        // NOTE: We can't refer to `self.store_path` because that'll create an immutable borrow,
+        // which collides with the mutable borrow of `migrate_legacy_image` below.
+        let image_store_path = self.store_path.clone();
+        let mut files_in_store = tokio::fs::read_dir(&image_store_path)
+            .await
+            .with_context(|| format!("failed to read files in {:?}", image_store_path))?;
+        let err_entry = || {
+            format!(
+                "failed to read next directory entry im image store {:?}",
+                image_store_path
+            )
+        };
 
-        if !full_image_path.starts_with(&self.store_path) {
-            anyhow::bail!(
-                "resolved image path {:?} points outside of image store directory {:?}",
-                full_image_path,
-                self.store_path
-            );
+        // Check all files in the filesystem first
+        while let Some(entry) = files_in_store.next_entry().await.with_context(err_entry)? {
+            let raw_entry_path = entry.path();
+            let err_context = || format!("failed to check or migrate file {:?}", &raw_entry_path);
+
+            if !raw_entry_path.is_file() {
+                debug!(entry = %raw_entry_path.display(), "skipping entry in image store since it's not a file");
+                continue;
+            }
+
+            let entry_path = match ImageFilePath::resolve(&image_store_path, &raw_entry_path)
+                .context("failed to resolve image store entry as image path")
+                .with_context(err_context)
+            {
+                Ok(value) => value,
+                Err(error) => {
+                    error!(?error, entry = %raw_entry_path.display());
+                    continue;
+                }
+            };
+
+            if files_from_db.iter().find(|p| *p == &entry_path).is_some() {
+                debug!("skipping dir entry with backing database metadata");
+                continue;
+            }
+
+            let maybe_metadata = entry_path.with_added_extension("txt");
+            if entry_path.exists() && maybe_metadata.exists() {
+                match self.migrate_legacy_image(entry_path).await {
+                    Ok(metadata) => {
+                        info!(
+                            metadata.id = metadata.id(),
+                            image_path = %raw_entry_path.display(),
+                            "legacy image migration complete"
+                        );
+                        migrated_images.push(metadata);
+                    }
+                    Err(error) => {
+                        error!(?error, "failed to migrate legacy image to database");
+                        any_errors = true;
+                    }
+                }
+            } else {
+                info!(path = %entry_path.display(), "ignoring unknown file in image store");
+            }
         }
 
-        Ok(self.store_path.join(rel_image_path))
+        if any_errors {
+            anyhow::bail!("One or more legacy images couldn't be migrated");
+        } else {
+            Ok(migrated_images)
+        }
+    }
+
+    /// Migrate a single legacy image.
+    ///
+    /// Upon success, the metadata of the migrated (and uploaded) image is returned.
+    async fn migrate_legacy_image(
+        &mut self,
+        image_path: ImageFilePath,
+    ) -> anyhow::Result<ImageMetadata> {
+        let image_stem = image_path
+            .file_stem()
+            .map(|os| os.to_string_lossy().to_string())
+            .context("failed to determine file stem from image path")?;
+
+        let metadata_file = image_path.with_extension("txt");
+        let user_file_name = match tokio::fs::read_to_string(&metadata_file).await {
+            Ok(name) => Some(name),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                anyhow::bail!(
+                    "cannot read metadata from nonexistent file, this is not a legacy image"
+                );
+            }
+            Err(error) => {
+                warn!(
+                    ?error,
+                    "failed to read legacy metadata, assuming default user file name"
+                );
+                None
+            }
+        };
+        tokio::fs::remove_file(metadata_file)
+            .await
+            .context("aborting image migration since metadata can't be deleted")?;
+        let metadata = image_path
+            .metadata()
+            .context("failed to query image file metadata")?;
+        let size_bytes = metadata.len();
+
+        let read_fd = tokio::fs::OpenOptions::new()
+            .read(true)
+            .write(false)
+            .open(&image_path)
+            .await
+            .with_context(|| format!("failed to open legacy image {:?} for reading", image_path))?;
+        let hash = match read_and_hash(read_fd).await {
+            Ok((hash, _)) => {
+                // Compare hashes just ot make sure the image wasn't modified.
+                if image_stem != hash.0 {
+                    anyhow::bail!(
+                        "hash mismatch while reading legacy image, expected {:?} but got {:?}, please investigate",
+                        image_stem,
+                        hash.0
+                    );
+                }
+                hash
+            }
+            Err(error) => {
+                warn!(
+                    %error,
+                    assumed_size = size_bytes,
+                    assumed_hash = image_stem,
+                    "failed to read image content, substituting last known hash and image size"
+                );
+                Sha256Hash::new(image_stem.to_string())
+                    .map_err(anyhow::Error::msg)
+                    // NOTE: This can't technically be the case at the moment, but if anyone
+                    // refactors this code who knows what'll happen.
+                    .context("legacy image has ill-formed hash value as file name")?
+            }
+        };
+
+        let read_fd = tokio::fs::OpenOptions::new()
+            .read(true)
+            .write(false)
+            .open(&image_path)
+            .await
+            .with_context(|| format!("failed to open legacy image {:?} for reading", image_path))?;
+
+        // NOTE: Strictly speaking this overwrites whatever the old upload date was with the date
+        // and time from `now`. But this is irrelevant to the point where we decided not to care
+        // about it.
+        let metadata = ExtraImageStoreData {
+            user_file_name: user_file_name
+                .unwrap_or_else(|| format!("{}.{}", hash, BMR_IMAGE_EXTENSION)),
+            compression: crate::image_api::Compression::None,
+        };
+        let db_metadata = self.add_image(read_fd, metadata).await?;
+
+        info!(
+            metadata.id = db_metadata.id(),
+            metadata.sha256 = db_metadata.sha256,
+            "legacy image metadata converted successfully"
+        );
+
+        if let Err(error) = tokio::fs::remove_file(&image_path).await {
+            error!(?error, "failed to remove legacy image file");
+        }
+        if let Err(error) = tokio::fs::remove_file(&image_path.with_added_extension("txt")).await {
+            error!(?error, "failed to remove legacy image metadata file");
+        }
+
+        Ok(db_metadata)
+    }
+
+    /// Resolve an image file path to an absolute image store location, if possible.
+    pub fn resolve_image_path<P: AsRef<Path>>(
+        &self,
+        image: P,
+    ) -> ImageFilePathResult<ImageFilePath> {
+        ImageFilePath::resolve(&self.store_path, image)
     }
 
     /// List all images that are currently in the store
@@ -651,7 +858,7 @@ impl ImageHandler {
             .await
             .map_err(to_storage_error("failed to write and hash user image"))?;
 
-        let image_filename = format!("{}.bmrimg", calculated_image_hash);
+        let image_filename = format!("{}.{}", calculated_image_hash, BMR_IMAGE_EXTENSION);
         let target_image = self.resolve_image_path(&image_filename).map_err(|error| {
             to_storage_error("failed to assemble final image store location")(
                 std::io::Error::other(error),
