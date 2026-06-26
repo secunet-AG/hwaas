@@ -127,6 +127,7 @@ impl From<RawImageMetadata> for ImageMetadata {
             id: ID_I32_UNINITIALIZED,
             sha256: value.sha256.0.clone(),
             file_name: value.file_name.unwrap_or(value.sha256.0.clone()),
+            upload_name: "INVALID".to_string(),
             size_bytes: value.size_bytes.0,
             created_utc: value
                 .created_utc
