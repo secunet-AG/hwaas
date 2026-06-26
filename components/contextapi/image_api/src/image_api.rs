@@ -218,7 +218,7 @@ async fn post_image(
     }
 
     let metadata = image_handler
-        .store_image(stream, metadata)
+        .add_image(stream, metadata)
         .await
         .map_err(image_handler_errors_to_http)?;
     Ok(Json::from(metadata))
