@@ -592,7 +592,7 @@ impl ImageHandler {
     }
 
     /// Store the given image along with the user defined image name and other metadata.
-    pub async fn store_image<S>(
+    async fn store_image<S>(
         &self,
         stream: S,
         metadata: ExtraImageStoreData,

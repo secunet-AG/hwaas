@@ -1,3 +1,8 @@
+#![allow(
+    dead_code,
+    reason = "this is shared test code, but clippy doesn't understand this"
+)]
+
 use anyhow::Context as _;
 use assert_fs::fixture::PathChild as _;
 use core::pin::Pin;
@@ -9,12 +14,15 @@ use std::cell::LazyCell;
 use std::panic::UnwindSafe;
 use std::path::PathBuf;
 use std::sync::Arc;
+use tokio::io::ReadBuf;
 
+/// A simple stream impl to mock image contents passed in from web forms.
 pub struct TestStream<'a> {
     storage: Vec<Result<&'a [u8], anyhow::Error>>,
 }
 
 impl<'a> TestStream<'a> {
+    /// Create a new byte stream that only produces bytes successfully.
     pub fn new<V: IntoIterator<Item = T>, T: Into<&'a [u8]>>(items: V) -> Self {
         let mut storage = items
             .into_iter()
@@ -26,6 +34,7 @@ impl<'a> TestStream<'a> {
         Self { storage }
     }
 
+    /// Create a new byte stream that may also return errors.
     pub fn new_with_err<V: IntoIterator<Item = Result<T, anyhow::Error>>, T: Into<&'a [u8]>>(
         items: V,
     ) -> Self {
@@ -40,14 +49,19 @@ impl<'a> TestStream<'a> {
     }
 }
 
-impl<'a> futures::Stream for TestStream<'a> {
-    type Item = Result<&'a [u8], anyhow::Error>;
-
-    fn poll_next(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        if let Some(byte_array) = self.get_mut().storage.pop() {
-            Poll::Ready(Some(byte_array))
-        } else {
-            Poll::Ready(None)
+impl<'a> tokio::io::AsyncRead for TestStream<'a> {
+    fn poll_read(
+        self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+        buf: &mut ReadBuf<'_>,
+    ) -> Poll<Result<(), std::io::Error>> {
+        match self.get_mut().storage.pop() {
+            Some(Ok(byte_array)) => {
+                buf.put_slice(byte_array);
+                Poll::Ready(Ok(()))
+            }
+            Some(error) => Poll::Ready(error.map(|_| ()).map_err(std::io::Error::other)),
+            None => Poll::Ready(Ok(())),
         }
     }
 }
@@ -59,6 +73,11 @@ thread_local! {
     });
 }
 
+/// Conveniently prepare a test environment.
+///
+/// Create a test-specific temporary directory and initialize a SQLite database instance with all
+/// migrations applied. Runs a user-provided closure within this environment to run the actual test
+/// code.
 pub async fn wrap<F>(test_fn: F) -> anyhow::Result<()>
 where
     F: AsyncFnOnce(ImageHandler, &std::path::Path) -> anyhow::Result<()>
@@ -133,12 +152,17 @@ where
         })
 }
 
+/// A file type for checking whether files/directories exist.
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum FileType {
     File,
     Directory,
 }
 
+/// Assert whether files or directories exist in a given location.
+///
+/// Will report both files that aren't expected but still exist as well as files that should exist
+/// but aren't present.
 pub async fn assert_files<
     P: AsRef<std::path::Path>,
     S: AsRef<std::ffi::OsStr>,
