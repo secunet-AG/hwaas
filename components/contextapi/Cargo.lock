@@ -689,14 +689,15 @@ dependencies = [
  "axum 0.7.9",
  "axum-extra",
  "bstr",
+ "chrono",
  "crossbeam-utils",
  "deadpool",
+ "displaydoc",
  "either",
  "form_urlencoded",
  "futures-channel",
  "futures-core",
  "futures-executor",
- "futures-io",
  "futures-sink",
  "futures-task",
  "futures-util",
@@ -710,8 +711,6 @@ dependencies = [
  "once_cell",
  "percent-encoding",
  "predicates",
- "proc-macro2",
- "quote",
  "rand 0.8.7",
  "regex-automata",
  "regex-syntax",
@@ -727,12 +726,17 @@ dependencies = [
  "syn 3.0.3",
  "sync_wrapper 1.0.2",
  "tempfile",
+ "test-log",
+ "test-log-core",
+ "test-log-macros",
+ "thiserror 2.0.19",
  "tokio",
  "tokio-stream",
  "tokio-util",
  "tower-http 0.6.11",
  "tracing",
  "tracing-core",
+ "tracing-subscriber",
  "url",
  "uuid 1.24.0",
 ]
@@ -2226,9 +2230,6 @@ name = "log"
 version = "0.4.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
-dependencies = [
- "value-bag",
-]
 
 [[package]]
 name = "lru-slab"
@@ -4687,12 +4688,6 @@ name = "valuable"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba73ea9cf16a25df0c8caa16c51acb937d5712a8429db78a3ee29d5dcacd3a65"
-
-[[package]]
-name = "value-bag"
-version = "1.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef73bfbaf3216cb59c205d7176bee1194e0d84348979da31f4a71fefe3c2054e"
 
 [[package]]
 name = "vcpkg"
