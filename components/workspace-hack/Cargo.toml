@@ -15,6 +15,7 @@ license = "Apache-2.0"
 ### BEGIN HAKARI SECTION
 [dependencies]
 aho-corasick = { version = "1" }
+anstream = { version = "1" }
 axum = { version = "0.7", features = ["macros", "multipart", "ws"] }
 axum-extra = { version = "0.9", features = ["typed-header", "typed-routing"] }
 bstr = { version = "1" }
@@ -71,12 +72,11 @@ uuid = { version = "1", features = ["fast-rng", "serde", "v4"] }
 
 [build-dependencies]
 byteorder = { version = "1" }
+displaydoc = { version = "0.2" }
 either = { version = "1", features = ["use_std"] }
 log = { version = "0.4", default-features = false, features = ["std"] }
 once_cell = { version = "1" }
 phf_shared = { version = "0.11", default-features = false, features = ["std"] }
-proc-macro2 = { version = "1" }
-quote = { version = "1" }
 rand = { version = "0.8", features = ["small_rng"] }
 rand_core = { version = "0.6", default-features = false, features = ["std"] }
 serde = { version = "1", features = ["derive"] }
