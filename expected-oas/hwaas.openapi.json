@@ -371,27 +371,50 @@
         "type": "string"
       },
       "ImageMetadata": {
-        "description": "The ImageMetadata that can be requested for each uploaded image",
+        "description": "The image metadata stored for each uploaded image.",
         "properties": {
-          "created": {
-            "$ref": "#/components/schemas/SystemTime",
-            "description": "The time when the image was first stored"
+          "architecture": {
+            "description": "Architecture the image was built for",
+            "type": [
+              "string",
+              "null"
+            ]
           },
-          "file_name": {
-            "description": "The user specified file name of the image",
+          "created_utc": {
+            "description": "The time when the image was first stored",
+            "format": "date-time",
             "type": "string"
           },
-          "size": {
-            "description": "The size of the image in bytes",
-            "format": "uint64",
-            "minimum": 0.0,
+          "file_name": {
+            "description": "Name under which the image is stored in the filesystem.\n\nThe name is always relative to the store directory.",
+            "type": "string"
+          },
+          "id": {
+            "description": "Internal ID of the database entry",
+            "format": "int32",
             "type": "integer"
+          },
+          "sha256": {
+            "description": "sha256 checksum of the full user image.",
+            "type": "string"
+          },
+          "size_bytes": {
+            "description": "The size of the image in bytes",
+            "format": "int64",
+            "type": "integer"
+          },
+          "upload_name": {
+            "description": "Name under which the user uploaded/saved the image",
+            "type": "string"
           }
         },
         "required": [
-          "created",
+          "created_utc",
           "file_name",
-          "size"
+          "id",
+          "sha256",
+          "size_bytes",
+          "upload_name"
         ],
         "type": "object"
       },
@@ -2862,25 +2885,6 @@
         },
         "required": [
           "path"
-        ],
-        "type": "object"
-      },
-      "SystemTime": {
-        "properties": {
-          "nanos_since_epoch": {
-            "format": "uint32",
-            "minimum": 0.0,
-            "type": "integer"
-          },
-          "secs_since_epoch": {
-            "format": "uint64",
-            "minimum": 0.0,
-            "type": "integer"
-          }
-        },
-        "required": [
-          "nanos_since_epoch",
-          "secs_since_epoch"
         ],
         "type": "object"
       },
