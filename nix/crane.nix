@@ -60,7 +60,11 @@
           pkgs.darwin.apple_sdk.frameworks.Security
         ];
 
-        nativeBuildInputs = [ pkgs.pkg-config ];
+        nativeBuildInputs = [
+          pkgs.pkg-config
+          # Used by contextapi for generate schemas
+          pkgs.diesel-cli
+        ];
       };
 
       # Build the dependency graph exactly once and allow all later
