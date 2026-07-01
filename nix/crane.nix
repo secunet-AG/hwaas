@@ -344,6 +344,7 @@
             ];
             unfilteredSources = [
               ../components/contextapi/db_interaction/migrations
+              ../components/contextapi/db_interaction/patches
               ../components/contextapi/context_data_structures/src/network/patch/test_fixtures
             ];
             packages = [
@@ -351,6 +352,7 @@
               "machine-ops"
             ];
             extraDeps = [ pkgs.sqlite ];
+            extraNativeDeps = [ pkgs.diesel-cli ];
             extraDepsDevShell = [ pkgs.diesel-cli ];
           };
         };
