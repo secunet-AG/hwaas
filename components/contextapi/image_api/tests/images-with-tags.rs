@@ -10,10 +10,13 @@ async fn add_image(
     content: &str,
 ) -> anyhow::Result<ImageMetadata> {
     let stream = TestStream::new([content.as_bytes()]);
-    let file_name = name.to_string();
+    let metadata = image_api::ExtraImageStoreData {
+        user_file_name: name.to_string(),
+        compression: image_api::Compression::None,
+    };
 
     handler
-        .add_image(stream, file_name)
+        .add_image(stream, metadata)
         .await
         .context("failed to add new image")
 }
