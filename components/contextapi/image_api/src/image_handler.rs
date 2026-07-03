@@ -504,7 +504,7 @@ impl ImageHandler {
     ///
     /// If you need to create a nonexistent image, use [`ImageHandler::add_image`].
     #[tracing::instrument]
-    pub async fn modify_image(
+    pub async fn modify_image_metadata(
         &self,
         image: ImageMetadata,
     ) -> Result<ImageMetadata, ImageHandlerError> {
@@ -778,7 +778,7 @@ impl ImageHandler {
 
     /// Get the metadata for the image that matches the given hash
     #[tracing::instrument(skip(self))]
-    pub async fn get_image_by_hash(
+    pub async fn get_image_metadata_by_hash(
         &self,
         image_hash: &Sha256Hash,
     ) -> Result<ImageMetadata, ImageHandlerError> {

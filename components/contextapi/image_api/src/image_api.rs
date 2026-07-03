@@ -129,7 +129,7 @@ async fn status_image(
     Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
 ) -> Result<impl IntoApiResponse, (StatusCode, String)> {
     let meta_data = image_handler
-        .get_image_by_hash(&image_hash)
+        .get_image_metadata_by_hash(&image_hash)
         .await
         .map_err(image_handler_errors_to_http)?;
     Ok(Json::from(meta_data))
