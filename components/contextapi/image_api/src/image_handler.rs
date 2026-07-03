@@ -152,7 +152,7 @@ impl std::ops::Deref for ImageFilePath {
 #[derive(Clone)]
 pub struct ImageHandler {
     /// Path to the folder where the images should be stored
-    pub store_path: PathBuf,
+    store_path: PathBuf,
     /// Database connection for metadata storage
     db_connection: Arc<DbFacade>,
 }
@@ -432,6 +432,40 @@ impl ImageHandler {
             reason: "given image hash does not have expected sha256 format",
         })?;
         ImageFilePath::resolve(&self.store_path, maybe_hash.0)
+    }
+
+    /// Get the path to a subdirectory in the image store.
+    ///
+    /// Various checks are performed to ensure that the subdirectory doesn't collide with
+    /// preexisting files or image paths that may be stored in the future.
+    pub fn get_subdir_in_image_store<P: AsRef<Path>>(&self, subdir: P) -> anyhow::Result<PathBuf> {
+        let subdir_path = subdir.as_ref();
+        if subdir_path
+            .file_name()
+            .is_none_or(|f| f != subdir_path.as_os_str())
+        {
+            anyhow::bail!(
+                "provided subdirectory {:?} must be a plain path component without nesting",
+                subdir_path
+            );
+        }
+        if subdir_path
+            .to_str()
+            // If it fails this, it's not a valid Unicode string and cannot be an ASCII hash either.
+            .and_then(|s| Sha256Hash::new(s.to_string()).ok())
+            .is_some()
+        {
+            anyhow::bail!("subdirectory must not be a sha256 hash sum");
+        }
+
+        let path = ImageFilePath::resolve(&self.store_path, subdir)
+            .context("failed to generate valid subdirectory path in image store")
+            .map(|p| p.0)?;
+        if path.is_file() {
+            anyhow::bail!("requested subdirectory path is already occupied by a file");
+        }
+
+        Ok(path)
     }
 
     /// List all images that are currently in the store
