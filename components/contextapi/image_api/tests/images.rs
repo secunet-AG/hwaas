@@ -2,6 +2,7 @@ mod common;
 
 use anyhow::Context as _;
 use common::{assert_files, FileType, TestStream};
+use image_api::ExtraImageStoreData;
 
 #[test_log::test(tokio::test)]
 async fn images_starts_empty() -> anyhow::Result<()> {
@@ -17,16 +18,23 @@ async fn images_starts_empty() -> anyhow::Result<()> {
     .await
 }
 
+fn image_meta(name: &'static str) -> ExtraImageStoreData {
+    ExtraImageStoreData {
+        user_file_name: name.to_string(),
+        compression: image_api::Compression::None,
+    }
+}
+
 #[test_log::test(tokio::test)]
 async fn can_add_single_image() -> anyhow::Result<()> {
     common::wrap(async |handler, _| {
         let sample_stream = TestStream::new(["a bunch of bytes".as_bytes()]);
 
         let new_image = handler
-            .add_image(sample_stream, "my cool image.bmrimg".to_string())
+            .add_image(sample_stream, image_meta("my cool image.bmrimg"))
             .await
             .context("image should be added")?;
-        assert_eq!(new_image.upload_name, "my cool image.bmrimg");
+        assert_eq!(new_image.file_name, "my cool image.bmrimg");
 
         let images = handler
             .list_images()
@@ -51,21 +59,21 @@ async fn can_add_multiple_images() -> anyhow::Result<()> {
         handler
             .add_image(
                 TestStream::new(["bytes for image one".as_bytes()]),
-                "one".to_string(),
+                image_meta("one"),
             )
             .await
             .context("image should be added")?;
         let second_image = handler
             .add_image(
                 TestStream::new(["bytes for image two".as_bytes()]),
-                "two".to_string(),
+                image_meta("two"),
             )
             .await
             .context("image should be added")?;
         handler
             .add_image(
                 TestStream::new(["bytes for image three".as_bytes()]),
-                "three".to_string(),
+                image_meta("three"),
             )
             .await
             .context("image should be added")?;
@@ -94,16 +102,16 @@ async fn can_modify_existing_image_partially() -> anyhow::Result<()> {
         let mut image = handler
             .add_image(
                 TestStream::new(["bytes for image one".as_bytes()]),
-                "one".to_string(),
+                image_meta("one"),
             )
             .await
             .context("image should be added")?;
 
-        image.upload_name = "two?".into();
+        image.file_name = "two?".into();
         image.architecture = Some("risc-v".into());
 
         let updated_image = handler
-            .modify_image(image)
+            .modify_image_metadata(image)
             .await
             .context("image metadata should be modified")?;
 
@@ -119,7 +127,7 @@ async fn can_modify_existing_image_partially() -> anyhow::Result<()> {
                 .first()
                 .expect("there should be image metadata in the database")
         );
-        assert_eq!(updated_image.upload_name, "two?");
+        assert_eq!(updated_image.file_name, "two?");
         assert!(updated_image.architecture.is_some_and(|s| s == "risc-v"));
 
         Ok(())
@@ -141,19 +149,18 @@ async fn must_not_modify_certain_image_fields() -> anyhow::Result<()> {
 
                 image.$field = $value;
 
-                handler.modify_image(image).await
+                handler.modify_image_metadata(image).await
             }};
         }
 
         handler
             .add_image(
                 TestStream::new(["bytes for sample image".as_bytes()]),
-                "one".to_string(),
+                image_meta("one"),
             )
             .await
             .expect("image should be added");
 
-        assert!(quick_modify!(file_name, "invalid".to_string()).is_err());
         let sample_hash = image_api::sha256hash::Sha256Hash::new(
             "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef".to_string(),
         )
@@ -169,11 +176,10 @@ async fn must_not_modify_certain_image_fields() -> anyhow::Result<()> {
 
         let fields = images
             .into_iter()
-            .fold((vec![], vec![], vec![], vec![]), |mut acc, obj| {
-                acc.0.push(obj.file_name);
-                acc.1.push(obj.sha256);
-                acc.2.push(obj.size_bytes);
-                acc.3.push(obj.created_utc);
+            .fold((vec![], vec![], vec![]), |mut acc, obj| {
+                acc.0.push(obj.sha256);
+                acc.1.push(obj.size_bytes);
+                acc.2.push(obj.created_utc);
                 acc
             });
         dbg!(&fields);
@@ -191,10 +197,6 @@ async fn must_not_modify_certain_image_fields() -> anyhow::Result<()> {
             .2
             .iter()
             .all(|elem| elem == fields.2.first().unwrap()));
-        assert!(fields
-            .3
-            .iter()
-            .all(|elem| elem == fields.3.first().unwrap()));
         Ok(())
     })
     .await
@@ -206,23 +208,23 @@ async fn change_single_image_only() -> anyhow::Result<()> {
         handler
             .add_image(
                 TestStream::new(["bytes for sample image".as_bytes()]),
-                "one".to_string(),
+                image_meta("one"),
             )
             .await
             .expect("image should be added");
         let mut image = handler
             .add_image(
                 TestStream::new(["moaaar bytes for another image".as_bytes()]),
-                "two".to_string(),
+                image_meta("two"),
             )
             .await
             .expect("image should be added");
 
-        image.upload_name = "three".into();
+        image.file_name = "three".into();
         image.architecture = Some("bla".into());
 
         let updated_image = handler
-            .modify_image(image)
+            .modify_image_metadata(image)
             .await
             .context("image metadata should be modified")?;
 
@@ -238,11 +240,11 @@ async fn change_single_image_only() -> anyhow::Result<()> {
                 .last()
                 .expect("there should be a tag in the database")
         );
-        assert_eq!(updated_image.upload_name, "three");
+        assert_eq!(updated_image.file_name, "three");
         assert!(updated_image.architecture.is_some_and(|d| d == "bla"));
 
         let first_image = images.first().unwrap();
-        assert_eq!(first_image.upload_name, "one");
+        assert_eq!(first_image.file_name, "one");
         assert!(first_image.architecture.is_none());
 
         Ok(())
@@ -251,14 +253,14 @@ async fn change_single_image_only() -> anyhow::Result<()> {
 }
 
 // NOTE: This behavior is dictated by the initial Web API, where inserting an existing image a
-// second time was not considered an error.
+// second time was not considered an error. Instead, certain metadata is in fact updated.
 #[test_log::test(tokio::test)]
 async fn can_insert_existent_image() -> anyhow::Result<()> {
     common::wrap(async |handler, _| {
         let metadata1 = handler
             .add_image(
                 TestStream::new(["bytes for image one".as_bytes()]),
-                "one".to_string(),
+                image_meta("one"),
             )
             .await
             .expect("tag should be added");
@@ -266,16 +268,17 @@ async fn can_insert_existent_image() -> anyhow::Result<()> {
         let maybe_metadata2 = handler
             .add_image(
                 TestStream::new(["bytes for image one".as_bytes()]),
-                "two".to_string(),
+                image_meta("two"),
             )
             .await;
         assert!(maybe_metadata2.is_ok());
         let metadata2 = maybe_metadata2.unwrap();
 
         assert_eq!(metadata1.sha256, metadata2.sha256);
-        assert_eq!(metadata1.upload_name, metadata2.upload_name);
-        // NOTE: Upload timestamp is updated to signal that this image is still of interest.
+        // NOTE: Upload timestamp and filename is updated to signal that this image is still of
+        // interest.
         assert_ne!(metadata1.created_utc, metadata2.created_utc);
+        assert_ne!(metadata1.file_name, metadata2.file_name);
 
         Ok(())
     })
@@ -288,7 +291,7 @@ async fn can_remove_images() -> anyhow::Result<()> {
         let image = handler
             .add_image(
                 TestStream::new(["bytes for image one".as_bytes()]),
-                "one".to_string(),
+                image_meta("one"),
             )
             .await
             .expect("image metadata should be added");
@@ -315,14 +318,14 @@ async fn can_remove_single_image_only() -> anyhow::Result<()> {
         let image = handler
             .add_image(
                 TestStream::new(["bytes for image one".as_bytes()]),
-                "one".to_string(),
+                image_meta("one"),
             )
             .await
             .expect("image metadata should be added");
         let second_image = handler
             .add_image(
                 TestStream::new(["bytes for image two".as_bytes()]),
-                "two".to_string(),
+                image_meta("two"),
             )
             .await
             .expect("image metadata should be added");
@@ -354,26 +357,26 @@ async fn images_are_written_to_disk() -> anyhow::Result<()> {
         let first_image = handler
             .add_image(
                 TestStream::new(["bytes for image one".as_bytes()]),
-                "one".to_string(),
+                image_meta("one"),
             )
             .await
             .expect("image metadata should be added");
         let second_image = handler
             .add_image(
                 TestStream::new(["bytes for image two".as_bytes()]),
-                "two".to_string(),
+                image_meta("two"),
             )
             .await
             .expect("image metadata should be added");
 
-        let first_image_path = image_store.join(first_image.file_name);
+        let first_image_path = image_store.join(first_image.sha256);
         assert!(first_image_path.exists());
         let image_content = tokio::fs::read_to_string(first_image_path)
             .await
             .context("failed to read image content from disk")?;
         assert_eq!(image_content, "bytes for image one");
 
-        assert!(image_store.join(second_image.file_name).exists());
+        assert!(image_store.join(second_image.sha256).exists());
 
         Ok(())
     })
@@ -389,7 +392,7 @@ async fn invalid_image_leaves_no_trace_in_fs() -> anyhow::Result<()> {
                     Ok("bytes for image one".as_bytes()),
                     Err(anyhow::Error::msg("Sorry, this won't work")),
                 ]),
-                "invalid".to_string(),
+                image_meta("invalid"),
             )
             .await;
         assert!(result.is_err());

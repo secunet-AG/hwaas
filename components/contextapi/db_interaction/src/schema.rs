@@ -4,7 +4,6 @@ diesel::table! {
     bmr_image_metadatas (id) {
         id -> Integer,
         sha256 -> Text,
-        upload_name -> Text,
         file_name -> Text,
         size_bytes -> BigInt,
         // NOTE(hartan): In my experience, letting the database itself "handle" datetimes and

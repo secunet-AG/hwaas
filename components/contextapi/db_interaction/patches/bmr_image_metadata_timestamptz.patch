@@ -5,7 +5,6 @@
      bmr_image_metadatas (id) {
          id -> Integer,
          sha256 -> Text,
-         upload_name -> Text,
          file_name -> Text,
          size_bytes -> BigInt,
 -        created_utc -> Timestamp,

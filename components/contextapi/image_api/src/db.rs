@@ -70,15 +70,12 @@ pub struct ImageMetadata {
     /// Internal ID of the database entry
     id: i32,
     /// sha256 checksum of the full user image.
+    // NOTE: This is also used as actual filename to identify the image on disk after uploading.
     pub sha256: String,
     /// Name under which the user uploaded/saved the image
-    pub upload_name: String,
-    /// Name under which the image is stored in the filesystem.
-    ///
-    /// The name is always relative to the store directory.
     pub file_name: String,
     /// The size of the image in bytes
-    // NOTE(hartan): SQlite doesn't support unsigned integers in diesel.
+    // NOTE(hartan): SQlite doesn't support unsigned long integers in diesel.
     pub size_bytes: i64,
     /// The time when the image was first stored
     pub created_utc: DateTime<Utc>,
@@ -127,7 +124,6 @@ impl From<RawImageMetadata> for ImageMetadata {
             id: ID_I32_UNINITIALIZED,
             sha256: value.sha256.0.clone(),
             file_name: value.file_name.unwrap_or(value.sha256.0.clone()),
-            upload_name: "INVALID".to_string(),
             size_bytes: value.size_bytes.0,
             created_utc: value
                 .created_utc

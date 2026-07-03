@@ -6,6 +6,13 @@
 //!
 //! The [`ImageHandler`] manages storage space for user-provided BMR images, which are booted on
 //! BMR targets during testing.
+//!
+//!
+//! ## Implementation notes
+//!
+//! At present, uploaded images are stored on disk named after their content sha256 hash sum without
+//! a file extension, **not after their `file_name`**. The latter is merely meant for users to
+//! identify their images and need not be unique.
 use anyhow::Context as _;
 use axum::extract::FromRef;
 use db_interaction::connection::DbFacade;
@@ -20,7 +27,7 @@ use tokio::{
     fs::{File, OpenOptions, hard_link, remove_file},
     io::AsyncRead,
 };
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info};
 use uuid::Uuid;
 
 use crate::filesystem::read_and_hash;
@@ -35,8 +42,6 @@ pub use crate::db::{ImageMetadata, ImageTag};
 
 /// Name of the image store folder that uploaded images will be stored temporarily in.
 const UPLOAD_SUBDIR: &str = "uploads";
-/// File extension for uploaded BMR images.
-const BMR_IMAGE_EXTENSION: &str = "bmrimg";
 
 /// Enum containing all errors that can occur during image handling.
 #[derive(Debug, thiserror::Error, displaydoc::Display)]
@@ -237,7 +242,7 @@ impl ImageHandler {
         // List of image files covered by database metadata entries.
         let mut files_from_db = vec![];
         for image in images_in_db {
-            let image_path = match self.resolve_image_path(&image.file_name) {
+            let image_path = match self.resolve_image_path_from_hash(image.sha256.to_string()) {
                 Ok(value) => value,
                 Err(error) => {
                     error!(?error, metadata = ?image, "failed to resolve backing file path from metadata");
@@ -396,8 +401,7 @@ impl ImageHandler {
         // and time from `now`. But this is irrelevant to the point where we decided not to care
         // about it.
         let metadata = ExtraImageStoreData {
-            user_file_name: user_file_name
-                .unwrap_or_else(|| format!("{}.{}", hash, BMR_IMAGE_EXTENSION)),
+            user_file_name: user_file_name.unwrap_or_else(|| hash.to_string()),
             compression: crate::image_api::Compression::None,
         };
         let db_metadata = self.add_image(read_fd, metadata).await?;
@@ -418,12 +422,16 @@ impl ImageHandler {
         Ok(db_metadata)
     }
 
-    /// Resolve an image file path to an absolute image store location, if possible.
-    pub fn resolve_image_path<P: AsRef<Path>>(
+    /// Resolve an image hash to an absolute image store location, if possible.
+    pub fn resolve_image_path_from_hash<H: TryInto<Sha256Hash>>(
         &self,
-        image: P,
+        hash: H,
     ) -> ImageFilePathResult<ImageFilePath> {
-        ImageFilePath::resolve(&self.store_path, image)
+        let maybe_hash = hash.try_into().map_err(|_| ImageFilePathError {
+            path: PathBuf::new(),
+            reason: "given image hash does not have expected sha256 format",
+        })?;
+        ImageFilePath::resolve(&self.store_path, maybe_hash.0)
     }
 
     /// List all images that are currently in the store
@@ -463,7 +471,6 @@ impl ImageHandler {
                 diesel::insert_into(bmr_image_metadatas)
                     .values((
                         sha256.eq(&metadata.sha256),
-                        upload_name.eq(&metadata.upload_name),
                         file_name.eq(&metadata.file_name),
                         size_bytes.eq(&metadata.size_bytes),
                         created_utc.eq(&metadata.created_utc),
@@ -471,7 +478,10 @@ impl ImageHandler {
                     ))
                     .on_conflict(sha256)
                     .do_update()
-                    .set(created_utc.eq(&metadata.created_utc))
+                    .set((
+                        created_utc.eq(&metadata.created_utc),
+                        file_name.eq(&metadata.file_name),
+                    ))
                     .get_result(con)
             })
             .await;
@@ -480,7 +490,7 @@ impl ImageHandler {
             Err(error) => {
                 error!(?error, "failed to store user image metadata in database");
                 let image_file = self
-                    .resolve_image_path(&metadata.file_name)
+                    .resolve_image_path_from_hash(metadata.sha256.to_string())
                     .map_err(|from| {
                         to_storage_error("failed to resolve image file path to storage location")(
                             std::io::Error::other(from),
@@ -496,7 +506,7 @@ impl ImageHandler {
 
     /// Modify an existing image in the database.
     ///
-    /// Only the user-defined `upload_name` and stored image `architecture` can be modified after
+    /// Only the user-defined `file_name` and stored image `architecture` can be modified after
     /// an image has been created. If any other metadata fields have been modified, the operation
     /// will fail. If you want to replace other metadata attributes, you must
     /// [delete](ImageHandler::remove_image) and [recreate](ImageHandler::add_image) the image from
@@ -520,13 +530,12 @@ impl ImageHandler {
                         // DB has changed in the meantime.
                         id.eq(&image.id())
                             .and(sha256.eq(&image.sha256))
-                            .and(file_name.eq(&image.file_name))
                             .and(size_bytes.eq(&image.size_bytes))
                             .and(created_utc.eq(&image.created_utc)),
                     ),
                 )
                 .set((
-                    upload_name.eq(&image.upload_name),
+                    file_name.eq(&image.file_name),
                     architecture.eq(&image.architecture),
                 ))
                 .get_result(con)
@@ -580,7 +589,7 @@ impl ImageHandler {
         };
 
         let image_file = self
-            .resolve_image_path(&metadata.file_name)
+            .resolve_image_path_from_hash(metadata.sha256.to_string())
             .map_err(|from| {
                 to_storage_error("failed to resolve image file path to storage location")(
                     std::io::Error::other(from),
@@ -858,12 +867,14 @@ impl ImageHandler {
             .await
             .map_err(to_storage_error("failed to write and hash user image"))?;
 
-        let image_filename = format!("{}.{}", calculated_image_hash, BMR_IMAGE_EXTENSION);
-        let target_image = self.resolve_image_path(&image_filename).map_err(|error| {
-            to_storage_error("failed to assemble final image store location")(
-                std::io::Error::other(error),
-            )
-        })?;
+        let image_filename = &calculated_image_hash;
+        let target_image = self
+            .resolve_image_path_from_hash(image_filename.to_string())
+            .map_err(|error| {
+                to_storage_error("failed to assemble final image store location")(
+                    std::io::Error::other(error),
+                )
+            })?;
 
         if target_image.is_file() {
             remove_file(&target_image).await.map_err(to_storage_error(
