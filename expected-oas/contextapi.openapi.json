@@ -370,7 +370,7 @@
             "type": "string"
           },
           "file_name": {
-            "description": "Name under which the image is stored in the filesystem.\n\nThe name is always relative to the store directory.",
+            "description": "Name under which the user uploaded/saved the image",
             "type": "string"
           },
           "id": {
@@ -386,10 +386,6 @@
             "description": "The size of the image in bytes",
             "format": "int64",
             "type": "integer"
-          },
-          "upload_name": {
-            "description": "Name under which the user uploaded/saved the image",
-            "type": "string"
           }
         },
         "required": [
@@ -397,8 +393,7 @@
           "file_name",
           "id",
           "sha256",
-          "size_bytes",
-          "upload_name"
+          "size_bytes"
         ],
         "type": "object"
       },

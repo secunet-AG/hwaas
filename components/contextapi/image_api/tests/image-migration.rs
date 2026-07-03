@@ -38,7 +38,7 @@ async fn migrate_single_image() -> anyhow::Result<()> {
             .context("image metadata should be readable")?;
         assert_eq!(images.len(), 1);
         let the_image = images.first().unwrap();
-        assert_eq!(the_image.upload_name, "image_name.iso");
+        assert_eq!(the_image.file_name, "image_name.iso");
         assert_eq!(the_image.size_bytes, 27);
         assert_eq!(the_image.sha256, image_hash);
 
