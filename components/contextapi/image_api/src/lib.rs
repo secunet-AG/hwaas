@@ -14,4 +14,5 @@ pub use image_api::{get_image_api_router, Compression, ExtraImageStoreData};
 pub use image_api_settings::ImageApiSettings;
 pub use image_handler::{
     ImageHandler, ImageHandlerError, ImageMetadata, ImageTag, IntoImageHandler,
+    MaintenanceOperations,
 };
