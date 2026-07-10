@@ -6,6 +6,7 @@ mod db;
 mod filesystem;
 mod image_api;
 mod image_api_settings;
+mod image_file_path;
 mod image_handler;
 pub mod sha256hash;
 
