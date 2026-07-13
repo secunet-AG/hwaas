@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build one nix package
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v25
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Build contextapi package
+        run: nix build .#packages.x86_64-linux.contextapi
+      - name: Build ws-gateway package
+        run: nix build .#packages.x86_64-linux.ws-gateway
+  test:
+    name: Test one nix package
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v25
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Run contextapi startup test
+        run: nix build .#checks.x86_64-linux.contextapi-startup-test
+      - name: Run contextapi serial test
+        run: nix build .#checks.x86_64-linux.contextapi-remote-serial-test
