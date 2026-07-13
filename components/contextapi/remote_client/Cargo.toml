@@ -1,0 +1,19 @@
+[package]
+name = "remote_client"
+version = "0.1.0"
+edition = "2021"
+license="Apache-2.0"
+
+[lib]
+name = "remote_client"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+axum.workspace = true
+db_interaction.workspace = true
+reqwest.workspace = true
+tracing.workspace = true
+contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }

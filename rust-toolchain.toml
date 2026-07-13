@@ -1,0 +1,16 @@
+[toolchain]
+channel = "stable"
+components = [
+  "cargo",
+  "clippy",
+  "rust-src",
+  "rustfmt",
+  "rust-docs",
+  "rust-std",
+  "llvm-tools-preview",
+]
+targets = [
+  "aarch64-unknown-linux-gnu",
+  "x86_64-unknown-linux-gnu",
+  "x86_64-unknown-linux-musl",
+]

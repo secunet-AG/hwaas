@@ -1,0 +1,3959 @@
+{
+  "components": {
+    "schemas": {
+      "ApiKeyLocation": {
+        "enum": [
+          "query",
+          "header",
+          "cookie"
+        ],
+        "type": "string"
+      },
+      "Components": {
+        "additionalProperties": true,
+        "description": "Holds a set of reusable objects for different aspects of the OAS. All objects defined within the components object will have no effect on the API unless they are explicitly referenced from properties outside the components object.",
+        "properties": {
+          "callbacks": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Map_of_ReferenceOr_for_PathItem"
+            },
+            "description": "An object to hold reusable Callback Objects.",
+            "type": "object"
+          },
+          "examples": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Example"
+            },
+            "description": "An object to hold reusable Example Objects.",
+            "type": "object"
+          },
+          "headers": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Header"
+            },
+            "description": "An object to hold reusable Header Objects.",
+            "type": "object"
+          },
+          "links": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Link"
+            },
+            "description": "An object to hold reusable Link Objects.",
+            "type": "object"
+          },
+          "parameters": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Parameter"
+            },
+            "description": "An object to hold reusable Parameter Objects.",
+            "type": "object"
+          },
+          "pathItems": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_PathItem"
+            },
+            "description": "An object to hold reusable Path Item Objects.",
+            "type": "object"
+          },
+          "requestBodies": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_RequestBody"
+            },
+            "description": "An object to hold reusable Request Body Objects.",
+            "type": "object"
+          },
+          "responses": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Response"
+            },
+            "description": "An object to hold reusable Response Objects.",
+            "type": "object"
+          },
+          "schemas": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SchemaObject"
+            },
+            "description": "An object to hold reusable Schema Objects.",
+            "type": "object"
+          },
+          "securitySchemes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_SecurityScheme"
+            },
+            "description": "An object to hold reusable Security Scheme Objects.",
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "Contact": {
+        "additionalProperties": true,
+        "description": "Contact information for the exposed API.",
+        "properties": {
+          "email": {
+            "description": "The email address of the contact person/organization. This MUST be in the format of an email address.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "description": "The identifying name of the contact person/organization.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "description": "The URL pointing to the contact information. This MUST be in the format of a URL.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ContextInfo": {
+        "description": "User-visible context information",
+        "properties": {
+          "lifetime": {
+            "description": "Remaining seconds for the context",
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lifetime"
+        ],
+        "type": "object"
+      },
+      "ContextPatch": {
+        "description": "Parameter changes desired by user in a PATCH request",
+        "properties": {
+          "lifetime": {
+            "description": "Context lifetime timeout in seconds",
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CookieStyle": {
+        "enum": [
+          "form"
+        ],
+        "type": "string"
+      },
+      "EmptyMap": {
+        "additionalProperties": false,
+        "description": "An empty map.",
+        "maxProperties": 0,
+        "type": "object"
+      },
+      "Encoding": {
+        "additionalProperties": true,
+        "description": "A single encoding definition applied to a single schema property.",
+        "properties": {
+          "allowReserved": {
+            "description": "Determines whether the parameter value SHOULD allow reserved characters, as defined by RFC3986 :/?#[]@!$&'()*+,;= to be included without percent-encoding. The default value is false. This property SHALL be ignored if the request body media type is not application/x-www-form-urlencoded or multipart/form-data. If a value is explicitly defined, then the value of `contentType` (implicit or explicit) SHALL be ignored.",
+            "type": "boolean"
+          },
+          "contentType": {
+            "description": "The Content-Type for encoding a specific property. Default value depends on the property type: for object - application/json; for array – the default is defined based on the inner type. for all other cases the default is `application/octet-stream`. The value can be a specific media type (e.g. application/json), a wildcard media type (e.g. image/*), or a comma-separated list of the two types.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "explode": {
+            "description": "When this is true, property values of type array or object generate separate parameters for each value of the array, or key-value-pair of the map. For other types of properties this property has no effect. When style is form, the default value is true. For all other styles, the default value is false. This property SHALL be ignored if the request body media type is not application/x-www-form-urlencoded or multipart/form-data. If a value is explicitly defined, then the value of `contentType` (implicit or explicit) SHALL be ignored.\n\nIn this Library this value defaults to false always despite the specification.",
+            "type": "boolean"
+          },
+          "headers": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Header"
+            },
+            "description": "A map allowing additional information to be provided as headers, for example Content-Disposition. Content-Type is described separately and SHALL be ignored in this section. This property SHALL be ignored if the request body media type is not a multipart.",
+            "type": "object"
+          },
+          "style": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QueryStyle"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Describes how a specific property value will be serialized depending on its type. See Parameter Object for details on the style property. The behavior follows the same values as query parameters, including default values. This property SHALL be ignored if the request body media type is not application/x-www-form-urlencoded  or multipart/form-data. If a value is explicitly defined, then the value of `contentType` (implicit or explicit) SHALL be ignored."
+          }
+        },
+        "type": "object"
+      },
+      "Example": {
+        "additionalProperties": true,
+        "properties": {
+          "description": {
+            "description": "Long description for the example. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "externalValue": {
+            "description": "A URI that points to the literal example. This provides the capability to reference examples that cannot easily be included in JSON or YAML documents. The `value` field and `externalValue` field are mutually exclusive. See the rules for resolving Relative References.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "summary": {
+            "description": "Short description for the example.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "value": {
+            "description": "Embedded literal example. The `value` field and `externalValue` field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON or YAML, use a string value to contain the example, escaping where necessary."
+          }
+        },
+        "type": "object"
+      },
+      "ExternalDocumentation": {
+        "additionalProperties": true,
+        "description": "Allows referencing an external resource for extended documentation.",
+        "properties": {
+          "description": {
+            "description": "A description of the target documentation. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "description": "REQUIRED. The URL for the target documentation. This MUST be in the format of a URL.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "Header": {
+        "additionalProperties": true,
+        "description": "The Header Object follows the structure of the Parameter Object with the following changes:\n\n1) name MUST NOT be specified, it is given in the corresponding headers map. 2) in MUST NOT be specified, it is implicitly in header. 3) All traits that are affected by the location MUST be applicable to a location of header (for example, style).",
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "description": "The schema defining the type used for the parameter.",
+            "properties": {
+              "schema": {
+                "$ref": "#/components/schemas/SchemaObject"
+              }
+            },
+            "required": [
+              "schema"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "description": "A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry.",
+            "properties": {
+              "content": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/MediaType"
+                },
+                "type": "object"
+              }
+            },
+            "required": [
+              "content"
+            ],
+            "type": "object"
+          }
+        ],
+        "properties": {
+          "deprecated": {
+            "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "description": {
+            "description": "A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "example": true,
+          "examples": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Example"
+            },
+            "type": "object"
+          },
+          "required": {
+            "description": "Determines whether this parameter is mandatory. If the parameter location is \"path\", this property is REQUIRED and its value MUST be true. Otherwise, the property MAY be included and its default value is false.",
+            "type": "boolean"
+          },
+          "style": {
+            "$ref": "#/components/schemas/HeaderStyle",
+            "default": "simple"
+          }
+        },
+        "type": "object"
+      },
+      "HeaderStyle": {
+        "enum": [
+          "simple"
+        ],
+        "type": "string"
+      },
+      "ImageMetadata": {
+        "description": "The ImageMetadata that can be requested for each uploaded image",
+        "properties": {
+          "created": {
+            "$ref": "#/components/schemas/SystemTime",
+            "description": "The time when the image was first stored"
+          },
+          "file_name": {
+            "description": "The user specified file name of the image",
+            "type": "string"
+          },
+          "size": {
+            "description": "The size of the image in bytes",
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "created",
+          "file_name",
+          "size"
+        ],
+        "type": "object"
+      },
+      "Info": {
+        "additionalProperties": true,
+        "description": "The object provides metadata about the API. The metadata MAY be used by the clients if needed, and MAY be presented in editing or documentation generation tools for convenience.",
+        "properties": {
+          "contact": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Contact"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The contact information for the exposed API."
+          },
+          "description": {
+            "description": "A description of the API. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "license": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/License"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The license information for the exposed API."
+          },
+          "summary": {
+            "description": "A short summary of the API.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "termsOfService": {
+            "description": "A URL to the Terms of Service for the API. This MUST be in the format of a URL.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "title": {
+            "description": "REQUIRED. The title of the application.",
+            "type": "string"
+          },
+          "version": {
+            "description": "REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI Specification version or the API implementation version).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "version"
+        ],
+        "type": "object"
+      },
+      "InstanceType": {
+        "description": "The possible types of values in JSON Schema documents.\n\nSee [JSON Schema 4.2.1. Instance Data Model](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-4.2.1).",
+        "enum": [
+          "null",
+          "boolean",
+          "object",
+          "array",
+          "number",
+          "string",
+          "integer"
+        ],
+        "type": "string"
+      },
+      "InterfaceJsonPtr": {
+        "description": "JSON Pointer to a `TaggedMachineNetworkInterface` within a `NetworkSetup` (e.g. \"/abmr/lan1\").",
+        "minLength": 4,
+        "pattern": "^\\/([^\\/]+)(\\/)([^\\/]+)",
+        "type": "string"
+      },
+      "InventoryEntry": {
+        "description": "A machine with reserved/available state, and metadata properties.",
+        "properties": {
+          "estimated_reservation_duration": {
+            "description": "The estimated number of seconds remaining of the machine reservation.",
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "machine_id": {
+            "description": "The machine's unique identifier.",
+            "format": "uint16",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/MachineProperties"
+          },
+          "state": {
+            "$ref": "#/components/schemas/InventoryEntryState"
+          }
+        },
+        "required": [
+          "machine_id",
+          "properties",
+          "state"
+        ],
+        "type": "object"
+      },
+      "InventoryEntryState": {
+        "description": "The possible states of a Machine in the Inventory.",
+        "oneOf": [
+          {
+            "description": "The Machine can be reserved",
+            "enum": [
+              "free"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "The Machine has been reserved",
+            "enum": [
+              "reserved"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "The Machine is no longer reserved and is in the process of being freed.\n\nThis might take a while.",
+            "enum": [
+              "reservation_ended"
+            ],
+            "type": "string"
+          }
+        ]
+      },
+      "License": {
+        "additionalProperties": true,
+        "description": "License information for the exposed API.",
+        "properties": {
+          "identifier": {
+            "description": "An [SPDX](https://spdx.org/spdx-specification-21-web-version#h.jxpfx0ykyb60) license expression for the API. The `identifier` field is mutually exclusive of the `url` field.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "description": "REQUIRED. The license name used for the API.",
+            "type": "string"
+          },
+          "url": {
+            "description": "A URL to the license used for the API. This MUST be in the form of a URL. The `url` field is mutually exclusive of the `identifier` field.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "Link": {
+        "additionalProperties": true,
+        "description": "The Link object represents a possible design-time link for a response. The presence of a link does not guarantee the caller's ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.\n\nUnlike dynamic links (i.e. links provided in the response payload), the OAS linking mechanism does not require link information in the runtime response.\n\nFor computing links, and providing instructions to execute them, a runtime expression is used for accessing values in an operation and using them as parameters while invoking the linked operation.",
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "description": "A relative or absolute reference to an OAS operation. This field is mutually exclusive of the operationId field, and MUST point to an Operation Object. Relative operationRef values MAY be used to locate an existing Operation Object in the OpenAPI definition. See the rules for resolving Relative References.",
+            "properties": {
+              "operationRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "operationRef"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "description": "The name of an existing, resolvable OAS operation, as defined with a unique operationId. This field is mutually exclusive of the operationRef field.",
+            "properties": {
+              "operationId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "operationId"
+            ],
+            "type": "object"
+          }
+        ],
+        "properties": {
+          "description": {
+            "description": "A description of the link. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "description": "A map representing parameters to pass to an operation as specified with operationId or identified via operationRef. The key is the parameter name to be used, whereas the value can be a constant or an expression to be evaluated and passed to the linked operation. The parameter name can be qualified using the parameter location [{in}.]{name} for operations that use the same parameter name in different locations (e.g. path.id).",
+            "type": "object"
+          },
+          "requestBody": {
+            "description": "A literal value or {expression} to use as a request body when calling the target operation."
+          },
+          "server": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Server"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A server object to be used by the target operation."
+          }
+        },
+        "type": "object"
+      },
+      "MachineInfo": {
+        "description": "Information about the Machine.",
+        "properties": {
+          "id": {
+            "description": "The id of the Machine.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "platform": {
+            "description": "The platform of the Machine",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "platform"
+        ],
+        "type": "object"
+      },
+      "MachineInterfaceSet": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/EmptyMap"
+        },
+        "description": "A collection of network interfaces.",
+        "minProperties": 1,
+        "type": "object"
+      },
+      "MachineJsonPtr": {
+        "description": "JSON Pointer to a `MachineName` within a `NetworkSetup` (e.g. \"/abmr\").",
+        "minLength": 2,
+        "pattern": "^\\/([^\\/]+)",
+        "type": "string"
+      },
+      "MachineProperties": {
+        "description": "The properties of a Machine.",
+        "properties": {
+          "platform": {
+            "description": "The platform of the Machine.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "platform"
+        ],
+        "type": "object"
+      },
+      "MediaType": {
+        "additionalProperties": true,
+        "properties": {
+          "encoding": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Encoding"
+            },
+            "type": "object"
+          },
+          "example": true,
+          "examples": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Example"
+            },
+            "type": "object"
+          },
+          "schema": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SchemaObject"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "NetworkSetup": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/MachineInterfaceSet"
+        },
+        "description": "A mapping between machine names and their network interfaces participating in the same network.",
+        "type": "object"
+      },
+      "NetworkSetupPatchOp": {
+        "description": "Parsed JSON Patch operation.",
+        "oneOf": [
+          {
+            "anyOf": [
+              {
+                "properties": {
+                  "path": {
+                    "$ref": "#/components/schemas/InterfaceJsonPtr"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "path": {
+                    "$ref": "#/components/schemas/MachineJsonPtr"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            ],
+            "description": "`NetworkSetup` JSON Patch remove operation.",
+            "properties": {
+              "op": {
+                "enum": [
+                  "remove"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "op"
+            ],
+            "type": "object"
+          },
+          {
+            "anyOf": [
+              {
+                "properties": {
+                  "path": {
+                    "$ref": "#/components/schemas/InterfaceJsonPtr"
+                  },
+                  "value": {
+                    "$ref": "#/components/schemas/EmptyMap"
+                  }
+                },
+                "required": [
+                  "path",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "path": {
+                    "$ref": "#/components/schemas/MachineJsonPtr"
+                  },
+                  "value": {
+                    "$ref": "#/components/schemas/MachineInterfaceSet"
+                  }
+                },
+                "required": [
+                  "path",
+                  "value"
+                ],
+                "type": "object"
+              }
+            ],
+            "description": "`NetworkSetup` JSON Patch add operation.",
+            "properties": {
+              "op": {
+                "enum": [
+                  "add"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "op"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "OAuth2Flows": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "implicit": {
+                "properties": {
+                  "authorizationUrl": {
+                    "type": "string"
+                  },
+                  "refreshUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "scopes": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "default": {},
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "authorizationUrl"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "implicit"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "password": {
+                "properties": {
+                  "refreshUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "scopes": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "default": {},
+                    "type": "object"
+                  },
+                  "tokenUrl": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "tokenUrl"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "password"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "clientCredentials": {
+                "properties": {
+                  "refreshUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "scopes": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "default": {},
+                    "type": "object"
+                  },
+                  "tokenUrl": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "tokenUrl"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "clientCredentials"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "authorizationCode": {
+                "properties": {
+                  "authorizationUrl": {
+                    "type": "string"
+                  },
+                  "refreshUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "scopes": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "default": {},
+                    "type": "object"
+                  },
+                  "tokenUrl": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "authorizationUrl",
+                  "tokenUrl"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "authorizationCode"
+            ],
+            "type": "object"
+          }
+        ],
+        "type": "object"
+      },
+      "OpenApi": {
+        "additionalProperties": true,
+        "properties": {
+          "components": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Components"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "An element to hold various schemas for the document."
+          },
+          "externalDocs": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExternalDocumentation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Additional external documentation."
+          },
+          "info": {
+            "$ref": "#/components/schemas/Info",
+            "description": "REQUIRED. Provides metadata about the API. The metadata MAY be used by tooling as required."
+          },
+          "jsonSchemaDialect": {
+            "description": "The default value for the `$schema` keyword within Schema Objects contained within this OAS document. This MUST be in the form of a URI.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "openapi": {
+            "type": "string"
+          },
+          "paths": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Paths"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The available paths and operations for the API."
+          },
+          "security": {
+            "description": "A declaration of which security mechanisms can be used across the API. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a request. Individual operations can override this definition. Global security settings may be overridden on a per-path basis.",
+            "items": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "servers": {
+            "description": "An array of Server Objects, which provide connectivity information to a target server. If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.",
+            "items": {
+              "$ref": "#/components/schemas/Server"
+            },
+            "type": "array"
+          },
+          "tags": {
+            "description": "A list of tags used by the document with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tool's logic. Each tag name in the list MUST be unique.",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            },
+            "type": "array"
+          },
+          "webhooks": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_PathItem"
+            },
+            "description": "The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement. Closely related to the `callbacks` feature, this section describes requests initiated other than by an API call, for example by an out of band registration. The key name is a unique string to refer to each webhook, while the (optionally referenced) Path Item Object describes a request that may be initiated by the API provider and the expected responses.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "info",
+          "openapi"
+        ],
+        "type": "object"
+      },
+      "Operation": {
+        "additionalProperties": true,
+        "description": "Describes a single API operation on a path.",
+        "properties": {
+          "callbacks": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Map_of_ReferenceOr_for_PathItem"
+            },
+            "description": "Callbacks for the operation.",
+            "type": "object"
+          },
+          "deprecated": {
+            "description": "Declares this operation to be deprecated.Default value is false.",
+            "type": "boolean"
+          },
+          "description": {
+            "description": "A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "externalDocs": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExternalDocumentation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Additional external documentation for this operation."
+          },
+          "operationId": {
+            "description": "Unique string used to identify the operation. The id MUST be unique among all operations described in the API. Tools and libraries MAY use the operationId to uniquely identify an operation, therefore, it is RECOMMENDED to follow common programming naming conventions.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "parameters": {
+            "description": "A list of parameters that are applicable for this operation. If a parameter is already defined at the Path Item, the new definition will override it but can never remove it. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined at the OpenAPI Object's components/parameters.",
+            "items": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Parameter"
+            },
+            "type": "array"
+          },
+          "requestBody": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReferenceOr_for_RequestBody"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the HTTP 1.1 specification RFC7231 has explicitly defined semantics for request bodies. In other cases where the HTTP spec is vague (such as [GET](https://tools.ietf.org/html/rfc7231#section-4.3.1), [HEAD](https://tools.ietf.org/html/rfc7231#section-4.3.2) and [DELETE](https://tools.ietf.org/html/rfc7231#section-4.3.5)), requestBody is permitted but does not have well-defined semantics and SHOULD be avoided if possible."
+          },
+          "responses": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Responses"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The list of possible responses as they are returned from executing this operation."
+          },
+          "security": {
+            "description": "A declaration of which security mechanisms can be used for this operation. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a request. This definition overrides any declared top-level security. To remove a top-level security declaration, an empty array can be used.",
+            "items": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "servers": {
+            "description": "An alternative server array to service this operation. If an alternative server object is specified at the Path Item Object or Root level, it will be overridden by this value.",
+            "items": {
+              "$ref": "#/components/schemas/Server"
+            },
+            "type": "array"
+          },
+          "summary": {
+            "description": "A short summary of what the operation does.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tags": {
+            "description": "A list of tags for API documentation control. Tags can be used for logical grouping of operations by resources or any other qualifier.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "Parameter": {
+        "oneOf": [
+          {
+            "additionalProperties": true,
+            "description": "Describes a single operation parameter.\n\nA unique parameter is defined by a combination of a name and location.",
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "description": "The schema defining the type used for the parameter.",
+                "properties": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SchemaObject"
+                  }
+                },
+                "required": [
+                  "schema"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "description": "A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry.",
+                "properties": {
+                  "content": {
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/MediaType"
+                    },
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "type": "object"
+              }
+            ],
+            "properties": {
+              "allow_empty_value": {
+                "description": "Sets the ability to pass empty-valued parameters. This is valid only for query parameters and allows sending a parameter with an empty value. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "allow_reserved": {
+                "description": "Determines whether the parameter value SHOULD allow reserved characters, as defined by RFC3986 :/?#[]@!$&'()*+,;= to be included without percent-encoding. This property only applies to parameters with an in value of query. The default value is false.",
+                "type": "boolean"
+              },
+              "deprecated": {
+                "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "description": {
+                "description": "A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "example": true,
+              "examples": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ReferenceOr_for_Example"
+                },
+                "type": "object"
+              },
+              "explode": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "in": {
+                "enum": [
+                  "query"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "description": "REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is \"path\", the name field MUST correspond to the associated path segment from the path field in the Paths Object. See Path Templating for further information.\n\nIf in is \"header\" and the name field is \"Accept\", \"Content-Type\" or \"Authorization\", the parameter definition SHALL be ignored.\n\nFor all other cases, the name corresponds to the parameter name used by the in property.",
+                "type": "string"
+              },
+              "required": {
+                "description": "Determines whether this parameter is mandatory. If the parameter location is \"path\", this property is REQUIRED and its value MUST be true. Otherwise, the property MAY be included and its default value is false.",
+                "type": "boolean"
+              },
+              "style": {
+                "$ref": "#/components/schemas/QueryStyle",
+                "default": "form",
+                "description": "Describes how the parameter value will be serialized depending on the type of the parameter value. Default values (based on value of in): for query - form; for path - simple; for header - simple; for cookie - form."
+              }
+            },
+            "required": [
+              "in",
+              "name"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": true,
+            "description": "Describes a single operation parameter.\n\nA unique parameter is defined by a combination of a name and location.",
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "description": "The schema defining the type used for the parameter.",
+                "properties": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SchemaObject"
+                  }
+                },
+                "required": [
+                  "schema"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "description": "A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry.",
+                "properties": {
+                  "content": {
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/MediaType"
+                    },
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "type": "object"
+              }
+            ],
+            "properties": {
+              "deprecated": {
+                "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "description": {
+                "description": "A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "example": true,
+              "examples": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ReferenceOr_for_Example"
+                },
+                "type": "object"
+              },
+              "explode": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "in": {
+                "enum": [
+                  "header"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "description": "REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is \"path\", the name field MUST correspond to the associated path segment from the path field in the Paths Object. See Path Templating for further information.\n\nIf in is \"header\" and the name field is \"Accept\", \"Content-Type\" or \"Authorization\", the parameter definition SHALL be ignored.\n\nFor all other cases, the name corresponds to the parameter name used by the in property.",
+                "type": "string"
+              },
+              "required": {
+                "description": "Determines whether this parameter is mandatory. If the parameter location is \"path\", this property is REQUIRED and its value MUST be true. Otherwise, the property MAY be included and its default value is false.",
+                "type": "boolean"
+              },
+              "style": {
+                "$ref": "#/components/schemas/HeaderStyle",
+                "default": "simple",
+                "description": "Describes how the parameter value will be serialized depending on the type of the parameter value. Default values (based on value of in): for query - form; for path - simple; for header - simple; for cookie - form."
+              }
+            },
+            "required": [
+              "in",
+              "name"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": true,
+            "description": "Describes a single operation parameter.\n\nA unique parameter is defined by a combination of a name and location.",
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "description": "The schema defining the type used for the parameter.",
+                "properties": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SchemaObject"
+                  }
+                },
+                "required": [
+                  "schema"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "description": "A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry.",
+                "properties": {
+                  "content": {
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/MediaType"
+                    },
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "type": "object"
+              }
+            ],
+            "properties": {
+              "deprecated": {
+                "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "description": {
+                "description": "A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "example": true,
+              "examples": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ReferenceOr_for_Example"
+                },
+                "type": "object"
+              },
+              "explode": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "in": {
+                "enum": [
+                  "path"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "description": "REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is \"path\", the name field MUST correspond to the associated path segment from the path field in the Paths Object. See Path Templating for further information.\n\nIf in is \"header\" and the name field is \"Accept\", \"Content-Type\" or \"Authorization\", the parameter definition SHALL be ignored.\n\nFor all other cases, the name corresponds to the parameter name used by the in property.",
+                "type": "string"
+              },
+              "required": {
+                "description": "Determines whether this parameter is mandatory. If the parameter location is \"path\", this property is REQUIRED and its value MUST be true. Otherwise, the property MAY be included and its default value is false.",
+                "type": "boolean"
+              },
+              "style": {
+                "$ref": "#/components/schemas/PathStyle",
+                "default": "simple",
+                "description": "Describes how the parameter value will be serialized depending on the type of the parameter value. Default values (based on value of in): for query - form; for path - simple; for header - simple; for cookie - form."
+              }
+            },
+            "required": [
+              "in",
+              "name"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": true,
+            "description": "Describes a single operation parameter.\n\nA unique parameter is defined by a combination of a name and location.",
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "description": "The schema defining the type used for the parameter.",
+                "properties": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SchemaObject"
+                  }
+                },
+                "required": [
+                  "schema"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "description": "A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry.",
+                "properties": {
+                  "content": {
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/MediaType"
+                    },
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "type": "object"
+              }
+            ],
+            "properties": {
+              "deprecated": {
+                "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "description": {
+                "description": "A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "example": true,
+              "examples": {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ReferenceOr_for_Example"
+                },
+                "type": "object"
+              },
+              "explode": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "in": {
+                "enum": [
+                  "cookie"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "description": "REQUIRED. The name of the parameter. Parameter names are case sensitive. If in is \"path\", the name field MUST correspond to the associated path segment from the path field in the Paths Object. See Path Templating for further information.\n\nIf in is \"header\" and the name field is \"Accept\", \"Content-Type\" or \"Authorization\", the parameter definition SHALL be ignored.\n\nFor all other cases, the name corresponds to the parameter name used by the in property.",
+                "type": "string"
+              },
+              "required": {
+                "description": "Determines whether this parameter is mandatory. If the parameter location is \"path\", this property is REQUIRED and its value MUST be true. Otherwise, the property MAY be included and its default value is false.",
+                "type": "boolean"
+              },
+              "style": {
+                "$ref": "#/components/schemas/CookieStyle",
+                "default": "form",
+                "description": "Describes how the parameter value will be serialized depending on the type of the parameter value. Default values (based on value of in): for query - form; for path - simple; for header - simple; for cookie - form."
+              }
+            },
+            "required": [
+              "in",
+              "name"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "PathItem": {
+        "additionalProperties": true,
+        "description": "Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.",
+        "properties": {
+          "$ref": {
+            "description": "Allows for a referenced definition of this path item. The referenced structure MUST be in the form of a Path Item Object.  In case a Path Item Object field appears both in the defined object and the referenced object, the behavior is undefined. See the rules for resolving Relative References.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "delete": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Operation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "description": "An optional, string description, intended to apply to all operations in this path. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "get": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Operation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "head": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Operation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Operation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parameters": {
+            "description": "A list of parameters that are applicable for all the operations described under this path. These parameters can be overridden at the operation level, but cannot be removed there. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined at the OpenAPI Object's components/parameters.",
+            "items": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Parameter"
+            },
+            "type": "array"
+          },
+          "patch": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Operation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "post": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Operation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "put": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Operation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "servers": {
+            "description": "An alternative server array to service all operations in this path.",
+            "items": {
+              "$ref": "#/components/schemas/Server"
+            },
+            "type": "array"
+          },
+          "summary": {
+            "description": "An optional, string summary, intended to apply to all operations in this path.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "trace": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Operation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PathParamsContextId": {
+        "description": "Extract the ContextId via [`axum::extract::Path`].\n\n## Example ```no-test fn my_handler(Path(PathParamsContextId { ctx_id }): Path<PathParamsContextId>) {} ```",
+        "properties": {
+          "ctx_id": {
+            "description": "Context access token",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ctx_id"
+        ],
+        "type": "object"
+      },
+      "PathParamsDriveName": {
+        "properties": {
+          "drive_name": {
+            "description": "user's name of the drive",
+            "type": "string"
+          }
+        },
+        "required": [
+          "drive_name"
+        ],
+        "type": "object"
+      },
+      "PathParamsImageHash": {
+        "description": "The REST path parameter that identifies a specific boot image by its sha256 hash",
+        "properties": {
+          "image_hash": {
+            "$ref": "#/components/schemas/Sha256Hash",
+            "description": "hash of a boot image (sha256sum)"
+          }
+        },
+        "required": [
+          "image_hash"
+        ],
+        "type": "object"
+      },
+      "PathParamsMachineName": {
+        "description": "Extract the path params via [`axum::extract::Path`].\n\n## Example see example of [`crate::extract::context_id::PathWithContextId`]",
+        "properties": {
+          "machine_name": {
+            "description": "name of the machine",
+            "type": "string"
+          }
+        },
+        "required": [
+          "machine_name"
+        ],
+        "type": "object"
+      },
+      "PathParamsNetwork": {
+        "description": "Extract the `network` path param via [`axum::extract::Path`].\n\n## Example see example of [`crate::extract::context_id::PathWithContextId`]",
+        "properties": {
+          "network": {
+            "description": "a user chosen name representing a L2 network within a context",
+            "type": "string"
+          }
+        },
+        "required": [
+          "network"
+        ],
+        "type": "object"
+      },
+      "PathStyle": {
+        "enum": [
+          "matrix",
+          "label",
+          "simple"
+        ],
+        "type": "string"
+      },
+      "Paths": {
+        "additionalProperties": true,
+        "description": "Holds the relative paths to the individual endpoints and their operations. The path is appended to the URL from the Server Object in order to construct the full URL. The Paths MAY be empty, due to Access Control List (ACL) constraints.",
+        "type": "object"
+      },
+      "QueryParamsImageHash": {
+        "properties": {
+          "image_hash": {
+            "description": "id of the drive",
+            "type": "string"
+          }
+        },
+        "required": [
+          "image_hash"
+        ],
+        "type": "object"
+      },
+      "QueryStyle": {
+        "enum": [
+          "form",
+          "spaceDelimited",
+          "pipeDelimited",
+          "deepObject"
+        ],
+        "type": "string"
+      },
+      "ReferenceOr_for_Example": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/Example"
+          }
+        ]
+      },
+      "ReferenceOr_for_Header": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/Header"
+          }
+        ]
+      },
+      "ReferenceOr_for_Link": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/Link"
+          }
+        ]
+      },
+      "ReferenceOr_for_Map_of_ReferenceOr_for_PathItem": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_PathItem"
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "ReferenceOr_for_Parameter": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/Parameter"
+          }
+        ]
+      },
+      "ReferenceOr_for_PathItem": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/PathItem"
+          }
+        ]
+      },
+      "ReferenceOr_for_RequestBody": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/RequestBody"
+          }
+        ]
+      },
+      "ReferenceOr_for_Response": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/Response"
+          }
+        ]
+      },
+      "ReferenceOr_for_SecurityScheme": {
+        "anyOf": [
+          {
+            "properties": {
+              "$ref": {
+                "description": "REQUIRED. The reference identifier. This MUST be in the form of a URI.",
+                "type": "string"
+              },
+              "description": {
+                "description": "A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a `description` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "description": "A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a `summary` field, then this field has no effect.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "$ref"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/SecurityScheme"
+          }
+        ]
+      },
+      "RequestBody": {
+        "additionalProperties": true,
+        "properties": {
+          "content": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MediaType"
+            },
+            "description": "REQUIRED. The content of the request body. The key is a media type or media type range and the value describes it. For requests that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/*",
+            "type": "object"
+          },
+          "description": {
+            "description": "A brief description of the request body. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "required": {
+            "description": "Determines if the request body is required in the request. Defaults to false.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ResourceConstraints": {
+        "description": "Properties a suitable machine should satisfy.",
+        "properties": {
+          "machine_id": {
+            "description": "The machine's unique id. This field is NOT recommended, but may be needed for certain use cases.",
+            "format": "uint16",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "platform": {
+            "description": "The platform. This field must always be set.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "platform"
+        ],
+        "type": "object"
+      },
+      "Response": {
+        "additionalProperties": true,
+        "properties": {
+          "content": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MediaType"
+            },
+            "description": "A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/*",
+            "type": "object"
+          },
+          "description": {
+            "description": "REQUIRED. A description of the response. CommonMark syntax MAY be used for rich text representation.",
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Header"
+            },
+            "description": "Maps a header name to its definition. RFC7230 states header names are case insensitive. If a response header is defined with the name \"Content-Type\", it SHALL be ignored.",
+            "type": "object"
+          },
+          "links": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReferenceOr_for_Link"
+            },
+            "description": "A map of operations links that can be followed from the response. The key of the map is a short name for the link, following the naming constraints of the names for Component Objects.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "description"
+        ],
+        "type": "object"
+      },
+      "Responses": {
+        "additionalProperties": true,
+        "properties": {
+          "default": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReferenceOr_for_Response"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The documentation of responses other than the ones declared for specific HTTP response codes. Use this field to cover undeclared responses."
+          }
+        },
+        "type": "object"
+      },
+      "Rsd": {
+        "description": "Resource setup description",
+        "properties": {
+          "machines": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ResourceConstraints"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "machines"
+        ],
+        "type": "object"
+      },
+      "Schema": {
+        "anyOf": [
+          {
+            "description": "A trivial boolean JSON Schema.\n\nThe schema `true` matches everything (always passes validation), whereas the schema `false` matches nothing (always fails validation).",
+            "type": "boolean"
+          },
+          {
+            "$ref": "#/components/schemas/SchemaObject2",
+            "description": "A JSON Schema object."
+          }
+        ],
+        "description": "A JSON Schema."
+      },
+      "SchemaObject": {
+        "anyOf": [
+          {
+            "description": "A trivial boolean JSON Schema.\n\nThe schema `true` matches everything (always passes validation), whereas the schema `false` matches nothing (always fails validation).",
+            "type": "boolean"
+          },
+          {
+            "$ref": "#/components/schemas/SchemaObject2",
+            "description": "A JSON Schema object."
+          }
+        ],
+        "description": "A JSON Schema.",
+        "properties": {
+          "example": {
+            "description": "A free-form property to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary. **Deprecated:** The `example` property has been deprecated in favor of the JSON Schema `examples` keyword. Use of `example` is discouraged, and later versions of this specification may remove it."
+          },
+          "externalDocs": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExternalDocumentation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Additional external documentation for this schema."
+          }
+        },
+        "type": "object"
+      },
+      "SchemaObject2": {
+        "additionalProperties": true,
+        "description": "A JSON Schema object.",
+        "properties": {
+          "$id": {
+            "description": "The `$id` keyword.\n\nSee [JSON Schema 8.2.2. The \"$id\" Keyword](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-8.2.2).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "$ref": {
+            "description": "The `$ref` keyword.\n\nSee [JSON Schema 8.2.4.1. Direct References with \"$ref\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-8.2.4.1).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "additionalItems": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `additionalItems` keyword.\n\nSee [JSON Schema 9.3.1.2. \"additionalItems\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.3.1.2)."
+          },
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `additionalProperties` keyword.\n\nSee [JSON Schema 9.3.2.3. \"additionalProperties\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.3.2.3)."
+          },
+          "allOf": {
+            "description": "The `allOf` keyword.\n\nSee [JSON Schema 9.2.1.1. \"allOf\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.2.1.1).",
+            "items": {
+              "$ref": "#/components/schemas/Schema"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "anyOf": {
+            "description": "The `anyOf` keyword.\n\nSee [JSON Schema 9.2.1.2. \"anyOf\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.2.1.2).",
+            "items": {
+              "$ref": "#/components/schemas/Schema"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "const": {
+            "description": "The `const` keyword.\n\nSee [JSON Schema Validation 6.1.3. \"const\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.1.3)"
+          },
+          "contains": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `contains` keyword.\n\nSee [JSON Schema 9.3.1.4. \"contains\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.3.1.4)."
+          },
+          "default": {
+            "description": "The `default` keyword.\n\nSee [JSON Schema Validation 9.2. \"default\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-9.2)."
+          },
+          "deprecated": {
+            "description": "The `deprecated` keyword.\n\nSee [JSON Schema Validation 9.3. \"deprecated\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-9.3).",
+            "type": "boolean"
+          },
+          "description": {
+            "description": "The `description` keyword.\n\nSee [JSON Schema Validation 9.1. \"title\" and \"description\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-9.1).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "else": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `else` keyword.\n\nSee [JSON Schema 9.2.2.3. \"else\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.2.2.3)."
+          },
+          "enum": {
+            "description": "The `enum` keyword.\n\nSee [JSON Schema Validation 6.1.2. \"enum\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.1.2)",
+            "items": true,
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "examples": {
+            "description": "The `examples` keyword.\n\nSee [JSON Schema Validation 9.5. \"examples\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-9.5).",
+            "items": true,
+            "type": "array"
+          },
+          "exclusiveMaximum": {
+            "description": "The `exclusiveMaximum` keyword.\n\nSee [JSON Schema Validation 6.2.3. \"exclusiveMaximum\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.2.3).",
+            "format": "double",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "exclusiveMinimum": {
+            "description": "The `exclusiveMinimum` keyword.\n\nSee [JSON Schema Validation 6.2.5. \"exclusiveMinimum\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.2.5).",
+            "format": "double",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "format": {
+            "description": "The `format` keyword.\n\nSee [JSON Schema Validation 7. A Vocabulary for Semantic Content With \"format\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-7).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "if": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `if` keyword.\n\nSee [JSON Schema 9.2.2.1. \"if\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.2.2.1)."
+          },
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SingleOrVec_for_Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `items` keyword.\n\nSee [JSON Schema 9.3.1.1. \"items\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.3.1.1)."
+          },
+          "maxItems": {
+            "description": "The `maxItems` keyword.\n\nSee [JSON Schema Validation 6.4.1. \"maxItems\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.4.1).",
+            "format": "uint32",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "maxLength": {
+            "description": "The `maxLength` keyword.\n\nSee [JSON Schema Validation 6.3.1. \"maxLength\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.3.1).",
+            "format": "uint32",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "maxProperties": {
+            "description": "The `maxProperties` keyword.\n\nSee [JSON Schema Validation 6.5.1. \"maxProperties\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.5.1).",
+            "format": "uint32",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "maximum": {
+            "description": "The `maximum` keyword.\n\nSee [JSON Schema Validation 6.2.2. \"maximum\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.2.2).",
+            "format": "double",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "minItems": {
+            "description": "The `minItems` keyword.\n\nSee [JSON Schema Validation 6.4.2. \"minItems\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.4.2).",
+            "format": "uint32",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "minLength": {
+            "description": "The `minLength` keyword.\n\nSee [JSON Schema Validation 6.3.2. \"minLength\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.3.2).",
+            "format": "uint32",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "minProperties": {
+            "description": "The `minProperties` keyword.\n\nSee [JSON Schema Validation 6.5.2. \"minProperties\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.5.2).",
+            "format": "uint32",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "minimum": {
+            "description": "The `minimum` keyword.\n\nSee [JSON Schema Validation 6.2.4. \"minimum\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.2.4).",
+            "format": "double",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "multipleOf": {
+            "description": "The `multipleOf` keyword.\n\nSee [JSON Schema Validation 6.2.1. \"multipleOf\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.2.1).",
+            "format": "double",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "not": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `not` keyword.\n\nSee [JSON Schema 9.2.1.4. \"not\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.2.1.4)."
+          },
+          "oneOf": {
+            "description": "The `oneOf` keyword.\n\nSee [JSON Schema 9.2.1.3. \"oneOf\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.2.1.3).",
+            "items": {
+              "$ref": "#/components/schemas/Schema"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "pattern": {
+            "description": "The `pattern` keyword.\n\nSee [JSON Schema Validation 6.3.3. \"pattern\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.3.3).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "patternProperties": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Schema"
+            },
+            "description": "The `patternProperties` keyword.\n\nSee [JSON Schema 9.3.2.2. \"patternProperties\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.3.2.2).",
+            "type": "object"
+          },
+          "properties": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Schema"
+            },
+            "description": "The `properties` keyword.\n\nSee [JSON Schema 9.3.2.1. \"properties\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.3.2.1).",
+            "type": "object"
+          },
+          "propertyNames": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `propertyNames` keyword.\n\nSee [JSON Schema 9.3.2.5. \"propertyNames\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.3.2.5)."
+          },
+          "readOnly": {
+            "description": "The `readOnly` keyword.\n\nSee [JSON Schema Validation 9.4. \"readOnly\" and \"writeOnly\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-9.4).",
+            "type": "boolean"
+          },
+          "required": {
+            "description": "The `required` keyword.\n\nSee [JSON Schema Validation 6.5.3. \"required\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.5.3).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "then": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Schema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `then` keyword.\n\nSee [JSON Schema 9.2.2.2. \"then\"](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-9.2.2.2)."
+          },
+          "title": {
+            "description": "The `title` keyword.\n\nSee [JSON Schema Validation 9.1. \"title\" and \"description\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-9.1).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SingleOrVec_for_InstanceType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The `type` keyword.\n\nSee [JSON Schema Validation 6.1.1. \"type\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.1.1) and [JSON Schema 4.2.1. Instance Data Model](https://tools.ietf.org/html/draft-handrews-json-schema-02#section-4.2.1)."
+          },
+          "uniqueItems": {
+            "description": "The `uniqueItems` keyword.\n\nSee [JSON Schema Validation 6.4.3. \"uniqueItems\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-6.4.3).",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "writeOnly": {
+            "description": "The `writeOnly` keyword.\n\nSee [JSON Schema Validation 9.4. \"readOnly\" and \"writeOnly\"](https://tools.ietf.org/html/draft-handrews-json-schema-validation-02#section-9.4).",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityScheme": {
+        "description": "Defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header or as a query parameter), OAuth2's common flows (implicit, password, application and access code) as defined in RFC6749, and OpenID Connect Discovery.",
+        "oneOf": [
+          {
+            "additionalProperties": true,
+            "properties": {
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "in": {
+                "$ref": "#/components/schemas/ApiKeyLocation"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "apiKey"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "in",
+              "name",
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": true,
+            "properties": {
+              "bearerFormat": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "scheme": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "http"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "scheme",
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": true,
+            "properties": {
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "flows": {
+                "$ref": "#/components/schemas/OAuth2Flows"
+              },
+              "type": {
+                "enum": [
+                  "oauth2"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "flows",
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": true,
+            "properties": {
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "openIdConnectUrl": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "openIdConnect"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "openIdConnectUrl",
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": true,
+            "properties": {
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "enum": [
+                  "mutualTLS"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "Server": {
+        "additionalProperties": true,
+        "description": "An object representing a Server.",
+        "properties": {
+          "description": {
+            "description": "An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "description": "REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the OpenAPI document is being served. Variable substitutions will be made when a variable is named in {brackets}.",
+            "type": "string"
+          },
+          "variables": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ServerVariable"
+            },
+            "description": "A map between a variable name and its value. The value is used for substitution in the server's URL template.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "ServerVariable": {
+        "additionalProperties": true,
+        "description": "An object representing a Server Variable for server URL template substitution.",
+        "properties": {
+          "default": {
+            "description": "REQUIRED. The default value to use for substitution, and to send, if an alternate value is not supplied. Unlike the Schema Object's default, this value MUST be provided by the consumer.",
+            "type": "string"
+          },
+          "description": {
+            "description": "An optional description for the server variable. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "enum": {
+            "description": "An enumeration of string values to be used if the substitution options are from a limited set.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "default"
+        ],
+        "type": "object"
+      },
+      "Sha256Hash": {
+        "description": "Wraps a String and checks whether it is a valid SHA256 hash on construction and deserialization.",
+        "type": "string"
+      },
+      "SingleOrVec_for_InstanceType": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/InstanceType"
+          },
+          {
+            "items": {
+              "$ref": "#/components/schemas/InstanceType"
+            },
+            "type": "array"
+          }
+        ],
+        "description": "A type which can be serialized as a single item, or multiple items.\n\nIn some contexts, a `Single` may be semantically distinct from a `Vec` containing only item."
+      },
+      "SingleOrVec_for_Schema": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/Schema"
+          },
+          {
+            "items": {
+              "$ref": "#/components/schemas/Schema"
+            },
+            "type": "array"
+          }
+        ],
+        "description": "A type which can be serialized as a single item, or multiple items.\n\nIn some contexts, a `Single` may be semantically distinct from a `Vec` containing only item."
+      },
+      "StorageLunConfig": {
+        "description": "Config for one LUN",
+        "properties": {
+          "cdrom": {
+            "default": false,
+            "description": "Emulate a CD-ROM drive?",
+            "type": "boolean"
+          },
+          "path": {
+            "description": "Image path",
+            "type": "string"
+          },
+          "read_only": {
+            "default": true,
+            "description": "Read-only?",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      },
+      "SystemTime": {
+        "properties": {
+          "nanos_since_epoch": {
+            "format": "uint32",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "secs_since_epoch": {
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "nanos_since_epoch",
+          "secs_since_epoch"
+        ],
+        "type": "object"
+      },
+      "Tag": {
+        "additionalProperties": true,
+        "description": "Adds metadata to a single tag that is used by the Operation Object. It is not mandatory to have a Tag Object per tag defined in the Operation Object instances.",
+        "properties": {
+          "description": {
+            "description": "A description for the tag. CommonMark syntax MAY be used for rich text representation.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "externalDocs": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExternalDocumentation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Additional external documentation for this tag."
+          },
+          "name": {
+            "description": "REQUIRED. The name of the tag.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "UsbFunctionConfig": {
+        "description": "Configuration in request\n\nThe order of functions is always determined by this given top-to-bottom discriminant order.",
+        "oneOf": [
+          {
+            "properties": {
+              "serial_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "enum": [
+                  "serial"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "luns": {
+                "items": {
+                  "$ref": "#/components/schemas/StorageLunConfig"
+                },
+                "type": "array"
+              },
+              "type": {
+                "enum": [
+                  "storage"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "luns",
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": [
+                  "keyboard"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": [
+                  "mouse"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "UsbFunctionInfo": {
+        "description": "User-facing meta information after configuration",
+        "oneOf": [
+          {
+            "properties": {
+              "type": {
+                "enum": [
+                  "keyboard"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "type": {
+                "enum": [
+                  "mouse"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "serial_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "enum": [
+                  "serial"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "luns": {
+                "items": {
+                  "$ref": "#/components/schemas/StorageLunConfig"
+                },
+                "type": "array"
+              },
+              "type": {
+                "enum": [
+                  "storage"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "luns",
+              "type"
+            ],
+            "type": "object"
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "description": "The REST-API to access the Hardware as a Service implementation.",
+    "title": "HWaaS Context API",
+    "version": "5.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/contexts": {
+      "post": {
+        "description": "Reserves machines satisfying the given RSD. A context identifier is returned which is used to access the context consisting of the reserved machines.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Rsd"
+              }
+            }
+          },
+          "description": "Resource setup description",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "plain text"
+          },
+          "422": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "The RSD contained an unsatisfiable constraint"
+          }
+        },
+        "summary": "Reserve a context"
+      }
+    },
+    "/contexts/{ctx_id}": {
+      "delete": {
+        "description": "Deletes the context and frees all of its assigned resources.",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "plain text"
+          },
+          "404": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "The context was not found"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Something went wrong"
+          }
+        },
+        "summary": "Deletes a context"
+      },
+      "get": {
+        "description": "Get configuration of the context.",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextInfo"
+                }
+              }
+            },
+            "description": "Context configuration"
+          },
+          "404": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "The context was not found"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Something went wrong"
+          }
+        },
+        "summary": "Get context configuration"
+      },
+      "patch": {
+        "description": "Modify configuration of the context.",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextPatch"
+              }
+            }
+          },
+          "description": "Parameter changes desired by user in a PATCH request",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "plain text"
+          },
+          "404": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "The context was not found"
+          },
+          "409": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Context configuration not acceptable"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Something went wrong"
+          }
+        },
+        "summary": "Modifies a context"
+      }
+    },
+    "/contexts/{ctx_id}/drives": {
+      "get": {
+        "description": "Get the list of all allocated drives",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "list of drives"
+          }
+        },
+        "summary": "list drives",
+        "tags": [
+          "Drives API"
+        ]
+      }
+    },
+    "/contexts/{ctx_id}/drives/{drive_name}": {
+      "delete": {
+        "description": "Delete a drive. \nPay attention: currently there is no check if the drive is mounted at any machine!",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "user's name of the drive",
+            "in": "path",
+            "name": "drive_name",
+            "required": true,
+            "schema": {
+              "description": "user's name of the drive",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "404": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "no such drive"
+          },
+          "410": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Drive is already gone"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Drive allocation failed"
+          }
+        },
+        "summary": "delete drive",
+        "tags": [
+          "Drives API"
+        ]
+      },
+      "get": {
+        "description": "Probe if a specified drive exists",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "user's name of the drive",
+            "in": "path",
+            "name": "drive_name",
+            "required": true,
+            "schema": {
+              "description": "user's name of the drive",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "drive exists"
+          },
+          "404": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "drive does not exist"
+          }
+        },
+        "summary": "get drive",
+        "tags": [
+          "Drives API"
+        ]
+      },
+      "put": {
+        "description": "Create a new drive from a known image",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "user's name of the drive",
+            "in": "path",
+            "name": "drive_name",
+            "required": true,
+            "schema": {
+              "description": "user's name of the drive",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "id of the drive",
+            "in": "query",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "description": "id of the drive",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "409": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "drive exists"
+          },
+          "422": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "base image not available"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "drive creation failed internally"
+          }
+        },
+        "summary": "create drive",
+        "tags": [
+          "Drives API"
+        ]
+      }
+    },
+    "/contexts/{ctx_id}/machines": {
+      "get": {
+        "description": "Get all machine names contained within this context",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "JSON representing all machine names as Array"
+          }
+        },
+        "summary": "List machines within the context",
+        "tags": [
+          "Machines API"
+        ]
+      }
+    },
+    "/contexts/{ctx_id}/machines/{machine_name}": {
+      "get": {
+        "description": "Get machine information for given machine name",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "name of the machine",
+            "in": "path",
+            "name": "machine_name",
+            "required": true,
+            "schema": {
+              "description": "name of the machine",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MachineInfo"
+                }
+              }
+            },
+            "description": "JSON representing machine info"
+          }
+        },
+        "summary": "Get machine information",
+        "tags": [
+          "Machines API"
+        ]
+      }
+    },
+    "/contexts/{ctx_id}/machines/{machine_name}/network-interfaces": {
+      "get": {
+        "description": "List machine's network interface names.",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "name of the machine",
+            "in": "path",
+            "name": "machine_name",
+            "required": true,
+            "schema": {
+              "description": "name of the machine",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "JSON representing all interface names as Array"
+          },
+          "404": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Context or machine is unknown"
+          }
+        },
+        "summary": "network interface names",
+        "tags": [
+          "Machines API"
+        ]
+      }
+    },
+    "/contexts/{ctx_id}/networks": {
+      "get": {
+        "description": "Get the list of names for all allocated networks",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List of all network names"
+          }
+        },
+        "summary": "List all network names",
+        "tags": [
+          "Network API"
+        ]
+      }
+    },
+    "/contexts/{ctx_id}/networks/{network}": {
+      "delete": {
+        "description": "Disable all ports that are connected to the network",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "a user chosen name representing a L2 network within a context",
+            "in": "path",
+            "name": "network",
+            "required": true,
+            "schema": {
+              "description": "a user chosen name representing a L2 network within a context",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "408": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Request took too long"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Could not disable one or more ports"
+          }
+        },
+        "summary": "Delete a NetworkSetup",
+        "tags": [
+          "Network API"
+        ]
+      },
+      "get": {
+        "description": "Read the NetworkSetup associated with the given network. The returned network setup is a cached view that will be accurate most of the time (assuming hardware failure and drop outs to be rare)",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "a user chosen name representing a L2 network within a context",
+            "in": "path",
+            "name": "network",
+            "required": true,
+            "schema": {
+              "description": "a user chosen name representing a L2 network within a context",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NetworkSetup"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "The network was not registered or has been deleted"
+          },
+          "408": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Request took too long"
+          }
+        },
+        "summary": "Get NetworkSetup",
+        "tags": [
+          "Network API"
+        ]
+      },
+      "patch": {
+        "description": "Update a network by connecting and/or disconnecting interfaces in accordance with the given json-patch",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "a user chosen name representing a L2 network within a context",
+            "in": "path",
+            "name": "network",
+            "required": true,
+            "schema": {
+              "description": "a user chosen name representing a L2 network within a context",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/NetworkSetupPatchOp"
+                },
+                "type": "array"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "408": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Request took too long"
+          },
+          "409": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Failure due to an invalid patch operation"
+          },
+          "422": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Network interface not known to the context"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Failure due to port enabling, disabling and/or interface reservation"
+          }
+        },
+        "summary": "Patch NetworkSetup",
+        "tags": [
+          "Network API"
+        ]
+      },
+      "put": {
+        "description": "Create (or update) a network that connects the interfaces in the NetworkSetup",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "a user chosen name representing a L2 network within a context",
+            "in": "path",
+            "name": "network",
+            "required": true,
+            "schema": {
+              "description": "a user chosen name representing a L2 network within a context",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NetworkSetup"
+              }
+            }
+          },
+          "description": "A mapping between machine names and their network interfaces participating in the same network.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "408": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Request took too long"
+          },
+          "422": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Network interface not known to the context"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Failure due to port enabling, disabling and/or interface reservation"
+          }
+        },
+        "summary": "Put NetworkSetup",
+        "tags": [
+          "Network API"
+        ]
+      }
+    },
+    "/contexts/{ctx_id}/networks/{network}/websocket": {
+      "get": {
+        "description": "Establish a websocket connection to the network. The websocket transports L2 traffic (ethernet frames). Sending a message injects packets. Receiving messages equals to receiving L2 Network Packets",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "a user chosen name representing a L2 network within a context",
+            "in": "path",
+            "name": "network",
+            "required": true,
+            "schema": {
+              "description": "a user chosen name representing a L2 network within a context",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "websocket upgrade",
+            "headers": {
+              "connection": {
+                "schema": {
+                  "const": "upgrade",
+                  "enum": [
+                    "upgrade"
+                  ],
+                  "example": "upgrade",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-key": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-protocol": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "upgrade": {
+                "schema": {
+                  "const": "websocket",
+                  "enum": [
+                    "websocket"
+                  ],
+                  "example": "websocket",
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          }
+        },
+        "summary": "Connect to network via websocket",
+        "tags": [
+          "Network API"
+        ]
+      }
+    },
+    "/images": {
+      "get": {
+        "description": "Returns a list of all available images currently stored",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "format": "uint64",
+                    "minimum": 0.0,
+                    "type": "integer"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Return a dictionary containing the image hash and image size in byte"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "list images",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "post": {
+        "description": "Upload an image",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "array"
+              }
+            }
+          },
+          "description": "multipart form data",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "plain text"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Upload image",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
+    "/images/{image_hash}": {
+      "delete": {
+        "description": "Mark an image for garbage collection",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Image marked for garbage collection"
+          }
+        },
+        "summary": "delete",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "get": {
+        "description": "Request metadata of an image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageMetadata"
+                }
+              }
+            },
+            "description": "metadata"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Get image metadata",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
+    "/inventory": {
+      "get": {
+        "description": "Returns metadata about all known machines",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Returns metadata about machines"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "get machine inventory"
+      }
+    }
+  }
+}

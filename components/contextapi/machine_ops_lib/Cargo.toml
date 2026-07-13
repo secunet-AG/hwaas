@@ -1,0 +1,46 @@
+[package]
+name = "machine_ops_lib"
+version = "0.1.0"
+edition = "2021"
+license="Apache-2.0"
+
+[lib]
+name = "machine_ops_lib"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+axum.workspace = true
+chrono.workspace = true
+db_interaction.workspace = true
+diesel.workspace = true
+error_utils.workspace = true
+futures.workspace = true
+paste = { version = "1" }
+tokio.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+remote_client.workspace = true
+net_ctrl_client_wrapper.workspace = true
+rand.workspace = true
+reqwest.workspace = true
+tracing.workspace = true
+url.workspace = true
+uuid.workspace = true
+contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }
+
+[features]
+cli = ["clap"]
+default = ["cli"]
+
+[dependencies.clap]
+workspace = true
+optional = true
+
+[dev-dependencies]
+db_interaction = { workspace = true, features = ["test_utils"] }
+wiremock.workspace = true
+tracing-test = "0.2"

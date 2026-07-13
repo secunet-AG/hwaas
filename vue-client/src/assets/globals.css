@@ -1,0 +1,46 @@
+/*
+ * SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label {
+  color: var(--app-primary-text);
+}
+
+input {
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}

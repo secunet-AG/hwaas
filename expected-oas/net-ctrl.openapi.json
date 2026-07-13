@@ -1,0 +1,486 @@
+{
+  "components": {
+    "schemas": {
+      "Credentials": {
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object"
+      },
+      "CriticalPorts": {
+        "properties": {
+          "mgmt_ports": {
+            "items": {
+              "$ref": "#/components/schemas/PortID"
+            },
+            "type": "array"
+          },
+          "trunk_ports": {
+            "items": {
+              "$ref": "#/components/schemas/PortID"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "mgmt_ports",
+          "trunk_ports"
+        ],
+        "type": "object"
+      },
+      "PathParamsSwitchAndPortID": {
+        "properties": {
+          "port_id": {
+            "$ref": "#/components/schemas/PortID",
+            "description": "PortID of the switch"
+          },
+          "switch_id": {
+            "$ref": "#/components/schemas/SwitchID",
+            "description": "ID of a switch"
+          }
+        },
+        "required": [
+          "port_id",
+          "switch_id"
+        ],
+        "type": "object"
+      },
+      "PathParamsSwitchID": {
+        "properties": {
+          "switch_id": {
+            "$ref": "#/components/schemas/SwitchID",
+            "description": "Context access token"
+          }
+        },
+        "required": [
+          "switch_id"
+        ],
+        "type": "object"
+      },
+      "PortID": {
+        "description": "Wrapper type for Port IDs. Can hold different ID types for different switch models. Generic Port ID used for all switch models. Individual conversion should be handled in the switch APIs.",
+        "type": "string"
+      },
+      "PortRepresentation": {
+        "properties": {
+          "port_id": {
+            "$ref": "#/components/schemas/PortID",
+            "description": "Local ID of a port."
+          }
+        },
+        "required": [
+          "port_id"
+        ],
+        "type": "object"
+      },
+      "Range_of_uint16": {
+        "properties": {
+          "end": {
+            "format": "uint16",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "start": {
+            "format": "uint16",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "end",
+          "start"
+        ],
+        "type": "object"
+      },
+      "SetupData": {
+        "description": "The user provided input for switch setup. Contains a range of u16 representing the allowed VLAN IDs.",
+        "properties": {
+          "vlan_id_range": {
+            "$ref": "#/components/schemas/Range_of_uint16"
+          }
+        },
+        "required": [
+          "vlan_id_range"
+        ],
+        "type": "object"
+      },
+      "SwitchID": {
+        "description": "Contains information used to globally identify a switch.",
+        "type": "string"
+      },
+      "SwitchModel": {
+        "enum": [
+          "aruba",
+          "aruba2540",
+          "aruba-aos-cx",
+          "aruba-cx6100",
+          "fs-picos",
+          "dummy",
+          "dummy24",
+          "dummy48"
+        ],
+        "type": "string"
+      },
+      "SwitchModelDetail": {
+        "description": "Container for the information to construct a new SwitchAPI. The [`SwitchModel`] is used for determining the correct SwitchAPI type. The [`SwitchDetails`] contains all information needed by one SwitchAPI.",
+        "properties": {
+          "credentials": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "critical_ports": {
+            "$ref": "#/components/schemas/CriticalPorts"
+          },
+          "default_vlan": {
+            "$ref": "#/components/schemas/VlanID"
+          },
+          "ip": {
+            "format": "ip",
+            "type": "string"
+          },
+          "mgmt_vlan": {
+            "$ref": "#/components/schemas/VlanID"
+          },
+          "model": {
+            "$ref": "#/components/schemas/SwitchModel"
+          },
+          "port": {
+            "format": "uint16",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "critical_ports",
+          "default_vlan",
+          "ip",
+          "mgmt_vlan",
+          "model"
+        ],
+        "type": "object"
+      },
+      "VlanID": {
+        "description": "Wrapper type for different VLAN IDs potentially used for different use cases.",
+        "properties": {
+          "vlan_id": {
+            "description": "Standard 802.1q ID.",
+            "format": "uint16",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "vlan_id"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "HWaaS NetCtrl API",
+    "title": "",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/switches": {
+      "get": {
+        "description": "Get all switch IDs from the inventory",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/SwitchModelDetail"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON representing all machine names as Array"
+          },
+          "400": {
+            "description": "Returned when invalid inputs were given in the request. Fix: Check allowed range for inputs, the expected input types and ensure parses can be done correctly"
+          },
+          "401": {
+            "description": "Returned when the user did not provide any login credentials. Fix: Provide credentials for authentication."
+          },
+          "404": {
+            "description": "Returned when a switch received an incorrect ID, e.g. an Aruba Switch received a port ID of form accepted by Mellanox. Fix: Check available ports at the switch that is to be configured."
+          },
+          "500": {
+            "description": "Returned when no correct request could be built to send to a switch. Fix: Check the IP provided or update API Version."
+          },
+          "502": {
+            "description": "Returned when a switch sent an unexpected response. Fix: Check if switch is running and switching network is working as intended."
+          },
+          "503": {
+            "description": "Returned when during connection setup a lock on a shared resource was not obtainable. Fix: Try again later."
+          },
+          "504": {
+            "description": "Returned when the requested switch could not be reached. Fix: Try again later, check if the switch failed or the physical connection is disrupted."
+          }
+        },
+        "summary": "List all switches"
+      }
+    },
+    "/switches/{switch_id}": {
+      "get": {
+        "description": "Get information about a switch",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "switch_id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SwitchID",
+              "description": "Context access token"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PortRepresentation"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "JSON representing all machine names as Array"
+          },
+          "400": {
+            "description": "Returned when invalid inputs were given in the request. Fix: Check allowed range for inputs, the expected input types and ensure parses can be done correctly"
+          },
+          "401": {
+            "description": "Returned when the user did not provide any login credentials. Fix: Provide credentials for authentication."
+          },
+          "404": {
+            "description": "Switch not found."
+          },
+          "410": {
+            "description": "There is currently no switch api. Please retry"
+          },
+          "500": {
+            "description": "Could not get switch API"
+          },
+          "502": {
+            "description": "Returned when a switch sent an unexpected response. Fix: Check if switch is running and switching network is working as intended."
+          },
+          "503": {
+            "description": "Returned when during connection setup a lock on a shared resource was not obtainable. Fix: Try again later."
+          },
+          "504": {
+            "description": "Returned when the requested switch could not be reached. Fix: Try again later, check if the switch failed or the physical connection is disrupted."
+          }
+        },
+        "summary": "switches details"
+      }
+    },
+    "/switches/{switch_id}/ports/{port_id}": {
+      "delete": {
+        "description": "Disable a switch port and un-assign VLAN",
+        "parameters": [
+          {
+            "description": "PortID of the switch",
+            "in": "path",
+            "name": "port_id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PortID",
+              "description": "PortID of the switch"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "ID of a switch",
+            "in": "path",
+            "name": "switch_id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SwitchID",
+              "description": "ID of a switch"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "400": {
+            "description": "Returned when invalid inputs were given in the request. Fix: Check allowed range for inputs, the expected input types and ensure parses can be done correctly"
+          },
+          "401": {
+            "description": "This port is protected. Please check if you supplied the correct ID."
+          },
+          "404": {
+            "description": "Switch or its port was not found."
+          },
+          "500": {
+            "description": "Returned when no correct request could be built to send to a switch. Fix: Check the IP provided or update API Version."
+          },
+          "502": {
+            "description": "Returned when a switch sent an unexpected response. Fix: Check if switch is running and switching network is working as intended."
+          },
+          "503": {
+            "description": "Returned when during connection setup a lock on a shared resource was not obtainable. Fix: Try again later."
+          },
+          "504": {
+            "description": "Returned when the requested switch could not be reached. Fix: Try again later, check if the switch failed or the physical connection is disrupted."
+          }
+        },
+        "summary": "disable port"
+      },
+      "put": {
+        "description": "Enable a switch port and assign a VLAN",
+        "parameters": [
+          {
+            "description": "PortID of the switch",
+            "in": "path",
+            "name": "port_id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PortID",
+              "description": "PortID of the switch"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "ID of a switch",
+            "in": "path",
+            "name": "switch_id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SwitchID",
+              "description": "ID of a switch"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VlanID"
+              }
+            }
+          },
+          "description": "Wrapper type for different VLAN IDs potentially used for different use cases.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "VLAN is assigned and port is enabled"
+          },
+          "400": {
+            "description": "Expected request body to contain a map with field vlan_id from interval [2..4093]."
+          },
+          "401": {
+            "description": "This port is protected. Please check if you supplied the correct ID."
+          },
+          "404": {
+            "description": "Switch or its port was not found."
+          },
+          "500": {
+            "description": "Returned when no correct request could be built to send to a switch. Fix: Check the IP provided or update API Version."
+          },
+          "502": {
+            "description": "Returned when a switch sent an unexpected response. Fix: Check if switch is running and switching network is working as intended."
+          },
+          "503": {
+            "description": "Returned when during connection setup a lock on a shared resource was not obtainable. Fix: Try again later."
+          },
+          "504": {
+            "description": "Returned when the requested switch could not be reached. Fix: Try again later, check if the switch failed or the physical connection is disrupted."
+          }
+        },
+        "summary": "enable port"
+      }
+    },
+    "/switches/{switch_id}/setup": {
+      "post": {
+        "description": "setup VLANs and trunk ports",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "switch_id",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SwitchID",
+              "description": "Context access token"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupData"
+              }
+            }
+          },
+          "description": "The user provided input for switch setup. Contains a range of u16 representing the allowed VLAN IDs.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "JSON representing all machine names as Array"
+          },
+          "400": {
+            "description": "Returned when invalid inputs were given in the request. Fix: Check allowed range for inputs, the expected input types and ensure parses can be done correctly"
+          },
+          "401": {
+            "description": "Returned when the user did not provide any login credentials. Fix: Provide credentials for authentication."
+          },
+          "404": {
+            "description": "Switch not found."
+          },
+          "410": {
+            "description": "There is currently no switch api. Please retry"
+          },
+          "500": {
+            "description": "Could not get switch API"
+          },
+          "502": {
+            "description": "Returned when a switch sent an unexpected response. Fix: Check if switch is running and switching network is working as intended."
+          },
+          "503": {
+            "description": "Returned when during connection setup a lock on a shared resource was not obtainable. Fix: Try again later."
+          },
+          "504": {
+            "description": "Returned when the requested switch could not be reached. Fix: Try again later, check if the switch failed or the physical connection is disrupted."
+          }
+        },
+        "summary": "setup switch"
+      }
+    }
+  }
+}

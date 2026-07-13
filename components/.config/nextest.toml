@@ -1,0 +1,51 @@
+[profile.dev.junit]
+path = "junit.xml"
+
+[profile.dev]
+# Timeout tests can be flaky depending on host load
+retries = 3
+
+# Print out output for failing tests at the end of the run (for easy scrollability).
+failure-output = "immediate-final"
+# Do not cancel the test run on the first failure (recommended for CI runs).
+fail-fast = false
+
+#Number of tests to run simultaneously
+test-threads = "num-cpus"
+
+[[profile.dev.overrides]]
+filter = 'test(context_reservation_invariants/)'
+# Resource intensive test that needs to run alone
+threads-required = "num-test-threads"
+
+[[profile.dev.overrides]]
+# The network api tests tend to involve a lot of concurrency
+# hence we execute them one at a time
+filter = 'test(network_api::)'
+threads-required = "num-test-threads"
+
+[profile.coverage.junit]
+path = "junit.xml"
+
+[profile.coverage]
+# Timeout tests can be flaky depending on host load
+retries = 3
+
+# Print out output for failing tests at the end of the run (for easy scrollability).
+failure-output = "immediate-final"
+# Do not cancel the test run on the first failure (recommended for CI runs).
+fail-fast = false
+
+#Number of tests to run simultaneously
+test-threads = "num-cpus"
+
+[[profile.coverage.overrides]]
+filter = 'test(context_reservation_invariants/)'
+# Resource intensive test that needs to run alone
+threads-required = "num-test-threads"
+
+[[profile.coverage.overrides]]
+# The network api tests tend to involve a lot of concurrency
+# hence we execute them one at a time
+filter = 'test(network_api::)'
+threads-required = "num-test-threads"

@@ -1,0 +1,21 @@
+[package]
+name = "remote-init"
+edition = "2021"
+version = "1.0.0"
+license = "Apache-2.0"
+
+[lib]
+name = "remote_init"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+hunt.workspace = true
+serde.workspace = true
+serde_json = "1"
+tokio = { version = "1", features = ["signal", "sync"] }
+tracing = "0.1"
+remote-hands-workspace-hack = { version = "0.1", path = "../remote-hands-workspace-hack" }

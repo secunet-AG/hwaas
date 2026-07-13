@@ -1,0 +1,8 @@
+[build]
+rustflags = ["--cfg", "tokio_unstable"]
+
+[net]
+git-fetch-with-cli = true
+
+[profile.coverage]
+inherits = "dev"

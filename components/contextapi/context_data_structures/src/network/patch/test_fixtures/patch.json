@@ -1,0 +1,6 @@
+[
+  { "op": "remove", "path": "/abmr1/LAN1" },
+  { "op": "remove", "path": "/abmr2" },
+  { "op": "add", "path": "/abmr3", "value": { "LAN1": {} } },
+  { "op": "add", "path": "/abmr1/LAN2", "value": {} }
+]

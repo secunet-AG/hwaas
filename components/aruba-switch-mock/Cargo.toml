@@ -1,0 +1,45 @@
+[package]
+name = "aruba-switch-mock"
+version = "0.1.0"
+edition = "2021"
+license="Apache-2.0"
+
+[workspace]
+resolver = "3"
+members = ["aruba-switch-mock-workspace-hack", "aruba_structs"]
+
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[[bin]]
+name = "aruba-switch-mock"
+path = "src/main.rs"
+
+
+[dependencies]
+aruba_structs = { path = "./aruba_structs" }
+clap = { version = "4.0", features = ["derive"] }
+axum = "0.6"
+tokio = { version = "1.23", features = [
+  "io-util",
+  "macros",
+  "net",
+  "rt-multi-thread",
+  "sync",
+  "tracing",
+  "signal",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json"] }
+serde.workspace = true
+serde_json = "1.0"
+dashmap = { version = "5.4", features = ["serde"] }
+uuid = { version = "1.2", features = ["v4"] }
+tower-cookies = "0.8.0"
+aruba-switch-mock-workspace-hack = { version = "0.1", path = "aruba-switch-mock-workspace-hack" }
+
+[lints.rust]
+unsafe_code = "forbid"

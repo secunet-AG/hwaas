@@ -1,0 +1,16 @@
+.direnv
+/.pre-commit-config.yaml
+.idea/
+/result
+**/result
+/.nixos-test-history
+
+# Added by cargo
+
+/target
+**/target
+**/*.cdx.json
+
+/.vscode
+**/.DS_Store
+.DS_Store

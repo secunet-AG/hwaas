@@ -1,0 +1,23 @@
+[package]
+edition = "2021"
+name = "inventory"
+version = "0.1.0"
+license="Apache-2.0"
+
+[lib]
+name = "inventory"
+path = "src/lib.rs"
+
+[dependencies]
+async-trait = "0.1.53"
+enum_dispatch = "0.3"
+libc = "0.2.132"
+network_type_ids = { path = "../network_type_ids" }
+schemars = "0.8"
+serde = { version = "^1.0", features = ["derive"] }
+serde_json = "1.0"
+switch = { path = "../switch" }
+system_error = "0.2.0"
+tokio = { version = "1.20", features = ["fs"] }
+tracing = "0.1"
+net-ctrl-workspace-hack = { version = "0.1", path = "../net-ctrl-workspace-hack" }

@@ -1,0 +1,27 @@
+version = 1
+
+[[annotations]]
+path = [
+  ".*",
+  "**/.*",
+  "flake.lock",
+  "**/Cargo.lock",
+  "**/Cargo.toml",
+  "**/*.json",
+  "**/*.md",
+  "**/*.sh",
+  "**/*.svg",
+  "**/*.toml",
+  "**/*.yml",
+  "**/*.yaml",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 secunet Security Networks AG <https://www.secunet.com>"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "components/contextapi/net_ctrl_client/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 secunet Security Networks AG <https://www.secunet.com>"
+SPDX-License-Identifier = "Apache-2.0"
+SPDX-FileComment = "Generated automatically by `openapi-generator-cli`"

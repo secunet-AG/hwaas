@@ -1,0 +1,19 @@
+[package]
+name = "net_ctrl_client_wrapper"
+version = "0.1.0"
+edition = "2021"
+license="Apache-2.0"
+
+[lib]
+name = "net_ctrl_client_wrapper"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+hunt.workspace = true
+reqwest-middleware = { version = "0.4", features = ["json", "rustls-tls"] }
+net_ctrl_client.workspace = true
+db_interaction.workspace = true
+contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }

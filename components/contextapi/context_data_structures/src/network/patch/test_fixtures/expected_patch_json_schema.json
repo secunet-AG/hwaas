@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Array_of_NetworkSetupPatchOp",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/NetworkSetupPatchOp"
+  },
+  "definitions": {
+    "EmptyMap": {
+      "description": "An empty map.",
+      "type": "object",
+      "maxProperties": 0,
+      "additionalProperties": false
+    },
+    "InterfaceJsonPtr": {
+      "description": "JSON Pointer to a `TaggedMachineNetworkInterface` within a `NetworkSetup` (e.g. \"/abmr/lan1\").",
+      "type": "string",
+      "minLength": 4,
+      "pattern": "^\\/([^\\/]+)(\\/)([^\\/]+)"
+    },
+    "MachineInterfaceSet": {
+      "description": "A collection of network interfaces.",
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/definitions/EmptyMap"
+      }
+    },
+    "MachineJsonPtr": {
+      "description": "JSON Pointer to a `MachineName` within a `NetworkSetup` (e.g. \"/abmr\").",
+      "type": "string",
+      "minLength": 2,
+      "pattern": "^\\/([^\\/]+)"
+    },
+    "NetworkSetupPatchOp": {
+      "description": "Parsed JSON Patch operation.",
+      "oneOf": [
+        {
+          "description": "`NetworkSetup` JSON Patch remove operation.",
+          "type": "object",
+          "anyOf": [
+            {
+              "type": "object",
+              "required": ["path"],
+              "properties": {
+                "path": {
+                  "$ref": "#/definitions/InterfaceJsonPtr"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["path"],
+              "properties": {
+                "path": {
+                  "$ref": "#/definitions/MachineJsonPtr"
+                }
+              }
+            }
+          ],
+          "required": ["op"],
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": ["remove"]
+            }
+          }
+        },
+        {
+          "description": "`NetworkSetup` JSON Patch add operation.",
+          "type": "object",
+          "anyOf": [
+            {
+              "type": "object",
+              "required": ["path", "value"],
+              "properties": {
+                "path": {
+                  "$ref": "#/definitions/InterfaceJsonPtr"
+                },
+                "value": {
+                  "$ref": "#/definitions/EmptyMap"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["path", "value"],
+              "properties": {
+                "path": {
+                  "$ref": "#/definitions/MachineJsonPtr"
+                },
+                "value": {
+                  "$ref": "#/definitions/MachineInterfaceSet"
+                }
+              }
+            }
+          ],
+          "required": ["op"],
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": ["add"]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

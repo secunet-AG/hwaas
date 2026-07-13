@@ -1,0 +1,19 @@
+[package]
+edition = "2021"
+name = "network_type_ids"
+version = "0.1.0"
+license="Apache-2.0"
+
+[lib]
+name = "network_type_ids"
+path = "src/lib.rs"
+
+[dependencies]
+schemars = "0.8"
+serde = { version = "^1.0", features = ["derive"], optional = true }
+serde_json = "1.0.80"
+net-ctrl-workspace-hack = { version = "0.1", path = "../net-ctrl-workspace-hack" }
+
+[features]
+default = ["serde_support"]
+serde_support = ["dep:serde"]

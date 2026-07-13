@@ -1,0 +1,46 @@
+[package]
+name = "remote-power"
+edition = "2021"
+default-run = "remote-power"
+version = "1.0.0"
+license = "Apache-2.0"
+
+[lib]
+name = "remote_power"
+path = "src/lib.rs"
+
+[[bin]]
+name = "remote-power"
+path = "src/main.rs"
+
+[[bin]]
+name = "remote-power-openapi-generator"
+path = "src/bin/openapi-generator.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+aide = { version = "0.13", features = [
+  "axum",
+  "axum-extra",
+  "axum-ws",
+  "macros",
+] }
+axum = { version = "0.7", features = ["macros", "ws"] }
+enum_dispatch = "0.3"
+schemars = "0.8"
+serde = "1"
+serde_json = "1"
+remote-axum.workspace = true
+remote-init.workspace = true
+tracing = "0.1"
+tokio = { version = "1", features = [
+  "rt-multi-thread",
+  "macros",
+  "process",
+  "sync",
+  "tracing",
+  "full",
+] }
+remote-hands-workspace-hack = { version = "0.1", path = "../remote-hands-workspace-hack" }
