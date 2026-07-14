@@ -41,6 +41,10 @@ _: {
         vue-client = pkgs.callPackage ./vue-client.nix {
           vueSrc = ../../vue-client;
         };
+        documentation = pkgs.callPackage ./documentation.nix {
+          documentationSrc = ../../documentation;
+          inherit hwaas-oas;
+        };
       };
     };
 }
