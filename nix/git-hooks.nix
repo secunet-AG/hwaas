@@ -26,7 +26,6 @@ _: {
         settings = {
           formatter.prettier = {
             excludes = [
-              "documentation/public/**/*"
               "vue-client/pnpm-lock.yaml" # Usually good to exclude
               "**/*.yml"
               "**/*.yaml"
@@ -42,6 +41,7 @@ _: {
             "**/*workspace-hack/Cargo.toml"
             "expected-oas/**"
             "vue-client/pnpm-lock.yaml"
+            "documentation/public/**/*"
             "*.svg"
             "*.img"
             "*.drawio"
