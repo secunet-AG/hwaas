@@ -1,18 +1,39 @@
 ---
+import '../styles/global.css'
 
+const docs = [
+  { href: '/docs/getting-started', title: 'Getting Started', description: 'Set up your account and make your first API call.' },
+  { href: '/docs/authentication', title: 'Authentication', description: 'API keys, key rotation, and rate limits.' },
+  { href: '/docs/devices', title: 'Devices', description: 'Provision, monitor, and control hardware devices.' },
+  { href: '/api', title: 'API Reference', description: 'Interactive OpenAPI documentation for all endpoints.' },
+];
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>HWaaS API Documentation</title>
-		<meta http-equiv="refresh"/>
-	</head>
-	<body>
-		<h2>Index page!</h2>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>HWaaS Documentation</title>
+  </head>
+  <body class="bg-zinc-950 text-zinc-200 min-h-screen flex items-center justify-center p-8">
+    <div class="max-w-2xl w-full">
+      <h1 class="text-4xl font-bold text-white mb-3">HWaaS</h1>
+      <p class="text-zinc-400 text-lg mb-10">Hardware as a Service — API documentation and guides.</p>
+
+      <div class="grid gap-4">
+        {docs.map(doc => (
+          <a
+            href={doc.href}
+            class="block p-5 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800/70 transition-colors"
+          >
+            <h2 class="text-lg font-semibold text-white mb-1">{doc.title}</h2>
+            <p class="text-sm text-zinc-400">{doc.description}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </body>
 </html>

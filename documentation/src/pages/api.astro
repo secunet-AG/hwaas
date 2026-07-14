@@ -1,7 +1,11 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro'
 import { ScalarComponent } from '@scalar/astro'
 ---
-<ScalarComponent configuration={{
-  url: '/openapi.json',
-  pageTitle: 'HWaaS API',
-}} />
+
+<BaseLayout title="API Reference">
+  <ScalarComponent configuration={{
+    url: '/openapi.json',
+    pageTitle: 'HWaaS API',
+  }} />
+</BaseLayout>
