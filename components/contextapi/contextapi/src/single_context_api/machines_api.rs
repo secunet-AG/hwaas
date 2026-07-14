@@ -2,9 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::single_context_api::websocket::connect_websockets;
-use crate::single_context_api::websocket::create_websocket;
-use std::future;
 use std::sync::Arc;
 
 use crate::path_params::PathParamsMachineName;
@@ -12,10 +9,10 @@ use crate::remote_client::RemoteClient;
 
 use super::{ContextManagerTx, DrivesApiState, GuardedContext};
 use crate::single_context_api::remote_api::get_machine_remote_api_router;
-use aide::axum::{routing::get_with, ApiRouter, IntoApiResponse};
+use aide::axum::{routing::get_with, ApiRouter};
 use aide::transform::{TransformOperation, TransformPathItem};
-use axum::extract::{FromRef, FromRequestParts, Path, State, WebSocketUpgrade};
-use axum::http::{StatusCode, Uri};
+use axum::extract::{FromRef, FromRequestParts, Path, State};
+use axum::http::StatusCode;
 use axum::Json;
 
 use context_data_structures::aliases::{MachineName, MachineNetworkInterface};
