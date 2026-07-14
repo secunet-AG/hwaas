@@ -26,9 +26,7 @@ _: {
         settings = {
           formatter.prettier = {
             excludes = [
-              "documentation/docs/spec/**"
-              "documentation/docs/maintainers/secrets.md"
-              "documentation/docs/maintainers/switch-models/aruba.md"
+              "documentation/public/**/*"
               "vue-client/pnpm-lock.yaml" # Usually good to exclude
               "**/*.yml"
               "**/*.yaml"
