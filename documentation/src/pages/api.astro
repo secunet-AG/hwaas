@@ -1,15 +1,30 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { ScalarComponent } from '@scalar/astro'
+import specRaw from '../../public/openapi.json'
+
+const DEFAULT_TAG = 'Contexts'
+
+// Add a default tag to any operation that has no tags
+const spec = structuredClone(specRaw) as Record<string, any>
+for (const methods of Object.values(spec.paths ?? {})) {
+  for (const op of Object.values(methods as Record<string, any>)) {
+    if (typeof op === 'object' && op !== null && !op.tags?.length) {
+      op.tags = [DEFAULT_TAG]
+    }
+  }
+}
 ---
 
 <BaseLayout title="API Reference">
   <ScalarComponent configuration={{
-    url: '/openapi.json',
+    spec: { content: spec },
     pageTitle: 'HWaaS API',
     hideClientButton: true,
     mcp: { disabled: true },
     agent: { disabled: true },
     expandAllResponses: true,
+    showDeveloperTools: 'never',
+    layout: 'classic'
   }} />
 </BaseLayout>
