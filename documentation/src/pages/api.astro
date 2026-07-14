@@ -7,5 +7,9 @@ import { ScalarComponent } from '@scalar/astro'
   <ScalarComponent configuration={{
     url: '/openapi.json',
     pageTitle: 'HWaaS API',
+    hideClientButton: true,
+    mcp: { disabled: true },
+    agent: { disabled: true },
+    expandAllResponses: true,
   }} />
 </BaseLayout>
