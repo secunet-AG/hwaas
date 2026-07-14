@@ -1,40 +1,40 @@
 ---
 import '../styles/global.css'
-
-interface SidebarChild {
-  href: string;
-  label: string;
-}
-
-interface SidebarItem {
-  href: string;
-  label: string;
-  children?: SidebarChild[];
-}
+import { render, getCollection } from 'astro:content'
 
 interface Props {
   title: string;
   prose?: boolean;
-  sidebarItems?: SidebarItem[];
 }
 
-const { title, prose = false, sidebarItems } = Astro.props;
-
-const defaultItems: SidebarItem[] = [
-  { href: '/', label: 'Home' },
-  { href: '/docs/getting-started', label: 'Getting Started' },
-  { href: '/docs/authentication', label: 'Authentication' },
-  { href: '/docs/devices', label: 'Devices' },
-  { href: '/api', label: 'API Reference' },
-];
-
-const navItems: SidebarItem[] = [
-  { href: '/', label: 'Home' },
-  ...(sidebarItems ?? defaultItems.slice(1, -1)),
-  { href: '/api', label: 'API Reference' },
-];
+const { title, prose = false } = Astro.props;
 
 const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+// Auto-generate doc sidebar items from the content collection
+const docs = await getCollection('docs')
+const order = ['introduction', 'users']
+docs.sort((a, b) => {
+  const ai = order.indexOf(a.id)
+  const bi = order.indexOf(b.id)
+  return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi)
+})
+
+const docItems = await Promise.all(docs.map(async (d) => {
+  const { headings } = await render(d)
+  const label = headings.find(h => h.depth === 1)?.text ?? d.id
+  const children = headings.filter(h => h.depth === 2).map(h => ({
+    href: `/docs/${d.id}#${h.slug}`,
+    label: h.text,
+  }))
+  return { href: `/docs/${d.id}`, label, children }
+}))
+
+const navItems = [
+  { href: '/', label: 'Home', children: [] as { href: string; label: string }[] },
+  ...docItems,
+  { href: '/api', label: 'API Reference', children: [] as { href: string; label: string }[] },
+]
 ---
 
 <html lang="en">
@@ -66,7 +66,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
               >
                 {item.label}
               </a>
-              {isActive && item.children?.length && (
+              {isActive && item.children?.length > 0 && (
                 <div class="flex flex-col gap-0.5 ml-3 border-l border-zinc-800 pl-3 my-1">
                   {item.children.map(child => (
                     <a

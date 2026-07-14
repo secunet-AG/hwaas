@@ -25,6 +25,19 @@ for (const methods of Object.values(spec.paths ?? {})) {
     agent: { disabled: true },
     expandAllResponses: true,
     showDeveloperTools: 'never',
-    layout: 'classic'
+    layout: 'classic',
+    hideTestRequestButton: true,
+    hiddenClients: {
+      php: true,
+      ruby: true,
+      java: true,
+      clojure: true,
+      dart: true,
+      powershell: true,
+      swift: true,
+      kotlin: true,
+      r: true,
+      fsharp: true      
+    },
   }} />
 </BaseLayout>
