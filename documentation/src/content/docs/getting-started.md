@@ -1,8 +1,3 @@
----
-layout: ../../layouts/DocsLayout.astro
-title: Getting Started
----
-
 # Getting Started
 
 Welcome to the HWaaS (Hardware as a Service) platform. This guide will help you get up and running quickly.
@@ -55,9 +50,3 @@ curl -X POST \
   -d '{"command": "status"}' \
   https://api.hwaas.example.com/devices/dev-a1b2c3/commands
 ```
-
-## Next Steps
-
-- Learn about [Authentication](/docs/authentication) options
-- Explore [Device Management](/docs/devices)
-- Browse the full [API Reference](/api)

@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { render, getCollection } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
+
+// We are grabbing all pages, in order, sorting them, then finding the depth of the headings.
+// Headings at depth 2 are then used for hash routing and we can scoll to the item.
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const docs = await getCollection('docs')
+  return docs.map(doc => ({ params: { id: doc.id } }))
+}
+
+const docs = await getCollection('docs')
+const order = ['getting-started', 'authentication', 'devices']
+docs.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+
+const doc = docs.find(d => d.id === Astro.params.id)!
+const { Content, headings } = await render(doc)
+
+// Build sidebar nav: top-level doc pages with nested h2 headings
+const allRendered = await Promise.all(docs.map(async (d) => {
+  const { headings: h } = await render(d)
+  return { id: d.id, label: h.find(h => h.depth === 1)?.text ?? d.id, headings: h.filter(h => h.depth === 2) }
+}))
+
+const sidebarItems = allRendered.map(d => ({
+  href: `/docs/${d.id}`,
+  label: d.label,
+  children: d.headings.map(h => ({ href: `/docs/${d.id}#${h.slug}`, label: h.text })),
+}))
+---
+
+<BaseLayout title={headings.find(h => h.depth === 1)?.text ?? doc.id} prose sidebarItems={sidebarItems}>
+  <Content />
+</BaseLayout>

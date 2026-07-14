@@ -1,8 +1,3 @@
----
-layout: ../../layouts/DocsLayout.astro
-title: Devices
----
-
 # Device Management
 
 Devices are the core resource in HWaaS. Each device represents a physical piece of hardware you can provision, monitor, and control through the API.

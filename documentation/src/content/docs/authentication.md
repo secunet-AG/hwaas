@@ -1,8 +1,3 @@
----
-layout: ../../layouts/DocsLayout.astro
-title: Authentication
----
-
 # Authentication
 
 HWaaS supports multiple authentication methods to integrate with your infrastructure.

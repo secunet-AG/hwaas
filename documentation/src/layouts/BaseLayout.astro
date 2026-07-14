@@ -1,18 +1,36 @@
 ---
 import '../styles/global.css'
 
+interface SidebarChild {
+  href: string;
+  label: string;
+}
+
+interface SidebarItem {
+  href: string;
+  label: string;
+  children?: SidebarChild[];
+}
+
 interface Props {
   title: string;
   prose?: boolean;
+  sidebarItems?: SidebarItem[];
 }
 
-const { title, prose = false } = Astro.props;
+const { title, prose = false, sidebarItems } = Astro.props;
 
-const navItems = [
+const defaultItems: SidebarItem[] = [
   { href: '/', label: 'Home' },
   { href: '/docs/getting-started', label: 'Getting Started' },
   { href: '/docs/authentication', label: 'Authentication' },
   { href: '/docs/devices', label: 'Devices' },
+  { href: '/api', label: 'API Reference' },
+];
+
+const navItems: SidebarItem[] = [
+  { href: '/', label: 'Home' },
+  ...(sidebarItems ?? defaultItems.slice(1, -1)),
   { href: '/api', label: 'API Reference' },
 ];
 
@@ -31,20 +49,38 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
   <body class="bg-zinc-950 text-zinc-200 min-h-screen flex">
     <aside class="w-64 shrink-0 border-r border-zinc-800 bg-zinc-900 p-6 sticky top-0 h-screen overflow-y-auto">
       <a href="/" class="block text-lg font-bold text-white mb-8">HWaaS Docs</a>
-      <nav class="flex flex-col gap-1">
-        {navItems.map(item => (
-          <a
-            href={item.href}
-            class:list={[
-              'px-3 py-2 rounded-md text-sm transition-colors',
-              currentPath === item.href.replace(/\/$/, '')
-                ? 'bg-zinc-800 text-white font-medium'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-            ]}
-          >
-            {item.label}
-          </a>
-        ))}
+      <nav class="flex flex-col gap-0.5">
+        {navItems.map(item => {
+          const itemPath = item.href.replace(/\/$/, '').split('#')[0];
+          const isActive = currentPath === itemPath;
+          return (
+            <>
+              <a
+                href={item.href}
+                class:list={[
+                  'px-3 py-2 rounded-md text-sm transition-colors',
+                  isActive
+                    ? 'bg-zinc-800 text-white font-medium'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
+                ]}
+              >
+                {item.label}
+              </a>
+              {isActive && item.children?.length && (
+                <div class="flex flex-col gap-0.5 ml-3 border-l border-zinc-800 pl-3 my-1">
+                  {item.children.map(child => (
+                    <a
+                      href={child.href}
+                      class="px-2 py-1 rounded text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                    >
+                      {child.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </>
+          );
+        })}
       </nav>
     </aside>
     {prose ? (
