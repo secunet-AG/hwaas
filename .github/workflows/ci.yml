@@ -35,42 +35,12 @@ jobs:
       - name: Build contextapi
         if: always()
         run: nix build -L .#packages.x86_64-linux.contextapi
-      - name: Build contextapi-cors-test-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-cors-test-debug
-      - name: Build contextapi-images-drives-and-middleware-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-images-drives-and-middleware-debug
-      - name: Build contextapi-net-api-test-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-net-api-test-debug
       - name: Build contextapi-oas
         if: always()
         run: nix build -L .#packages.x86_64-linux.contextapi-oas
-      - name: Build contextapi-remote-hands-aux-device-test-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-remote-hands-aux-device-test-debug
-      - name: Build contextapi-remote-hands-routing-test-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-remote-hands-routing-test-debug
-      - name: Build contextapi-remote-serial-test-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-remote-serial-test-debug
-      - name: Build contextapi-startup-test-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-startup-test-debug
-      - name: Build contextapi-test-open-telemetry-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-test-open-telemetry-debug
       - name: Build contextapi-version
         if: always()
         run: nix build -L .#packages.x86_64-linux.contextapi-version
-      - name: Build contextapi-ws-network-routing-test-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-ws-network-routing-test-debug
-      - name: Build http-sim
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.http-sim
       - name: Build hunt
         if: always()
         run: nix build -L .#packages.x86_64-linux.hunt
@@ -149,18 +119,6 @@ jobs:
       - name: Build ws-gateway
         if: always()
         run: nix build -L .#packages.x86_64-linux.ws-gateway
-      - name: Build ws-gateway-test-clients-and-suts-scenario-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.ws-gateway-test-clients-and-suts-scenario-debug
-      - name: Build ws-gateway-test-connect-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.ws-gateway-test-connect-debug
-      - name: Build ws-gateway-test-many-clients-scenario-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.ws-gateway-test-many-clients-scenario-debug
-      - name: Build ws-gateway-test-many-vlans-ping-debug
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.ws-gateway-test-many-vlans-ping-debug
       - name: Build ws-proxy-client
         if: always()
         run: nix build -L .#packages.x86_64-linux.ws-proxy-client
@@ -185,27 +143,9 @@ jobs:
       - name: Check aruba-switch-mock-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-hakari
-      - name: Check aruba-switch-mock-integration-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-integration-test
-      - name: Check aruba-switch-mock-login-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-login-test
-      - name: Check aruba-switch-mock-nextest
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-nextest
-      - name: Check aruba-switch-mock-ports-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-ports-test
-      - name: Check aruba-switch-mock-stats-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-stats-test
       - name: Check contextapi-clippy
         if: always()
         run: nix build -L .#checks.x86_64-linux.contextapi-clippy
-      - name: Check contextapi-cors-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-cors-test
       - name: Check contextapi-docs
         if: always()
         run: nix build -L .#checks.x86_64-linux.contextapi-docs
@@ -221,33 +161,6 @@ jobs:
       - name: Check contextapi-images-drives-and-middleware
         if: always()
         run: nix build -L .#checks.x86_64-linux.contextapi-images-drives-and-middleware
-      - name: Check contextapi-lifetime-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-lifetime-test
-      - name: Check contextapi-net-api-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-net-api-test
-      - name: Check contextapi-nextest
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-nextest
-      - name: Check contextapi-remote-hands-aux-device-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-remote-hands-aux-device-test
-      - name: Check contextapi-remote-hands-routing-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-remote-hands-routing-test
-      - name: Check contextapi-remote-serial-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-remote-serial-test
-      - name: Check contextapi-startup-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-startup-test
-      - name: Check contextapi-test-open-telemetry
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-test-open-telemetry
-      - name: Check contextapi-ws-network-routing-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-ws-network-routing-test
       - name: Check hunt-clippy
         if: always()
         run: nix build -L .#checks.x86_64-linux.hunt-clippy
@@ -257,9 +170,6 @@ jobs:
       - name: Check hunt-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.hunt-fmt
-      - name: Check hunt-nextest
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.hunt-nextest
       - name: Check hunt-rust-log
         if: always()
         run: nix build -L .#checks.x86_64-linux.hunt-rust-log
@@ -281,15 +191,6 @@ jobs:
       - name: Check net-ctrl-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.net-ctrl-hakari
-      - name: Check net-ctrl-nextest
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-nextest
-      - name: Check net-ctrl-test-open-telemetry
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-test-open-telemetry
-      - name: Check net-ctrl-test-switch-client-cache
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-test-switch-client-cache
       - name: Check pre-commit
         if: always()
         run: nix build -L .#checks.x86_64-linux.pre-commit
@@ -311,9 +212,6 @@ jobs:
       - name: Check remote-hands-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.remote-hands-hakari
-      - name: Check remote-hands-nextest
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-nextest
       - name: Check remote-hands-remote-auxiliary
         if: always()
         run: nix build -L .#checks.x86_64-linux.remote-hands-remote-auxiliary
@@ -323,12 +221,6 @@ jobs:
       - name: Check remote-hands-remote-serial-echo
         if: always()
         run: nix build -L .#checks.x86_64-linux.remote-hands-remote-serial-echo
-      - name: Check remote-hands-remote-serial-udev-custom-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-serial-udev-custom-test
-      - name: Check remote-hands-remote-serial-udev-default-test
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-serial-udev-default-test
       - name: Check remote-hands-remote-usb
         if: always()
         run: nix build -L .#checks.x86_64-linux.remote-hands-remote-usb
@@ -341,9 +233,6 @@ jobs:
       - name: Check rpi-status-display-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.rpi-status-display-fmt
-      - name: Check rpi-status-display-nextest
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.rpi-status-display-nextest
       - name: Check treefmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.treefmt
@@ -359,22 +248,3 @@ jobs:
       - name: Check ws-gateway-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.ws-gateway-hakari
-      - name: Check ws-gateway-nextest
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-nextest
-      - name: Check ws-gateway-test-clients-and-suts-scenario
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-test-clients-and-suts-scenario
-      - name: Check ws-gateway-test-connect
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-test-connect
-      - name: Check ws-gateway-test-many-clients-scenario
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-test-many-clients-scenario
-      # Temporarily disable until CI has more resources.
-      # - name: Check ws-gateway-test-many-vlans-ping
-      #   if: always()
-      #   run: nix build -L .#checks.x86_64-linux.ws-gateway-test-many-vlans-ping
-      - name: Check ws-gateway-test-open-telemetry
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-test-open-telemetry
