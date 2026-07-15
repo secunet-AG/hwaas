@@ -69,3 +69,12 @@ The managed physical components have scripts to update the required functionalit
 It is expected that PRs will pass the pipeline. To validate locally, you can run `nix flake check`.
 
 **_This is quite a large build_**, even with 32GB of memory. If your machine does not have swap configured, you will likely run out of memory and your machine will stall. If this is the case you will need to run jobs separately. Looking at the CI configuration is a good entrypoint for understanding the various tests the repository contains.
+
+## Funding
+
+This open-source project was developed within the _Edge Gateway Platform_ project and is sponsored by **secunet Security Networks AG**.
+This project has received public funding from the **European Union** NextGenerationEU within the Important Project of Common European Interest – Cloud Infrastructures and Services (IPCEI-CIS) under grant agreement 13IPC022.
+
+<p align="center">
+  <img alt="Bundesministerium für Wirtschaft und Energie (BMWE)-EU and secunet funding logo" src="docs/images/logo_sponsored_funding_ic_sec.png" width="400"/>
+</p>
