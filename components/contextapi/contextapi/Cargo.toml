@@ -2,7 +2,7 @@
 name = "contextapi"
 version = "5.0.0"
 edition = "2021"
-license="Apache-2.0"
+license = "Apache-2.0"
 
 [lib]
 name = "context_api_lib"

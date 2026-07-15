@@ -3,7 +3,7 @@ name = "hunt"
 version = "0.1.0"
 edition = "2021"
 description = "HWaaS universal notorious tracing (Hunt) is a default tracing setup used by HWaaS rust components"
-license="Apache-2.0"
+license = "Apache-2.0"
 
 [lib]
 name = "hunt"

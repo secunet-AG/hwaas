@@ -2,7 +2,7 @@
 edition = "2021"
 name = "network_type_ids"
 version = "0.1.0"
-license="Apache-2.0"
+license = "Apache-2.0"
 
 [lib]
 name = "network_type_ids"

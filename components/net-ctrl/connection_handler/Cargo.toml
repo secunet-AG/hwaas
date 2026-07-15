@@ -2,7 +2,7 @@
 edition = "2021"
 name = "connection_handler"
 version = "0.1.0"
-license="Apache-2.0"
+license = "Apache-2.0"
 
 [lib]
 name = "connection_handler"
