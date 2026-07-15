@@ -52,9 +52,7 @@ You are now ready to clone and run the project.
 
 ```sh
 git clone https://github.com/secunet-AG/hwaas
-
 cd hwaas
-
 nix develop .
 # Alternatively, allow direnv to manage it for you
 direnv --allow
