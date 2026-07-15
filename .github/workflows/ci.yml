@@ -132,86 +132,140 @@ jobs:
         uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-      - name: Check aruba-switch-mock-clippy
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-clippy
-      - name: Check aruba-switch-mock-docs
+      - name: Check treefmt
         if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-docs
+        run: nix build -L .#checks.x86_64-linux.treefmt
+      - name: Check pre-commit
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.pre-commit
+  aruba-switch-mock:
+    name: Check aruba-switch-mock
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - name: Check aruba-switch-mock-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-fmt
       - name: Check aruba-switch-mock-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-hakari
-      - name: Check contextapi-clippy
+      - name: Check aruba-switch-mock-docs
         if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-clippy
-      - name: Check contextapi-docs
+        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-docs
+      - name: Check aruba-switch-mock-clippy
         if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-docs
+        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-clippy
+  contextapi:
+    name: Check contextapi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - name: Check contextapi-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.contextapi-fmt
-      - name: Check contextapi-golden-test-openapi-spec
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-golden-test-openapi-spec
       - name: Check contextapi-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.contextapi-hakari
+      - name: Check contextapi-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-docs
+      - name: Check contextapi-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-clippy
+      - name: Check contextapi-golden-test-openapi-spec
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-golden-test-openapi-spec
       - name: Check contextapi-images-drives-and-middleware
         if: always()
         run: nix build -L .#checks.x86_64-linux.contextapi-images-drives-and-middleware
-      - name: Check hunt-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.hunt-clippy
-      - name: Check hunt-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.hunt-docs
+  hunt:
+    name: Check hunt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - name: Check hunt-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.hunt-fmt
+      - name: Check hunt-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.hunt-docs
+      - name: Check hunt-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.hunt-clippy
       - name: Check hunt-rust-log
         if: always()
         run: nix build -L .#checks.x86_64-linux.hunt-rust-log
-      - name: Check net-ctrl-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-clippy
-      - name: Check net-ctrl-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-docs
+  net-ctrl:
+    name: Check net-ctrl
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - name: Check net-ctrl-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.net-ctrl-fmt
-      - name: Check net-ctrl-get-switches
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-get-switches
-      - name: Check net-ctrl-golden-test-openapi-spec
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec
       - name: Check net-ctrl-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.net-ctrl-hakari
-      - name: Check pre-commit
+      - name: Check net-ctrl-docs
         if: always()
-        run: nix build -L .#checks.x86_64-linux.pre-commit
-      - name: Check remote-hands-check-otel-traces
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-docs
+      - name: Check net-ctrl-clippy
         if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-check-otel-traces
-      - name: Check remote-hands-clippy
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-clippy
+      - name: Check net-ctrl-golden-test-openapi-spec
         if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-clippy
-      - name: Check remote-hands-docs
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec
+      - name: Check net-ctrl-get-switches
         if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-docs
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-get-switches
+  remote-hands:
+    name: Check remote-hands
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - name: Check remote-hands-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.remote-hands-fmt
-      - name: Check remote-hands-golden-test-openapi-spec
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-golden-test-openapi-spec
       - name: Check remote-hands-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.remote-hands-hakari
+      - name: Check remote-hands-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-docs
+      - name: Check remote-hands-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-clippy
+      - name: Check remote-hands-golden-test-openapi-spec
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-golden-test-openapi-spec
+      - name: Check remote-hands-check-otel-traces
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-check-otel-traces
       - name: Check remote-hands-remote-auxiliary
         if: always()
         run: nix build -L .#checks.x86_64-linux.remote-hands-remote-auxiliary
@@ -224,27 +278,44 @@ jobs:
       - name: Check remote-hands-remote-usb
         if: always()
         run: nix build -L .#checks.x86_64-linux.remote-hands-remote-usb
-      - name: Check rpi-status-display-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.rpi-status-display-clippy
-      - name: Check rpi-status-display-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.rpi-status-display-docs
+  rpi-status-display:
+    name: Check rpi-status-display
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - name: Check rpi-status-display-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.rpi-status-display-fmt
-      - name: Check treefmt
+      - name: Check rpi-status-display-docs
         if: always()
-        run: nix build -L .#checks.x86_64-linux.treefmt
-      - name: Check ws-gateway-clippy
+        run: nix build -L .#checks.x86_64-linux.rpi-status-display-docs
+      - name: Check rpi-status-display-clippy
         if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-clippy
-      - name: Check ws-gateway-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-docs
+        run: nix build -L .#checks.x86_64-linux.rpi-status-display-clippy
+  ws-gateway:
+    name: Check ws-gateway
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - name: Check ws-gateway-fmt
         if: always()
         run: nix build -L .#checks.x86_64-linux.ws-gateway-fmt
       - name: Check ws-gateway-hakari
         if: always()
         run: nix build -L .#checks.x86_64-linux.ws-gateway-hakari
+      - name: Check ws-gateway-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.ws-gateway-docs
+      - name: Check ws-gateway-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.ws-gateway-clippy
