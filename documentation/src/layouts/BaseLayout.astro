@@ -13,7 +13,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 // Auto-generate doc sidebar items from the content collection
 const docs = await getCollection('docs')
-const order = ['introduction', 'users']
+const order = ['introduction', 'core-concepts', 'users']
 docs.sort((a, b) => {
   const ai = order.indexOf(a.id)
   const bi = order.indexOf(b.id)
@@ -46,7 +46,7 @@ const navItems = [
     <meta name="generator" content={Astro.generator} />
     <title>{title} - HWaaS Docs</title>
   </head>
-  <body class="bg-zinc-950 text-zinc-200 min-h-screen flex">
+  <body class="bg-zinc-950 text-zinc-200 min-h-screen flex w-full">
     <aside class="w-64 shrink-0 border-r border-zinc-800 bg-zinc-900 p-6 sticky top-0 h-screen overflow-y-auto">
       <a href="/" class="block text-lg font-bold text-white mb-8">HWaaS Docs</a>
       <nav class="flex flex-col gap-0.5">
@@ -84,18 +84,20 @@ const navItems = [
       </nav>
     </aside>
     {prose ? (
-      <main class="flex-1 min-w-0 max-w-3xl px-12 py-10">
-        <article class="prose prose-invert prose-zinc max-w-none
-          prose-headings:font-semibold
-          prose-h1:text-3xl prose-h1:mb-6
-          prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4
-          prose-h3:text-lg
-          prose-code:text-pink-400 prose-code:bg-zinc-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
-          prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-lg
-          prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-          prose-strong:text-zinc-100">
-          <slot />
-        </article>
+      <main class="flex w-full justify-center px-12 py-10">
+        <div class="sm:mix-w-lg lg:min-w-2xl max-w-3xl">
+          <article class="prose prose-invert prose-zinc max-w-none
+            prose-headings:font-semibold
+            prose-h1:text-3xl prose-h1:mb-6
+            prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4
+            prose-h3:text-lg
+            prose-code:text-pink-400 prose-code:bg-zinc-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
+            prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-lg
+            prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+            prose-strong:text-zinc-100">
+            <slot />
+          </article>
+        </div>
       </main>
     ) : (
       <main class="flex-1 min-w-0">

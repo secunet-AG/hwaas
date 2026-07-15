@@ -1,7 +1,9 @@
 # Managing an Instance
 
-## Hardware Requirements
+## Deploying
 
-## Security
+## Hardware
 
 ## Monitoring
+
+## Security
