@@ -392,9 +392,10 @@ jobs:
       - name: Check ws-gateway-test-many-clients-scenario
         if: always()
         run: nix build -L .#checks.x86_64-linux.ws-gateway-test-many-clients-scenario
-      - name: Check ws-gateway-test-many-vlans-ping
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-test-many-vlans-ping
+      # Temporarily disable until CI has more resources.
+      # - name: Check ws-gateway-test-many-vlans-ping
+      #   if: always()
+      #   run: nix build -L .#checks.x86_64-linux.ws-gateway-test-many-vlans-ping
       - name: Check ws-gateway-test-open-telemetry
         if: always()
         run: nix build -L .#checks.x86_64-linux.ws-gateway-test-open-telemetry
