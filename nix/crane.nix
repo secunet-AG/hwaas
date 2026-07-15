@@ -329,11 +329,6 @@
             ../components/hunt
           ];
 
-          resource-calculator = {
-            sources = [ ../components/resource-calculator ];
-            hasWorkspaces = false;
-          };
-
           ws-gateway = {
             sources = [
               ../components/ws-gateway

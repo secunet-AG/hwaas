@@ -4,7 +4,6 @@
 
 _: {
   imports = [
-    ./run-calculation.nix
     ./ws-proxy-client.nix
     ./regen-expected-oas.nix
     ./generate-net-ctrl-client.nix
