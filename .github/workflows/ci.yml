@@ -1,0 +1,250 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  license:
+    name: Run license check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: License check
+        run: nix run .#apps.x86_64-linux.lint-SPDX-license-header
+  build:
+    name: Build nix packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Build aruba-switch-mock
+        run: nix build -L .#packages.x86_64-linux.aruba-switch-mock
+      - name: Build contextapi
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.contextapi
+      - name: Build contextapi-oas
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.contextapi-oas
+      - name: Build contextapi-version
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.contextapi-version
+      - name: Build hunt
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.hunt
+      - name: Build hwaas-oas
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.hwaas-oas
+      - name: Build machine-ops
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.machine-ops
+      - name: Build net-ctrl
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.net-ctrl
+      - name: Build net-ctrl-client
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.net-ctrl-client
+      - name: Build net-ctrl-oas
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.net-ctrl-oas
+      - name: Build remote-auxiliary
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.remote-auxiliary
+      - name: Build remote-hands-oas
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.remote-hands-oas
+      - name: Build remote-power
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.remote-power
+      - name: Build remote-serial
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.remote-serial
+      - name: Build remote-usb
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.remote-usb
+      - name: Build rpi-status-display
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.rpi-status-display
+      - name: Build sbom-aruba-switch-mock
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-aruba-switch-mock
+      - name: Build sbom-contextapi
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-contextapi
+      - name: Build sbom-hunt
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-hunt
+      - name: Build sbom-machine-ops
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-machine-ops
+      - name: Build sbom-net-ctrl
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-net-ctrl
+      - name: Build sbom-remote-auxiliary
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-remote-auxiliary
+      - name: Build sbom-remote-power
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-remote-power
+      - name: Build sbom-remote-serial
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-remote-serial
+      - name: Build sbom-remote-usb
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-remote-usb
+      - name: Build sbom-rpi-status-display
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-rpi-status-display
+      - name: Build sbom-ws-gateway
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-ws-gateway
+      - name: Build sbom-ws-proxy-client
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.sbom-ws-proxy-client
+      - name: Build vue-client
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.vue-client
+      - name: Build ws-gateway
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.ws-gateway
+      - name: Build ws-proxy-client
+        if: always()
+        run: nix build -L .#packages.x86_64-linux.ws-proxy-client
+  check:
+    name: Run nix checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Check aruba-switch-mock-clippy
+        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-clippy
+      - name: Check aruba-switch-mock-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-docs
+      - name: Check aruba-switch-mock-fmt
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-fmt
+      - name: Check aruba-switch-mock-hakari
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-hakari
+      - name: Check contextapi-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-clippy
+      - name: Check contextapi-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-docs
+      - name: Check contextapi-fmt
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-fmt
+      - name: Check contextapi-golden-test-openapi-spec
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-golden-test-openapi-spec
+      - name: Check contextapi-hakari
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-hakari
+      - name: Check contextapi-images-drives-and-middleware
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.contextapi-images-drives-and-middleware
+      - name: Check hunt-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.hunt-clippy
+      - name: Check hunt-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.hunt-docs
+      - name: Check hunt-fmt
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.hunt-fmt
+      - name: Check hunt-rust-log
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.hunt-rust-log
+      - name: Check net-ctrl-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-clippy
+      - name: Check net-ctrl-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-docs
+      - name: Check net-ctrl-fmt
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-fmt
+      - name: Check net-ctrl-get-switches
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-get-switches
+      - name: Check net-ctrl-golden-test-openapi-spec
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec
+      - name: Check net-ctrl-hakari
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.net-ctrl-hakari
+      - name: Check pre-commit
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.pre-commit
+      - name: Check remote-hands-check-otel-traces
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-check-otel-traces
+      - name: Check remote-hands-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-clippy
+      - name: Check remote-hands-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-docs
+      - name: Check remote-hands-fmt
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-fmt
+      - name: Check remote-hands-golden-test-openapi-spec
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-golden-test-openapi-spec
+      - name: Check remote-hands-hakari
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-hakari
+      - name: Check remote-hands-remote-auxiliary
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-auxiliary
+      - name: Check remote-hands-remote-power
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-power
+      - name: Check remote-hands-remote-serial-echo
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-serial-echo
+      - name: Check remote-hands-remote-usb
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-usb
+      - name: Check rpi-status-display-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.rpi-status-display-clippy
+      - name: Check rpi-status-display-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.rpi-status-display-docs
+      - name: Check rpi-status-display-fmt
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.rpi-status-display-fmt
+      - name: Check treefmt
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.treefmt
+      - name: Check ws-gateway-clippy
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.ws-gateway-clippy
+      - name: Check ws-gateway-docs
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.ws-gateway-docs
+      - name: Check ws-gateway-fmt
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.ws-gateway-fmt
+      - name: Check ws-gateway-hakari
+        if: always()
+        run: nix build -L .#checks.x86_64-linux.ws-gateway-hakari
