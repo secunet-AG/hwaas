@@ -92,12 +92,3 @@ It is expected that PRs will pass the pipeline. To validate locally, you can run
 
 Unless noted otherwise, this project and the source files inside this repository are licensed under the terms of the Apache License in Version 2.0.
 Refer to REUSE.toml for exceptions to licensing for individual files and NOTICES.md for additional notices on some third-party applications.
-
-## Funding
-
-This open-source project was developed within the _Edge Gateway Platform_ project and is sponsored by **secunet Security Networks AG**.
-This project has received public funding from the **European Union** NextGenerationEU within the Important Project of Common European Interest – Cloud Infrastructures and Services (IPCEI-CIS) under grant agreement 13IPC022.
-
-<p align="center">
-  <img alt="Bundesministerium für Wirtschaft und Energie (BMWE)-EU and secunet funding logo" src="docs/images/logo_sponsored_funding_ic_sec.png" width="400"/>
-</p>
