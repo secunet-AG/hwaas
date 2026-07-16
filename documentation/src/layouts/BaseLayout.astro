@@ -13,7 +13,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 // Auto-generate doc sidebar items from the content collection
 const docs = await getCollection('docs')
-const order = ['introduction', 'core-concepts', 'users']
+const order = ['getting-started', 'core-concepts', 'users'] // Note eloquent but change order here, probably prefix with 00 or so in the future
 docs.sort((a, b) => {
   const ai = order.indexOf(a.id)
   const bi = order.indexOf(b.id)
@@ -31,7 +31,7 @@ const docItems = await Promise.all(docs.map(async (d) => {
 }))
 
 const navItems = [
-  { href: '/', label: 'Home', children: [] as { href: string; label: string }[] },
+  // { href: '/', label: 'Home', children: [] as { href: string; label: string }[] },
   ...docItems,
   { href: '/api', label: 'API Reference', children: [] as { href: string; label: string }[] },
 ]
@@ -49,45 +49,49 @@ const navItems = [
 
   <body class="bg-(--app-background) text-(--app-primary-text) min-h-screen flex flex-col w-full">
     <header class="px-6 py-3 flex justify-between border-b border-(--app-border)">
-      <img class="w-32 h-auto" src="hwaas_placeholder_logo.svg">
+      <img class="w-32 h-auto" src="/hwaas_placeholder_logo.svg">
+      <a href="https://www.github.com/secunet-ag/hwaas">
+        <img class="w-8" src="/github.svg">
+      </a>
     </header>
 
-    <aside class="w-64 shrink-0 border-r border-(--app-border) px-6 py-3 overflow-y-auto">
-      <!-- Nav Bar -->
-      <nav class="flex flex-col gap-0.5">
-        {navItems.map(item => {
-          const itemPath = item.href.replace(/\/$/, '').split('#')[0];
-          const isActive = currentPath === itemPath;
-          return (
-            <>
-              <a
-                href={item.href}
-                class:list={[
-                  'px-3 py-2 rounded-md text-sm transition-colors',
-                  isActive
-                    ? 'bg-zinc-800 text-white font-medium'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                ]}
-              >
-                {item.label}
-              </a>
-              {isActive && item.children?.length > 0 && (
-                <div class="flex flex-col gap-0.5 ml-3 border-l border-zinc-800 pl-3 my-1">
-                  {item.children.map(child => (
-                    <a
-                      href={child.href}
-                      class="px-2 py-1 rounded text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
-                    >
-                      {child.label}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </>
-          );
-        })}
-      </nav>
-    </aside>
+    <div class="w-full h-full flex shrink-0">
+      <aside class="w-64 shrink-0 border-r border-(--app-border) px-6 py-3 overflow-y-auto">
+        <!-- Nav Bar -->
+        <nav class="flex flex-col gap-0.5 pt-6">
+          {navItems.map(item => {
+            const itemPath = item.href.replace(/\/$/, '').split('#')[0];
+            const isActive = currentPath === itemPath;
+            return (
+              <>
+                <a
+                  href={item.href}
+                  class:list={[
+                    'px-3 py-2 rounded-md text-sm font-mono transition-colors',
+                    isActive
+                      ? 'bg-zinc-800 text-white font-medium'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
+                  ]}
+                >
+                  {item.label.toLocaleUpperCase()}
+                </a>
+                { item.children?.length > 0 && (
+                  <div class="flex flex-col gap-0.5 ml-3 border-l border-zinc-800 pl-3 my-1">
+                    {item.children.map(child => (
+                      <a
+                        href={child.href}
+                        class="px-2 py-1 rounded text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })}
+        </nav>
+      </aside>
     {prose ? (
       <main class="flex w-full justify-center px-12 py-10">
         <div class="sm:mix-w-lg lg:min-w-2xl max-w-3xl">
@@ -110,5 +114,6 @@ const navItems = [
         <slot />
       </main>
     )}
+    </div>
   </body>
 </html>

@@ -1,8 +1,15 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&family=Geist:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@theme {
+  --font-sans: "Geist", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+}
+
 :root {
   --app-background: #1f2125;
+  --app-code-background: rgb(32, 31, 34);
 
   --app-primary-text: #ffffff;
   --app-secondary-text: #848993;
@@ -12,4 +19,9 @@
 
 code {
   background: none;
+}
+
+pre {
+  background: var(--app-code-background) !important;
+  border: 1px solid var(--app-border);
 }

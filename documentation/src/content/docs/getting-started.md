@@ -1,4 +1,4 @@
-# Introduction
+# Getting Started
 
 Welcome to the HWaaS (Hardware as a Service) platform. This guide will help you get up and running quickly.
 
