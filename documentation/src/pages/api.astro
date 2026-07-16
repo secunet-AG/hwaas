@@ -17,7 +17,7 @@ for (const methods of Object.values(spec.paths ?? {})) {
 ---
 
 <BaseLayout title="API Reference">
-  <ScalarComponent configuration={{
+  <ScalarComponent renderMode="client" configuration={{
     spec: { content: spec },
     pageTitle: 'HWaaS API',
     hideClientButton: true,
@@ -55,6 +55,11 @@ for (const methods of Object.values(spec.paths ?? {})) {
         --scalar-header-background-1: var(--app-background) !important;
         --scalar-color-1: var(--app-primary-text) !important;
         --scalar-color-2: var(--app-secondary-text) !important;
+      }
+      .scalar-app {
+        height: auto !important;
+        max-height: none !important;
+        position: relative !important;
       }
     `,
   }} />

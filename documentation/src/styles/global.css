@@ -51,3 +51,18 @@ aside {
   z-index: 10;
   position: relative;
 }
+
+/* Prevent Scalar from escaping its container */
+[data-scalar-client] {
+  overflow: hidden;
+}
+
+.scalar-app {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  position: relative !important;
+  top: 0 !important;
+  margin-top: 0 !important;
+  transform: none !important;
+}
