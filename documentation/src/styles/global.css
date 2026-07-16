@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+:root {
+  --app-background: #1f2125;
+
+  --app-primary-text: #ffffff;
+  --app-secondary-text: #848993;
+
+  --app-border: #45484d;
+}
+
 code {
   background: none;
 }
