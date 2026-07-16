@@ -47,7 +47,7 @@ const navItems = [
     <title>{title} - HWaaS Docs</title>
   </head>
 
-  <body class="bg-(--app-background) text-(--app-primary-text) min-h-screen flex flex-col w-full">
+  <body class="bg-(--app-background) text-(--app-primary-text) h-screen flex flex-col w-full overflow-hidden">
     <header class="px-6 py-3 flex justify-between border-b border-(--app-border)">
       <img class="w-32 h-auto" src="/hwaas_placeholder_logo.svg">
       <a href="https://www.github.com/secunet-ag/hwaas">
@@ -55,7 +55,7 @@ const navItems = [
       </a>
     </header>
 
-    <div class="w-full flex flex-1 shrink-0">
+    <div class="w-full flex flex-1 min-h-0">
       <aside class="w-64 shrink-0 border-r border-(--app-border) px-6 py-3 overflow-y-auto">
         <!-- Nav Bar -->
         <nav class="flex flex-col gap-0.5 pt-6">
@@ -92,29 +92,32 @@ const navItems = [
           })}
         </nav>
       </aside>
-    {prose ? (
-      <main class="flex w-full justify-center px-12 py-10">
-        <div class="sm:mix-w-lg lg:min-w-2xl max-w-3xl">
-          <article class="prose prose-invert prose-zinc max-w-none
-            prose-headings:font-semibold
-            prose-h1:text-3xl prose-h1:mb-6
-            prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4
-            prose-h3:text-lg
-            prose-code:text-(--app-success) prose-code:bg-zinc-800 prose-code:px-1.5 prose-code:py-1
-            prose-code:border prose-code:border-(--app-border) prose-code:rounded-lg
-            prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-lg
-            prose-a:text-(--app-info) prose-a:no-underline hover:prose-a:underline
-            prose-strong:text-(--app-primary)">
+      <div class="w-full overflow-y-auto">
+        {prose ? (
+          <main class="flex w-full justify-center px-12 py-10">
+            <div class="sm:mix-w-lg lg:min-w-2xl max-w-3xl">
+              <article class="prose prose-invert prose-zinc max-w-none
+                prose-headings:font-semibold
+                prose-h1:text-3xl prose-h1:mb-6
+                prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-6
+                prose-h3:text-xl
+                prose-h4:text-lg
+                prose-code:text-(--app-success) prose-code:bg-zinc-800 prose-code:px-1.5 prose-code:py-1
+                prose-code:border prose-code:border-(--app-border) prose-code:rounded-lg
+                prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-lg
+                prose-a:text-(--app-info) prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-(--app-primary)">
+                <slot />
+              </article>
+            </div>
+          </main>
+        )     
+        : (
+          <main class="flex-1 min-w-0">
             <slot />
-          </article>
-        </div>
-      </main>
-    )     
-    : (
-      <main class="flex-1 min-w-0">
-        <slot />
-      </main>
-    )}
+          </main>
+        )}
+      </div>
     </div>
   </body>
 </html>

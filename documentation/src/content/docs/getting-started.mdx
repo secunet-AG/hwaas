@@ -17,10 +17,11 @@ import Callout from "../../components/Callout.astro";
 - Slowly expand your setup, peace by peace
 - Manage networking, or auxilary devices amongst machines
 - Minimal KVM and serial interface for each machine
+- Desire for memory safe, performant infrastructure
 - Testing library for writing NixOS integration tests
 - API and Web UI for managing contexts and interacting with machines
 
-## Compared to Other Solutions
+## Compare and Contrast
 
 ### LAVA
 
@@ -32,22 +33,57 @@ Additionally, HWaaS's tight coupling with NixOS also helps enforce a level of re
 
 HWaaS is also designed around the development and debugging stages. Developers can lease machines, debug with the Web UI, script various tests and more.
 
+---
+
 ### PiKVM
 
-The `remote-hands` services are architecturally similar to the PiKVM solution.
+PiKVM is a solution for a lightweight KVM solution running on a Raspberry Pi, that allows you to perform remote hands debugging on individual machines.
 
-In fact, a strong mental model for the HWaaS is:
+The individual Raspberry Pi's and `remote-hands` services are architecturally similar to the PiKVM solution.
 
-> "What if I had NixOS control a number of PiKVMs, and could use this to manage shared hardware leases, network connectivity, and power switches."
+<Callout type="note">
+  In fact, a strong mental model for the HWaaS is "What if I had NixOS control a
+  number of PiKVMs, and could use this to manage shared hardware leases, network
+  connectivity, and power switches."
+</Callout>
 
-### DIY
+Where the PiKVM allows you to control a single machine, the HWaaS provides a platform for reproducible testing and functionality around a fleet of devices.
+You can control the networking between them, and easily tweak the underlying images, services, etc. you are booting with NixOS.
 
-Various labs have homebrewed their own setups to meet their needs, and we don't want to say that we can immediately replace any solution. But, you may be buying into a greater test philosophy that can immediately make it easier to reproduce bugs, on real hardware, amongst teams.
+---
+
+### DIY Labs
+
+Various labs have engineered their own setups to meet their needs, and we don't want to say that the HWaaS can immediately replace any solution.
+
+However, with the HWaaS, you may be buying into a greater test philosophy that can immediately make it easier to reproduce bugs, on real hardware, amongst teams.
+
+**You will get, out of the box:**
+
+- Remote KVM
+- Remote Serial
+- Remote USB OTG Boot
+- Remote Auxilary Device control
+- Shared hardware leases
+- CI/CD Testing Library
+- A Number of Examples
+- Reproducibility with NixOS
+- Easily Extend with Monitoring
+- Memory Safe, Performant Infrastructure
+
+So, if these meet your usecase, you may very well find it a productive setup.
 
 HWaaS components are easily sourcable, and the project is Apache 2.0 licensed, so the initial investment is reasonable.
 
-You will get, out of the box:
+Additionally, development is ongoing! If you or your team find a feature that you desire that is sufficiently general and
+helpful for invested partiest, we may look at upstreaming your changes!
 
-- Remote KVM control
-- Remote Serial control
--
+## So What Now?
+
+Well, you will first need a HWaaS test setup, either managed for you or self-hosted.
+
+If you already have a working setup, please read more about the different frontends for the HWaaS, in the [USER GUIDE](./users).
+
+We will be working to improve our documentation in the coming weeks, provide sample deployments, etc.
+
+For now, you can learn more in the [MANAGING AN INSTANCE](./managing-an-instance) page.
