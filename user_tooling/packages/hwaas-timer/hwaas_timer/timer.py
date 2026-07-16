@@ -58,26 +58,38 @@ class Timer:
         end: datetime | None = None
         timeout_expired: bool = False
 
+        # Record failures from worker threads
+        error: BaseException | None = None
+
         def __init__(self) -> None:
             pass
 
         @staticmethod
         def __worker_fn(worker: Any) -> None:
-            # The function which this process executes. At first, it starts the
-            # "real worker", and joins it.
-            real_worker = multiprocessing.Process(target=worker.fn)
-            real_worker.start()
-            real_worker.join(worker.timeout)
+            real_worker: multiprocessing.Process | None = None
 
-            # Now this process waits, either until the real worker is done
-            # working, or until the timeout expires.
-            if real_worker.is_alive():
-                logger.debug("Timeout expired.")
-                real_worker.kill()
-                worker.timeout_expired = True
-            else:
-                logger.debug("No timeout expired")
-                worker.end = datetime.now(tz=timezone.utc)
+            try:
+                # The function which this process executes. At first, it starts the
+                # "real worker", and joins it.
+                real_worker = multiprocessing.Process(target=worker.fn)
+                real_worker.start()
+                real_worker.join(worker.timeout)
+
+                # Now this process waits, either until the real worker is done
+                # working, or until the timeout expires.
+                if real_worker.is_alive():
+                    logger.debug("Timeout expired.")
+                    real_worker.kill()
+                    # Need to join here again to wait until they have actually left
+                    real_worker.join()
+                    worker.timeout_expired = True
+                else:
+                    logger.debug("No timeout expired.")
+                    worker.end = datetime.now(tz=timezone.utc)
+
+            except BaseException as error:
+                worker.error = error
+                logger.exception("Timer worker failed")
 
         def start(self) -> str | None:
             """Start the timer thread and the worker thread. Returns None if no
@@ -103,6 +115,9 @@ class Timer:
             """Joins the timer thread."""
             if self.__thread is not None:
                 self.__thread.join()
+            # Propagate recorded errors
+            if self.error is not None:
+                raise RuntimeError("Timer worker failed") from self.error
 
     __worker: Worker
     __start: datetime | None = None
