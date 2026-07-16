@@ -1,0 +1,26 @@
+[project]
+name = "benchmark_data_collector"
+version = "0.1.0"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+test_driver = ["py.typed"]
+
+[tool.black]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "U", "N"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider" # deactivating pytest caching.
+
+[tool.mypy]
+warn_redundant_casts = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+no_implicit_optional = true
