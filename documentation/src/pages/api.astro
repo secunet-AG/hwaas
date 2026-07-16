@@ -17,6 +17,7 @@ for (const methods of Object.values(spec.paths ?? {})) {
 ---
 
 <BaseLayout title="API Reference">
+  <div class="scalar-wrapper">
   <ScalarComponent configuration={{
     spec: { content: spec },
     pageTitle: 'HWaaS API',
@@ -29,6 +30,7 @@ for (const methods of Object.values(spec.paths ?? {})) {
     hideTestRequestButton: true,
     hideDarkModeToggle: true,
     hideSearch: true,
+    darkMode: true,
     hiddenClients: {
       php: true,
       ruby: true,
@@ -39,7 +41,23 @@ for (const methods of Object.values(spec.paths ?? {})) {
       swift: true,
       kotlin: true,
       r: true,
-      fsharp: true      
+      fsharp: true
     },
+    customCss: `
+      :root, .scalar-app, .dark-mode, .light-mode {
+        --scalar-font: var(--scalar-font) !important;
+        --scalar-font-code: var(--scalar-font-code) !important;
+        --scalar-border-color: var(--app-border) !important;
+        --scalar-background-1: var(--app-background) !important;
+        --scalar-background-2: var(--app-background) !important;
+        --scalar-background-3: var(--app-background) !important;
+        --scalar-background-4: var(--app-background) !important;
+        --scalar-sidebar-background-1: var(--app-background) !important;
+        --scalar-header-background-1: var(--app-background) !important;
+        --scalar-color-1: var(--app-primary-text) !important;
+        --scalar-color-2: var(--app-secondary-text) !important;
+      }
+    `,
   }} />
+  </div>
 </BaseLayout>

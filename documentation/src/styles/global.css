@@ -15,6 +15,14 @@
   --app-secondary-text: #848993;
 
   --app-border: #45484d;
+
+  --scalar-font: "Geist", sans-serif;
+  --scalar-font-code: "Geist Mono", monospace;
+
+  --scalar-border-color: var(--app-border);
+  --scalar-background-1: var(--app-background);
+  --scalar-background-2: var(--app-background);
+  --scalar-background-3: var(--app-background);
 }
 
 code {
@@ -24,4 +32,30 @@ code {
 pre {
   background: var(--app-background) !important;
   border: 1px solid var(--app-border);
+}
+
+/* Override Scalar styles that leak into header/sidebar/body */
+body {
+  background: var(--app-background) !important;
+  color: var(--app-primary-text) !important;
+}
+
+header {
+  background: var(--app-background) !important;
+  z-index: 10;
+  position: relative;
+}
+
+aside {
+  background: var(--app-background) !important;
+  z-index: 10;
+  position: relative;
+}
+
+.section {
+  padding-top: 24px !important;
+}
+
+.section-header-wrapper {
+  padding-top: 12px !important;
 }
