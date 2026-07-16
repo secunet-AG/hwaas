@@ -165,7 +165,7 @@ class Timer:
             sleep: The time between invocations of `fn`.
         """
         s = sleep if isinstance(sleep, float) else sleep.total_seconds()
-        self.__worker.fn = partial(Timer.__wait_until, fn, True, s)
+        self.__worker.fn = partial(Timer._wait_until, fn, True, s)
 
     def set_wait_until_failure(
         self, fn: Callable[[], bool], sleep: float | timedelta = 0.0
@@ -179,7 +179,7 @@ class Timer:
             sleep: The time between invocations of `fn`.
         """
         s = sleep if isinstance(sleep, float) else sleep.total_seconds()
-        self.__worker.fn = partial(Timer.__wait_until, fn, False, s)
+        self.__worker.fn = partial(Timer._wait_until, fn, False, s)
 
     def start(self) -> None:
         """Starts the timer. Throws an error if no function has been set.
@@ -232,7 +232,7 @@ class Timer:
         return None
 
     @staticmethod
-    def __wait_until(fn: Callable[[], bool], desired: bool, sleep: float) -> None:
+    def _wait_until(fn: Callable[[], bool], desired: bool, sleep: float) -> None:
         # Executes the given function until it returns the desired value. Sleeps
         # for the given amount in seconds between invocations of fn.
         while fn() != desired:
