@@ -45,8 +45,8 @@ const s = config[type];
 
 <div class={`not-prose my-6 rounded-lg border ${s.border} ${s.bg} px-5 py-4`}>
   <div class={`mb-2 flex items-center gap-2 ${s.color}`}>
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={s.icon} />
-    <span class="text font-mono uppercase tracking-wide">{s.label}</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={s.icon} />
+    <span class="text font-mono uppercase tracking-wide font-semibold">{s.label}</span>
   </div>
   <div class="text text-(--app-primary) leading-relaxed [&>p]:m-0">
     <slot />
