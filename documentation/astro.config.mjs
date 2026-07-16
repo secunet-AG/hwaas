@@ -8,6 +8,9 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  redirects: {
+    "/": "/docs/getting-started",
+  },
   markdown: {
     shikiConfig: {
       theme: "catppuccin-mocha",
