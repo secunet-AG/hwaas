@@ -1,0 +1,53 @@
+# Getting Started
+
+## Introduction
+
+The HWaaS was designed out of a need for an easily extendable HIL test setup. It uses easily sourced components to create setups for teams to have shared access to hardware. It is tightly coupled to NixOS, to allow for maximum reproducibility amongst teams.
+
+import Callout from "../../components/Callout.astro";
+
+<Callout type="note">
+  To be frank, the HWaaS may not be a good option for every team but it might be
+  of particular relevance if your team has some of the following requirements.
+</Callout>
+
+- Shared hardware leases amongst your team
+- Need to boot machines under test with USB-Mass devices
+- Interest in NixOS and reproducible test infrastructure
+- Slowly expand your setup, peace by peace
+- Manage networking, or auxilary devices amongst machines
+- Minimal KVM and serial interface for each machine
+- Testing library for writing NixOS integration tests
+- API and Web UI for managing contexts and interacting with machines
+
+## Compared to Other Solutions
+
+### LAVA
+
+HWaaS is less concerned and opinionated with your test runs and packages. Since you are effectively creating CI/CD pipelines with your own images, services and hardware, you don't need to learn any additional tooling besides having your NixOS integration tests.
+
+This is a double edges sword. It's less opinionated and offers less features, but we've found it to be very flexible for writing tests on real hardware.
+
+Additionally, HWaaS's tight coupling with NixOS also helps enforce a level of reproducibility in your tests. You will be running the exact same supply chain, everytime you run your application.
+
+HWaaS is also designed around the development and debugging stages. Developers can lease machines, debug with the Web UI, script various tests and more.
+
+### PiKVM
+
+The `remote-hands` services are architecturally similar to the PiKVM solution.
+
+In fact, a strong mental model for the HWaaS is:
+
+> "What if I had NixOS control a number of PiKVMs, and could use this to manage shared hardware leases, network connectivity, and power switches."
+
+### DIY
+
+Various labs have homebrewed their own setups to meet their needs, and we don't want to say that we can immediately replace any solution. But, you may be buying into a greater test philosophy that can immediately make it easier to reproduce bugs, on real hardware, amongst teams.
+
+HWaaS components are easily sourcable, and the project is Apache 2.0 licensed, so the initial investment is reasonable.
+
+You will get, out of the box:
+
+- Remote KVM control
+- Remote Serial control
+-

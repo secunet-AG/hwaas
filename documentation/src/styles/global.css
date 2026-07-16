@@ -14,6 +14,11 @@
   --app-primary-text: #ffffff;
   --app-secondary-text: #848993;
 
+  --app-success: #87ee98;
+  --app-info: #82e1dc;
+  --app-warning: #dbe182;
+  --app-danger: #e18282;
+
   --app-border: #45484d;
 
   --scalar-font: "Geist", sans-serif;
@@ -27,6 +32,11 @@
 
 code {
   background: none;
+}
+
+:is(.prose) :not(pre) > code::before,
+:is(.prose) :not(pre) > code::after {
+  content: none;
 }
 
 pre {
