@@ -87,7 +87,7 @@ impl FSN8550 {
 
         let root_uri = Url::parse(&format!(
             "https://{}:{}/restconf/data/",
-            &switch_details.ip,
+            switch_details.ip,
             switch_details.port.unwrap_or(443),
         ))
         .map_err(|e| {

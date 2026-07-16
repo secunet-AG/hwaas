@@ -212,6 +212,7 @@ async fn handle_get_inventory(
 
     // Sort the entries by machine id
     // to obtain a deterministic output.
-    entries.sort_by(|left, right| left.machine_id.cmp(&right.machine_id));
+    entries.sort_by_key(|entry| entry.machine_id);
+
     Ok(Json::from(entries))
 }
