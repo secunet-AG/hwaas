@@ -51,11 +51,3 @@ aside {
   z-index: 10;
   position: relative;
 }
-
-.section {
-  padding-top: 24px !important;
-}
-
-.section-header-wrapper {
-  padding-top: 12px !important;
-}
