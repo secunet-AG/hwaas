@@ -1,0 +1,53 @@
+# Core Concepts
+
+## At a Glance
+
+[Users](./users) can create [contexts](./core-concepts/#contexts), which are a collection of [bare metal resources](./core-concepts/#machines) with a specific lifetime.
+
+[Bare metal resources](./core-concepts#bare-metal-resources) are controlled by individual Raspberry Pi's, which in turn are controlled by the [Context API](./core-concepts/#contexts).
+You can extend the setup significantly by just [onboarding new Raspberry Pi's](./managing-an-instance/#) and attaching them to your [Bare Metal Resource](./core-concepts#bare-metal-resources).
+
+## Architecture
+
+### Gateway
+
+This is the monolithic entry point for a HWaaS instance. A typical setup will have a VPN terminate here, with a reverse proxy for routing to each instance's Context API and Web UI.
+
+import Callout from "../../components/Callout.astro";
+
+<Callout type="danger">
+  The HWaaS is currently NOT a multi-tenant solution. While some care has been
+  taken to ensure that team members will not trample over each other, the
+  current threat model is built around the assumption that each gateway instance
+  is not publicly available and is limited to trusted team members, via a VPN or
+  similar.
+</Callout>
+
+The gateway server is typically responsible for monitoring as well, but due to the modularity of the HWaaS, this is all up to each team's discretion.
+
+The gateway is also responsible for the NFS server used to deliver images to the `remote-usb` service.
+
+---
+
+### Remote Hands
+
+Remote Hands services all run on the Raspberry Pi's, and share an underlying architecture: they are designed to be proxied, via HTTP(S)/WS(S), through the Context API.
+
+**They are NOT directly available to reach without going through the Context API first.** This ensures that Contexts are separated from one another, and machines are atomically leased.
+
+We currently offer the following Remote Hands services:
+
+- Remote USB - responsbile for USB-MASS OTG boot on the Bare Metal Resources
+- Remote Serial - handles a bi-way serial connection between the BMR and frontend
+- Remote Power - handles the managed power switch for the BMR
+- Remote Network - handles networking on the managed switch connecting the BMRs
+- Remote MJPEG(WIP) - A lightweight MJPEG streamer for KVM functionality
+- Remote Auxilary - Handles shared access to a 3rd party device
+
+---
+
+## Contexts
+
+---
+
+## Bare Metal Resources

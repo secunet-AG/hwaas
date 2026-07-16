@@ -1,8 +1,12 @@
 # Managing an Instance
 
-## Deploying
+## Hardware Requirements
 
-## Hardware
+## HWaaS Gateway
+
+## Remote Hands
+
+## Bare Metal Resources
 
 ## Monitoring
 
