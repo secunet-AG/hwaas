@@ -34,6 +34,40 @@ code {
   background: none;
 }
 
+/* Sidebar toggle tab */
+.sidebar-toggle-btn {
+  transition:
+    right 0.3s ease-in-out,
+    border 0.3s ease-in-out,
+    border-radius 0.3s ease-in-out;
+}
+
+/* Sidebar nav transition */
+.sidebar-nav {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Sidebar collapse */
+.sidebar-collapsed {
+  width: 0 !important;
+}
+
+.sidebar-collapsed #sidebar {
+  overflow: hidden;
+  border-right: none;
+}
+
+.sidebar-collapsed .sidebar-nav {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar-collapsed .sidebar-toggle-btn {
+  right: -1.75rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
 :is(.prose) :not(pre) > code::before,
 :is(.prose) :not(pre) > code::after {
   content: none;

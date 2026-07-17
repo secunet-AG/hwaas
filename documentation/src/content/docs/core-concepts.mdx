@@ -7,7 +7,7 @@
 [Bare metal resources](./core-concepts#bare-metal-resources) are controlled by individual Raspberry Pi's, which in turn are controlled by the [Context API](./core-concepts/#contexts).
 You can extend the setup significantly by just [onboarding new Raspberry Pi's](./managing-an-instance/#) and attaching them to your [Bare Metal Resource](./core-concepts#bare-metal-resources).
 
-## Architecture
+## Service Architecture
 
 ### Gateway
 
@@ -33,21 +33,114 @@ The gateway is also responsible for the NFS server used to deliver images to the
 
 Remote Hands services all run on the Raspberry Pi's, and share an underlying architecture: they are designed to be proxied, via HTTP(S)/WS(S), through the Context API.
 
-**They are NOT directly available to reach without going through the Context API first.** This ensures that Contexts are separated from one another, and machines are atomically leased.
+**They are NOT directly available to reach without going through the Context API first.**
 
-We currently offer the following Remote Hands services:
+This ensures that Contexts are separated from one another, and machines are atomically leased.
 
-- Remote USB - responsbile for USB-MASS OTG boot on the Bare Metal Resources
-- Remote Serial - handles a bi-way serial connection between the BMR and frontend
-- Remote Power - handles the managed power switch for the BMR
-- Remote Network - handles networking on the managed switch connecting the BMRs
-- Remote MJPEG(WIP) - A lightweight MJPEG streamer for KVM functionality
-- Remote Auxilary - Handles shared access to a 3rd party device
+#### Remote USB
+
+The `remote-usb` service exposes an emulated USB periphral device to the hardware over USB OTG functionality. This can be used for a number of a usecases, such as:
+
+- Storage
+- Virtual Keyboard
+- Virtual Mouse
+
+And may be extended with more functionality in the future.
+
+This is by far the most complicated `remote-hands` service. We currently have a few restrictions on the emulated device, such as only allowing a single virtual mouse and keyboard per instance.
+
+`remote-usb` is also resonsible for providing the USB mass storage that provides bootable images for the machine under test. These images are stored in the [Gateway](./core-concepts/#gateway), under an NFS server.
+
+#### Remote Serial
+
+The `remote-serial` service provides the ability to commmunicate with the hardware over a serial line.
+
+Currently, only `tty` character devices, such as `/dev/ttyACM0`, as well as `stdio` are supported.
+
+You can read more about this setup in the maintainer guide.
+
+#### Remote Power
+
+The `remote-power` service controls the power state of the attached hardware, via a managed power switch.
+
+You can read more about the requirements for such a power switch in the maintainer guide.
+
+#### Remote Auxilary
+
+Auxiliary devices are extra pieces of hardware that are connected to a test machine on one side and a remote-hands instance on the other side. They are permanently assigned to a specific bare metal resource.
+
+The goal of auxiliary devices is to complement the hardware access that is provided by remote-hands with additional features, e.g. arbitrary sensors/actors.
+
+Auxiliary devices are developed outside the scope of `remote-hands` by third parties. This project provides only generic infrastructure and does not implement sensor or actuator functionality itself.
+
+This separation prevents feature creep and allows different vendors to develop their own auxiliary devices for various measurement tasks without requiring changes to the `remote-hands` code base.
+
+You can read more about the requirements for auxilary devices in the maintainer guide.
+
+#### Remote MJPEG
+
+There is a `remote-mjpeg` service that streams an MJPEG multipart response through the `contextapi`, allowing for screen sharing of your machine under test.
+
+This is a fairly minimal service, and we may reevaluate down the line and use `h.264` and hardware encoders on the Raspberry Pi's.
+
+This makes up the video component of the Keyboard Video Mouse solution, whereas the other two are WSS connections proxied through the `contextapi` to the `remote-usb` service.
 
 ---
 
-## Contexts
+### Context API
+
+Contexts are the unit of separation for machines under test. They are configured with a default and maximum lifetime.
+
+<Callout type="warning">
+  Anyone with access to the UUID for context is able to perform various
+  functionality with it, such as booting machines, loading images, and all of
+  the `remote-hands` functionality.
+</Callout>
+
+The `contextapi`, typically runs on the [Gateway](./core-concepts#gateway) and handles a number of core tasks:
+
+- Handling context lifetimes and machine reservations
+- Proxying content to and from `remote-hands` services
+- Managing physical switch access between machines
+- Uploading and cleaning up various images for the image NFS server
 
 ---
 
-## Bare Metal Resources
+### Websocket Gateway
+
+A lightweight VM for managing the WS proxies that. The user tooling uses this to make a virtual tap device to connect to the machine under test.
+
+---
+
+### Maintainer CLI
+
+A small CLI program responsible for brining up the `contextapi` to its default state.
+
+---
+
+### Bare Metal Resources
+
+The various machines under test. These are accesible only via `remote-hands` services, with a valid context lease.
+
+They have the following requirements:
+
+- Bootable via USB mass storage
+- Optional serial output
+- Optional video output
+- Physical networking ports
+
+---
+
+### Frontends
+
+#### REST API
+
+The [Context API](/api) can be scripted against for custom integrations. This makes it possible to work with outside of a `nix` integration test.
+
+#### User Tooling
+
+A `python` library for writing NixOS integration tests, using the `contextapi`. The suggested path for developing CI pipelines with the HWaaS.
+
+#### Web UI
+
+A convenient way to quickly debug and develop on real hardware. The Web UI provides an interface for _most_ of the `contextapi` functionality, as well as a serial and keyboard video mouse interface for machines under test.
