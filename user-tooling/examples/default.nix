@@ -6,7 +6,8 @@
 , hwaas
 }:
 let
-
+  # None of these examples will run, since the URL is a placeholder
+  # and the machines do not exist
   hwaasTest = import ../nix/outputs.nix { inherit pkgs hwaas; };
 
   extendedPkgs = pkgs.appendOverlays [

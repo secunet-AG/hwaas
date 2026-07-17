@@ -125,7 +125,8 @@
         "git-hooks-nix": "git-hooks-nix",
         "nixpkgs": "nixpkgs",
         "rust-overlay": "rust-overlay",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "user-tooling-src": "user-tooling-src"
       }
     },
     "rust-overlay": {
@@ -167,6 +168,18 @@
         "repo": "treefmt-nix",
         "type": "github"
       }
+    },
+    "user-tooling-src": {
+      "flake": false,
+      "locked": {
+        "path": "./user-tooling",
+        "type": "path"
+      },
+      "original": {
+        "path": "./user-tooling",
+        "type": "path"
+      },
+      "parent": []
     }
   },
   "root": "root",
