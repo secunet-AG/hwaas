@@ -5,9 +5,9 @@
 { system ? builtins.currentSystem
 , sources ? import ./nix/sources.nix
 , pkgs ? import sources.nixpkgs { inherit system; }
+, pre-commit-hooks ? import sources."pre-commit-hooks.nix"
 }:
 let
-  pre-commit-hooks = import sources."pre-commit-hooks.nix";
   hwaas = import sources.hwaas;
   outputs = import ./nix/outputs.nix { inherit pkgs hwaas; };
 in

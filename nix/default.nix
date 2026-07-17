@@ -14,5 +14,6 @@ _: {
     ./overlay.nix
     ./packages
     ./ci
+    ./user-tooling.nix
   ];
 }
