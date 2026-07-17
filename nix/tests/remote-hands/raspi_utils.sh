@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # This file contains helper functions for the remote-hands integration tests.
 
 # Removes all ansi command sequences from the stdin string

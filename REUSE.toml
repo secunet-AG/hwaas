@@ -2,18 +2,18 @@ version = 1
 
 [[annotations]]
 path = [
-  ".*",
-  "**/.*",
   "flake.lock",
   "**/Cargo.lock",
   "**/Cargo.toml",
   "**/*.json",
   "**/*.md",
-  "**/*.sh",
+  "**/*.png",
   "**/*.svg",
   "**/*.toml",
   "**/*.yml",
   "**/*.yaml",
+  "vue-client/.env",
+  "vue-client/.env.test",
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 secunet Security Networks AG <https://www.secunet.com>"
