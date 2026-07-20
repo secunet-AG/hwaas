@@ -7,19 +7,19 @@ The HWaaS was designed out of a need for an easily extendable HIL test setup. It
 import Callout from "../../components/Callout.astro";
 
 <Callout type="note">
-  To be frank, the HWaaS may not be a good option for every team but it might be
-  of particular relevance if your team has some of the following requirements.
+  The HWaaS is not a one stop solution for all teams, but it will be of
+  particular relevance if your team has some of the following requirements.
 </Callout>
 
 - Shared hardware leases amongst your team
 - Need to boot machines under test with USB-Mass devices
 - Interest in NixOS and reproducible test infrastructure
-- Slowly expand your setup, piece by piece
+- Slowly expand your testing setup, machine by machine
 - Manage networking, or auxiliary devices amongst machines
 - Minimal KVM and serial interface for each machine
 - Desire for memory safe, performant infrastructure
 - Testing library for writing NixOS integration tests
-- API and Web UI for managing contexts and interacting with machines
+- API and Web UI for managing reservations and interacting with machines
 
 ## Compare and Contrast
 
@@ -27,7 +27,7 @@ import Callout from "../../components/Callout.astro";
 
 HWaaS is less concerned and opinionated with your test runs and packages. Since you are effectively creating CI/CD pipelines with your own images, services and hardware, you don't need to learn any additional tooling besides having your NixOS integration tests.
 
-This is a double-edged sword. It's less opinionated and offers fewer features, but we've found it to be very flexible for writing tests on real hardware.
+This is a double-edged sword. The HWaaS ispiece by piece less opinionated and offers fewer features, but we've found it to be very flexible for writing tests on real hardware.
 
 Additionally, HWaaS's tight coupling with NixOS also helps enforce a level of reproducibility in your tests. You will be running the exact same supply chain, every time you run your application.
 
@@ -37,9 +37,9 @@ HWaaS is also designed around the development and debugging stages. Developers c
 
 ### PiKVM
 
-PiKVM is a solution for a lightweight KVM solution running on a Raspberry Pi, that allows you to perform remote hands debugging on individual machines.
+PiKVM is a lightweight KVM solution running on a Raspberry Pi, that allows you to perform remote hands debugging on individual machines.
 
-The individual Raspberry Pi's and `remote-hands` services are architecturally similar to the PiKVM solution.
+The `remote-hands` services are capable of running on Raspberry Pi's or other SBCs, and they are somewhat architecturally similar to the PiKVM.
 
 <Callout type="note">
   In fact, a strong mental model for the HWaaS is "What if I had NixOS control a
@@ -71,12 +71,13 @@ However, with the HWaaS, you may be buying into a greater test philosophy that c
 - Easily Extend with Monitoring
 - Memory Safe, Performant Infrastructure
 
-So, if these meet your use case, you may very well find it a productive setup.
+If you fall into a subset of these categories, you may find a HWaaS setup to be
+a valuable component of your CI/CD infrastructure.
 
-HWaaS components are easily sourceable, and the project is Apache 2.0 licensed, so the initial investment is reasonable.
+Additionally, HWaaS components are easily sourceable, and the project is Apache 2.0 licensed, so the initial investment is reasonable.
 
-Additionally, development is ongoing! If you or your team find a feature that you desire that is sufficiently general and
-helpful for invested parties, we may look at upstreaming your changes!
+Lastly, development is ongoing. If you or your team find a feature that you desire that is sufficiently general and
+helpful for invested parties, we may look at upstreaming your changes.
 
 ## So What Now?
 

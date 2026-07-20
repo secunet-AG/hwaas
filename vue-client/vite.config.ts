@@ -27,7 +27,4 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
   },
-  server: {
-    allowedHosts: ['medicare-serving-surgeon-rate.trycloudflare.com'],
-  },
 })

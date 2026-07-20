@@ -7,6 +7,9 @@ export default defineConfig({
   integrations: [mdx()],
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      allowedHosts: true,
+    },
   },
   redirects: {
     "/": "/docs/getting-started",
