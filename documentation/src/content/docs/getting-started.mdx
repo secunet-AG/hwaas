@@ -14,8 +14,8 @@ import Callout from "../../components/Callout.astro";
 - Shared hardware leases amongst your team
 - Need to boot machines under test with USB-Mass devices
 - Interest in NixOS and reproducible test infrastructure
-- Slowly expand your setup, peace by peace
-- Manage networking, or auxilary devices amongst machines
+- Slowly expand your setup, piece by piece
+- Manage networking, or auxiliary devices amongst machines
 - Minimal KVM and serial interface for each machine
 - Desire for memory safe, performant infrastructure
 - Testing library for writing NixOS integration tests
@@ -27,9 +27,9 @@ import Callout from "../../components/Callout.astro";
 
 HWaaS is less concerned and opinionated with your test runs and packages. Since you are effectively creating CI/CD pipelines with your own images, services and hardware, you don't need to learn any additional tooling besides having your NixOS integration tests.
 
-This is a double edges sword. It's less opinionated and offers less features, but we've found it to be very flexible for writing tests on real hardware.
+This is a double-edged sword. It's less opinionated and offers fewer features, but we've found it to be very flexible for writing tests on real hardware.
 
-Additionally, HWaaS's tight coupling with NixOS also helps enforce a level of reproducibility in your tests. You will be running the exact same supply chain, everytime you run your application.
+Additionally, HWaaS's tight coupling with NixOS also helps enforce a level of reproducibility in your tests. You will be running the exact same supply chain, every time you run your application.
 
 HWaaS is also designed around the development and debugging stages. Developers can lease machines, debug with the Web UI, script various tests and more.
 
@@ -63,7 +63,7 @@ However, with the HWaaS, you may be buying into a greater test philosophy that c
 - Remote KVM
 - Remote Serial
 - Remote USB OTG Boot
-- Remote Auxilary Device control
+- Remote Auxiliary Device Control
 - Shared hardware leases
 - CI/CD Testing Library
 - A Number of Examples
@@ -71,9 +71,9 @@ However, with the HWaaS, you may be buying into a greater test philosophy that c
 - Easily Extend with Monitoring
 - Memory Safe, Performant Infrastructure
 
-So, if these meet your usecase, you may very well find it a productive setup.
+So, if these meet your use case, you may very well find it a productive setup.
 
-HWaaS components are easily sourcable, and the project is Apache 2.0 licensed, so the initial investment is reasonable.
+HWaaS components are easily sourceable, and the project is Apache 2.0 licensed, so the initial investment is reasonable.
 
 Additionally, development is ongoing! If you or your team find a feature that you desire that is sufficiently general and
 helpful for invested parties, we may look at upstreaming your changes!

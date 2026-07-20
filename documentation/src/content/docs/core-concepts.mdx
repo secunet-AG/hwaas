@@ -39,7 +39,7 @@ This ensures that Contexts are separated from one another, and machines are atom
 
 #### Remote USB
 
-The `remote-usb` service exposes an emulated USB periphral device to the hardware over USB OTG functionality. This can be used for a number of a usecases, such as:
+The `remote-usb` service exposes an emulated USB peripheral device to the hardware over USB OTG functionality. This can be used for a number of use cases, such as:
 
 - Storage
 - Virtual Keyboard
@@ -49,11 +49,11 @@ And may be extended with more functionality in the future.
 
 This is by far the most complicated `remote-hands` service. We currently have a few restrictions on the emulated device, such as only allowing a single virtual mouse and keyboard per instance.
 
-`remote-usb` is also resonsible for providing the USB mass storage that provides bootable images for the machine under test. These images are stored in the [Gateway](./core-concepts/#gateway), under an NFS server.
+`remote-usb` is also responsible for providing the USB mass storage that provides bootable images for the machine under test. These images are stored in the [Gateway](./core-concepts/#gateway), under an NFS server.
 
 #### Remote Serial
 
-The `remote-serial` service provides the ability to commmunicate with the hardware over a serial line.
+The `remote-serial` service provides the ability to communicate with the hardware over a serial line.
 
 Currently, only `tty` character devices, such as `/dev/ttyACM0`, as well as `stdio` are supported.
 
@@ -65,7 +65,7 @@ The `remote-power` service controls the power state of the attached hardware, vi
 
 You can read more about the requirements for such a power switch in the maintainer guide.
 
-#### Remote Auxilary
+#### Remote Auxiliary
 
 Auxiliary devices are extra pieces of hardware that are connected to a test machine on one side and a remote-hands instance on the other side. They are permanently assigned to a specific bare metal resource.
 
@@ -75,7 +75,7 @@ Auxiliary devices are developed outside the scope of `remote-hands` by third par
 
 This separation prevents feature creep and allows different vendors to develop their own auxiliary devices for various measurement tasks without requiring changes to the `remote-hands` code base.
 
-You can read more about the requirements for auxilary devices in the maintainer guide.
+You can read more about the requirements for auxiliary devices in the maintainer guide.
 
 #### Remote MJPEG
 
@@ -108,19 +108,19 @@ The `contextapi`, typically runs on the [Gateway](./core-concepts#gateway) and h
 
 ### Websocket Gateway
 
-A lightweight VM for managing the WS proxies that. The user tooling uses this to make a virtual tap device to connect to the machine under test.
+A lightweight VM for managing the WS proxies. The user tooling uses this to make a virtual tap device to connect to the machine under test.
 
 ---
 
 ### Maintainer CLI
 
-A small CLI program responsible for brining up the `contextapi` to its default state.
+A small CLI program responsible for bringing up the `contextapi` to its default state.
 
 ---
 
 ### Bare Metal Resources
 
-The various machines under test. These are accesible only via `remote-hands` services, with a valid context lease.
+The various machines under test. These are accessible only via `remote-hands` services, with a valid context lease.
 
 They have the following requirements:
 
@@ -133,7 +133,7 @@ They have the following requirements:
 
 ### Frontends
 
-The HWaaS provides a number of frontends, depending on your team's usecase.
+The HWaaS provides a number of frontends, depending on your team's use case.
 
 #### REST API
 

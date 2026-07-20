@@ -3,25 +3,23 @@
 Welcome to the user documentation for the HWaaS!
 
 If you're here we assume that you already have access to a working HWaaS
-instance to follow along. If this is not the case, please refer to our [HWaaS
-admin documentation][?].
+instance to follow along. If this is not the case, please refer to our [maintainer documentation](./managing-an-instance).
 
 There are multiple methods to interact with HWaaS, each tailored to different
 needs. If you want...
 
 - a HTTP/REST API for low-level interaction and maximum control, check out the
-  [Context API][?]
+  [Context API](/api)
 - a CLI-based solution with a higher abstraction for scripting or interactive
-  use, check out the [User Tooling][?]
-- a low-effort interface for casual or one-time usage, check out the [Web
-  UI][?]
+  use, check out the [User Tooling](/docs/users#user-tooling)
+- a low-effort interface for casual or one-time usage, check out the [Web UI](/docs/users#web-ui)
 
 ## Context API
 
 The Context API is a HTTP/REST API for programmatic interaction with HWaaS
 instances. It's the core for all HWaaS operations and provides the basic
-building blocks used by other means of interaction like the [User Tooling][?]
-or [Web UI][?].
+building blocks used by other means of interaction like the [User Tooling](/docs/users#user-tooling)
+or [Web UI](/docs/users#web-ui).
 
 Context API is fundamentally built around the concept of a _Context_, which is
 an exclusive lease of one or more physical machines (also called Bare Metal
@@ -63,11 +61,11 @@ The User Tooling is a collection of specialized Python modules to run tests and
 benchmarks on HWaaS instances. It aims to simplify the onboarding of new
 projects while allowing users to create complex tests and benchmarks.
 
-User Tooling uses the [Context API][?] and abstracts many common tasks into
+User Tooling uses the [Context API](/api) and abstracts many common tasks into
 convenient Python functions. It is fully integrated with the `nix` package
 manager and _NixOS_ integration testing framework. When used with `nix` for
 your project, User Tooling allows fully declaring the test environment (i.e.
-the _Context_ from the [ContextAPI][?]) and the test to run within this
+the _Context_ from the [Context API](/api)) and the test to run within this
 environment in a single location.
 
 TODO(hartan): Can this be used interactively somehow?!
@@ -76,11 +74,11 @@ You can find usage examples of this in the [Cookbook][?].
 
 ## Web UI
 
-The Web UI is an interactive Web UI to control the [Context API][?] without
+The Web UI is an interactive Web UI to control the [Context API](/api) without
 additional tooling. It is integrated into HWaaS deployments by default and aims
-to simplify one-off interactions with the [Context API][?].
+to simplify one-off interactions with the [Context API](/api).
 
-In contrast to the [Context API][?] and [User Tooling][?], the Web UI has
+In contrast to the [Context API](/api) and [User Tooling](/docs/users#user-tooling), the Web UI has
 integrated Keyboard, Video and Mouse (**KVM**) support. This makes it the
 preferred choice for interactive device exploration.
 
@@ -93,7 +91,7 @@ You can find usage examples of this in the [Cookbook][?].
 This section of the manual provides practical and fully tested examples to
 achieve certain tasks with the HWaaS. If your particular use case isn't listed
 in any of the examples, we recommend you pick the most useful example and head
-over to the [Cookbook][?] for some tips and practical guidance.
+over to the [Cookbook](/docs/users#cookbook) for some tips and practical guidance.
 
 TODO(hartan): I think each of these should be a fully standalone and commented
 file that users can execute in a simple command or maybe two. Preferably these
@@ -116,10 +114,4 @@ are fully integrated with `nix` to include relevant dependencies etc.
 
 ## Cookbook
 
-<!-- scope: Pick out common HWaaS usage scenarios and explain how to get there, give pointers to additional ressources -->
-
-### Http Server
-
-### Web Socket Between Two Machines
-
-### Auxilary Device
+### Two Machine HTTP Server
