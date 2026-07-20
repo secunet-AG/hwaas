@@ -6,13 +6,14 @@ If you're here we assume that you already have access to a working HWaaS
 instance to follow along. If this is not the case, please refer to our [maintainer documentation](./managing-an-instance).
 
 There are multiple methods to interact with HWaaS, each tailored to different
-needs. If you want...
+needs.
 
-- a HTTP/REST API for low-level interaction and maximum control, check out the
-  [Context API](/api)
-- a CLI-based solution with a higher abstraction for scripting or interactive
-  use, check out the [User Tooling](/docs/users#user-tooling)
-- a low-effort interface for casual or one-time usage, check out the [Web UI](/docs/users#web-ui)
+**We provide the following frontends**
+
+- A HTTP/REST API for low-level interaction: [Context API](/api)
+- A CI-based solution with a higher abstraction for scripting or interactive
+  use: [User Tooling](/docs/users#user-tooling)
+- A low-effort interface for casual or one-time usage: [Web UI](/docs/users#web-ui)
 
 ## Context API
 
@@ -30,25 +31,24 @@ time, or when they are prematurely "returned" to HWaaS by the user.
 
 Contexts are reserved from the _Inventory_, which is a complete list of all
 registered BMRs. For every BMR, the Inventory tracks the BMRs current
-reservation status and its individual properties. [Machine properties][ca0] are
+reservation status and its individual properties. [Machine properties](/api#models/MachineProperties) are
 used to distinguish individual BMRs and are configured by the HWaaS
 administrator during BMR onboarding.
-
-[ca0]: TODO(hartan): Link to `MachineProperties` rust docs
 
 Once you have acquired a Context, you can configure the respective BMR within
 the confines that the Context API provides. At the moment, the following
 resources can be managed for BMRs inside a Context:
 
-- Device Power
-- (physical) Serial Interfaces for arbitrary I/O
-- (virtual) USB drives for arbitrary I/O
-- (virtual) Keyboard and Mouse inputs
-- (virtual) Networking between two or more BMRs for arbitrary I/O
+| Type           | Virtual/Physical | Description                                                |
+| -------------- | ---------------- | ---------------------------------------------------------- |
+| Power          | Physical         | Control a physical power switch for the BMR                |
+| USB            | Virtual          | Control a USB OTG gadget for arbitrary I/O                 |
+| Keyboard/Mouse | Virtual          | Control a single keyboard and mouse                        |
+| Networking     | Physical         | Enable network access between machines with a smart switch |
 
 Each of these resources is bound to the Context that creates it. This means
 that when a Context expires, all created resources are released and cleaned up.
-Subsequent Contexts have to recreate all desired resources from scratch.
+Subsequent Contexts have to recreate all desired resources from scratch, although some information, like image uploads, are cached.
 
 The HWaaS and Context API is only concerned with managing BMRs and associated
 virtual resources. From this point onward, it's your responsibility to do
@@ -68,9 +68,7 @@ your project, User Tooling allows fully declaring the test environment (i.e.
 the _Context_ from the [Context API](/api)) and the test to run within this
 environment in a single location.
 
-TODO(hartan): Can this be used interactively somehow?!
-
-You can find usage examples of this in the [Cookbook][?].
+You can find usage examples of this in the [Cookbook](/docs/users#cookbook).
 
 ## Web UI
 
@@ -82,36 +80,198 @@ In contrast to the [Context API](/api) and [User Tooling](/docs/users#user-tooli
 integrated Keyboard, Video and Mouse (**KVM**) support. This makes it the
 preferred choice for interactive device exploration.
 
-You can find usage examples of this in the [Cookbook][?].
-
-## Examples
-
-<!-- scope: provide fully-working and tested step-by-step guides to achieve a well-defined goal -->
-
-This section of the manual provides practical and fully tested examples to
-achieve certain tasks with the HWaaS. If your particular use case isn't listed
-in any of the examples, we recommend you pick the most useful example and head
-over to the [Cookbook](/docs/users#cookbook) for some tips and practical guidance.
-
-TODO(hartan): I think each of these should be a fully standalone and commented
-file that users can execute in a simple command or maybe two. Preferably these
-are fully integrated with `nix` to include relevant dependencies etc.
-
-### Booting A Firmware Image
-
-#### Requirements
-
-- _A fully working HWaaS instance_
-- A PC to interact with the HWaaS
-- One BMR registered with your HWaaS instance
-- A Firmware Image to boot
-
-#### Description
-
-- Language for Context API: `bash` with `curl` and `jq`
-- Language for User Tooling `nix` with `python`
-- Language for Web UI: `playwright` or what it's called with `chrome`?
-
 ## Cookbook
 
-### Two Machine HTTP Server
+Below, are a few examples for common tasks that one may want to acheive with access to a HWaaS instance.
+
+---
+
+### Context API
+
+#### Booting a Machine From an Image
+
+First, we must reserve a context with our desired machine.
+
+```sh
+curl /contexts \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "machines": {
+    "{your_machine_name}": {
+      "machine_id": 1,
+      "platform": "intel-nuc"
+    }
+  }
+}'
+```
+
+This response will return your Context ID, which you will use for further requests.
+
+Next, we need to upload an image to your image store. We will receive a hash back from the store which we can use to later boot our machine from.
+
+```sh
+curl /images \
+  --form file='@yourimage'
+  --request POST \
+  --header 'Content-Type: multipart/form-data'
+```
+
+Now, we need to assign a drive to the machine under test, in order to boot.
+
+```sh
+curl '/contexts/{context_hash}/drives/{drive_name}?image_hash={image_hash}' \
+  --request PUT
+```
+
+Our machine now has the required dependencies for booting.
+
+```sh
+curl '/contexts/{context_hash}/machines/{machine_name}/power' \
+  --request PUT
+```
+
+### User Tooling
+
+The above example is relatively verbose. In order to more easily interact with these machines, we recommend using the User Tooling library.
+
+The User Tooling library is a Python library that is used in conjunction with NixOS integration tests, and is particularly useful to create CI pipelines.
+
+First, lets create our setup and define our two test images.
+
+```nix
+{ pkgs
+, yourImage # Your image for testing
+,
+}:
+{
+  apiUrl = "http://api.dev.hwaas.factory.secunet.com/v5";
+
+  controlVM = {
+    ip = "192.168.44.1";
+    interface = "network1";
+  };
+
+  machines = {
+    bmr1 = {
+      platform = "intel-nuc-x86";
+      inherit yourImage; # Inherit the image we are providing
+    };
+    bmr2 = {
+      platform = "amd-blade-x86";
+      inherit yourImage;
+    };
+  };
+}
+```
+
+Now, we can use first configuration to define a number of different NixOS integration tests. Here, we will ping between two machines.
+
+```nix
+{ pkgs
+, lib
+, hwaasTestModules
+, envConfig
+,
+}:
+let
+  machineOne = "bmr1";
+  machineTwo = "bmr2";
+
+  inherit (envConfig) apiUrl;
+
+  machineOnePlatform = envConfig.machines.${machineOne}.platform;
+  machineTwoPlatform = envConfig.machines.${machineTwo}.platform;
+
+  machineOneImage = envConfig.machines.${machineOne}.image;
+  machineTwoImage = envConfig.machines.${machineTwo}.image;
+
+  controlVMIp = envConfig.controlVM.ip;
+  controlVMInterface = envConfig.controlVM.interface;
+in
+pkgs.hwaasTest {
+  name = "Multiple HWaaS machines in one network";
+  inherit apiUrl;
+  extraPythonPackages = _: [ pkgs.hwaasTimer ];
+  nodes.controlVM = _: {
+    imports = with hwaasTestModules; [
+      hwaasTestVm
+    ];
+
+    networking.wireless.enable = lib.mkForce false;
+
+    hwaas.testVm = {
+      enable = true;
+      networks = {
+        "${controlVMInterface}" = {
+          ipv4Address = {
+            address = controlVMIp;
+            prefixLength = 24;
+          };
+          dhcp = true;
+          dhcpConfig = {
+            ServerAddress = "${controlVMIp}/24";
+            PoolSize = 3;
+          };
+        };
+      };
+    };
+  };
+  machines = {
+    ${machineOne} = {
+      image = "${machineOneImage}/your_image.iso";
+      platform = machineOnePlatform;
+    };
+    ${machineTwo} = {
+      image = "${machineTwoImage}/your_image.iso";
+      platform = machineTwoPlatform;
+    };
+  };
+  networks = {
+    "${controlVMInterface}" = [
+      {
+        machine = machineOne;
+        networkInterfaces = [ "LAN1" ];
+      }
+      {
+        machine = machineTwo;
+        networkInterfaces = [ "LAN1" ];
+      }
+    ];
+  };
+  testScript = _: ''
+    from hwaas_timer import Timer
+    start_all()
+
+    controlVM.wait_for_unit("default.target")
+
+    def ping_fn() -> bool:
+      status1, _ = controlVM.execute("ping -c 1 192.168.44.2")
+      status2, _ = controlVM.execute("ping -c 1 192.168.44.3")
+      return ((status1 + status2) == 0)
+
+    timer = Timer()
+    timer.set_wait_until_success(ping_fn, 0.5)
+    timer.set_timeout(600)
+    timer.start()
+
+    hwaas.machines["${machineOne}"].power_on()
+    hwaas.machines["${machineTwo}"].power_on()
+
+    timer.wait()
+
+    def maybe_print_cmd(cmd: str) -> None:
+      status, msg = controlVM.execute(cmd)
+      if status == 0:
+        print(f"Output of {cmd}:")
+        print(msg)
+        print()
+
+    maybe_print_cmd("networkctl status ${controlVMInterface}")
+
+    assert not timer.is_timeout_expired(), "Could not ping machines on network"
+  '';
+}
+```
+
+Depending on how your repository is setup, you can run this as a check, or integrate it into your CI pipeline.

@@ -30,8 +30,10 @@
   --scalar-background-3: var(--app-background);
 }
 
-code {
-  background: none;
+/* We want to have this nice border/background for one liners, but not in a pre tag*/
+pre > code {
+  border: none !important;
+  background: none !important;
 }
 
 /* Sidebar toggle tab */
