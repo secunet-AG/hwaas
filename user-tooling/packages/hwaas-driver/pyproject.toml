@@ -1,6 +1,8 @@
 [project]
 name = "hwaas_driver"
 version = "0.1.0"
+license = "Apache-2.0"
+license-files = ["../../LICENSE"]
 
 [build-system]
 requires = ["setuptools"]
