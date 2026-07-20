@@ -8,6 +8,8 @@ instance to follow along. If this is not the case, please refer to our [maintain
 There are multiple methods to interact with HWaaS, each tailored to different
 needs.
 
+import Callout from "../../components/Callout.astro";
+
 **We provide the following frontends**
 
 - A HTTP/REST API for low-level interaction: [Context API](/api)
@@ -53,7 +55,7 @@ Subsequent Contexts have to recreate all desired resources from scratch, althoug
 The HWaaS and Context API is only concerned with managing BMRs and associated
 virtual resources. From this point onward, it's your responsibility to do
 something useful with the reserved resources. You can find some inspiration in
-the [Examples][?] and [Cookbook][?].
+the [Examples](/docs/users#examples) below.
 
 ## User Tooling
 
@@ -68,7 +70,7 @@ your project, User Tooling allows fully declaring the test environment (i.e.
 the _Context_ from the [Context API](/api)) and the test to run within this
 environment in a single location.
 
-You can find usage examples of this in the [Cookbook](/docs/users#cookbook).
+You can find usage examples of this in the [User Tooling Examples](/docs/users#user-tooling-examples).
 
 ## Web UI
 
@@ -80,25 +82,29 @@ In contrast to the [Context API](/api) and [User Tooling](/docs/users#user-tooli
 integrated Keyboard, Video and Mouse (**KVM**) support. This makes it the
 preferred choice for interactive device exploration.
 
-## Cookbook
+## Examples
 
-Below, are a few examples for common tasks that one may want to acheive with access to a HWaaS instance.
+Below are examples for common tasks when working with a HWaaS instance. In all
+examples, replace `$API_URL` with the base URL of your HWaaS instance
+
+(e.g. `http://api.your-instance.com/v5`).
 
 ---
 
-### Context API
+### Context API Examples
 
-#### Booting a Machine From an Image
+#### Reserving a Context
 
-First, we must reserve a context with our desired machine.
+A Context is the starting point for all operations. You reserve one by
+specifying the machines you need.
 
 ```sh
-curl /contexts \
+curl "$API_URL/contexts" \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
   "machines": {
-    "{your_machine_name}": {
+    "my_machine": {
       "machine_id": 1,
       "platform": "intel-nuc"
     }
@@ -106,46 +112,209 @@ curl /contexts \
 }'
 ```
 
-This response will return your Context ID, which you will use for further requests.
+This returns a Context ID (a UUID) that you will use in all subsequent
+requests.
 
-Next, we need to upload an image to your image store. We will receive a hash back from the store which we can use to later boot our machine from.
+<Callout type="important">
+  Store your Context ID carefully. Anyone with access to the ID and instance can
+  control the machines in that context.
+</Callout>
+
+#### Checking Context Lifetime
+
+Contexts have a limited lifetime. You can check the remaining time:
 
 ```sh
-curl /images \
-  --form file='@yourimage'
+curl "$API_URL/contexts/{context_id}"
+```
+
+To extend or modify the lifetime:
+
+```sh
+curl "$API_URL/contexts/{context_id}" \
+  --request PATCH \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "lifetime": 3600
+}'
+```
+
+<Callout type="warning">
+  Contexts have a configurable maximum total lifetime. You can increment your
+  lifetime to keep it alive, but you cannot exceed this maximum amount without
+  changing your deployment settings.
+</Callout>
+
+#### Listing Machines in a Context
+
+```sh
+curl "$API_URL/contexts/{context_id}/machines"
+```
+
+To get details about a specific machine:
+
+```sh
+curl "$API_URL/contexts/{context_id}/machines/{machine_name}"
+```
+
+#### Uploading an Image
+
+Before booting a machine, you need an image in the image store.
+
+```sh
+curl "$API_URL/images" \
   --request POST \
-  --header 'Content-Type: multipart/form-data'
+  --header 'Content-Type: multipart/form-data' \
+  --form file='@path/to/your_image.iso'
 ```
 
-Now, we need to assign a drive to the machine under test, in order to boot.
+This returns an image hash that you can use to attach a drive.
+
+<Callout type="note">
+  Images are cached by hash. If an identical image has already been uploaded,
+  the existing hash is returned without re-uploading.
+</Callout>
+
+#### Attaching a Drive and Booting
+
+Assign a drive to a machine using the image hash from the previous step:
 
 ```sh
-curl '/contexts/{context_hash}/drives/{drive_name}?image_hash={image_hash}' \
+curl "$API_URL/contexts/{context_id}/drives/{drive_name}?image_hash={image_hash}" \
   --request PUT
 ```
 
-Our machine now has the required dependencies for booting.
+Then power on the machine:
 
 ```sh
-curl '/contexts/{context_hash}/machines/{machine_name}/power' \
+curl "$API_URL/contexts/{context_id}/machines/{machine_name}/power" \
   --request PUT
 ```
 
-### User Tooling
+#### Powering Off a Machine
 
-The above example is relatively verbose. In order to more easily interact with these machines, we recommend using the User Tooling library.
+```sh
+curl "$API_URL/contexts/{context_id}/machines/{machine_name}/power" \
+  --request DELETE
+```
 
-The User Tooling library is a Python library that is used in conjunction with NixOS integration tests, and is particularly useful to create CI pipelines.
+#### Enabling USB (Storage, Keyboard, and Mouse)
 
-First, lets create our setup and define our two test images.
+The USB endpoint configures a USB OTG gadget on the machine. A typical
+configuration attaches a storage drive along with keyboard and mouse input:
+
+```sh
+curl "$API_URL/contexts/{context_id}/machines/{machine_name}/usb" \
+  --request PUT \
+  --header 'Content-Type: application/json' \
+  --data '[
+  {
+    "type": "storage",
+    "luns": [
+      {
+        "path": "{drive_name}",
+        "cdrom": false,
+        "read_only": false
+      }
+    ]
+  },
+  { "type": "keyboard" },
+  { "type": "mouse" }
+]'
+```
+
+#### Working with Networks
+
+Create a network:
+
+```sh
+curl "$API_URL/contexts/{context_id}/networks/{network_name}" \
+  --request PUT \
+  --header 'Content-Type: application/json' \
+  --data '{}'
+```
+
+Add machines to a network using a JSON Patch operation:
+
+```sh
+curl "$API_URL/contexts/{context_id}/networks/{network_name}" \
+  --request PATCH \
+  --header 'Content-Type: application/json' \
+  --data '[
+  {
+    "op": "add",
+    "path": "/{machine_name}",
+    "value": { "LAN1": {} }
+  }
+]'
+```
+
+List all networks in a context:
+
+```sh
+curl "$API_URL/contexts/{context_id}/networks"
+```
+
+Remove a machine from a network:
+
+```sh
+curl "$API_URL/contexts/{context_id}/networks/{network_name}" \
+  --request PATCH \
+  --header 'Content-Type: application/json' \
+  --data '[
+  {
+    "op": "remove",
+    "path": "/{machine_name}",
+    "value": { "LAN1": {} }
+  }
+]'
+```
+
+#### Accessing Serial Ports
+
+```sh
+curl "$API_URL/contexts/{context_id}/machines/{machine_name}/serial"
+```
+
+#### Listing Network Interfaces
+
+```sh
+curl "$API_URL/contexts/{context_id}/machines/{machine_name}/network-interfaces"
+```
+
+#### Releasing a Context
+
+When you are done, release the context to free the machines for other users:
+
+```sh
+curl "$API_URL/contexts/{context_id}" \
+  --request DELETE
+```
+
+<Callout type="warning">
+  Deleting a context releases all associated resources (drives, USB, networks,
+  power). This cannot be undone.
+</Callout>
+
+---
+
+### User Tooling Examples
+
+The Context API is flexible, but verbose for common workflows. The User Tooling
+library is a Python library used in conjunction with NixOS integration tests,
+and is particularly useful for building CI pipelines.
+
+#### Environment Configuration
+
+First, define the test environment: the API URL, a control VM, and the
+machines under test.
 
 ```nix
 { pkgs
 , yourImage # Your image for testing
-,
 }:
 {
-  apiUrl = "http://api.dev.hwaas.factory.secunet.com/v5";
+  apiUrl = "http://api.your-instance.com/v5";
 
   controlVM = {
     ip = "192.168.44.1";
@@ -155,7 +324,7 @@ First, lets create our setup and define our two test images.
   machines = {
     bmr1 = {
       platform = "intel-nuc-x86";
-      inherit yourImage; # Inherit the image we are providing
+      inherit yourImage;
     };
     bmr2 = {
       platform = "amd-blade-x86";
@@ -165,14 +334,16 @@ First, lets create our setup and define our two test images.
 }
 ```
 
-Now, we can use first configuration to define a number of different NixOS integration tests. Here, we will ping between two machines.
+#### Writing a Test: Ping Between Two Machines
+
+Using the environment configuration above, define a NixOS integration test that
+boots two machines and verifies network connectivity between them.
 
 ```nix
 { pkgs
 , lib
 , hwaasTestModules
 , envConfig
-,
 }:
 let
   machineOne = "bmr1";
@@ -193,11 +364,10 @@ pkgs.hwaasTest {
   name = "Multiple HWaaS machines in one network";
   inherit apiUrl;
   extraPythonPackages = _: [ pkgs.hwaasTimer ];
-  nodes.controlVM = _: {
-    imports = with hwaasTestModules; [
-      hwaasTestVm
-    ];
 
+  # Define a NixOS control VM that acts as a DHCP server on the test network
+  nodes.controlVM = _: {
+    imports = with hwaasTestModules; [ hwaasTestVm ];
     networking.wireless.enable = lib.mkForce false;
 
     hwaas.testVm = {
@@ -217,6 +387,8 @@ pkgs.hwaasTest {
       };
     };
   };
+
+  # Declare the bare metal machines under test
   machines = {
     ${machineOne} = {
       image = "${machineOneImage}/your_image.iso";
@@ -227,6 +399,8 @@ pkgs.hwaasTest {
       platform = machineTwoPlatform;
     };
   };
+
+  # Connect both machines to the same network as the control VM
   networks = {
     "${controlVMInterface}" = [
       {
@@ -239,6 +413,8 @@ pkgs.hwaasTest {
       }
     ];
   };
+
+  # The test script runs on the control VM and pings both machines
   testScript = _: ''
     from hwaas_timer import Timer
     start_all()
@@ -260,18 +436,16 @@ pkgs.hwaasTest {
 
     timer.wait()
 
-    def maybe_print_cmd(cmd: str) -> None:
-      status, msg = controlVM.execute(cmd)
-      if status == 0:
-        print(f"Output of {cmd}:")
-        print(msg)
-        print()
-
-    maybe_print_cmd("networkctl status ${controlVMInterface}")
-
     assert not timer.is_timeout_expired(), "Could not ping machines on network"
   '';
 }
 ```
 
-Depending on how your repository is setup, you can run this as a check, or integrate it into your CI pipeline.
+<Callout type="note">
+  The `hwaasTest` function handles context reservation, image uploading, and
+  resource cleanup automatically. You only need to declare what machines and
+  networks you need.
+</Callout>
+
+Depending on how your repository is set up, you can run this as a Nix check or
+integrate it into your CI pipeline.
