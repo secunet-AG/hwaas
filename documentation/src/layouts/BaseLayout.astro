@@ -9,7 +9,7 @@ interface Props {
 
 const { title, prose = false } = Astro.props;
 
-const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const currentPath = Astro.url.pathname.replace(/\/$/, '');
 
 // Auto-generate doc sidebar items from the content collection
 const docs = await getCollection('docs')
@@ -23,17 +23,18 @@ docs.sort((a, b) => {
 const docItems = await Promise.all(docs.map(async (d) => {
   const { headings } = await render(d)
   const label = headings.find(h => h.depth === 1)?.text ?? d.id
+  const base = import.meta.env.BASE_URL
   const children = headings.filter(h => h.depth === 2).map(h => ({
-    href: `/docs/${d.id}#${h.slug}`,
+    href: `${base}docs/${d.id}#${h.slug}`,
     label: h.text,
   }))
-  return { href: `/docs/${d.id}`, label, children }
+  return { href: `${base}docs/${d.id}`, label, children }
 }))
 
 const navItems = [
   // { href: '/', label: 'Home', children: [] as { href: string; label: string }[] },
   ...docItems,
-  { href: '/api', label: 'API Reference', children: [] as { href: string; label: string }[] },
+  { href: `${import.meta.env.BASE_URL}api`, label: 'API Reference', children: [] as { href: string; label: string }[] },
 ]
 ---
 
