@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - feature/documentation-scaffolding
     paths:
       - "documentation/**"
       - ".github/workflows/docs.yml"
