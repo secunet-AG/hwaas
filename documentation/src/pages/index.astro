@@ -1,7 +1,4 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+const target = import.meta.env.BASE_URL + "docs/getting-started";
+return Astro.redirect(target);
 ---
-
-<BaseLayout title="Home">
-<h2>Hello</h2>
-</BaseLayout>
