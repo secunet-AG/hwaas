@@ -2,10 +2,10 @@
 
 ## At a Glance
 
-[Users](./users) can create [contexts](./core-concepts/#contexts), which are a collection of [bare metal resources](./core-concepts/#machines) with a specific lifetime.
+[Users](./users) can create [contexts](#contexts), which are a collection of [bare metal resources](#machines) with a specific lifetime.
 
-[Bare metal resources](./core-concepts#bare-metal-resources) are controlled by individual Raspberry Pi's, which in turn are controlled by the [Context API](./core-concepts/#contexts).
-You can extend the setup significantly by just onboarding a new Raspberry Pi and attaching them to your [Bare Metal Resource](./core-concepts#bare-metal-resources).
+[Bare metal resources](#bare-metal-resources) are controlled by individual Raspberry Pi's, which in turn are controlled by the [Context API](#contexts).
+You can extend the setup significantly by just onboarding a new Raspberry Pi and attaching them to your [Bare Metal Resource](#bare-metal-resources).
 
 ## Service Architecture
 
@@ -49,7 +49,7 @@ And may be extended with more functionality in the future.
 
 This is by far the most complicated `remote-hands` service. We currently have a few restrictions on the emulated device, such as only allowing a single virtual mouse and keyboard per instance.
 
-`remote-usb` is also responsible for providing the USB mass storage that provides bootable images for the machine under test. These images are stored in the [Gateway](./core-concepts/#gateway), under an NFS server.
+`remote-usb` is also responsible for providing the USB mass storage that provides bootable images for the machine under test. These images are stored in the [Gateway](#gateway), under an NFS server.
 
 #### Remote Serial
 
@@ -97,7 +97,7 @@ Contexts are the unit of separation for machines under test. They are configured
   the `remote-hands` functionality.
 </Callout>
 
-The `contextapi`, typically runs on the [Gateway](./core-concepts#gateway) and handles a number of core tasks:
+The `contextapi`, typically runs on the [Gateway](#gateway) and handles a number of core tasks:
 
 - Handling context lifetimes and machine reservations
 - Proxying content to and from `remote-hands` services

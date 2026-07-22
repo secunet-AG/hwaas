@@ -9,6 +9,8 @@ const isProd = process.env.NODE_ENV === "production";
 export default defineConfig({
   site: isProd ? "https://secunet-ag.github.io" : "http://localhost:4321",
   base: isProd ? "/hwaas/" : "/",
+  trailingSlash: "never",
+  build: { format: "file" },
   integrations: [mdx()],
   vite: {
     plugins: [tailwindcss()],
