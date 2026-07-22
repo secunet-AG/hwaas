@@ -1,377 +1,733 @@
+# This file is generated. Do not edit it manually.
+#
+# Regenerate it with:
+#
+#   nix run .#generate-ci
+concurrency:
+  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+jobs:
+  build-aruba-switch-mock:
+    name: 'Build: aruba-switch-mock'
+    needs:
+      - check-aruba-switch-mock
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build aruba-switch-mock
+        run: nix build -L --show-trace '.#packages.x86_64-linux.aruba-switch-mock'
+  build-contextapi:
+    name: 'Build: contextapi'
+    needs:
+      - check-contextapi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build contextapi
+        run: nix build -L --show-trace '.#packages.x86_64-linux.contextapi'
+      - if: always()
+        name: build contextapi-oas
+        run: nix build -L --show-trace '.#packages.x86_64-linux.contextapi-oas'
+      - if: always()
+        name: build contextapi-version
+        run: nix build -L --show-trace '.#packages.x86_64-linux.contextapi-version'
+  build-hunt:
+    name: 'Build: hunt'
+    needs:
+      - check-hunt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build hunt
+        run: nix build -L --show-trace '.#packages.x86_64-linux.hunt'
+  build-net-ctrl:
+    name: 'Build: net-ctrl'
+    needs:
+      - check-net-ctrl
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build net-ctrl
+        run: nix build -L --show-trace '.#packages.x86_64-linux.net-ctrl'
+      - if: always()
+        name: build net-ctrl-client
+        run: nix build -L --show-trace '.#packages.x86_64-linux.net-ctrl-client'
+      - if: always()
+        name: build net-ctrl-oas
+        run: nix build -L --show-trace '.#packages.x86_64-linux.net-ctrl-oas'
+  build-remote:
+    name: 'Build: remote'
+    needs:
+      - check-remote
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build remote-auxiliary
+        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-auxiliary'
+      - if: always()
+        name: build remote-hands-oas
+        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-hands-oas'
+      - if: always()
+        name: build remote-power
+        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-power'
+      - if: always()
+        name: build remote-serial
+        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-serial'
+      - if: always()
+        name: build remote-usb
+        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-usb'
+  build-rpi-status-display:
+    name: 'Build: rpi-status-display'
+    needs:
+      - check-rpi-status-display
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build rpi-status-display
+        run: nix build -L --show-trace '.#packages.x86_64-linux.rpi-status-display'
+  build-sbom:
+    name: 'Build: sbom'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build sbom-aruba-switch-mock
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-aruba-switch-mock'
+      - if: always()
+        name: build sbom-contextapi
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-contextapi'
+      - if: always()
+        name: build sbom-hunt
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-hunt'
+      - if: always()
+        name: build sbom-machine-ops
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-machine-ops'
+      - if: always()
+        name: build sbom-net-ctrl
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-net-ctrl'
+      - if: always()
+        name: build sbom-remote-auxiliary
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-remote-auxiliary'
+      - if: always()
+        name: build sbom-remote-power
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-remote-power'
+      - if: always()
+        name: build sbom-remote-serial
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-remote-serial'
+      - if: always()
+        name: build sbom-remote-usb
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-remote-usb'
+      - if: always()
+        name: build sbom-rpi-status-display
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-rpi-status-display'
+      - if: always()
+        name: build sbom-ws-gateway
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-ws-gateway'
+      - if: always()
+        name: build sbom-ws-proxy-client
+        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-ws-proxy-client'
+  build-ungrouped:
+    name: 'Build: ungrouped'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build http-sim
+        run: nix build -L --show-trace '.#packages.x86_64-linux.http-sim'
+      - if: always()
+        name: build hwaas-oas
+        run: nix build -L --show-trace '.#packages.x86_64-linux.hwaas-oas'
+      - if: always()
+        name: build machine-ops
+        run: nix build -L --show-trace '.#packages.x86_64-linux.machine-ops'
+      - if: always()
+        name: build vue-client
+        run: nix build -L --show-trace '.#packages.x86_64-linux.vue-client'
+      - if: always()
+        name: build ws-proxy-client
+        run: nix build -L --show-trace '.#packages.x86_64-linux.ws-proxy-client'
+  build-ws-gateway:
+    name: 'Build: ws-gateway'
+    needs:
+      - check-ws-gateway
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build ws-gateway
+        run: nix build -L --show-trace '.#packages.x86_64-linux.ws-gateway'
+  check-aruba-switch-mock:
+    name: 'Check: aruba-switch-mock'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check aruba-switch-mock-clippy
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-clippy'
+      - if: always()
+        name: check aruba-switch-mock-docs
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-docs'
+      - if: always()
+        name: check aruba-switch-mock-fmt
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-fmt'
+      - if: always()
+        name: check aruba-switch-mock-hakari
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-hakari'
+      - if: always()
+        name: check aruba-switch-mock-nextest
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-nextest'
+  check-contextapi:
+    name: 'Check: contextapi'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check contextapi-clippy
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-clippy'
+      - if: always()
+        name: check contextapi-docs
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-docs'
+      - if: always()
+        name: check contextapi-fmt
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-fmt'
+      - if: always()
+        name: check contextapi-golden-test-openapi-spec
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-golden-test-openapi-spec'
+      - if: always()
+        name: check contextapi-hakari
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-hakari'
+      - if: always()
+        name: check contextapi-nextest
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-nextest'
+  check-hunt:
+    name: 'Check: hunt'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check hunt-clippy
+        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-clippy'
+      - if: always()
+        name: check hunt-docs
+        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-docs'
+      - if: always()
+        name: check hunt-fmt
+        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-fmt'
+      - if: always()
+        name: check hunt-nextest
+        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-nextest'
+  check-net-ctrl:
+    name: 'Check: net-ctrl'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check net-ctrl-clippy
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-clippy'
+      - if: always()
+        name: check net-ctrl-docs
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-docs'
+      - if: always()
+        name: check net-ctrl-fmt
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-fmt'
+      - if: always()
+        name: check net-ctrl-golden-test-openapi-spec
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec'
+      - if: always()
+        name: check net-ctrl-hakari
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-hakari'
+      - if: always()
+        name: check net-ctrl-nextest
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-nextest'
+  check-pre-commit:
+    name: 'Check: pre-commit'
+    needs: []
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check pre-commit
+        run: nix build -L --show-trace '.#checks.x86_64-linux.pre-commit'
+  check-remote:
+    name: 'Check: remote'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check remote-hands-clippy
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-clippy'
+      - if: always()
+        name: check remote-hands-docs
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-docs'
+      - if: always()
+        name: check remote-hands-fmt
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-fmt'
+      - if: always()
+        name: check remote-hands-golden-test-openapi-spec
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-golden-test-openapi-spec'
+      - if: always()
+        name: check remote-hands-hakari
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-hakari'
+      - if: always()
+        name: check remote-hands-nextest
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-nextest'
+  check-rpi-status-display:
+    name: 'Check: rpi-status-display'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check rpi-status-display-clippy
+        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-clippy'
+      - if: always()
+        name: check rpi-status-display-docs
+        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-docs'
+      - if: always()
+        name: check rpi-status-display-fmt
+        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-fmt'
+      - if: always()
+        name: check rpi-status-display-nextest
+        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-nextest'
+  check-verify-ci:
+    name: 'Check: verify-ci'
+    needs: []
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check verify-ci
+        run: nix build -L --show-trace '.#checks.x86_64-linux.verify-ci'
+  check-ws-gateway:
+    name: 'Check: ws-gateway'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check ws-gateway-clippy
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-clippy'
+      - if: always()
+        name: check ws-gateway-docs
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-docs'
+      - if: always()
+        name: check ws-gateway-fmt
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-fmt'
+      - if: always()
+        name: check ws-gateway-hakari
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-hakari'
+      - if: always()
+        name: check ws-gateway-nextest
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-nextest'
+  test-aruba-switch-mock:
+    name: 'Test: aruba-switch-mock'
+    needs:
+      - build-aruba-switch-mock
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: test aruba-switch-mock-integration-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-integration-test'
+      - if: always()
+        name: test aruba-switch-mock-login-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-login-test'
+      - if: always()
+        name: test aruba-switch-mock-ports-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-ports-test'
+      - if: always()
+        name: test aruba-switch-mock-stats-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-stats-test'
+  test-contextapi:
+    name: 'Test: contextapi'
+    needs:
+      - build-contextapi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: test contextapi-cors-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-cors-test'
+      - if: always()
+        name: test contextapi-images-drives-and-middleware
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-images-drives-and-middleware'
+      - if: always()
+        name: test contextapi-lifetime-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-lifetime-test'
+      - if: always()
+        name: test contextapi-net-api-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-net-api-test'
+      - if: always()
+        name: test contextapi-remote-hands-aux-device-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-remote-hands-aux-device-test'
+      - if: always()
+        name: test contextapi-remote-hands-routing-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-remote-hands-routing-test'
+      - if: always()
+        name: test contextapi-remote-serial-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-remote-serial-test'
+      - if: always()
+        name: test contextapi-startup-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-startup-test'
+      - if: always()
+        name: test contextapi-test-open-telemetry
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-test-open-telemetry'
+      - if: always()
+        name: test contextapi-ws-network-routing-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-ws-network-routing-test'
+  test-hunt:
+    name: 'Test: hunt'
+    needs:
+      - build-hunt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: test hunt-rust-log
+        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-rust-log'
+  test-net-ctrl:
+    name: 'Test: net-ctrl'
+    needs:
+      - build-net-ctrl
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: test net-ctrl-get-switches
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-get-switches'
+      - if: always()
+        name: test net-ctrl-test-open-telemetry
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-test-open-telemetry'
+      - if: always()
+        name: test net-ctrl-test-switch-client-cache
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-test-switch-client-cache'
+  test-remote:
+    name: 'Test: remote'
+    needs:
+      - build-remote
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: test remote-hands-check-otel-traces
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-check-otel-traces'
+      - if: always()
+        name: test remote-hands-remote-auxiliary
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-auxiliary'
+      - if: always()
+        name: test remote-hands-remote-power
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-power'
+      - if: always()
+        name: test remote-hands-remote-serial-echo
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-echo'
+      - if: always()
+        name: test remote-hands-remote-serial-udev-custom-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-udev-custom-test'
+      - if: always()
+        name: test remote-hands-remote-serial-udev-default-test
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-udev-default-test'
+      - if: always()
+        name: test remote-hands-remote-usb
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-usb'
+  test-ws-gateway:
+    name: 'Test: ws-gateway'
+    needs:
+      - build-ws-gateway
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: test ws-gateway-test-clients-and-suts-scenario
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-clients-and-suts-scenario'
+      - if: always()
+        name: test ws-gateway-test-connect
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-connect'
+      - if: always()
+        name: test ws-gateway-test-many-clients-scenario
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-many-clients-scenario'
+      - if: always()
+        name: test ws-gateway-test-many-vlans-ping
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-many-vlans-ping'
+      - if: always()
+        name: test ws-gateway-test-open-telemetry
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-open-telemetry'
 name: CI
-on:
-  # Start jobs on every pull request
-  pull_request:
-  # Start jobs when pushing (or merging) to main
+'on':
+  pull_request: {}
   push:
     branches:
       - main
-  # Allow manually starting jobs
-  workflow_dispatch:
+  workflow_dispatch: {}
 permissions:
   contents: read
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-jobs:
-  license:
-    name: Run license check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: License check
-        run: nix run .#apps.x86_64-linux.lint-SPDX-license-header
-  build:
-    name: Build nix packages
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Build aruba-switch-mock
-        run: nix build -L .#packages.x86_64-linux.aruba-switch-mock
-      - name: Build contextapi
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi
-      - name: Build contextapi-oas
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-oas
-      - name: Build contextapi-version
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.contextapi-version
-      - name: Build hunt
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.hunt
-      - name: Build hwaas-oas
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.hwaas-oas
-      - name: Build machine-ops
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.machine-ops
-      - name: Build net-ctrl
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.net-ctrl
-      - name: Build net-ctrl-client
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.net-ctrl-client
-      - name: Build net-ctrl-oas
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.net-ctrl-oas
-      - name: Build remote-auxiliary
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.remote-auxiliary
-      - name: Build remote-hands-oas
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.remote-hands-oas
-      - name: Build remote-power
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.remote-power
-      - name: Build remote-serial
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.remote-serial
-      - name: Build remote-usb
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.remote-usb
-      - name: Build rpi-status-display
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.rpi-status-display
-      - name: Build sbom-aruba-switch-mock
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-aruba-switch-mock
-      - name: Build sbom-contextapi
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-contextapi
-      - name: Build sbom-hunt
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-hunt
-      - name: Build sbom-machine-ops
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-machine-ops
-      - name: Build sbom-net-ctrl
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-net-ctrl
-      - name: Build sbom-remote-auxiliary
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-remote-auxiliary
-      - name: Build sbom-remote-power
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-remote-power
-      - name: Build sbom-remote-serial
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-remote-serial
-      - name: Build sbom-remote-usb
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-remote-usb
-      - name: Build sbom-rpi-status-display
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-rpi-status-display
-      - name: Build sbom-ws-gateway
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-ws-gateway
-      - name: Build sbom-ws-proxy-client
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.sbom-ws-proxy-client
-      - name: Build vue-client
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.vue-client
-      - name: Build ws-gateway
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.ws-gateway
-      - name: Build ws-proxy-client
-        if: always()
-        run: nix build -L .#packages.x86_64-linux.ws-proxy-client
-  check:
-    name: Run nix checks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Check treefmt
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.treefmt
-      - name: Check pre-commit
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.pre-commit
-  aruba-switch-mock:
-    name: Check aruba-switch-mock
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Check aruba-switch-mock-fmt
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-fmt
-      - name: Check aruba-switch-mock-hakari
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-hakari
-      - name: Check aruba-switch-mock-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-docs
-      - name: Check aruba-switch-mock-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.aruba-switch-mock-clippy
-  contextapi:
-    name: Check contextapi
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Check contextapi-fmt
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-fmt
-      - name: Check contextapi-hakari
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-hakari
-      - name: Check contextapi-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-docs
-      - name: Check contextapi-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-clippy
-      - name: Check contextapi-golden-test-openapi-spec
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-golden-test-openapi-spec
-      - name: Check contextapi-images-drives-and-middleware
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.contextapi-images-drives-and-middleware
-  hunt:
-    name: Check hunt
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Check hunt-fmt
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.hunt-fmt
-      - name: Check hunt-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.hunt-docs
-      - name: Check hunt-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.hunt-clippy
-      - name: Check hunt-rust-log
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.hunt-rust-log
-  net-ctrl:
-    name: Check net-ctrl
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Check net-ctrl-fmt
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-fmt
-      - name: Check net-ctrl-hakari
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-hakari
-      - name: Check net-ctrl-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-docs
-      - name: Check net-ctrl-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-clippy
-      - name: Check net-ctrl-golden-test-openapi-spec
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec
-      - name: Check net-ctrl-get-switches
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.net-ctrl-get-switches
-  remote-hands:
-    name: Check remote-hands
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Check remote-hands-fmt
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-fmt
-      - name: Check remote-hands-hakari
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-hakari
-      - name: Check remote-hands-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-docs
-      - name: Check remote-hands-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-clippy
-      - name: Check remote-hands-golden-test-openapi-spec
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-golden-test-openapi-spec
-      - name: Check remote-hands-check-otel-traces
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-check-otel-traces
-      - name: Check remote-hands-remote-auxiliary
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-auxiliary
-      - name: Check remote-hands-remote-power
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-power
-      - name: Check remote-hands-remote-serial-echo
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-serial-echo
-      - name: Check remote-hands-remote-usb
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.remote-hands-remote-usb
-  rpi-status-display:
-    name: Check rpi-status-display
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Check rpi-status-display-fmt
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.rpi-status-display-fmt
-      - name: Check rpi-status-display-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.rpi-status-display-docs
-      - name: Check rpi-status-display-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.rpi-status-display-clippy
-  ws-gateway:
-    name: Check ws-gateway
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v14
-        with:
-          name: secunet-ag-hwaas
-          # API token for write access
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Check ws-gateway-fmt
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-fmt
-      - name: Check ws-gateway-hakari
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-hakari
-      - name: Check ws-gateway-docs
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-docs
-      - name: Check ws-gateway-clippy
-        if: always()
-        run: nix build -L .#checks.x86_64-linux.ws-gateway-clippy

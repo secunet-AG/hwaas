@@ -12,5 +12,6 @@ _: {
     ./apps
     ./overlay.nix
     ./packages
+    ./ci
   ];
 }

@@ -4,7 +4,8 @@
 
 _: {
   perSystem =
-    { config
+    { pkgs
+    , config
     , ...
     }:
     {
@@ -60,6 +61,10 @@ _: {
           };
           statix.enable = true;
           # deadnix.enable = true;
+          reuse = {
+            enable = true;
+            package = pkgs.reuse;
+          };
         };
       };
     };
