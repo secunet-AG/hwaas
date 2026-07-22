@@ -84,6 +84,20 @@ let
     item:
     builtins.elem item.target excludeJobs;
 
+  # We generally want to keep the order of "minimal checks" -> "checks" -> "builds" -> "tests".
+  # Minimal checks should be as fast as possible and guarantee the sanity of the CI.
+  # This is the main point for defining which jobs belong to the "minimal checks".
+  #
+  # Since we separate each stage into multiple groups, we could generate "empty" jobs.
+  # For example: there is no "check" that the SBOM "build" job directly depends on.
+  # This "build" job should still depend on the "minimal checks" though.
+  #
+  # This function simply returns the minimal checks list if the given needs list is empty.
+  # Other options (making everything depend on them) would make the CI overview cumbersome.
+  dependOnMinimalChecksIfEmpty =
+    needs:
+    if needs == [ ] then [ "check-pre-commit" "check-verify-ci" ] else needs;
+
   # Normalize checks and packages into the same intermediate representation.
   checks =
     lib.filter
@@ -174,7 +188,7 @@ let
         needs =
           lib.optionals
             (group != "pre-commit" && group != "verify-ci")
-            [ "check-pre-commit" "check-verify-ci" ];
+            (dependOnMinimalChecksIfEmpty [ ]);
       };
 
       buildJob = mkJob {
@@ -183,13 +197,10 @@ let
         phase = "build";
         inherit group;
         items = packagesForGroup group;
-        needs = [
-          "check-pre-commit"
-          "check-verify-ci"
-        ] ++
-        lib.optional
-          (checkJob != null)
-          checkJob.id;
+        needs = dependOnMinimalChecksIfEmpty (
+          lib.optional
+            (checkJob != null)
+            checkJob.id);
       };
 
       testJob = mkJob {
@@ -198,10 +209,7 @@ let
         phase = "test";
         inherit group;
         items = testsForGroup group;
-        needs = [
-          "check-pre-commit"
-          "check-verify-ci"
-        ] ++ (
+        needs = dependOnMinimalChecksIfEmpty (
           if buildJob != null then
             [ buildJob.id ]
           else
@@ -248,10 +256,7 @@ let
         phase = "check";
         group = null;
         items = ungroupedChecks;
-        needs = [
-          "check-pre-commit"
-          "check-verify-ci"
-        ];
+        needs = dependOnMinimalChecksIfEmpty [ ];
       };
 
       buildJob = mkJob {
@@ -260,13 +265,10 @@ let
         phase = "build";
         group = null;
         items = ungroupedPackages;
-        needs = [
-          "check-pre-commit"
-          "check-verify-ci"
-        ] ++
-        lib.optional
-          (checkJob != null)
-          checkJob.id;
+        needs = dependOnMinimalChecksIfEmpty (
+          lib.optional
+            (checkJob != null)
+            checkJob.id);
       };
 
       testJob = mkJob {
@@ -275,10 +277,7 @@ let
         phase = "test";
         group = null;
         items = ungroupedTests;
-        needs = [
-          "check-pre-commit"
-          "check-verify-ci"
-        ] ++ (
+        needs = dependOnMinimalChecksIfEmpty (
           if buildJob != null then
             [ buildJob.id ]
           else
