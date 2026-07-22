@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { parseLifetime, secondsToReadable } from './time-validation'
 import { expect, it, describe } from 'vitest'
 

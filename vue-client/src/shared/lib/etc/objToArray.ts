@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 export function objToArray<T extends Object, K extends string | number | symbol>(
   object: Record<K, T>,
   identifier: string,

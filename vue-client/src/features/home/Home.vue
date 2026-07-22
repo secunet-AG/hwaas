@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <script setup lang="ts">
 import { useContextStore } from '@/core/stores/context-store'
 import ContextHeader from '@/features/home/components/contexts/ContextHeader.vue'

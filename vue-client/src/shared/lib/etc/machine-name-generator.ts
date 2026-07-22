@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 export function nameGenerator() {
   return `${ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)]}-${AGENT_NOUNS[Math.floor(Math.random() * AGENT_NOUNS.length)]}`
 }

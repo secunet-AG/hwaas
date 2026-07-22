@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { useImageApi } from '@/shared/lib/api/images/images.api'
 import type { LocalImage } from '@/shared/types/images.model'
 import { defineStore } from 'pinia'

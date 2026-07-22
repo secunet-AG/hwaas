@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
 import { safeFetch, type FetchResult } from '../safeFetch'
 import { GetNetworkSchema, ListMachineNetworksSchema } from '@/shared/schemas/networks.schema'

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { createSHA256, type IDataType } from 'hash-wasm'
 
 const CHUNK_SIZE = 20 * 1024 * 1024 // 20MB Chunk Size, arbitrary for the time being
