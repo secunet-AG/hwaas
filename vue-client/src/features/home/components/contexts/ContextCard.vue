@@ -1,14 +1,8 @@
-<!--
-SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script setup lang="ts">
 import { useContextStore } from '@/core/stores/context-store'
 import type { LocalMachine } from '@/shared/types/contexts.model'
 import Tooltip from '@/shared/ui/tooltip/Tooltip.vue'
-import { computed, toRef } from 'vue'
+import { computed, toRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const contextsStore = useContextStore()
@@ -23,6 +17,7 @@ const machine = toRef(props, 'machine')
 
 const emits = defineEmits<{
   (e: 'onOpenSerial', name: string): void
+  (e: 'onOpenVNC', name: string): void
 }>()
 
 const getMachineColor = (item: LocalMachine) => {
@@ -39,6 +34,12 @@ function openSerial(e: MouseEvent) {
   e.preventDefault()
   if (machine.value.powerState !== 'on') return
   emits('onOpenSerial', props.machine.name)
+}
+
+function openVNV(e: MouseEvent) {
+  e.preventDefault()
+  if (machine.value.powerState !== 'on') return
+  emits('onOpenVNC', props.machine.name)
 }
 
 async function onTogglePower(e: MouseEvent) {
@@ -94,6 +95,33 @@ const canToggle = computed(() => machine.value.powerState === 'on' || machine.va
     <div class="mt-auto flex items-center justify-between">
       <span class="text-(--app-secondary-text) text-sm">{{ machine.platform }}</span>
       <div class="bg-(--app-bg) flex items-center gap-4 rounded-full">
+        <Tooltip
+          :options="{
+            message: machine.powerState === 'on' ? 'Connect To VNC' : 'Must Boot Machine First',
+            yOffsetOverride: 32,
+          }"
+        >
+          <button
+            :disabled="machine.powerState !== 'on'"
+            class="transition-opacity disabled:opacity-40"
+            @click="openVNV"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="text-(--app-secondary-text)/40 size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"
+              />
+            </svg>
+          </button>
+        </Tooltip>
         <Tooltip
           :options="{
             message: machine.powerState === 'on' ? 'Connect To Serial' : 'Must Boot Machine First',

@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script setup lang="ts">
 import { useContextStore } from '@/core/stores/context-store'
 import ContextHeader from '@/features/home/components/contexts/ContextHeader.vue'
@@ -15,6 +9,7 @@ import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import NetworkCreationModal from './components/networks/NetworkCreationModal.vue'
 import FadeInOut from '@/shared/ui/transitions/FadeInOut.vue'
+import MJPEG from './components/machine-view/components/MJPEG.vue'
 import type { LocalMachine } from '@/shared/types/contexts.model'
 
 const TerminalAsync = defineAsyncComponent(
@@ -27,6 +22,7 @@ const contextStoreRef = storeToRefs(_contextsStore)
 const router = useRouter()
 
 const isSerialOpen = ref(false)
+const isVNCOpen = ref(false)
 const activeMachine = ref<LocalMachine | null>(null)
 
 function setActiveMachine(machineName: string) {
@@ -44,6 +40,16 @@ onMounted(async () => {
 function onCloseTerminal() {
   isSerialOpen.value = false
   activeMachine.value = null
+}
+
+function onCloseVnc() {
+  isVNCOpen.value = false
+  activeMachine.value = null
+}
+
+function onOpenVnc(name: string) {
+  setActiveMachine(name)
+  isVNCOpen.value = true
 }
 
 function onOpenSerial(name: string) {
@@ -67,8 +73,17 @@ function onEdit() {
 
     <div class="flex flex-col pt-8">
       <h2 class="text-2xl">Machines</h2>
-      <ContextCards @on-open-serial="onOpenSerial" />
+      <ContextCards @on-open-v-n-c="onOpenVnc" @on-open-serial="onOpenSerial" />
     </div>
+
+    <FadeInOut>
+      <MJPEG
+        :context-id="contextStoreRef.activeContext.value?.id ?? ''"
+        :machine-name="activeMachine.name"
+        v-if="_contextsStore.activeContext?.id && activeMachine?.name && isVNCOpen"
+        @on-close="onCloseVnc"
+      ></MJPEG>
+    </FadeInOut>
 
     <FadeInOut>
       <!-- TODO: Discuss how we want to configure serial ports -->

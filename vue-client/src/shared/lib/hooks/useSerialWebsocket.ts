@@ -1,11 +1,7 @@
-// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
 import { useContextStore } from '@/core/stores/context-store'
 import { storeToRefs } from 'pinia'
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onUnmounted, ref, watch } from 'vue'
 
 export function useSerialWebsocket() {
   const { apiUrl } = useApiUrl()
@@ -64,8 +60,9 @@ export function useSerialWebsocket() {
 
     wss.value.addEventListener('message', ({ data }) => data && onMessage(data))
     wss.value.addEventListener('error', onError)
-    wss.value.addEventListener('open', clearTerminal)
 
+    // TODO: Why was this written?
+    wss.value.addEventListener('open', clearTerminal)
     wss.value.removeEventListener('open', clearTerminal)
   }
 
@@ -80,7 +77,7 @@ export function useSerialWebsocket() {
 
   watch(activeBaseUrl, () => buildWebSocket(), { immediate: true })
 
-  onUnmounted(() => unsubscribe())
+  onBeforeUnmount(() => unsubscribe())
 
   return {
     data,

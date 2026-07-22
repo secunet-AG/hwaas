@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script setup lang="ts">
 import {
   deserializeContextConfig,
@@ -52,12 +46,25 @@ function onContextUploadReset(newValue: FileUploadState) {
 async function onFileUpload(file: File) {
   try {
     const config = await parseContext(file)
+
     if (!config) {
       uploadContextState.value = 'failed'
       throw new Error('Parsing returned null')
     }
+
     uploadContextState.value = 'success'
-    emit('contextUpload', config.machines)
+
+    // Annoying KV shape, we then need to change the types of all of the keys
+
+    emit(
+      'contextUpload',
+      Object.fromEntries(
+        Object.entries(config.machines).map(([key, item]) => [
+          key,
+          { ...item, machine_id: Number(item.machine_id) },
+        ]),
+      ) as Record<string, { machine_id: number; platform: string }>,
+    )
   } catch {
     uploadContextState.value = 'failed'
     emit('contextUploadFail')

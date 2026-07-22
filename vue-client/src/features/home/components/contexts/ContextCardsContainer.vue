@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script setup lang="ts">
 import { useContextStore } from '@/core/stores/context-store'
 import ContextCard from './ContextCard.vue'
@@ -20,6 +14,7 @@ const emits = defineEmits<{
   <div class="flex gap-6 pt-6">
     <ContextCard
       @on-open-serial="(name) => emits('onOpenSerial', name)"
+      @on-open-v-n-c="(name) => emits('onOpenVNC', name)"
       :machine="item"
       v-for="item of contextsStore.activeMachines"
     ></ContextCard>

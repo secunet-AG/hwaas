@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 export type ContextConfig = { machines: Record<string, { machine_id: number; platform: string }> }
 
 // Our data shape looks like the below:

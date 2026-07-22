@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script setup lang="ts">
 import ContextPicker from '@/features/home/components/contexts/ContextPicker.vue'
 import ContextLifetimeModal from './ContextLifetimeModal.vue'

@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
 import type {
   LocalMachine,
@@ -32,7 +28,7 @@ export const useContextsApi = () => {
 
     machines.forEach((machine) => {
       machinesForReservationRecord[machine.name] = {
-        machine_id: machine.machine_id,
+        machine_id: Number(machine.machine_id),
         platform: machine.platform,
       }
     })
@@ -110,7 +106,7 @@ export const useContextsApi = () => {
           if (machine_data) {
             return {
               name: x,
-              machine_id: machine_data.id,
+              machine_id: String(machine_data.id),
               platform: machine_data.platform,
               powerState: 'unknown',
             }

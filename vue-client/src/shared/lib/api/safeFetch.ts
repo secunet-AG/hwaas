@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import { z } from 'zod'
 
 export type FetchResult<T> = { data: T; error: null } | { data: null; error: string | z.ZodError }

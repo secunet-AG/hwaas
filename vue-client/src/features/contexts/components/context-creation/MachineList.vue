@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script setup lang="ts">
 import { computed, reactive, ref, onMounted } from 'vue'
 import { nameGenerator } from '@/shared/lib/etc/machine-name-generator'

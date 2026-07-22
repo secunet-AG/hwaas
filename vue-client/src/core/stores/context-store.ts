@@ -1,11 +1,8 @@
-// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import { useContextsApi } from '@/shared/lib/api/contexts/contexts.api'
 import { useMachinesApi } from '@/shared/lib/api/machines/machines.api'
 import type { FetchResult } from '@/shared/lib/api/safeFetch'
 import type { Context, LocalMachine } from '@/shared/types/contexts.model'
+import type { LocalImage } from '@/shared/types/images.model'
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 
@@ -21,6 +18,14 @@ export const useContextStore = defineStore('context', () => {
 
   const { deleteContext, getContextFromId, reserveContext, setContextLifetime } = useContextsApi()
   const { powerOnMachine, powerOffMachine, invalidateMachines } = useMachinesApi()
+
+  watch(
+    [contexts, activeContextIndex],
+    ([newContexts, newIndex]) => {
+      cacheContexts({ contexts: newContexts, activeContextIndex: newIndex as number })
+    },
+    { deep: true },
+  )
 
   const activeContext = computed<Context | null>(
     () => contexts.value[activeContextIndex.value] ?? null,
@@ -256,25 +261,52 @@ export const useContextStore = defineStore('context', () => {
 
     const validContextData = contextResults.filter((x) => x.data && !x.error).map((x) => x.data)
 
-    const contextsWithName = validContextData.map((x) => ({
-      ...x,
-      id: x!.id,
-      name: idToNameMap.get(x!.id) ?? '',
-    }))
+    const contextsWithName = validContextData.map((x) => {
+      const local = contexts.find((c) => c.id === x!.id)
+      return {
+        ...x,
+        id: x!.id,
+        name: idToNameMap.get(x!.id) ?? '',
+        // preserve any local-only fields
+        machines: x!.machines.map((m) => {
+          const localMachine = local?.machines.find((lm) => lm.name === m.name)
+          return { ...m, activeImage: localMachine?.activeImage ?? m.activeImage }
+        }),
+      }
+    })
 
     return contextsWithName as Context[]
   }
 
   async function invalidateContext(staleContext: Context): Promise<FetchResult<Context>> {
     const { data: context, error: contextError } = await getContextFromId(staleContext.id)
+
     if (contextError || !context?.id) {
       return {
         data: null,
         error: String(contextError),
       }
     }
+
     const freshContext = { ...context, name: staleContext.name }
+
+    // Sigh... we also have some local state here with the image currently applied on the machine
+    // This is quite frankly a ridiculous amount of annoyance to persist 2-3 fields locally that can easily be added to the API
+
+    const machineImageMap: Map<string, LocalImage | null> = new Map()
+
+    staleContext.machines.forEach((x) => {
+      machineImageMap.set(x.machine_id as string, x.activeImage || null)
+    })
+
     const { data: machines, error: machinesError } = await invalidateMachines(freshContext)
+
+    machines?.forEach((x) => {
+      let foundImage = machineImageMap.get(x.machine_id as string)
+      if (foundImage) {
+        x.activeImage = foundImage
+      }
+    })
 
     if (machinesError) {
       console.error('Error fetching machines: ', machinesError)
