@@ -65,11 +65,13 @@
           },
           "x": {
             "description": "Absolute coordinates to move the pointer to",
-            "format": "int16",
+            "format": "uint16",
+            "minimum": 0.0,
             "type": "integer"
           },
           "y": {
-            "format": "int16",
+            "format": "uint16",
+            "minimum": 0.0,
             "type": "integer"
           }
         },
@@ -118,29 +120,8 @@
         "type": "object"
       },
       "UsbFunctionConfig": {
-        "description": "Configuration in request\n\nThe order of functions is always determined by this given top-to-bottom discriminant order.",
+        "description": "Configuration in request",
         "oneOf": [
-          {
-            "properties": {
-              "luns": {
-                "items": {
-                  "$ref": "#/components/schemas/StorageLunConfig"
-                },
-                "type": "array"
-              },
-              "type": {
-                "enum": [
-                  "storage"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "luns",
-              "type"
-            ],
-            "type": "object"
-          },
           {
             "properties": {
               "type": {
@@ -165,6 +146,27 @@
               }
             },
             "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "luns": {
+                "items": {
+                  "$ref": "#/components/schemas/StorageLunConfig"
+                },
+                "type": "array"
+              },
+              "type": {
+                "enum": [
+                  "storage"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "luns",
               "type"
             ],
             "type": "object"
@@ -239,17 +241,7 @@
         "description": "Query for the ids of all configured serial interfaces",
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "list of all serial interfaces"
+            "description": "no content"
           }
         },
         "summary": "Query serial interfaces",
@@ -262,7 +254,7 @@
       "post": {
         "description": "Reset all serial interfaces",
         "responses": {
-          "204": {
+          "200": {
             "description": "no content"
           }
         },
@@ -289,7 +281,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "200": {
             "description": "no content"
           }
         },
@@ -318,7 +310,7 @@
             "content": {
               "application/octet-stream": {}
             },
-            "description": "Bytes red from serial buffer"
+            "description": "byte stream"
           }
         },
         "summary": "Read from serial buffer",
@@ -348,11 +340,8 @@
           "required": true
         },
         "responses": {
-          "204": {
+          "200": {
             "description": "no content"
-          },
-          "503": {
-            "description": "Internal error"
           }
         },
         "summary": "Write to serial buffer",
@@ -382,11 +371,8 @@
           "required": true
         },
         "responses": {
-          "204": {
+          "200": {
             "description": "no content"
-          },
-          "503": {
-            "description": "Internal error"
           }
         },
         "summary": "Write to serial buffer",
@@ -635,6 +621,56 @@
         ]
       }
     },
+    "/usb/keyboard/websocket": {
+      "get": {
+        "description": "Use USB OTG keyboard by sending report input - list of keys, modifier, press and release values.",
+        "responses": {
+          "101": {
+            "description": "websocket upgrade",
+            "headers": {
+              "connection": {
+                "schema": {
+                  "const": "upgrade",
+                  "enum": [
+                    "upgrade"
+                  ],
+                  "example": "upgrade",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-key": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-protocol": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "upgrade": {
+                "schema": {
+                  "const": "websocket",
+                  "enum": [
+                    "websocket"
+                  ],
+                  "example": "websocket",
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          }
+        },
+        "summary": "Use keyboard with report format via WS",
+        "tags": [
+          "USB API"
+        ]
+      }
+    },
     "/usb/mouse": {
       "post": {
         "description": "Use USB OTG mouse by sending button, pointer (x, y) and wheel parameters.",
@@ -671,6 +707,56 @@
           }
         },
         "summary": "Use mouse",
+        "tags": [
+          "USB API"
+        ]
+      }
+    },
+    "/usb/mouse/websocket": {
+      "get": {
+        "description": "Use USB OTG mouse by sending button, pointer (x, y) and wheel parameters.",
+        "responses": {
+          "101": {
+            "description": "websocket upgrade",
+            "headers": {
+              "connection": {
+                "schema": {
+                  "const": "upgrade",
+                  "enum": [
+                    "upgrade"
+                  ],
+                  "example": "upgrade",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-key": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-protocol": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "upgrade": {
+                "schema": {
+                  "const": "websocket",
+                  "enum": [
+                    "websocket"
+                  ],
+                  "example": "websocket",
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          }
+        },
+        "summary": "Use mouse via WS/WSS connection",
         "tags": [
           "USB API"
         ]

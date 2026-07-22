@@ -28,17 +28,7 @@
         "description": "Query for the ids of all configured serial interfaces",
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "list of all serial interfaces"
+            "description": "no content"
           }
         },
         "summary": "Query serial interfaces",
@@ -51,7 +41,7 @@
       "post": {
         "description": "Reset all serial interfaces",
         "responses": {
-          "204": {
+          "200": {
             "description": "no content"
           }
         },
@@ -78,7 +68,7 @@
           }
         ],
         "responses": {
-          "204": {
+          "200": {
             "description": "no content"
           }
         },
@@ -107,7 +97,7 @@
             "content": {
               "application/octet-stream": {}
             },
-            "description": "Bytes red from serial buffer"
+            "description": "byte stream"
           }
         },
         "summary": "Read from serial buffer",
@@ -137,11 +127,8 @@
           "required": true
         },
         "responses": {
-          "204": {
+          "200": {
             "description": "no content"
-          },
-          "503": {
-            "description": "Internal error"
           }
         },
         "summary": "Write to serial buffer",
@@ -171,11 +158,8 @@
           "required": true
         },
         "responses": {
-          "204": {
+          "200": {
             "description": "no content"
-          },
-          "503": {
-            "description": "Internal error"
           }
         },
         "summary": "Write to serial buffer",

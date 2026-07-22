@@ -283,7 +283,7 @@
         },
         "responses": {
           "200": {
-            "description": "Proxied from the auxiliary service. Response could be anything!"
+            "description": "Proxied from the auxiliary service. Reponse could be anything!"
           }
         },
         "summary": "The auxiliary device specific API",
@@ -314,7 +314,7 @@
         },
         "responses": {
           "200": {
-            "description": "Proxied from the auxiliary service. Response could be anything!"
+            "description": "Proxied from the auxiliary service. Reponse could be anything!"
           }
         },
         "summary": "The auxiliary device specific API",
@@ -345,7 +345,7 @@
         },
         "responses": {
           "200": {
-            "description": "Proxied from the auxiliary service. Response could be anything!"
+            "description": "Proxied from the auxiliary service. Reponse could be anything!"
           }
         },
         "summary": "The auxiliary device specific API",
@@ -376,7 +376,7 @@
         },
         "responses": {
           "200": {
-            "description": "Proxied from the auxiliary service. Response could be anything!"
+            "description": "Proxied from the auxiliary service. Reponse could be anything!"
           }
         },
         "summary": "The auxiliary device specific API",
