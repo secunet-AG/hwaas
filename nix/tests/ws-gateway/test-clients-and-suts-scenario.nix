@@ -222,6 +222,7 @@ nixosTest {
   # skipLint = debugging;
 
   testScript = ''
+    from test_driver.machine import QemuMachine
     from typing import List
 
     # Start the fake HWaaS
@@ -232,7 +233,7 @@ nixosTest {
 
     # spawn SUTs and the clients (wait until they are connected)
     start_all()
-    all_clients: List[Machine] = [client1, client2, client3, client4]
+    all_clients: List[QemuMachine] = [client1, client2, client3, client4]
     for c in all_clients:
       c.wait_for_unit("websocket-proxy-client.service")
       c.wait_for_unit("default.target")
