@@ -82,6 +82,7 @@ const navItems = [
                       {item.children.map(child => (
                         <a
                           href={child.href}
+                          data-hash-link
                           class="px-2 py-1 rounded text-sm text-(--app-secondary-text) hover:text-(--app-primary-text/50) transition-colors"
                         >
                           {child.label}
@@ -141,6 +142,27 @@ const navItems = [
       toggle?.addEventListener('click', () => {
         wrapper?.classList.toggle('sidebar-collapsed');
       });
+
+      const activeClass = 'text-(--app-primary-text)';
+      const inactiveClass = 'text-(--app-secondary-text)';
+
+      function updateHashHighlight() {
+        const currentPath = location.pathname.replace(/\/$/, '');
+        const currentHash = location.hash;
+
+        document.querySelectorAll<HTMLAnchorElement>('[data-hash-link]').forEach(link => {
+          const url = new URL(link.href);
+          const linkPath = url.pathname.replace(/\/$/, '');
+          const linkHash = url.hash;
+          const isActive = currentPath === linkPath && currentHash === linkHash;
+
+          link.classList.toggle(activeClass, isActive);
+          link.classList.toggle(inactiveClass, !isActive);
+        });
+      }
+
+      updateHashHighlight();
+      window.addEventListener('hashchange', updateHashHighlight);
     </script>
   </body>
 </html>

@@ -3,7 +3,9 @@
 Welcome to the user documentation for the HWaaS!
 
 If you're here we assume that you already have access to a working HWaaS
-instance to follow along. If this is not the case, please refer to our [maintainer documentation](./managing-an-instance).
+instance to follow along.
+
+{/* If this is not the case, please refer to our [maintainer documentation](./managing-an-instance). */}
 
 There are multiple methods to interact with HWaaS, each tailored to different
 needs.
@@ -12,17 +14,17 @@ import Callout from "../../components/Callout.astro";
 
 **We provide the following frontends**
 
-- A HTTP/REST API for low-level interaction: [Context API](/api)
+- A HTTP/REST API for low-level interaction: [Context API](../api)
 - A CI-based solution with a higher abstraction for scripting or interactive
-  use: [User Tooling](/docs/users#user-tooling)
-- A low-effort interface for casual or one-time usage: [Web UI](/docs/users#web-ui)
+  use: [User Tooling](#user-tooling)
+- A low-effort interface for casual or one-time usage: [Web UI](#web-ui)
 
 ## Context API
 
 The Context API is a HTTP/REST API for programmatic interaction with HWaaS
 instances. It's the core for all HWaaS operations and provides the basic
-building blocks used by other means of interaction like the [User Tooling](/docs/users#user-tooling)
-or [Web UI](/docs/users#web-ui).
+building blocks used by other means of interaction like the [User Tooling](#user-tooling)
+or [Web UI](#web-ui).
 
 Context API is fundamentally built around the concept of a _Context_, which is
 an exclusive lease of one or more physical machines (also called Bare Metal
@@ -33,7 +35,7 @@ time, or when they are prematurely "returned" to HWaaS by the user.
 
 Contexts are reserved from the _Inventory_, which is a complete list of all
 registered BMRs. For every BMR, the Inventory tracks the BMRs current
-reservation status and its individual properties. [Machine properties](/api#models/MachineProperties) are
+reservation status and its individual properties. [Machine properties](../api#models/MachineProperties) are
 used to distinguish individual BMRs and are configured by the HWaaS
 administrator during BMR onboarding.
 
@@ -55,7 +57,7 @@ Subsequent Contexts have to recreate all desired resources from scratch, althoug
 The HWaaS and Context API is only concerned with managing BMRs and associated
 virtual resources. From this point onward, it's your responsibility to do
 something useful with the reserved resources. You can find some inspiration in
-the [Examples](/docs/users#examples) below.
+the [Examples](#examples) below.
 
 ## User Tooling
 
@@ -63,22 +65,22 @@ The User Tooling is a collection of specialized Python modules to run tests and
 benchmarks on HWaaS instances. It aims to simplify the onboarding of new
 projects while allowing users to create complex tests and benchmarks.
 
-User Tooling uses the [Context API](/api) and abstracts many common tasks into
+User Tooling uses the [Context API](../api) and abstracts many common tasks into
 convenient Python functions. It is fully integrated with the `nix` package
 manager and _NixOS_ integration testing framework. When used with `nix` for
 your project, User Tooling allows fully declaring the test environment (i.e.
 the _Context_ from the [Context API](/api)) and the test to run within this
 environment in a single location.
 
-You can find usage examples of this in the [User Tooling Examples](/docs/users#user-tooling-examples).
+You can find usage examples of this in the [User Tooling Examples](#user-tooling-examples).
 
 ## Web UI
 
-The Web UI is an interactive Web UI to control the [Context API](/api) without
+The Web UI is an interactive Web UI to control the [Context API](../api) without
 additional tooling. It is integrated into HWaaS deployments by default and aims
-to simplify one-off interactions with the [Context API](/api).
+to simplify one-off interactions with the [Context API](../api).
 
-In contrast to the [Context API](/api) and [User Tooling](/docs/users#user-tooling), the Web UI has
+In contrast to the [Context API](../api) and [User Tooling](#user-tooling), the Web UI has
 integrated Keyboard, Video and Mouse (**KVM**) support. This makes it the
 preferred choice for interactive device exploration.
 
