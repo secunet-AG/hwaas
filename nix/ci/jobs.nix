@@ -35,6 +35,7 @@ let
     "contextapi"
     "hunt"
     "net-ctrl"
+    "pre-commit"
     # Can't use remote-hands here, since jobs are called remote-power for example as well
     "remote"
     "rpi-status-display"
@@ -171,9 +172,9 @@ let
         inherit group;
         items = checksForGroup group;
         needs =
-          lib.optional
-            (group != "verify-ci")
-            "check-verify-ci";
+          lib.optionals
+            (group != "pre-commit" && group != "verify-ci")
+            [ "check-pre-commit" "check-verify-ci" ];
       };
 
       buildJob = mkJob {
@@ -182,10 +183,13 @@ let
         phase = "build";
         inherit group;
         items = packagesForGroup group;
-        needs =
-          lib.optional
-            (checkJob != null)
-            checkJob.id;
+        needs = [
+          "check-pre-commit"
+          "check-verify-ci"
+        ] ++
+        lib.optional
+          (checkJob != null)
+          checkJob.id;
       };
 
       testJob = mkJob {
@@ -194,13 +198,17 @@ let
         phase = "test";
         inherit group;
         items = testsForGroup group;
-        needs =
+        needs = [
+          "check-pre-commit"
+          "check-verify-ci"
+        ] ++ (
           if buildJob != null then
             [ buildJob.id ]
           else
             lib.optional
               (checkJob != null)
-              checkJob.id;
+              checkJob.id
+        );
       };
     in
     builtins.filter
@@ -240,7 +248,10 @@ let
         phase = "check";
         group = null;
         items = ungroupedChecks;
-        needs = "check-verify-ci";
+        needs = [
+          "check-pre-commit"
+          "check-verify-ci"
+        ];
       };
 
       buildJob = mkJob {
@@ -249,10 +260,13 @@ let
         phase = "build";
         group = null;
         items = ungroupedPackages;
-        needs =
-          lib.optional
-            (checkJob != null)
-            checkJob.id;
+        needs = [
+          "check-pre-commit"
+          "check-verify-ci"
+        ] ++
+        lib.optional
+          (checkJob != null)
+          checkJob.id;
       };
 
       testJob = mkJob {
@@ -261,13 +275,17 @@ let
         phase = "test";
         group = null;
         items = ungroupedTests;
-        needs =
+        needs = [
+          "check-pre-commit"
+          "check-verify-ci"
+        ] ++ (
           if buildJob != null then
             [ buildJob.id ]
           else
             lib.optional
               (checkJob != null)
-              checkJob.id;
+              checkJob.id
+        );
       };
     in
     builtins.filter
