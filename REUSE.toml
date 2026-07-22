@@ -7,13 +7,14 @@ path = [
   "**/Cargo.toml",
   "**/*.json",
   "**/*.md",
-  "**/*.png",
-  "**/*.svg",
   "**/*.toml",
   "**/*.yml",
   "**/*.yaml",
   "vue-client/.env",
   "vue-client/.env.test",
+  # Graphics
+  "docs/images/logo_sponsored_funding_ic_sec.png",
+  "components/remote-hands/doc/architecture.svg",
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 secunet Security Networks AG <https://www.secunet.com>"
