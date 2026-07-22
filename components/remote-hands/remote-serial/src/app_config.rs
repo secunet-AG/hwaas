@@ -6,7 +6,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 
 #[derive(Deserialize)]
-/// Only temporarily needed in main() for parsing of the AppConfig.
+/// Only temporarely needed in main() for parsing of the AppConfig.
 /// Will be transformed to `SerialState` before adding to the `AppState`.
 pub struct SerialConfig {
     #[serde(rename = "type")]
@@ -14,7 +14,7 @@ pub struct SerialConfig {
 }
 
 #[derive(Deserialize)]
-/// AppConfig: Contains a HashMap of `SerialConfig`s as JSON.
+/// AppConfig: Contains a HashMap of `SerialConfig`s as json.
 /// Is needed for parsing the initial config provided to the app.
 pub struct AppConfig {
     pub serials: HashMap<String, serde_json::Value>,

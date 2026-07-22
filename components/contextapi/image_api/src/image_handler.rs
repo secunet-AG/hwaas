@@ -3,8 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use axum::extract::FromRef;
-use bytes::Buf;
-use futures::{future::try_join_all, Stream};
+use futures::future::try_join_all;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -14,12 +13,16 @@ use std::{
     path::{Path, PathBuf},
     time::SystemTime,
 };
-use tokio::fs::{hard_link, remove_file, write, File, OpenOptions};
+use tokio::{
+    fs::{hard_link, remove_file, write, File, OpenOptions},
+    io::AsyncRead,
+};
 use tracing::log::error;
 use uuid::Uuid;
 
 use crate::{
     filesystem::{get_meta_data, list_files_of_directory, write_and_hash},
+    image_api::ExtraImageStoreData,
     sha256hash::Sha256Hash,
 };
 
@@ -140,15 +143,13 @@ impl ImageHandler {
     /// Store the given image along with the specified image name.
     /// If the optional image_hash is provided, it will be checked against the contents of the
     /// image.
-    pub async fn store_image<S, E, T>(
+    pub async fn store_image<S>(
         &self,
         stream: S,
-        user_specified_image_name: String,
+        metadata: ExtraImageStoreData,
     ) -> Result<String, ImageHandlerError>
     where
-        S: Stream<Item = Result<T, E>>,
-        E: Into<Box<dyn std::error::Error + Send + Sync>>,
-        T: Buf,
+        S: AsyncRead,
     {
         // each upload is given their own UUID so even if the same image is uploaded multiple times
         // simultaneously, there can not be any file collisions
@@ -168,7 +169,7 @@ impl ImageHandler {
             })?;
 
         let image_result = self
-            .handle_image(stream, file, &tmp_storage_path, user_specified_image_name)
+            .handle_image(stream, file, &tmp_storage_path, metadata.user_file_name)
             .await;
 
         // delete tmp image regardless of the success of handle_image
@@ -187,7 +188,7 @@ impl ImageHandler {
     }
 
     /// Handle the storage of the given image
-    async fn handle_image<S, T, E, P>(
+    async fn handle_image<S, P>(
         &self,
         stream: S,
         file: File,
@@ -195,9 +196,7 @@ impl ImageHandler {
         user_specified_image_name: String,
     ) -> Result<String, ImageHandlerError>
     where
-        S: Stream<Item = Result<T, E>>,
-        E: Into<Box<dyn std::error::Error + Send + Sync>>,
-        T: Buf,
+        S: AsyncRead,
         P: AsRef<Path>,
     {
         let tmp_storage_path = path.as_ref();

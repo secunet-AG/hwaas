@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use assert_cmd::cargo_bin;
 use assert_cmd::prelude::*;
 use assert_fs::NamedTempFile;
 use db_interaction::schema::network_identifiers as network_identifiers_schema;
@@ -14,7 +13,7 @@ use std::process::Command;
 #[test]
 fn network_id_inserts_work() -> Result<(), Box<dyn std::error::Error>> {
     let mut db = TestDb::spawn();
-    let mut cmd = Command::new(cargo_bin!("machine-ops"));
+    let mut cmd = Command::cargo_bin("machine-ops")?;
 
     let net_ids = vec![42];
     // Create a temporary file and write network ids to it

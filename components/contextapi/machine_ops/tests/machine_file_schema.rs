@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use assert_cmd::cargo_bin;
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
 use std::process::Command;
@@ -11,7 +10,7 @@ use std::process::Command;
 // such as "machine", "id", "platform" and "switch_connections".
 #[test]
 fn schema_generation_works() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::new(cargo_bin!("machine-ops"));
+    let mut cmd = Command::cargo_bin("machine-ops")?;
     cmd.arg("initialize-machines").arg("print-schema");
     let predicate = predicate::str::contains("machine")
         .and(predicate::str::contains("id"))

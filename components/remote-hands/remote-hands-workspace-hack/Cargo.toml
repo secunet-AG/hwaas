@@ -9,7 +9,6 @@ edition = "2021"
 description = "workspace-hack package, managed by hakari"
 # You can choose to publish this crate: see https://docs.rs/cargo-hakari/latest/cargo_hakari/publishing.
 publish = false
-license = "Apache-2.0"
 
 # The parts of the file between the BEGIN HAKARI SECTION and END HAKARI SECTION comments
 # are managed by hakari.
@@ -21,9 +20,8 @@ axum = { version = "0.7", features = ["macros", "ws"] }
 byteorder = { version = "1" }
 either = { version = "1", default-features = false, features = ["use_std"] }
 futures-channel = { version = "0.3", features = ["sink"] }
-futures-util = { version = "0.3", features = ["channel", "io", "sink"] }
+futures-util = { version = "0.3", default-features = false, features = ["async-await-macro", "channel", "io", "sink"] }
 hyper = { version = "1", features = ["full"] }
-hyper-util = { version = "0.1", features = ["client-legacy", "http1", "server", "service"] }
 indexmap = { version = "2", features = ["serde"] }
 libc = { version = "0.2", features = ["extra_traits"] }
 log = { version = "0.4", default-features = false, features = ["std"] }
@@ -31,9 +29,8 @@ phf_shared = { version = "0.11", default-features = false, features = ["std"] }
 rand = { version = "0.8", features = ["small_rng"] }
 rand_core = { version = "0.6", default-features = false, features = ["std"] }
 serde = { version = "1", features = ["derive"] }
-serde_core = { version = "1", default-features = false, features = ["alloc", "result", "std"] }
 sync_wrapper = { version = "1", default-features = false, features = ["futures"] }
-tokio = { version = "1", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1", features = ["full", "tracing"] }
 tracing-core = { version = "0.1" }
 
 [build-dependencies]
@@ -46,7 +43,6 @@ quote = { version = "1" }
 rand = { version = "0.8", features = ["small_rng"] }
 rand_core = { version = "0.6", default-features = false, features = ["std"] }
 serde = { version = "1", features = ["derive"] }
-serde_core = { version = "1", default-features = false, features = ["alloc", "result", "std"] }
 syn = { version = "2", features = ["extra-traits", "fold", "full", "visit", "visit-mut"] }
 
 ### END HAKARI SECTION

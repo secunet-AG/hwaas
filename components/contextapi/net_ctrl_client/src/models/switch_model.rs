@@ -24,8 +24,6 @@ pub enum SwitchModel {
     ArubaAosCx,
     #[serde(rename = "aruba-cx6100")]
     ArubaCx6100,
-    #[serde(rename = "fs-picos")]
-    FsPicos,
     #[serde(rename = "dummy")]
     Dummy,
     #[serde(rename = "dummy24")]
@@ -41,7 +39,6 @@ impl std::fmt::Display for SwitchModel {
             Self::Aruba2540 => write!(f, "aruba2540"),
             Self::ArubaAosCx => write!(f, "aruba-aos-cx"),
             Self::ArubaCx6100 => write!(f, "aruba-cx6100"),
-            Self::FsPicos => write!(f, "fs-picos"),
             Self::Dummy => write!(f, "dummy"),
             Self::Dummy24 => write!(f, "dummy24"),
             Self::Dummy48 => write!(f, "dummy48"),

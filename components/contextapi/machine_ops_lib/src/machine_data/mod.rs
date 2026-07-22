@@ -24,6 +24,8 @@ pub struct MachineData {
     pub id: MachineId,
     /// The machine's platform.
     pub platform: String,
+    /// The address for the lightweight mjpeg service
+    pub remote_mjpeg: Option<RemoteMJPEGUrl>,
     /// An address for the machine's remote-usb server.
     pub remote_usb: RemoteUsbBaseUrl,
     /// An address for the machine's remote-power server.

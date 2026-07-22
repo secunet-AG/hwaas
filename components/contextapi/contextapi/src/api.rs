@@ -57,7 +57,7 @@ where
             .option_layer(
                 option_timeout
                     .map(Duration::from_millis)
-                    .map(|dur| TimeoutLayer::with_status_code(StatusCode::REQUEST_TIMEOUT, dur)),
+                    .map(TimeoutLayer::new),
             )
     };
 

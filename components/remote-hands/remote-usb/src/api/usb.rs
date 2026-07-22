@@ -81,7 +81,7 @@ fn handle_get_usb_doc(op: TransformOperation) -> TransformOperation {
 }
 
 /// PUT handler. Configure and activate USB with given config.
-#[instrument(skip_all)]
+#[instrument(skip(state))]
 async fn handle_put_usb<T: UsbConfigurable>(
     State(state): State<T>,
     usb_config: Result<Json<UsbConfig>, JsonRejection>,

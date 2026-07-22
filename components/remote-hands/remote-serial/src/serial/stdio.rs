@@ -4,48 +4,74 @@
 
 //! Serial backend that communicates with a process via stdin/stdout
 
-use crate::serial::buffer_sizes::BufferSizes;
-use crate::serial::serial_task::{spawn_io_tasks, SerialTasks};
+use super::{SerialInput, SerialOutput};
+use axum::async_trait;
 use serde::Deserialize;
 use std::process::Stdio;
-use tokio::process::Command;
-use tracing::{span, Level};
+use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt},
+    process::{ChildStdin, ChildStdout, Command},
+};
 
 #[derive(Deserialize)]
 /// Serial config for serial of type stdio
 struct StdioConfig {
     /// Shell command for stdin and stdout
     command: String,
+}
 
-    /// Optional buffer size settings if the defaults are not suiting
-    #[serde(flatten)]
-    pub buffer_size: BufferSizes,
+pub struct StdioInput {
+    stdout: ChildStdout,
+}
+
+pub struct StdioOutput {
+    stdin: ChildStdin,
 }
 
 /// Function to convert from `AppConfig` to Stdio specific input and output to
-/// put into `SerialTasks`.
-pub fn new_with_json(config: serde_json::Value) -> Result<SerialTasks, std::io::Error> {
+/// put into `SerialState`.
+pub fn new_with_json(
+    config: serde_json::Value,
+) -> Result<(StdioInput, StdioOutput), std::io::Error> {
     let config = serde_json::from_value::<StdioConfig>(config).expect("StdioConfig");
-
-    let mut child = Command::new("sh")
+    let child = Command::new("sh")
         .arg("-c")
         .arg(&config.command)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()?;
 
-    let stdin = child.stdin.take().expect("piped stdin");
-    let stdout = child.stdout.take().expect("piped stdout");
+    Ok((
+        StdioInput {
+            stdout: child.stdout.expect("child.stdout"),
+        },
+        StdioOutput {
+            stdin: child.stdin.expect("child.stdin"),
+        },
+    ))
+}
 
-    let span = span!(Level::INFO, "stdio@{}", config.command);
-    let _enter = span.enter();
-    let state = spawn_io_tasks(
-        config.command.into(),
-        stdout,
-        stdin,
-        config.buffer_size,
-        false,
-    );
+#[async_trait]
+impl SerialInput for StdioInput {
+    async fn read(&mut self) -> Result<Vec<u8>, std::io::Error> {
+        let mut buf = [0; 256];
+        match self.stdout.read(&mut buf).await? {
+            0 => Err(std::io::ErrorKind::UnexpectedEof.into()),
+            bytes_read => Ok(Vec::from(&buf[..bytes_read])),
+        }
+    }
+}
 
-    Ok(state)
+#[async_trait]
+impl SerialOutput for StdioOutput {
+    async fn write(&mut self, data: &[u8]) -> Result<(), std::io::Error> {
+        let mut offset = 0;
+        while offset < data.len() {
+            match self.stdin.write(&data[offset..]).await? {
+                0 => return Err(std::io::ErrorKind::UnexpectedEof.into()),
+                bytes_written => offset += bytes_written,
+            }
+        }
+        Ok(())
+    }
 }

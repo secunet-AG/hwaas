@@ -3,7 +3,6 @@ name = "remote-power"
 edition = "2021"
 default-run = "remote-power"
 version = "1.0.0"
-license = "Apache-2.0"
 
 [lib]
 name = "remote_power"

@@ -2,22 +2,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::usb_config::{UsbConfig, UsbFunction, UsbFunctionConfig, UsbFunctionInfo};
 use axum::async_trait;
 use hidg::{Button, Class, Device, Key, Keyboard, Modifiers, Mouse};
-use remote_serial::api::HasSerial;
-use remote_serial::serial::serial_state::SerialState;
-use remote_serial::serial::serial_task::SerialTasks;
+use remote_serial::{api::HasSerial, serial::SerialState};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 use tracing::{debug, error, instrument};
-use usb_gadget::{default_udc, function::hid::Hid, Udc};
+use usb_gadget::{default_udc, function::hid::Hid, RegGadget, Udc};
+
+use crate::usb_config::{UsbConfig, UsbFunction, UsbFunctionConfig, UsbFunctionInfo};
 
 /// Inner AppState, locked together
 pub struct InnerState {
     udc: Udc,
+    gadget: Option<RegGadget>,
     functions: Option<Vec<UsbFunction>>,
-    pub serials: HashMap<String, SerialTasks>,
+    serials: HashMap<String, SerialState>,
 }
 
 /// This trait is solely needed to define "empty" State for OpenAPI generation
@@ -37,7 +37,7 @@ pub trait UsbConfigurable: Send + Sync + Clone + HasSerial + 'static {
     async fn use_mouse(
         &self,
         buttons: Vec<Button>,
-        pointer: (i16, i16),
+        pointer: (u16, u16),
         wheel: i8,
     ) -> Result<(), std::io::Error>;
 }
@@ -49,7 +49,7 @@ pub trait UsbConfigurable: Send + Sync + Clone + HasSerial + 'static {
 /// requests.
 pub struct AppState {
     pub images_path: Arc<String>,
-    pub inner: Arc<Mutex<InnerState>>,
+    inner: Arc<Mutex<InnerState>>,
 }
 
 impl AppState {
@@ -59,6 +59,7 @@ impl AppState {
             images_path: Arc::new(images_path),
             inner: Arc::new(Mutex::new(InnerState {
                 udc: default_udc().expect("default_udc"),
+                gadget: None,
                 functions: None,
                 serials: HashMap::new(),
             })),
@@ -107,7 +108,8 @@ impl UsbConfigurable for AppState {
 
         // Apply configuration
         let mut inner = self.inner.lock().await;
-        gadget.bind(&inner.udc)?.detach();
+        let reg = gadget.bind(&inner.udc)?;
+
         debug!("gadget binding done");
 
         // Start workers for serial ports
@@ -140,7 +142,7 @@ impl UsbConfigurable for AppState {
                             continue;
                         }
                     };
-                    let state = serial;
+                    let state = SerialState::new(serial);
                     if let Some(s_id) = serial_id {
                         inner.serials.insert(s_id.to_string(), state);
                     } else {
@@ -153,6 +155,8 @@ impl UsbConfigurable for AppState {
         }
         // Keep functions metadata
         inner.functions = Some(functions);
+        // Hold onto gadget so we can specifically drop this gadget
+        inner.gadget = Some(reg);
 
         Ok(())
     }
@@ -160,22 +164,24 @@ impl UsbConfigurable for AppState {
     /// Deconfigure the current USB OTG state
     async fn deconfigure(&self) -> Result<(), std::io::Error> {
         let mut inner = self.inner.lock().await;
-        debug!("lock acquired for deconfiguring");
+
         inner.functions = None;
-        // drop and stop serial workers
+
+        // Drop the various serial workers
         for serial in inner.serials.values() {
-            serial.stop().await;
+            serial.clear_buffer();
         }
+
         inner.serials = HashMap::new();
-        debug!("Serial tasks stopped");
 
-        // Unbind all USB gadgets defined on the system.
-        let _ = usb_gadget::unbind_all()
-            .inspect_err(|error| error!(%error, "error unbinding OTG gadget"))?;
-        debug!("all usb gadgets unbound");
+        if let Some(reg) = inner.gadget.take() {
+            reg.remove().map_err(|e| {
+                error!(e = %e, "error removing OTG gadget");
+                e
+            })?;
+        }
 
-        // Remove all USB gadgets defined on the system.
-        usb_gadget::remove_all().inspect_err(|error| error!(%error, "error removing OTG gadget"))
+        Ok(())
     }
 
     /// Return function defintion from internal state.
@@ -211,7 +217,7 @@ impl UsbConfigurable for AppState {
     async fn use_mouse(
         &self,
         buttons: Vec<Button>,
-        pointer: (i16, i16),
+        pointer: (u16, u16),
         wheel: i8,
     ) -> Result<(), std::io::Error> {
         if let Some(functions) = self.inner.lock().await.functions.as_ref() {
@@ -231,18 +237,13 @@ impl UsbConfigurable for AppState {
 impl HasSerial for AppState {
     /// Return the SerialState for the given serial_id.
     async fn get_serial(&self, id: &'_ str) -> Option<SerialState> {
-        self.inner
-            .lock()
-            .await
-            .serials
-            .get(id)
-            .map(|t| t.state.clone())
+        self.inner.lock().await.serials.get(id).cloned()
     }
     /// Return all known SerialStates.
     async fn get_serials(&self) -> Vec<SerialState> {
         HashMap::clone(&self.inner.lock().await.serials)
             .values()
-            .map(|t| t.state.clone())
+            .cloned()
             .collect()
     }
     /// Return all known serial ids.
@@ -291,10 +292,10 @@ fn write_to_keyboard(
 fn write_to_mouse(
     hid: &Hid,
     buttons: &Vec<Button>,
-    pointer: (i16, i16),
+    pointer: (u16, u16),
     wheel: i8,
 ) -> Result<(), std::io::Error> {
-    let (_, minor) = hid.device()?;
+    let (_, minor) = hid.device().unwrap();
     let device_path = format!("/dev/hidg{minor}");
     let mut device = Device::<Mouse>::open(device_path)?;
     let mut input = Mouse.input();
@@ -302,7 +303,13 @@ fn write_to_mouse(
     for button in buttons {
         input.press_button(*button);
     }
-    input.set_pointer(pointer);
+
+    // The crate we are using expects an i16, but we are now using a logical descriptor for absolute coordinates within this range.
+    input.set_pointer((
+        pointer.0.min(i16::MAX as u16) as i16,
+        pointer.1.min(i16::MAX as u16) as i16,
+    ));
+
     input.set_wheel(wheel);
     device.input(&input)?;
 

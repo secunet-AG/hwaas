@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use assert_cmd::cargo_bin;
 use assert_cmd::prelude::*;
 use assert_fs::NamedTempFile;
 use db_interaction::test_utils::TestDb;
@@ -155,7 +154,7 @@ async fn machine_initialization_works() -> Result<(), Box<dyn std::error::Error>
         ))?,
     )?;
 
-    let mut cmd = Command::new(cargo_bin!("machine-ops"));
+    let mut cmd = Command::cargo_bin("machine-ops")?;
     cmd.arg("initialize-machines")
         .arg("run")
         .arg("-m")
@@ -168,7 +167,7 @@ async fn machine_initialization_works() -> Result<(), Box<dyn std::error::Error>
     cmd.assert().success();
 
     // Let's try to run it again and see that nothing happens if the --skip-free-machines flag is set
-    let mut cmd = Command::new(cargo_bin!("machine-ops"));
+    let mut cmd = Command::cargo_bin("machine-ops")?;
     cmd.arg("initialize-machines")
         .arg("run")
         .arg("--machines-file")

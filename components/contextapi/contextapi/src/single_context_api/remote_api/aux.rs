@@ -77,6 +77,7 @@ async fn lookup_machine_aux(
 }
 
 /// Proxy a request to remote-auxiliary
+#[allow(clippy::too_many_arguments)]
 #[instrument(skip(dependencies, method, headers, body))]
 pub(crate) async fn handle_aux_specialization(
     GuardedContext(context_access_token): GuardedContext,

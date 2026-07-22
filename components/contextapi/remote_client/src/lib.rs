@@ -138,4 +138,7 @@ impl RemoteClient {
             ))
         }
     }
+    pub fn client(&self) -> &Client {
+        &self.client
+    }
 }

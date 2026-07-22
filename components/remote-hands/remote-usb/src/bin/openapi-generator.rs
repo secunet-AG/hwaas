@@ -9,7 +9,7 @@ use remote_usb::app_state::UsbConfigurable;
 use remote_usb::usb_config::{UsbConfig, UsbFunctionInfo};
 
 use remote_serial::api::HasSerial;
-use remote_serial::serial::serial_state::SerialState;
+use remote_serial::serial::SerialState;
 
 #[derive(Clone)]
 /// "Empty" dummy state for OpenAPI generator.
@@ -42,7 +42,7 @@ impl UsbConfigurable for DummyState {
     async fn use_mouse(
         &self,
         _buttons: Vec<Button>,
-        _pointer: (i16, i16),
+        _pointer: (u16, u16),
         _wheel: i8,
     ) -> Result<(), std::io::Error> {
         panic!("Should not be called by OpenAPI generator.");

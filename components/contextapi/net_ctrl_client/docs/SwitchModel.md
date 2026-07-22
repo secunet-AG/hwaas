@@ -8,7 +8,6 @@
 | Aruba2540 | aruba2540 |
 | ArubaAosCx | aruba-aos-cx |
 | ArubaCx6100 | aruba-cx6100 |
-| FsPicos | fs-picos |
 | Dummy | dummy |
 | Dummy24 | dummy24 |
 | Dummy48 | dummy48 |

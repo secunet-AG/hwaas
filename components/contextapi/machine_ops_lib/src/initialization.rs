@@ -154,7 +154,7 @@ enum PostResetAction {
 }
 /// Initializes all machines and then writes their state as free to the database upon success.
 ///
-/// This function is intended to be called on rare occasions, typically on startup or upon
+/// This function is intended to be called on rare occassions, typically on startup or upon
 /// receiving new hardware. Hence not much attention has been placed on optimization.
 ///
 /// # Errors
@@ -371,7 +371,7 @@ async fn free_machine(
 /// The outcome returned by [`preprocess`],
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 enum PreprocessingOutcome {
-    /// Skip processing this machine.
+    /// Skup processing this machine.
     SkipMachine,
     /// The machine exist. It should be updated.
     ProceedWithUpdate,
@@ -489,6 +489,7 @@ async fn upsert(
                     platform,
                     remote_usb,
                     remote_power,
+                    remote_mjpeg,
                     switch_connections,
                     remote_serial,
                     remote_auxiliary,
@@ -498,6 +499,7 @@ async fn upsert(
                     platform,
                     remote_usb: remote_usb.into(),
                     remote_power: remote_power.into(),
+                    remote_mjpeg,
                     remote_serial: remote_serial.map(Into::into),
                     remote_auxiliary: remote_auxiliary.map(Into::into),
                     state: MachineState::Initializing,
@@ -708,6 +710,7 @@ mod tests {
                     let Machine {
                         id,
                         platform,
+                        remote_mjpeg,
                         remote_usb,
                         remote_power,
                         remote_serial,
@@ -721,6 +724,7 @@ mod tests {
                     let machine_data = MachineData {
                         id,
                         platform,
+                        remote_mjpeg,
                         remote_usb: remote_usb.try_into().unwrap(),
                         remote_power: remote_power.try_into().unwrap(),
                         switch_connections,
@@ -789,6 +793,7 @@ mod tests {
             remote_power: format!("{}/power", mocks.remote_power.uri())
                 .try_into()
                 .unwrap(),
+            remote_mjpeg: None,
             platform: String::from("SR630"),
             switch_connections: [(
                 String::from("lan1"),
@@ -928,9 +933,10 @@ mod tests {
         // one to be specified in the initialization process.
         let machine = Machine {
             id,
-            platform: format!("not {}", platform),
+            platform: format!("not {}", &platform),
             remote_usb: remote_usb.into(),
             state: MachineState::Free,
+            remote_mjpeg: None,
             remote_power: remote_power.into(),
             remote_serial: remote_serial.map(TryInto::try_into).transpose().unwrap(),
             remote_auxiliary: remote_auxiliary.map(TryInto::try_into).transpose().unwrap(),
@@ -1034,7 +1040,7 @@ mod tests {
         // Insert the first machine prior to running the initialization routine.
         // The inserted machine will be in the `Initializing` state.
         let initialization_machine_data = test_setup.machines.first().unwrap().clone();
-        // We also insert the machine with data different from what is stated in the initialization description.
+        // We also inser the machine with data different from what is stated in the initialization description.
         let mut original_machine_data = initialization_machine_data.clone();
         original_machine_data.platform =
             String::from("A platform not specified in the initialization description");
@@ -1056,6 +1062,7 @@ mod tests {
             platform,
             remote_usb: remote_usb.into(),
             remote_power: remote_power.into(),
+            remote_mjpeg: None,
             remote_serial: remote_serial.map(Into::into),
             remote_auxiliary: remote_auxiliary.map(Into::into),
             state: MachineState::Initializing,
@@ -1121,6 +1128,7 @@ mod tests {
                 platform,
                 remote_usb: remote_usb.into(),
                 remote_power: remote_power.into(),
+                remote_mjpeg: None,
                 remote_serial: remote_serial.map(Into::into),
                 remote_auxiliary: remote_auxiliary.map(Into::into),
                 state,
@@ -1181,7 +1189,7 @@ mod tests {
 
         // Insert the first four machines into the database prior to machine initialization. We make some
         // modifications so we are sure they are not equal to the machines described in the initialization
-        // configuration.
+        // configration.
         let mut pre_inserted_machine_data = Vec::new();
         for (state, machine_data) in [
             MachineState::Deactivated,
@@ -1211,6 +1219,7 @@ mod tests {
                 platform,
                 remote_usb: remote_usb.into(),
                 remote_power: remote_power.into(),
+                remote_mjpeg: None,
                 remote_serial: remote_serial.map(Into::into),
                 remote_auxiliary: remote_auxiliary.map(Into::into),
                 state,
@@ -1232,7 +1241,7 @@ mod tests {
             pre_inserted_machine_data.push((original_machine_data, state));
         }
 
-        // Now when we run the initialization routine, the deactivated machine and the non-preexisting machine
+        // Now when we run the initialization routine, the deactivated machine and the non-prexisting machine
         // should get initialized. Everything else should be left as is.
         let mut expected_post_initialization_data = pre_inserted_machine_data;
         // The first entry we inserted had state set to Deactivated. We need to update our expectation as
@@ -1400,7 +1409,7 @@ mod tests {
                 DbMachineAssertions::Equals(expected_post_initialization_db_state.clone()),
             )
             .await;
-            // Register a succeeding mock with higher priority. This step is actually necessary
+            // Register a succeeding mock with higher priority. This step is acutally necessary
             // even though the failing mock guard is dropped. TODO: Why?
             mock_server.register(succeeding_mock()).await;
         }

@@ -5,6 +5,7 @@
 CREATE TABLE machines(
     id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
     platform TEXT NOT NULL,
+    vistaire TEXT NOT NULL,
     remote_usb TEXT NOT NULL,
     remote_power TEXT NOT NULL,
     remote_serial TEXT,

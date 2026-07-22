@@ -5,10 +5,7 @@
 use axum::Router;
 use hunt::{hunt_axum_router, Hunt};
 use sd_notify::NotifyState;
-use std::future::Future;
 use std::net::SocketAddr;
-use std::pin::Pin;
-use std::sync::Arc;
 use tokio::net::TcpListener;
 use tracing::{debug, info, warn};
 
@@ -21,27 +18,16 @@ async fn wait_for_signal() {
     tokio::select! {
         _ = sigint.recv() => debug!("Received SIGINT"),
         _ = sigterm.recv() => debug!("Received SIGTERM"),
-    }
+    };
 }
-
-pub type CancelHook = Arc<dyn Fn() -> Pin<Box<dyn Future<Output = ()> + Send>> + Send + Sync>;
 
 pub async fn run_axum_server(
     address: SocketAddr,
     router: Router,
     hunt: Hunt,
 ) -> Result<(), std::io::Error> {
-    run_axum_server_with_cleanup(address, router, hunt, None).await
-}
-
-pub async fn run_axum_server_with_cleanup(
-    address: SocketAddr,
-    router: Router,
-    hunt: Hunt,
-    cleanup: Option<CancelHook>,
-) -> Result<(), std::io::Error> {
     info!("listen for connections at {}", address);
-    let listener = TcpListener::bind(address).await?;
+    let listener = TcpListener::bind(address).await.unwrap();
 
     // If spawning the app via systemd, report that the server is now starting
     let _ = sd_notify::notify(true, &[NotifyState::Ready])
@@ -51,11 +37,8 @@ pub async fn run_axum_server_with_cleanup(
 
     axum::serve(listener, service)
         .with_graceful_shutdown(wait_for_signal())
-        .await?;
-
-    if let Some(cb) = cleanup {
-        cb().await;
-    }
+        .await
+        .unwrap();
 
     info!("shutting down...");
     drop(hunt);

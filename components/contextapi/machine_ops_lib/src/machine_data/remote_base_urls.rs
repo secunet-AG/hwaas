@@ -29,6 +29,9 @@ pub struct RemoteAuxiliaryBaseUrl(#[schemars(url, regex(pattern = r".*\/auxiliar
 #[serde(try_from = "String")]
 pub struct RemoteUsbBaseUrl(#[schemars(url, regex(pattern = r".*\/usb$"))] String);
 
+/// RemoteMJPEG is not a typical remote-service, and just requires a URL to the underling MJPEG stream (often GStreamer pipeline)
+pub type RemoteMJPEGUrl = String;
+
 /// Macro to implement `with_specialization` and `into_reset` methods on the Uri types in this
 /// module. It takes the name of the type (e.g. `RemotePowerBaseUrl`)  and
 /// a string literal that adds an example use of the `with_specialization` method.

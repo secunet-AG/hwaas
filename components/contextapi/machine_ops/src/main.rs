@@ -103,7 +103,7 @@ fn establish_db_connection(database: String) -> anyhow::Result<SqliteConnection>
         .with_context(|| {
             format!(
                 "Could not establish connection to sqlite database: {}",
-                database
+                &database
             )
         })?
         .configured()
@@ -185,7 +185,7 @@ async fn handle_machine_init_command(command: MachineInitializationCommand) -> a
                 .with_context(|| {
                     format!(
                         "Failed to setup database connection. Database-file: {}",
-                        db_file_path
+                        &db_file_path
                     )
                 })?;
             let net_ctrl_client = NetCtrlClient::new(net_ctrl_base_path);
@@ -215,7 +215,7 @@ fn handle_insert_network_ids_command(command: NetworkIdInsertionCommand) -> anyh
             let mut conn = establish_db_connection(database)?;
 
             let network_id_file_contents = std::fs::read_to_string(network_ids_file.as_path())
-                .with_context(|| format!("Failed to read: {:?} to string", network_ids_file))?;
+                .with_context(|| format!("Failed to read: {:?} to string", &network_ids_file))?;
 
             let ParsedNetworkIdsFile(network_ids) =
                 serde_json::from_str(&network_id_file_contents).inspect_err(|e| {

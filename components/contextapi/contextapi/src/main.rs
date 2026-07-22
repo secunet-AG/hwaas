@@ -141,7 +141,7 @@ async fn main() -> Result<(), error_stack::Report<ApplicationError>> {
 
     let listener = TcpListener::bind(&address)
         .await
-        .attach_printable_lazy(|| format!("Could not bind tcp listener to address: {}", address))
+        .attach_printable_lazy(|| format!("Could not bind tcp listener to address: {}", &address))
         .change_context(ApplicationError)?;
     let graceful = axum::serve(listener, service).with_graceful_shutdown(async {
         // wait for SIGINT signal to initiate shutdown

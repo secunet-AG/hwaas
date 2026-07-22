@@ -352,11 +352,6 @@ async fn errors_on_already_reserved_platform_multiple_machines() {
 // then sending the same request again should yield status code: Unprocessable entity.
 #[tokio::test(flavor = "multi_thread")]
 #[traced_test]
-// This test is flaky: the assert against `UNPROCESSABLE_ENTITY` at line 468 fails
-// with HTTP 408 Request Timeout from time to time. The comment above it explains
-// that we assume timeouts never occur. This is incorrect.
-// For now, we will ignore this test and there is a follow-up issue to investigate.
-#[ignore]
 async fn context_reservation_invariants() {
     // The time a context creation attempt may last before it times out.
     let context_creation_timeout = Duration::from_millis(40);

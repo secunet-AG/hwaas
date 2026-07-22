@@ -8,7 +8,7 @@ use crate::hid_report::{
 };
 use itertools::Itertools;
 use schemars::JsonSchema;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use std::io::{Error, ErrorKind};
 #[cfg(feature = "usb-ethernet")]
 use usb_gadget::function::net::{Net, NetClass};
@@ -98,7 +98,7 @@ const fn default_storage_lun_config_read_only() -> bool {
     true
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 /// Config for one LUN
 pub struct StorageLunConfig {
     /// Image path
@@ -112,12 +112,13 @@ pub struct StorageLunConfig {
 }
 
 /// Configuration in request
-///
-/// The order of functions is always determined by this given
-/// top-to-bottom discriminant order.
-#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum UsbFunctionConfig {
+    #[cfg(feature = "usb-ethernet")]
+    Ethernet,
+    Keyboard,
+    Mouse,
     #[cfg(feature = "usb-serial")]
     Serial {
         serial_id: Option<String>,
@@ -125,10 +126,6 @@ pub enum UsbFunctionConfig {
     Storage {
         luns: Vec<StorageLunConfig>,
     },
-    Keyboard,
-    Mouse,
-    #[cfg(feature = "usb-ethernet")]
-    Ethernet,
 }
 
 impl UsbFunctionConfig {
@@ -231,21 +228,11 @@ impl UsbFunctionConfig {
 #[serde(transparent)]
 /// List of `UsbFunctionConfig` from the API when configuring USB.
 pub struct UsbConfig {
-    #[serde(deserialize_with = "sort_vec")]
     pub functions: Vec<UsbFunctionConfig>,
 }
 
-fn sort_vec<'de, D>(deserializer: D) -> Result<Vec<UsbFunctionConfig>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let mut vec = Vec::<UsbFunctionConfig>::deserialize(deserializer)?;
-    vec.sort();
-    Ok(vec)
-}
-
 impl UsbConfig {
-    /// Verify if the configured functions exceed the allowed amount.
+    /// Verify if the configured functions exeed the allowed amount.
     pub fn verify(self) -> Result<(), Error> {
         let counts = &self
             .functions
@@ -341,42 +328,5 @@ mod tests {
                 "type": "mouse",
             }])
         );
-    }
-
-    #[test]
-    fn deserialize_functions() {
-        let cfg: UsbConfig = serde_json::from_value(serde_json::json!([
-            {
-                "type": "keyboard",
-            },
-            {
-                "type": "mouse",
-            },
-            {
-                "type": "storage",
-                "luns": [{
-                    "path": "/storage/image",
-                    "cdrom": false,
-                    "read_only": true,
-                }]
-            },
-        ]))
-        .expect("failed to deserialize usb config");
-
-        let exp = UsbConfig {
-            functions: vec![
-                UsbFunctionConfig::Storage {
-                    luns: vec![StorageLunConfig {
-                        path: "/storage/image".to_string(),
-                        cdrom: false,
-                        read_only: true,
-                    }],
-                },
-                UsbFunctionConfig::Keyboard,
-                UsbFunctionConfig::Mouse,
-            ],
-        };
-
-        assert_eq!(cfg.functions, exp.functions);
     }
 }

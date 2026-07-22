@@ -2,17 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use remote_axum::run_axum_server_with_cleanup;
+use remote_axum::run_axum_server;
 use remote_init::CliArgs;
-use remote_serial::serial::serial_task::SerialTasks;
 use remote_serial::{
     api,
     app_config::{AppConfig, SerialConfig},
     app_state::AppState,
-    make_cancel_hook,
-    serial::{self},
+    serial::{self, SerialState},
 };
-use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<(), u8> {
@@ -29,7 +26,7 @@ async fn main() -> Result<(), u8> {
 
     // Load config
     let app_config = args.load_config::<AppConfig>();
-    let serials: HashMap<String, SerialTasks> = app_config
+    let serials = app_config
         .serials
         .into_iter()
         .map(|(name, serial_config)| {
@@ -37,8 +34,8 @@ async fn main() -> Result<(), u8> {
             let SerialConfig { serial_type } =
                 serde_json::from_value(serial_config.clone()).expect("serial_config");
             let serial = match &serial_type[..] {
-                "stdio" => serial::stdio::new_with_json(serial_config).unwrap(),
-                "tty" => serial::tty::new_with_json(serial_config).unwrap(),
+                "stdio" => SerialState::new(serial::stdio::new_with_json(serial_config).unwrap()),
+                "tty" => SerialState::new(serial::tty::new_with_json(serial_config).unwrap()),
                 _ => panic!("Unknown serial_type {serial_type}"),
             };
             (name, serial)
@@ -46,11 +43,11 @@ async fn main() -> Result<(), u8> {
         .collect();
 
     // Initialize AppState with config
-    let app_state = AppState::new(serials.clone());
+    let app_state = AppState::new(serials);
 
     // Boot web server
     let app = api::get_router(app_state).await.expect("api::get_router");
-    run_axum_server_with_cleanup(args.address(), app, hunt, make_cancel_hook(serials))
+    run_axum_server(args.address(), app, hunt)
         .await
         .map_err(|_| 1)
 }

@@ -2,6 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+//! # Keyboard and Mouse Report Descriptors
+//!
+//! Here we are defining the descriptors for our HID gadgets.
+//! This contains information such as the coordinates used for positioning,
+//! relative vs absolute positioning, etc.
+//!
+//! You can find more context into the individual bytes [here](https://www.usb.org/sites/default/files/hid1_11.pdf).
+
 pub mod buttons;
 pub mod key;
 
@@ -64,11 +72,11 @@ pub const DEFAULT_MOUSE_REPORT_DESCRIPTOR: [u8; 66] = [
     0x05, 0x01, //     USAGE_PAGE (Generic Desktop)
     0x09, 0x30, //     USAGE (X)
     0x09, 0x31, //     USAGE (Y)
-    0x16, 0x01, 0x80, // Logical Minimum (-32767)
+    0x16, 0x00, 0x00, // Logical Minimum (0)
     0x26, 0xFF, 0x7F, // Logical Maximum (32767)
     0x95, 0x02, //     REPORT_COUNT (2)
     0x75, 0x10, //     REPORT_SIZE (16)
-    0x81, 0x06, //     INPUT (Data,Var,Rel)
+    0x81, 0x02, //     INPUT (Data,Var,Abs)
     0x05, 0x01, //     USAGE_PAGE (Generic Desktop)
     0x09, 0x38, //     USAGE (Wheel)
     0x15, 0x81, //     LOGICAL_MINIMUM (-127)

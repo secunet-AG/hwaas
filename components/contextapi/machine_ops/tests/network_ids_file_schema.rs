@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use assert_cmd::cargo_bin;
 use assert_cmd::prelude::*;
 use std::process::Command;
 
@@ -10,7 +9,7 @@ use std::process::Command;
 // such as "array".
 #[test]
 fn schema_generation_works() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::new(cargo_bin!("machine-ops"));
+    let mut cmd = Command::cargo_bin("machine-ops")?;
     cmd.arg("insert-network-ids").arg("print-schema");
     cmd.assert()
         .success()

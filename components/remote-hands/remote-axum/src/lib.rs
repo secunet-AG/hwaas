@@ -6,4 +6,4 @@ mod router;
 mod server;
 
 pub use router::api_router;
-pub use server::{run_axum_server, run_axum_server_with_cleanup, CancelHook};
+pub use server::run_axum_server;

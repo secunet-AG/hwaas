@@ -78,7 +78,7 @@ fn handle_aux_request_doc(op: TransformOperation) -> TransformOperation {
             Refer to the API documentation of the specific auxiliary device for more information.",
         )
         .response_with::<200, (), _>(|op| {
-            op.description("Proxied from the auxiliary service. Response could be anything!")
+            op.description("Proxied from the auxiliary service. Reponse could be anything!")
         })
 }
 
