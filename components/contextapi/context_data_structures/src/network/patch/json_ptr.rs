@@ -70,7 +70,7 @@ pub(super) struct InterfaceJsonPtr(
 );
 impl From<InterfaceJsonPtr> for String {
     fn from(val: InterfaceJsonPtr) -> String {
-        format!("/{}/{}", &val.0.machine_name, &val.0.interface)
+        format!("/{}/{}", val.0.machine_name, val.0.interface)
     }
 }
 
