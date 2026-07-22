@@ -10,7 +10,7 @@ interface Props {
 const { title, prose = false } = Astro.props;
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
-const currentPath = Astro.url.pathname.replace(/\/$/, '');
+const currentPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '');
 
 // Auto-generate doc sidebar items from the content collection
 const docs = await getCollection('docs')
