@@ -66,7 +66,7 @@ impl ArubaAosCxClient {
         let client = ClientBuilder::new(client).build();
         let root_uri = Url::parse(&format!(
             "https://{}:{}/rest/{ARUBA_AOS_CX_API_VERSION}/",
-            &switch_details.ip,
+            switch_details.ip,
             switch_details.port.unwrap_or(443),
         ))
         .map_err(|e| {

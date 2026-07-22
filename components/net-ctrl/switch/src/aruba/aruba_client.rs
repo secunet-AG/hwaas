@@ -69,7 +69,7 @@ impl ArubaClient {
 
         let root_uri = Url::parse(&format!(
             "http://{}:{}/rest/v1/",
-            &switch_details.ip,
+            switch_details.ip,
             switch_details.port.unwrap_or(80)
         ))
         .map_err(|e| {

@@ -7,17 +7,16 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://microvm.cachix.org"
+      "https://secunet-ag-hwaas.cachix.org"
     ];
     extra-trusted-public-keys = [
-      "microvm.cachix.org-1:oXnBc6hRE3eX5rSYdRyMYXnfzcCxC7yKPTbZXALsqys="
+      "secunet-ag-hwaas.cachix.org-1:TrxqTgaLTUY1ZN4ao5jtABI/7WOm3KUxxEcJwlb7iUo="
     ];
   };
 
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    mission-control.url = "github:Platonic-Systems/mission-control";
     git-hooks-nix = {
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -26,10 +25,7 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    flake-root.url = "github:srid/flake-root";
     crane.url = "github:ipetkov/crane";
-    nixos-hardware.url = "github:nixos/nixos-hardware/master";
-    microvm.url = "github:astro/microvm.nix";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -38,21 +34,14 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
     inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        inputs.mission-control.flakeModule
-        inputs.flake-root.flakeModule
         inputs.git-hooks-nix.flakeModule
         inputs.treefmt-nix.flakeModule
-        #inputs.colmena-flake.flakeModules.default
         ./nix
       ];
 

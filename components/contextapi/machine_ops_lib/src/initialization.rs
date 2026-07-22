@@ -928,7 +928,7 @@ mod tests {
         // one to be specified in the initialization process.
         let machine = Machine {
             id,
-            platform: format!("not {}", &platform),
+            platform: format!("not {}", platform),
             remote_usb: remote_usb.into(),
             state: MachineState::Free,
             remote_power: remote_power.into(),
