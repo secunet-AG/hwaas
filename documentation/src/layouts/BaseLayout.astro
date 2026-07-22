@@ -9,6 +9,7 @@ interface Props {
 
 const { title, prose = false } = Astro.props;
 
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const currentPath = Astro.url.pathname.replace(/\/$/, '');
 
 // Auto-generate doc sidebar items from the content collection
@@ -23,7 +24,6 @@ docs.sort((a, b) => {
 const docItems = await Promise.all(docs.map(async (d) => {
   const { headings } = await render(d)
   const label = headings.find(h => h.depth === 1)?.text ?? d.id
-  const base = import.meta.env.BASE_URL
   const children = headings.filter(h => h.depth === 2).map(h => ({
     href: `${base}docs/${d.id}#${h.slug}`,
     label: h.text,
@@ -34,15 +34,15 @@ const docItems = await Promise.all(docs.map(async (d) => {
 const navItems = [
   // { href: '/', label: 'Home', children: [] as { href: string; label: string }[] },
   ...docItems,
-  { href: `${import.meta.env.BASE_URL}api`, label: 'API Reference', children: [] as { href: string; label: string }[] },
+  { href: `${base}api`, label: 'API Reference', children: [] as { href: string; label: string }[] },
 ]
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
-    <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="icon" href={`${base}favicon.ico`} />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title} - HWaaS Docs</title>
@@ -50,9 +50,9 @@ const navItems = [
 
   <body class="bg-(--app-background) text-(--app-primary-text) h-screen flex flex-col w-full overflow-hidden">
     <header class="px-6 py-3 flex justify-between  items-center border-b border-(--app-border)">
-      <img class="w-32 h-auto" src={`${import.meta.env.BASE_URL}hwaas_placeholder_logo.svg`}>
+      <img class="w-32 h-auto" src={`${base}hwaas_placeholder_logo.svg`}>
       <a href="https://www.github.com/secunet-ag/hwaas">
-        <img class="w-8" src={`${import.meta.env.BASE_URL}github.svg`}>
+        <img class="w-8" src={`${base}github.svg`}>
       </a>
     </header>
 
