@@ -12,7 +12,7 @@
 , runner ? "ubuntu-latest"
 , checkoutAction ? "actions/checkout@v7"
 , installNixAction ? "cachix/install-nix-action@v31"
-, cacheAction ? "cachix/cachix-action@v14"
+, cacheAction ? "cachix/cachix-action@v17"
 ,
 }:
 
