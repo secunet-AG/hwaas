@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::collections::HashMap;
+use std::pin::Pin;
 
 use aide::axum::routing::get_with;
 use aide::axum::{ApiRouter, IntoApiResponse};
 use aide::transform::{TransformOperation, TransformPathItem};
-use axum::extract::multipart::Field;
-use axum::extract::FromRef;
 use axum::extract::{DefaultBodyLimit, State};
+use axum::extract::{FromRef, Query};
 use axum::extract::{Multipart, Path};
 use axum::http::StatusCode;
 use axum::Json;
@@ -17,7 +17,7 @@ use bytesize::ByteSize;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use tower_http::limit::RequestBodyLimitLayer;
-use tracing::instrument;
+use tracing::{debug, instrument};
 
 use crate::image_handler::{ImageHandler, ImageHandlerError, ImageMetadata};
 use crate::sha256hash::Sha256Hash;
@@ -136,9 +136,10 @@ async fn status_image(
 
 /// Convert the given multipart request into a stream that contains the file of the first multipart
 /// field. If the first multipart field does not contain a file, an error is returned.
-async fn multipart_to_stream(
-    multipart: &mut Multipart,
-) -> Result<(Field<'_>, String), (StatusCode, String)> {
+async fn multipart_to_stream<'a>(
+    multipart: &'a mut Multipart,
+    compression: &Compression,
+) -> Result<(Pin<Box<dyn tokio::io::AsyncRead + Send + 'a>>, String), (StatusCode, String)> {
     let field = multipart
         .next_field()
         .await
@@ -154,7 +155,6 @@ async fn multipart_to_stream(
             StatusCode::BAD_REQUEST,
             "Multipart request did not contain any fields".to_string(),
         ))?;
-
     let user_specified_name = field
         .file_name()
         .ok_or((
@@ -163,7 +163,35 @@ async fn multipart_to_stream(
         ))?
         .to_owned();
 
-    Ok((field, user_specified_name))
+    let body_with_io_error = futures::TryStreamExt::map_err(field, std::io::Error::other);
+    let reader = tokio_util::io::StreamReader::new(body_with_io_error);
+    let decompressed_field: Pin<Box<dyn tokio::io::AsyncRead + Send + 'a>> = match compression {
+        Compression::None => Box::pin(reader),
+        Compression::Zstd => Box::pin(async_compression::tokio::bufread::ZstdDecoder::new(reader)),
+    };
+
+    Ok((decompressed_field, user_specified_name))
+}
+
+#[derive(Debug, Deserialize, JsonSchema, Default)]
+#[non_exhaustive]
+#[serde(rename_all = "lowercase")]
+pub enum Compression {
+    /// No compression is applied to the image.
+    #[default]
+    None,
+    /// The image is compressed using the `zstd` algorithm.
+    Zstd,
+}
+
+/// Additional metadata to pass along with an uploaded image.
+#[derive(Debug, Default, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields, default)]
+pub struct ExtraImageStoreData {
+    /// User-provided file name to identify the uploaded image by.
+    pub user_file_name: String,
+    /// Compression applied to the image before/during upload.
+    pub compression: Compression,
 }
 
 /// Store the image that was uploaded via multipart request.
@@ -173,14 +201,21 @@ async fn multipart_to_stream(
 /// # Returns
 /// An empty Ok on success and a status code and message on error.
 #[instrument(skip(multipart))]
+#[axum::debug_handler]
 async fn post_image(
     State(image_handler): State<ImageHandler>,
+    Query(mut metadata): Query<ExtraImageStoreData>,
     mut multipart: Multipart,
 ) -> Result<impl IntoApiResponse, (StatusCode, String)> {
-    let (stream, user_specified_image_name) = multipart_to_stream(&mut multipart).await?;
+    let (stream, user_specified_image_name) =
+        multipart_to_stream(&mut multipart, &metadata.compression).await?;
+    if metadata.user_file_name.is_empty() {
+        debug!("discarding empty user-provided image filename from query parameters");
+        metadata.user_file_name = user_specified_image_name;
+    }
 
     image_handler
-        .store_image(stream, user_specified_image_name)
+        .store_image(stream, metadata)
         .await
         .map_err(image_handler_errors_to_http)
 }

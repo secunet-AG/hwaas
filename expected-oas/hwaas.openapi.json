@@ -102,6 +102,24 @@
         },
         "type": "object"
       },
+      "Compression": {
+        "oneOf": [
+          {
+            "description": "No compression is applied to the image.",
+            "enum": [
+              "none"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "The image is compressed using the `zstd` algorithm.",
+            "enum": [
+              "zstd"
+            ],
+            "type": "string"
+          }
+        ]
+      },
       "Contact": {
         "additionalProperties": true,
         "description": "Contact information for the exposed API.",
@@ -261,6 +279,22 @@
         "required": [
           "url"
         ],
+        "type": "object"
+      },
+      "ExtraImageStoreData": {
+        "additionalProperties": false,
+        "description": "Additional metadata to pass along with an uploaded image.",
+        "properties": {
+          "compression": {
+            "$ref": "#/components/schemas/Compression",
+            "description": "Compression applied to the image before/during upload."
+          },
+          "user_file_name": {
+            "default": "",
+            "description": "User-provided file name to identify the uploaded image by.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "Header": {
@@ -5682,6 +5716,29 @@
       },
       "post": {
         "description": "Upload an image",
+        "parameters": [
+          {
+            "description": "Compression applied to the image before/during upload.",
+            "in": "query",
+            "name": "compression",
+            "schema": {
+              "$ref": "#/components/schemas/Compression",
+              "description": "Compression applied to the image before/during upload."
+            },
+            "style": "form"
+          },
+          {
+            "description": "User-provided file name to identify the uploaded image by.",
+            "in": "query",
+            "name": "user_file_name",
+            "schema": {
+              "default": "",
+              "description": "User-provided file name to identify the uploaded image by.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
