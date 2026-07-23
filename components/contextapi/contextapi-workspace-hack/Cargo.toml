@@ -54,6 +54,7 @@ serde_json = { version = "1", features = ["raw_value"] }
 slab = { version = "0.4" }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
 sync_wrapper = { version = "1", default-features = false, features = ["futures"] }
+tempfile = { version = "3" }
 tokio = { version = "1", features = ["full", "test-util", "tracing"] }
 tokio-stream = { version = "0.1", features = ["fs", "net"] }
 tokio-util = { version = "0.7", features = ["codec", "io"] }
@@ -70,6 +71,7 @@ proc-macro2 = { version = "1" }
 quote = { version = "1" }
 rand = { version = "0.8", features = ["small_rng"] }
 serde_core = { version = "1", features = ["alloc"] }
-syn = { version = "2", features = ["extra-traits", "fold", "full", "visit", "visit-mut"] }
+syn-7b89eefb6aaa9bf3 = { package = "syn", version = "3", features = ["full", "visit-mut"] }
+syn-f595c2ba2a3f28df = { package = "syn", version = "2", features = ["extra-traits", "fold", "full", "visit", "visit-mut"] }
 
 ### END HAKARI SECTION

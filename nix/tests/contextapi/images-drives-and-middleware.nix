@@ -81,11 +81,16 @@ testers.runNixOSTest {
     start_all()
     gateway.wait_for_open_port(${builtins.toString serverPort})
 
-    # Create large random image (size less then upload limit)
+    # Create regular image
     imgName="myImageName"
     genImgPath = f"/tmp/{imgName}"
     gateway.succeed(f"dd bs=1024 count=104800 < /dev/urandom > {genImgPath}")
     sha_sum = gateway.succeed(f"sha256sum {genImgPath}").split()[0]
+    # Create zstd image
+    genImgPathZstd = f"{genImgPath}.zstd"
+    gateway.succeed(f"zstd -T0 {genImgPath} -o {genImgPathZstd}")
+    sha_sum_zstd = gateway.succeed(f"sha256sum {genImgPathZstd}").split()[0]
+    # More test data
     wrong_hash = gateway.succeed("sha256sum <<< foobar").split()[0]
     base_url = "localhost:${builtins.toString serverPort}/${context-api-url-version-prefix}"
 
@@ -102,8 +107,12 @@ testers.runNixOSTest {
       assert len(dict) == count, f"Expected {count} images but found {len(dict)}"
 
     # Helper function to upload a single image
-    def upload_image(img_path, should_fail=False):
-      cmd = f"curl --fail-with-body --silent -X POST -w '%{{http_code}}' -F upload=@{img_path} {base_url}/images"
+    def upload_image(img_path, should_fail=False, zstd=False):
+      url = f"{base_url}/images"
+      if zstd:
+        url = f"{url}?compression=zstd"
+
+      cmd = f"curl --fail-with-body --silent -X POST -w '%{{http_code}}' -F upload=@{img_path} {url}"
       response = gateway.fail(cmd) if should_fail else gateway.succeed(cmd)
       # last 3 characters are HTTP status code
       return {"body": response[:-3], "status": int(response[-3:])}
@@ -119,6 +128,13 @@ testers.runNixOSTest {
     with subtest("Upload image a second time"):
       upload_image(genImgPath)
       assert_image_count_is(1)
+
+    # Should decompress to the same image as before, so the same condition as above holds
+    # NOTE: The image name is updated, though!
+    with subtest("Upload image a third time as zstd"):
+      upload_image(genImgPathZstd, zstd = True)
+      assert_image_count_is(1)
+      assert sha_sum != sha_sum_zstd, "raw and zstd image must have different byte stream checksums"
 
     with subtest("Returns 404 when requesting non existent image"):
       responseCode = gateway.succeed(f"curl -s -o /dev/null -w %{{http_code}} {base_url}/images/{wrong_hash}")
@@ -141,7 +157,7 @@ testers.runNixOSTest {
     with subtest("Get single image"):
       response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}")
       response_json = json.loads(response)
-      assert response_json["file_name"] == imgName
+      assert response_json["file_name"] == imgName + ".zstd"
 
     # Test if 'get_images' returns the right amount of images and sizes
     with subtest("Get images"):

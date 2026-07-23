@@ -33,6 +33,10 @@ aide.workspace = true
 schemars = "0.8"
 contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }
 bytesize = { version = "2.0.1", features = ["serde"] }
+async-compression = { version = "0.4", default_features = false, features = [
+  "zstd",
+  "tokio",
+] }
 
 [dev-dependencies]
 tempfile = "3.3.0"

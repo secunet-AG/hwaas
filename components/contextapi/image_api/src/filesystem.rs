@@ -2,18 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use bytes::Buf;
-use futures::{Stream, TryStreamExt};
 use sha2::{Digest, Sha256};
 use std::ffi::OsStr;
 use std::io::Error;
 use std::path::Path;
 use std::time::SystemTime;
 use tokio::fs::{metadata, read_dir, read_to_string, File};
-use tokio::io::{AsyncReadExt, AsyncWriteExt, BufWriter};
+use tokio::io::{AsyncRead, AsyncReadExt, AsyncWriteExt, BufWriter};
 use tokio_stream::wrappers::ReadDirStream;
 use tokio_stream::StreamExt;
-use tokio_util::io::StreamReader;
 
 /// List all files with the specified file extension of the given directory.
 /// If `None` is provided as file extension, it will match all files that have no extension.
@@ -63,16 +60,12 @@ where
 }
 
 /// Write the given Stream to the specified filepath and return the hash of the stream content
-pub async fn write_and_hash<S, E, T>(stream: S, file: File) -> Result<String, Error>
+pub async fn write_and_hash<S>(stream: S, file: File) -> Result<String, Error>
 where
-    S: Stream<Item = Result<T, E>>,
-    E: Into<Box<dyn std::error::Error + Send + Sync>>,
-    T: Buf,
+    S: AsyncRead,
 {
     // Convert the stream into an `AsyncRead`.
-    let body_with_io_error = stream.map_err(|err| Error::other(err));
-    let body_reader = StreamReader::new(body_with_io_error);
-    futures::pin_mut!(body_reader);
+    futures::pin_mut!(stream);
 
     let mut file_writer = BufWriter::new(file);
 
@@ -81,7 +74,7 @@ where
     let mut hasher = Sha256::new();
 
     loop {
-        match body_reader.read(&mut buf).await {
+        match stream.read(&mut buf).await {
             Ok(0) => break,
             Ok(n) => {
                 hasher.update(&buf[..n]);
