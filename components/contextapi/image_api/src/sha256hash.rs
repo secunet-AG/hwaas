@@ -47,7 +47,7 @@ impl TryFrom<String> for Sha256Hash {
     type Error = <Sha256Hash as FromStr>::Err;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        Self::new(value)
+        Self::from_str(&value)
     }
 }
 
