@@ -53,7 +53,12 @@ _: {
             packageOverrides.treefmt = config.treefmt.build.wrapper;
             enable = true;
           };
-          statix.enable = true;
+          statix = {
+            enable = true;
+            settings.ignore = [
+              "user-tooling/"
+            ];
+          };
           # deadnix.enable = true;
           reuse = {
             enable = true;
