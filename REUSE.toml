@@ -14,6 +14,8 @@ path = [
   "vue-client/.env",
   "vue-client/.env.test",
   "documentation/src/content/**/*.md",
+  # Appears to be an issue here with generation
+  "documentation/src/**/*.astro",
   "documentation/public/**/*",
   # Graphics
   "docs/images/logo_sponsored_funding_ic_sec.png",
