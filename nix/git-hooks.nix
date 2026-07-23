@@ -13,7 +13,12 @@
           enable = true;
           package = config.formatter;
         };
-        statix.enable = true;
+        statix = {
+          enable = true;
+          settings.ignore = [
+            "user-tooling/"
+          ];
+        };
         deadnix.enable = true;
         reuse.enable = true;
       };
