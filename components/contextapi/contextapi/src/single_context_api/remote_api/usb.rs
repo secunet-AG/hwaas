@@ -5,12 +5,14 @@
 use crate::context_manager::ContextAccessToken;
 use crate::path_params::PathParamsMachineName;
 use crate::remote_client::reqwest_to_axum_response;
+use crate::single_context_api::websocket::{connect_websockets, create_websocket};
 use crate::single_context_api::{
     ContextManagerTx, DrivesApiState, GuardedContext, MachineApiState,
 };
 use aide::axum::{routing::get, ApiRouter};
 use axum::body::Bytes;
-use axum::extract::{FromRef, FromRequestParts, Path, State};
+use axum::extract::{FromRef, FromRequestParts, Path, State, WebSocketUpgrade};
+use axum::http::uri::Scheme;
 use axum::http::{HeaderMap, Method, StatusCode, Uri};
 use axum::response::Response;
 use axum::Json;
@@ -330,7 +332,12 @@ async fn load_context_drives_map(
     Ok(map)
 }
 
-/// Proxy a request to remote-usb
+/// The handle_usb_specialization function is the entrypoint
+/// for various remote_usb functionality.
+///
+/// It determines if the request should proxy to the remote-hands
+/// service via REST or WSS connection.
+#[allow(clippy::too_many_arguments)]
 #[instrument(skip(dependencies, method, headers, body))]
 pub(crate) async fn handle_usb_specialization(
     GuardedContext(context_access_token): GuardedContext,
@@ -338,6 +345,7 @@ pub(crate) async fn handle_usb_specialization(
     Path(PathParamsMachineName { machine_name }): Path<PathParamsMachineName>,
     UsbEndpointSpecialization { specialization, .. }: UsbEndpointSpecialization,
     method: Method,
+    ws_upgrade: Option<WebSocketUpgrade>,
     mut headers: HeaderMap,
     body: Option<Bytes>,
 ) -> Result<Response, (StatusCode, &'static str)> {
@@ -359,9 +367,36 @@ pub(crate) async fn handle_usb_specialization(
             "could not join given path to obtain a remote usb url"
         ))
         .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid url path"))?;
-    let response = dependencies
-        .remote_client
-        .send_remote_request(method, url, machine_id, headers, body, false)
-        .await?;
-    reqwest_to_axum_response(response)
+
+    if let Some(wsu) = ws_upgrade {
+        let mut uri_parts = url.into_parts();
+        // Replace http/https with websocket URI scheme
+        uri_parts.scheme = match uri_parts.scheme {
+            Some(scheme) if scheme == Scheme::HTTPS => "wss".parse().ok(),
+            _ => "ws".parse().ok(),
+        };
+        let Ok(url) = Uri::from_parts(uri_parts) else {
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to appropriately modify uri scheme",
+            ));
+        };
+
+        let target_websocket = create_websocket(url)
+            .await
+            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Failed to connect "))?;
+
+        // The websocket should be closed if the entire context is deleted.
+        let context_termination_signal = context_access_token.cancelled_owned();
+
+        return Ok(wsu.on_upgrade(move |socket_user| {
+            connect_websockets(socket_user, target_websocket, context_termination_signal)
+        }));
+    } else {
+        let response = dependencies
+            .remote_client
+            .send_remote_request(method, url, machine_id, headers, body, false)
+            .await?;
+        reqwest_to_axum_response(response)
+    }
 }

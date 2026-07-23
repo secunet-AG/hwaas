@@ -762,11 +762,13 @@
           },
           "x": {
             "description": "Absolute coordinates to move the pointer to",
-            "format": "int16",
+            "format": "uint16",
+            "minimum": 0.0,
             "type": "integer"
           },
           "y": {
-            "format": "int16",
+            "format": "uint16",
+            "minimum": 0.0,
             "type": "integer"
           }
         },
@@ -4071,6 +4073,45 @@
         ]
       }
     },
+    "/contexts/{ctx_id}/machines/{machine_name}/mjpeg": {
+      "get": {
+        "description": "Establish a lightweight mjpeg stream for machine v4l output.",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "name of the machine",
+            "in": "path",
+            "name": "machine_name",
+            "required": true,
+            "schema": {
+              "description": "name of the machine",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Continous multipart/x-mixed-replace stream. This can be used to stream an MJPEG where each frame is a valid image."
+          }
+        },
+        "summary": "Connect to MJPEG stream via REST",
+        "tags": [
+          "Machines API"
+        ]
+      }
+    },
     "/contexts/{ctx_id}/machines/{machine_name}/network-interfaces": {
       "get": {
         "description": "List machine's network interface names.",
@@ -5212,6 +5253,81 @@
         ]
       }
     },
+    "/contexts/{ctx_id}/machines/{machine_name}/usb/keyboard/websocket": {
+      "get": {
+        "description": "Use USB OTG keyboard by sending report input - list of keys, modifier, press and release values.",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Name of the Machine",
+            "in": "path",
+            "name": "machine_name",
+            "required": true,
+            "schema": {
+              "title": "String",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "websocket upgrade",
+            "headers": {
+              "connection": {
+                "schema": {
+                  "const": "upgrade",
+                  "enum": [
+                    "upgrade"
+                  ],
+                  "example": "upgrade",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-key": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-protocol": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "upgrade": {
+                "schema": {
+                  "const": "websocket",
+                  "enum": [
+                    "websocket"
+                  ],
+                  "example": "websocket",
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          }
+        },
+        "summary": "Use keyboard with report format via WS",
+        "tags": [
+          "Machines API"
+        ]
+      }
+    },
     "/contexts/{ctx_id}/machines/{machine_name}/usb/mouse": {
       "post": {
         "description": "Use USB OTG mouse by sending button, pointer (x, y) and wheel parameters.",
@@ -5273,6 +5389,81 @@
           }
         },
         "summary": "Use mouse",
+        "tags": [
+          "Machines API"
+        ]
+      }
+    },
+    "/contexts/{ctx_id}/machines/{machine_name}/usb/mouse/websocket": {
+      "get": {
+        "description": "Use USB OTG mouse by sending button, pointer (x, y) and wheel parameters.",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Name of the Machine",
+            "in": "path",
+            "name": "machine_name",
+            "required": true,
+            "schema": {
+              "title": "String",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "websocket upgrade",
+            "headers": {
+              "connection": {
+                "schema": {
+                  "const": "upgrade",
+                  "enum": [
+                    "upgrade"
+                  ],
+                  "example": "upgrade",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-key": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "sec-websocket-protocol": {
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "upgrade": {
+                "schema": {
+                  "const": "websocket",
+                  "enum": [
+                    "websocket"
+                  ],
+                  "example": "websocket",
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          }
+        },
+        "summary": "Use mouse via WS/WSS connection",
         "tags": [
           "Machines API"
         ]

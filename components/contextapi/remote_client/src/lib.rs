@@ -29,6 +29,10 @@ impl Default for RemoteClient {
 }
 
 impl RemoteClient {
+    pub fn client(&self) -> &Client {
+        &self.client
+    }
+
     /// Send an HTTP request with the given parameters to a
     /// remote-hands peripheral
     #[instrument(skip_all)]

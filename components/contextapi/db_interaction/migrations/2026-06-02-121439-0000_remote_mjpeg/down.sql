@@ -1,0 +1,1 @@
+ALTER TABLE machines DROP COLUMN remote_mjpeg

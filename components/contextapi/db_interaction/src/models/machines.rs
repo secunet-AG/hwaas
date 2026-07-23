@@ -132,6 +132,8 @@ pub struct Machine {
     pub remote_auxiliary: Option<RemoteAddress>,
     /// The state of the machine.
     pub state: MachineState,
+    /// An address for the machine's remote-mjpeg server.
+    pub remote_mjpeg: Option<RemoteAddress>,
 }
 
 /// A machine reset corresponding to a [`Machine`].

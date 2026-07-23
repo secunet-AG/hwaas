@@ -18,6 +18,8 @@ pub type MachineSerialDevice = String;
 
 pub type MachineAuxDevice = String;
 
+pub type RemoteMJPEGUrl = String;
+
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct MachineData {
     /// The identifier of the machine.
@@ -36,4 +38,7 @@ pub struct MachineData {
     /// An address for the machine's remote auxiliary server.
     #[serde(default)]
     pub remote_auxiliary: Option<RemoteAuxiliaryBaseUrl>,
+    /// An address for the machine's remote MJPEG server.
+    #[serde(default)]
+    pub remote_mjpeg: Option<RemoteMJPEGUrl>,
 }

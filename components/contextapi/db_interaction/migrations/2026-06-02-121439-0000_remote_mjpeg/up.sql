@@ -1,0 +1,1 @@
+ALTER TABLE machines ADD COLUMN remote_mjpeg TEXT

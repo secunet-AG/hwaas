@@ -3,6 +3,8 @@ SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www
 
 SPDX-License-Identifier: Apache-2.0
 -->
+<!---->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
@@ -52,9 +54,27 @@ async function onSave() {
 
   const defaultDriveName = crypto.randomUUID()
 
-  await createDrive(contextStore.activeContext.id, defaultDriveName, selectedImage.value.image_hash)
+  let createDriveRes = await createDrive(
+    contextStore.activeContext.id,
+    defaultDriveName,
+    selectedImage.value.image_hash,
+  )
 
-  await enableUsb(contextStore.activeContext.id, machine.value?.name, defaultDriveName)
+  if (createDriveRes.error) {
+    console.error(createDriveRes.error)
+    return
+  }
+
+  let enableUsbRes = await enableUsb(
+    contextStore.activeContext.id,
+    machine.value?.name,
+    defaultDriveName,
+  )
+
+  if (enableUsbRes.error) {
+    console.error(enableUsbRes.error)
+    return
+  }
 
   const updatedMachine = {
     ...machine.value,

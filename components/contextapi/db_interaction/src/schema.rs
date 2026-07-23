@@ -57,6 +57,7 @@ diesel::table! {
         remote_serial -> Nullable<Text>,
         remote_auxiliary -> Nullable<Text>,
         state -> SmallInt,
+        remote_mjpeg -> Nullable<Text>,
     }
 }
 
