@@ -67,7 +67,6 @@ impl AppState {
             })),
         }
     }
-
 }
 
 #[async_trait]
