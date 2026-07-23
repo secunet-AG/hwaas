@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 set -eoux pipefail
 
 echo "Starting usb test"

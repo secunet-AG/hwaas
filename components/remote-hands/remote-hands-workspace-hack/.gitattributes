@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Avoid putting conflict markers in the generated Cargo.toml file, since their presence breaks
 # Cargo.
 # Also do not check out the file as CRLF on Windows, as that's what hakari needs.
