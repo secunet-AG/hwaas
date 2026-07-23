@@ -50,6 +50,8 @@ pre-commit-hooks.run {
 
     mypy = {
       enable = true;
+      # Force the hook to run as one process rather than parallel hook batches to avoid locks.
+      require_serial = true;
       settings.binPath = "${mypyPackage}/bin/mypy";
     };
 
