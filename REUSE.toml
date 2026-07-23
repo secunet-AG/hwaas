@@ -12,6 +12,8 @@ path = [
   "**/*.yaml",
   "vue-client/.env",
   "vue-client/.env.test",
+  "documentation/src/content/**/*.md",
+  "documentation/public/**/*",
   # Graphics
   "docs/images/logo_sponsored_funding_ic_sec.png",
   "components/remote-hands/doc/architecture.svg",
