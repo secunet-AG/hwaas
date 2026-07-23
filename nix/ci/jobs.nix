@@ -40,6 +40,7 @@ let
     "remote"
     "rpi-status-display"
     "sbom"
+    "user-tooling"
     "verify-ci"
     "ws-gateway"
   ];
@@ -47,6 +48,7 @@ let
   # Jobs ending with these keywords are regular checks and should run before the build.
   # Everything else is a test and runs after the build.
   checkTypes = [
+    "checkTestconfig"
     "clippy"
     "docs"
     "fmt"
@@ -54,6 +56,7 @@ let
     "hakari"
     "nextest"
     "pre-commit"
+    "preCommit"
     "verify-ci"
   ];
 
