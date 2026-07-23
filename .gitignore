@@ -5,8 +5,8 @@
 .direnv
 /.pre-commit-config.yaml
 .idea/
-/result
-**/result
+/result*
+**/result*
 /.nixos-test-history
 
 # Added by cargo
