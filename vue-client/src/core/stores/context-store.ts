@@ -294,8 +294,7 @@ export const useContextStore = defineStore('context', () => {
 
     const freshContext = { ...context, name: staleContext.name }
 
-    // Sigh... we also have some local state here with the image currently applied on the machine
-    // This is quite frankly a ridiculous amount of annoyance to persist 2-3 fields locally that can easily be added to the API
+    // TODO: Lots of local state complexity, refactor with API endpoints to remove local state
 
     const machineImageMap: Map<string, LocalImage | null> = new Map()
 
