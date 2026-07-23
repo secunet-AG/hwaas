@@ -55,7 +55,7 @@ function onCloseVnc() {
   activeMachine.value = null
 }
 
-function onOpenVnc(name: string) {
+function onOpenKVM(name: string) {
   setActiveMachine(name)
   isVNCOpen.value = true
 }
@@ -81,7 +81,7 @@ function onEdit() {
 
     <div class="flex flex-col pt-8">
       <h2 class="text-2xl">Machines</h2>
-      <ContextCards @on-open-v-n-c="onOpenVnc" @on-open-serial="onOpenSerial" />
+      <ContextCards @on-open-k-v-m="onOpenKVM" @on-open-serial="onOpenSerial" />
     </div>
 
     <FadeInOut>

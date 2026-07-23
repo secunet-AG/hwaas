@@ -25,7 +25,7 @@ const machine = toRef(props, 'machine')
 
 const emits = defineEmits<{
   (e: 'onOpenSerial', name: string): void
-  (e: 'onOpenVNC', name: string): void
+  (e: 'onOpenKVM', name: string): void
 }>()
 
 const getMachineColor = (item: LocalMachine) => {
@@ -47,7 +47,7 @@ function openSerial(e: MouseEvent) {
 function openVNV(e: MouseEvent) {
   e.preventDefault()
   if (machine.value.powerState !== 'on') return
-  emits('onOpenVNC', props.machine.name)
+  emits('onOpenKVM', props.machine.name)
 }
 
 async function onTogglePower(e: MouseEvent) {
