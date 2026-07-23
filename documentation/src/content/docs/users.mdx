@@ -17,7 +17,7 @@ import Callout from "../../components/Callout.astro";
 - A HTTP/REST API for low-level interaction: [Context API](../api)
 - A CI-based solution with a higher abstraction for scripting or interactive
   use: [User Tooling](#user-tooling)
-- A low-effort interface for casual or one-time usage: [Web UI](#web-ui)
+- A low-effort interface for casual or debugging purposes: [Web UI](#web-ui)
 
 ## Context API
 
@@ -49,6 +49,7 @@ resources can be managed for BMRs inside a Context:
 | USB            | Virtual          | Control a USB OTG gadget for arbitrary I/O                 |
 | Keyboard/Mouse | Virtual          | Control a single keyboard and mouse                        |
 | Networking     | Physical         | Enable network access between machines with a smart switch |
+| Video          | Physical         | View a live V4L stream from the machine                    |
 
 Each of these resources is bound to the Context that creates it. This means
 that when a Context expires, all created resources are released and cleaned up.

@@ -5,7 +5,7 @@
 [Users](./users) can create [contexts](#contexts), which are a collection of [bare metal resources](#machines) with a specific lifetime.
 
 [Bare metal resources](#bare-metal-resources) are controlled by individual Raspberry Pi's, which in turn are controlled by the [Context API](#contexts).
-You can extend the setup significantly by just onboarding a new Raspberry Pi and attaching them to your [Bare Metal Resource](#bare-metal-resources).
+You can extend the setup by just onboarding a new Raspberry Pi and attaching them to your [Bare Metal Resource](#bare-metal-resources).
 
 ## Service Architecture
 
@@ -26,6 +26,25 @@ import Callout from "../../components/Callout.astro";
 The gateway server is typically responsible for monitoring as well, but due to the modularity of the HWaaS, this is all up to each team's discretion.
 
 The gateway is also responsible for the NFS server used to deliver images to the `remote-usb` service.
+
+---
+
+### Context API
+
+Contexts are the unit of separation for machines under test. They are configured with a default and maximum lifetime.
+
+<Callout type="warning">
+  Anyone with access to the UUID for a context is able to perform various
+  actions with it, such as booting machines, loading images, deleting a context,
+  and all of the `remote-hands` functionality.
+</Callout>
+
+The `contextapi`, typically runs on the [Gateway](#gateway) and handles a number of core tasks:
+
+- Handling context lifetimes and machine reservations
+- Proxying content to and from `remote-hands` services
+- Managing physical switch access between machines
+- Uploading and cleaning up various images for the image NFS server
 
 ---
 
@@ -67,9 +86,10 @@ You can read more about the requirements for such a power switch in the maintain
 
 #### Remote Auxiliary
 
-Auxiliary devices are extra pieces of hardware that are connected to a test machine on one side and a remote-hands instance on the other side. They are permanently assigned to a specific bare metal resource.
+Auxiliary devices are extra pieces of hardware that are connected to a `remote-hands` instance and accessible via API. They are permanently assigned to a specific bare metal resource.
 
-The goal of auxiliary devices is to complement the hardware access that is provided by remote-hands with additional features, e.g. arbitrary sensors/actors.
+The goal of auxiliary devices is to complement the hardware access that is provided by remote-hands with additional features, e.g. arbitrary sensors/actors. Common examples include
+card readers, cameras, photo diodes, or electromagnets.
 
 Auxiliary devices are developed outside the scope of `remote-hands` by third parties. This project provides only generic infrastructure and does not implement sensor or actuator functionality itself.
 
@@ -87,28 +107,9 @@ This makes up the video component of the Keyboard Video Mouse solution, whereas 
 
 ---
 
-### Context API
-
-Contexts are the unit of separation for machines under test. They are configured with a default and maximum lifetime.
-
-<Callout type="warning">
-  Anyone with access to the UUID for context is able to perform various
-  functionality with it, such as booting machines, loading images, and all of
-  the `remote-hands` functionality.
-</Callout>
-
-The `contextapi`, typically runs on the [Gateway](#gateway) and handles a number of core tasks:
-
-- Handling context lifetimes and machine reservations
-- Proxying content to and from `remote-hands` services
-- Managing physical switch access between machines
-- Uploading and cleaning up various images for the image NFS server
-
----
-
 ### Websocket Gateway
 
-A lightweight VM for managing the WS proxies. The user tooling uses this to make a virtual tap device to connect to the machine under test.
+A lightweight VM for managing the WS proxies. The [user tooling](./users#user-tooling) uses this to make a virtual tap device to connect to the machine under test.
 
 ---
 
@@ -125,6 +126,7 @@ The various machines under test. These are accessible only via `remote-hands` se
 They have the following requirements:
 
 - Bootable via USB mass storage
+- Can be powered on and off via external mechanism like siwtchable power sockets
 - Optional serial output
 - Optional video output
 - Physical networking ports
