@@ -859,7 +859,6 @@ dependencies = [
  "slab",
  "smallvec",
  "syn 2.0.119",
- "syn 3.0.3",
  "sync_wrapper 1.0.2",
  "tempfile",
  "tokio",
