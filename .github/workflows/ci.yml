@@ -241,6 +241,35 @@ jobs:
       - if: always()
         name: build ws-proxy-client
         run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.ws-proxy-client'
+  build-user-tooling:
+    name: 'Build: user-tooling'
+    needs:
+      - check-user-tooling
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build user-tooling-benchmarkDataCollector
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.user-tooling-benchmarkDataCollector'
+      - if: always()
+        name: build user-tooling-hwaasDataUpload
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.user-tooling-hwaasDataUpload'
+      - if: always()
+        name: build user-tooling-hwaasPythonDriver
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.user-tooling-hwaasPythonDriver'
+      - if: always()
+        name: build user-tooling-hwaasTimer
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.user-tooling-hwaasTimer'
   build-ws-gateway:
     name: 'Build: ws-gateway'
     needs:
@@ -463,6 +492,30 @@ jobs:
       - if: always()
         name: check rpi-status-display-nextest
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-nextest'
+  check-user-tooling:
+    name: 'Check: user-tooling'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check user-tooling-checkTestconfig
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.user-tooling-checkTestconfig'
+      - if: always()
+        name: check user-tooling-preCommit
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.user-tooling-preCommit'
   check-verify-ci:
     name: 'Check: verify-ci'
     needs: []
