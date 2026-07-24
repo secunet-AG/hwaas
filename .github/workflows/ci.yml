@@ -224,6 +224,9 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
       - if: always()
+        name: build documentation
+        run: nix build -L --show-trace '.#packages.x86_64-linux.documentation'
+      - if: always()
         name: build http-sim
         run: nix build -L --show-trace '.#packages.x86_64-linux.http-sim'
       - if: always()
