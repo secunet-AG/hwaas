@@ -10,7 +10,7 @@ testConfig:
 # lib.deepSeq makes sure that all attributes are checked.
 lib.deepSeq (lib.evalModules {
   modules = [
-    ../../modules/hwaas-test-options/check.nix
+    ../../../modules/user-tooling/hwaas-test-options/check.nix
     { config = testConfig; }
   ];
 }).config

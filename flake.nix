@@ -34,10 +34,6 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
-    user-tooling-src = {
-      url = "path:./user-tooling";
-      flake = false;
-    };
   };
 
   outputs =

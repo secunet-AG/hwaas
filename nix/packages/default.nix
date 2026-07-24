@@ -5,6 +5,7 @@
 _: {
   perSystem =
     { config, pkgs, ... }:
+
     {
       packages = rec {
         net-ctrl-oas = pkgs.callPackage ./net-ctrl-oas.nix {
@@ -45,6 +46,7 @@ _: {
           documentationSrc = ../../documentation;
           inherit hwaas-oas;
         };
-      };
+      }
+      // import ./user-tooling.nix { inherit pkgs; };
     };
 }

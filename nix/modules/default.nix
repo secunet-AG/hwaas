@@ -2,9 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ moduleWithSystem, ... }:
+{ moduleWithSystem
+, pkgs
+, config
+, system
+, ...
+}:
 {
-  flake.nixosModules = {
+  flake.nixosModules = rec {
     aruba-switch-mock = moduleWithSystem (import ./aruba-switch-mock.nix);
     rpi-status-display = moduleWithSystem (import ./rpi-status-display.nix);
     ws-client-module = moduleWithSystem (import ./ws-client-module.nix);
@@ -24,6 +29,6 @@
     test-restapi-echo-server = import ./test-restapi-echo-server.nix;
     test-http-sim = moduleWithSystem (import ./test-http-sim.nix);
     test-debug-serials = import ./test-debug-serials.nix;
-
-  };
+  }
+  // import ./user-tooling { inherit moduleWithSystem; };
 }

@@ -7,8 +7,8 @@
 , runCommand
 }:
 let
-  checkTestconfig = import ../lib/check-testconfig { inherit lib; };
-  nixUnittest = import ../lib/nix-unittest { inherit lib runCommand; };
+  checkTestconfig = import ../../lib/user-tooling/check-testconfig { inherit lib; };
+  nixUnittest = import ../../lib/user-tooling/nix-unittest { inherit lib runCommand; };
 
   goodConfig = {
     name = "Hello World Test";
