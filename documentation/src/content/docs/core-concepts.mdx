@@ -1,0 +1,148 @@
+# Core Concepts
+
+## At a Glance
+
+[Users](./users) can create [contexts](#contexts), which are a collection of [bare metal resources](#machines) with a specific lifetime.
+
+[Bare metal resources](#bare-metal-resources) are controlled by individual Raspberry Pi's, which in turn are controlled by the [Context API](#contexts).
+You can extend the setup by just onboarding a new Raspberry Pi and attaching them to your [Bare Metal Resource](#bare-metal-resources).
+
+## Service Architecture
+
+### Gateway
+
+This is the monolithic entry point for a HWaaS instance. A typical setup will have a VPN terminate here, with a reverse proxy for routing to each instance's Context API and Web UI.
+
+import Callout from "../../components/Callout.astro";
+
+<Callout type="danger">
+  The HWaaS is currently NOT a multi-tenant solution. While some care has been
+  taken to ensure that team members will not trample over each other, the
+  current threat model is built around the assumption that each gateway instance
+  is not publicly available and is limited to trusted team members, via a VPN or
+  similar.
+</Callout>
+
+The gateway server is typically responsible for monitoring as well, but due to the modularity of the HWaaS, this is all up to each team's discretion.
+
+The gateway is also responsible for the NFS server used to deliver images to the `remote-usb` service.
+
+---
+
+### Context API
+
+Contexts are the unit of separation for machines under test. They are configured with a default and maximum lifetime.
+
+<Callout type="warning">
+  Anyone with access to the UUID for a context is able to perform various
+  actions with it, such as booting machines, loading images, deleting a context,
+  and all of the `remote-hands` functionality.
+</Callout>
+
+The `contextapi`, typically runs on the [Gateway](#gateway) and handles a number of core tasks:
+
+- Handling context lifetimes and machine reservations
+- Proxying content to and from `remote-hands` services
+- Managing physical switch access between machines
+- Uploading and cleaning up various images for the image NFS server
+
+---
+
+### Remote Hands
+
+Remote Hands services all run on the Raspberry Pi's, and share an underlying architecture: they are designed to be proxied, via HTTP(S)/WS(S), through the Context API.
+
+**They are NOT directly available to reach without going through the Context API first.**
+
+#### Remote USB
+
+The `remote-usb` service exposes an emulated USB peripheral device to the hardware over USB OTG functionality. This can be used for a number of use cases, such as:
+
+- Storage
+- Virtual Keyboard
+- Virtual Mouse
+
+And may be extended with more functionality in the future.
+
+This is by far the most complicated `remote-hands` service. We currently have a few restrictions on the emulated device, such as only allowing a single virtual mouse and keyboard per instance.
+
+`remote-usb` is also responsible for providing the USB mass storage that provides bootable images for the machine under test. These images are stored in the [Gateway](#gateway), under an NFS server.
+
+#### Remote Serial
+
+The `remote-serial` service provides the ability to communicate with the hardware over a serial line.
+
+Currently, only `tty` character devices, such as `/dev/ttyACM0`, as well as `stdio` are supported.
+
+You can read more about this setup in the maintainer guide.
+
+#### Remote Power
+
+The `remote-power` service controls the power state of the attached hardware, usually via a managed power switch.
+
+You can read more about the requirements for such a power switch in the maintainer guide.
+
+#### Remote Auxiliary
+
+Auxiliary devices are extra pieces of hardware that are connected to a `remote-hands` instance and accessible via API. They are permanently assigned to a specific bare metal resource.
+
+The goal of auxiliary devices is to complement the hardware access that is provided by remote-hands with additional features, e.g. arbitrary sensors/actors. Common examples include
+card readers, cameras, photo diodes, or electromagnets.
+
+Auxiliary devices are developed outside the scope of `remote-hands` by third parties. This project provides only generic infrastructure and does not implement sensor or actuator functionality itself.
+
+This separation prevents feature creep and allows different vendors to develop their own auxiliary devices for various measurement tasks without requiring changes to the `remote-hands` code base.
+
+You can read more about the requirements for auxiliary devices in the maintainer guide.
+
+#### Remote MJPEG
+
+There is a `remote-mjpeg` service that streams an MJPEG multipart response through the `contextapi`, allowing for screen sharing of your machine under test.
+
+This is a fairly minimal service, and we may reevaluate down the line and use `h.264` and hardware encoders on the Raspberry Pi's.
+
+This makes up the video component of the Keyboard Video Mouse solution, whereas the other two are WSS connections proxied through the `contextapi` to the `remote-usb` service.
+
+---
+
+### Websocket Gateway
+
+A lightweight VM for managing the WS proxies. The [user tooling](./users#user-tooling) uses this to make a virtual tap device to connect to the machine under test.
+
+---
+
+### Maintainer CLI
+
+A small CLI program responsible for bringing up the `contextapi` to its default state.
+
+---
+
+### Bare Metal Resources
+
+The various machines under test. These are accessible only via `remote-hands` services, with a valid context lease.
+
+They have the following requirements:
+
+- Bootable via USB mass storage
+- Can be powered on and off via external mechanism like switchable power sockets
+- Optional serial output
+- Optional video output
+- Physical networking ports
+
+---
+
+### Frontends
+
+The HWaaS provides a number of end-user frontends, depending on your team's use case: a REST API, the User Tooling and a Web UI.
+
+#### REST API
+
+The [Context API](../api) can be scripted against for custom integrations. This makes it possible to work with outside of a `nix` integration test.
+
+#### User Tooling
+
+A `python` library for writing NixOS integration tests, using the `contextapi`. The suggested path for developing CI pipelines with the HWaaS.
+
+#### Web UI
+
+A convenient way to quickly debug and develop on real hardware. The Web UI provides an interface for _most_ of the `contextapi` functionality, as well as a serial and keyboard video mouse interface for machines under test.

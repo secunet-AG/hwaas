@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { render, getCollection } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const docs = await getCollection('docs')
+  return docs.map(doc => ({ params: { id: doc.id } }))
+}
+
+const doc = (await getCollection('docs')).find(d => d.id === Astro.params.id)!
+const { Content, headings } = await render(doc)
+---
+
+<BaseLayout title={headings.find(h => h.depth === 1)?.text ?? doc.id} prose>
+  <Content />
+</BaseLayout>

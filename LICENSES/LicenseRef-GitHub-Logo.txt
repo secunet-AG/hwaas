@@ -1,0 +1,12 @@
+GitHub Logo Usage Terms
+
+This repository uses a GitHub logo owned by GitHub, Inc.
+
+The logo is not licensed under the Apache License 2.0 as the rest of the repository.
+It is used as an icon linking to GitHub, in accordance with GitHub's Brand Toolkit
+guidelines.
+
+Its use is therefore subject to the GitHub Brand Toolkit and applicable GitHub
+trademark guidelines found at https://brand.github.com/foundations/logo.
+
+No additional rights are granted by this repository.

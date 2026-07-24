@@ -18,3 +18,8 @@
 /.vscode
 **/.DS_Store
 .DS_Store
+
+# Generated
+
+/documentation/public/openapi.json
+**/.vscode

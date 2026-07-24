@@ -7,14 +7,20 @@ path = [
   "**/Cargo.toml",
   "**/*.json",
   "**/*.md",
+  "**/*.mdx",
   "**/*.toml",
   "**/*.yml",
   "**/*.yaml",
   "vue-client/.env",
   "vue-client/.env.test",
+  "documentation/src/content/**/*.md",
+  # Appears to be an issue here with generation
+  "documentation/src/**/*.astro",
   # Graphics
-  "docs/images/logo_sponsored_funding_ic_sec.png",
   "components/remote-hands/doc/architecture.svg",
+  "documentation/public/favicon.svg",
+  "documentation/public/hwaas_placeholder_logo.svg",
+  "documentation/public/logo_sponsored_funding_ic_sec.png",
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 secunet Security Networks AG <https://www.secunet.com>"
@@ -26,3 +32,16 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 secunet Security Networks AG <https://www.secunet.com>"
 SPDX-License-Identifier = "Apache-2.0"
 SPDX-FileComment = "Generated automatically by `openapi-generator-cli`"
+
+[[annotations]]
+path = "documentation/public/github.svg"
+precedence = "override"
+SPDX-FileCopyrightText = "GitHub, Inc."
+# Use custom license file with explanatory test,
+# since GitHub doesn't specify which license the svg has
+SPDX-License-Identifier = "LicenseRef-GitHub-Logo"
+SPDX-FileComment = '''
+The GitHub logo is a trademark of GitHub, Inc. and is not licensed under Apache-2.0.
+It is used as an icon linking to GitHub, in accordance with GitHub's Brand Toolkit:
+https://brand.github.com/foundations/logo
+'''

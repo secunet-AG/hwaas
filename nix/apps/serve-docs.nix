@@ -9,9 +9,10 @@ _: {
       apps.serve-docs = {
         type = "app";
         program = "${pkgs.writeShellScript "serve-docs" ''
-          exec ${pkgs.python3}/bin/python3 -m http.server \
-              --bind 127.0.0.1 \
-              --directory ${config.packages.docs-html}
+          DOCS_DIR="$(${pkgs.git}/bin/git rev-parse --show-toplevel)/documentation"
+          cp ${config.packages.hwaas-oas} "$DOCS_DIR/public/openapi.json"
+          cd "$DOCS_DIR"
+          exec ${pkgs.pnpm_10}/bin/pnpm dev
         ''}";
       };
     };

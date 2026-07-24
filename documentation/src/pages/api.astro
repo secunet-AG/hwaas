@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { ScalarComponent } from '@scalar/astro'
+import specRaw from '../../public/openapi.json'
+
+const DEFAULT_TAG = 'Contexts'
+
+// Add a default tag to any operation that has no tags
+const spec = structuredClone(specRaw) as Record<string, any>
+for (const methods of Object.values(spec.paths ?? {})) {
+  for (const op of Object.values(methods as Record<string, any>)) {
+    if (typeof op === 'object' && op !== null && !op.tags?.length) {
+      op.tags = [DEFAULT_TAG]
+    }
+  }
+}
+---
+
+<BaseLayout title="API Reference">
+  <ScalarComponent renderMode="client" configuration={{
+    spec: { content: spec },
+    pageTitle: 'HWaaS API',
+    hideClientButton: true,
+    mcp: { disabled: true },
+    agent: { disabled: true },
+    expandAllResponses: true,
+    showDeveloperTools: 'never',
+    layout: 'classic',
+    hideTestRequestButton: true,
+    hideDarkModeToggle: true,
+    hideSearch: true,
+    darkMode: true,
+    hiddenClients: {
+      php: true,
+      ruby: true,
+      java: true,
+      clojure: true,
+      dart: true,
+      powershell: true,
+      swift: true,
+      kotlin: true,
+      r: true,
+      fsharp: true
+    },
+    customCss: `
+      :root, .scalar-app, .dark-mode, .light-mode {
+        --scalar-font: var(--scalar-font) !important;
+        --scalar-font-code: var(--scalar-font-code) !important;
+        --scalar-border-color: var(--app-border) !important;
+        --scalar-background-1: var(--app-background) !important;
+        --scalar-background-2: var(--app-background) !important;
+        --scalar-background-3: var(--app-background) !important;
+        --scalar-background-4: var(--app-background) !important;
+        --scalar-sidebar-background-1: var(--app-background) !important;
+        --scalar-header-background-1: var(--app-background) !important;
+        --scalar-color-1: var(--app-primary-text) !important;
+        --scalar-color-2: var(--app-secondary-text) !important;
+      }
+      .scalar-app {
+        height: auto !important;
+        max-height: none !important;
+        position: relative !important;
+      }
+    `,
+  }} />
+</BaseLayout>
