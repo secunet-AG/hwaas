@@ -103,7 +103,7 @@ const canToggle = computed(() => machine.value.powerState === 'on' || machine.va
       <div class="bg-(--app-bg) flex items-center gap-4 rounded-full">
         <Tooltip
           :options="{
-            message: machine.powerState === 'on' ? 'Connect To VNC' : 'Must Boot Machine First',
+            message: machine.powerState === 'on' ? 'Connect To KVM' : 'Must Boot Machine First',
             yOffsetOverride: 32,
           }"
         >

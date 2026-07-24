@@ -30,7 +30,7 @@ const contextStoreRef = storeToRefs(_contextsStore)
 const router = useRouter()
 
 const isSerialOpen = ref(false)
-const isVNCOpen = ref(false)
+const isKVMOpen = ref(false)
 const activeMachine = ref<LocalMachine | null>(null)
 
 function setActiveMachine(machineName: string) {
@@ -50,14 +50,14 @@ function onCloseTerminal() {
   activeMachine.value = null
 }
 
-function onCloseVnc() {
-  isVNCOpen.value = false
+function onCloseKVM() {
+  isKVMOpen.value = false
   activeMachine.value = null
 }
 
 function onOpenKVM(name: string) {
   setActiveMachine(name)
-  isVNCOpen.value = true
+  isKVMOpen.value = true
 }
 
 function onOpenSerial(name: string) {
@@ -88,8 +88,8 @@ function onEdit() {
       <MJPEG
         :context-id="contextStoreRef.activeContext.value?.id ?? ''"
         :machine-name="activeMachine.name"
-        v-if="_contextsStore.activeContext?.id && activeMachine?.name && isVNCOpen"
-        @on-close="onCloseVnc"
+        v-if="_contextsStore.activeContext?.id && activeMachine?.name && isKVMOpen"
+        @on-close="onCloseKVM"
       ></MJPEG>
     </FadeInOut>
 
