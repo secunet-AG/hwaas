@@ -3415,6 +3415,45 @@
         ]
       }
     },
+    "/contexts/{ctx_id}/machines/{machine_name}/mjpeg": {
+      "get": {
+        "description": "Establish a lightweight mjpeg stream for machine v4l output.",
+        "parameters": [
+          {
+            "description": "Context access token",
+            "in": "path",
+            "name": "ctx_id",
+            "required": true,
+            "schema": {
+              "description": "Context access token",
+              "format": "uuid",
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "name of the machine",
+            "in": "path",
+            "name": "machine_name",
+            "required": true,
+            "schema": {
+              "description": "name of the machine",
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Continous multipart/x-mixed-replace stream. This can be used to stream an MJPEG where each frame is a valid image."
+          }
+        },
+        "summary": "Connect to MJPEG stream via REST",
+        "tags": [
+          "Machines API"
+        ]
+      }
+    },
     "/contexts/{ctx_id}/machines/{machine_name}/network-interfaces": {
       "get": {
         "description": "List machine's network interface names.",

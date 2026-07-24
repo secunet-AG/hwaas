@@ -42,7 +42,7 @@ impl UsbConfigurable for DummyState {
     async fn use_mouse(
         &self,
         _buttons: Vec<Button>,
-        _pointer: (i16, i16),
+        _pointer: (u16, u16),
         _wheel: i8,
     ) -> Result<(), std::io::Error> {
         panic!("Should not be called by OpenAPI generator.");

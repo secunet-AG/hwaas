@@ -15,6 +15,7 @@ import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import NetworkCreationModal from './components/networks/NetworkCreationModal.vue'
 import FadeInOut from '@/shared/ui/transitions/FadeInOut.vue'
+import MJPEG from './components/machine-view/components/MJPEG.vue'
 import type { LocalMachine } from '@/shared/types/contexts.model'
 
 const TerminalAsync = defineAsyncComponent(
@@ -27,6 +28,7 @@ const contextStoreRef = storeToRefs(_contextsStore)
 const router = useRouter()
 
 const isSerialOpen = ref(false)
+const isKVMOpen = ref(false)
 const activeMachine = ref<LocalMachine | null>(null)
 
 function setActiveMachine(machineName: string) {
@@ -44,6 +46,16 @@ onMounted(async () => {
 function onCloseTerminal() {
   isSerialOpen.value = false
   activeMachine.value = null
+}
+
+function onCloseKVM() {
+  isKVMOpen.value = false
+  activeMachine.value = null
+}
+
+function onOpenKVM(name: string) {
+  setActiveMachine(name)
+  isKVMOpen.value = true
 }
 
 function onOpenSerial(name: string) {
@@ -67,8 +79,17 @@ function onEdit() {
 
     <div class="flex flex-col pt-8">
       <h2 class="text-2xl">Machines</h2>
-      <ContextCards @on-open-serial="onOpenSerial" />
+      <ContextCards @on-open-k-v-m="onOpenKVM" @on-open-serial="onOpenSerial" />
     </div>
+
+    <FadeInOut>
+      <MJPEG
+        :context-id="contextStoreRef.activeContext.value?.id ?? ''"
+        :machine-name="activeMachine.name"
+        v-if="_contextsStore.activeContext?.id && activeMachine?.name && isKVMOpen"
+        @on-close="onCloseKVM"
+      ></MJPEG>
+    </FadeInOut>
 
     <FadeInOut>
       <!-- TODO: Discuss how we want to configure serial ports -->

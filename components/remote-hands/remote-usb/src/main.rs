@@ -2,9 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use remote_axum::run_axum_server_with_cleanup;
+use remote_axum::run_axum_server;
 use remote_init::CliArgs;
-use remote_serial::make_cancel_hook;
 use remote_usb::{api, app_config::AppConfig, app_state::AppState};
 
 #[tokio::main]
@@ -31,11 +30,8 @@ async fn main() -> Result<(), u8> {
     let state = AppState::new(config.images_path);
 
     // Boot web server
-    let app = api::get_router(state.clone())
-        .await
-        .expect("api::get_router");
-    let cb = make_cancel_hook(state.inner.lock().await.serials.clone());
-    run_axum_server_with_cleanup(args.address(), app, hunt, cb)
+    let app = api::get_router(state).await.expect("api::get_router");
+    run_axum_server(args.address(), app, hunt)
         .await
         .map_err(|_| 1)
 }

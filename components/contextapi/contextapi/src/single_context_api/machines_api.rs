@@ -11,8 +11,10 @@ use super::{ContextManagerTx, DrivesApiState, GuardedContext};
 use crate::single_context_api::remote_api::get_machine_remote_api_router;
 use aide::axum::{routing::get_with, ApiRouter};
 use aide::transform::{TransformOperation, TransformPathItem};
+use axum::body::Body;
 use axum::extract::{FromRef, FromRequestParts, Path, State};
-use axum::http::StatusCode;
+use axum::http::{HeaderMap, StatusCode};
+use axum::response::{IntoResponse, Response};
 use axum::Json;
 
 use context_data_structures::aliases::{MachineName, MachineNetworkInterface};
@@ -27,7 +29,7 @@ use diesel::prelude::*;
 use db_interaction::models::context_id::ContextIdBytes;
 use error_utils::log_then_replace_err;
 use serde_json::{json, Value};
-use tracing::error;
+use tracing::{error, info};
 
 #[derive(Clone)]
 pub(crate) struct MachineApiState {
@@ -65,6 +67,11 @@ where
                 handle_get_machine_network_ports_request,
                 api_doc_machine_get_net_interface_list,
             ),
+            api_doc_machine_api,
+        )
+        .api_route_with(
+            "/mjpeg",
+            get_with(handle_mjpeg_request, api_doc_machine_mjpeg),
             api_doc_machine_api,
         )
         .merge(get_machine_remote_api_router(request_limit, state));
@@ -108,6 +115,18 @@ fn api_doc_machine_get_net_interface_list(op: TransformOperation) -> TransformOp
             op.description("JSON representing all interface names as Array")
         })
         .response_with::<404, &str, _>(|op| op.description("Context or machine is unknown"))
+}
+
+/// Append OpenAPI documentation to the operation for getting a lightweight mjpeg stream
+fn api_doc_machine_mjpeg(op: TransformOperation) -> TransformOperation {
+    op.description("Establish a lightweight mjpeg stream for machine v4l output.")
+        .summary("Connect to MJPEG stream via REST")
+        .response_with::<200, (), _>(|op| {
+            op.description(
+                "Continous multipart/x-mixed-replace stream. \
+            This can be used to stream an MJPEG where each frame is a valid image.",
+            )
+        })
 }
 
 /// Handler to obtain all names of network interfaces of one machine
@@ -223,4 +242,64 @@ async fn get_machine_info(
         platform: machine.platform,
     };
     Ok(Json(json!(machine_info)))
+}
+
+#[tracing::instrument(skip(dependencies))]
+async fn handle_mjpeg_request(
+    GuardedContext(context_access_token): GuardedContext,
+    State(dependencies): State<MachineApiState>,
+    Path(PathParamsMachineName { machine_name }): Path<PathParamsMachineName>,
+) -> Response {
+    info!("Starting mjpeg stream for machine {:?}", machine_name);
+
+    let machine: Machine = match get_machine(
+        context_access_token.context_id,
+        dependencies.clone(),
+        machine_name,
+    )
+    .await
+    {
+        Ok(inner) => inner,
+        Err(e) => {
+            error!("Could not succesfully fetch machine: {:?}", e);
+            return (StatusCode::NOT_FOUND, "Machine not found").into_response();
+        }
+    };
+
+    let mjpg = match machine.remote_mjpeg {
+        Some(inner) => inner,
+        None => {
+            return (
+                StatusCode::NOT_FOUND,
+                "Machine does not posses mjepg url. Perhaps it does not have V4L setup?",
+            )
+                .into_response()
+        }
+    };
+
+    let client = dependencies.remote_client.client();
+
+    let upstream = match client.get(mjpg).send().await {
+        Ok(r) => r,
+        Err(e) => {
+            error!("Could not establish MJPEG client stream: {:?}", e);
+            return (
+                StatusCode::BAD_GATEWAY,
+                "Stream unreachable. Perhaps the machine does not have V4L configured?",
+            )
+                .into_response();
+        }
+    };
+
+    let mut headers = HeaderMap::new();
+
+    if let Some(ct) = upstream.headers().get("content-type") {
+        headers.insert("content-type", ct.clone());
+    }
+
+    let upstream_stream = upstream.bytes_stream();
+
+    let body = Body::from_stream(upstream_stream);
+
+    (headers, body).into_response()
 }

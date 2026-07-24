@@ -492,6 +492,7 @@ async fn upsert(
                     switch_connections,
                     remote_serial,
                     remote_auxiliary,
+                    remote_mjpeg,
                 } = machine_data;
                 let machine = Machine {
                     id,
@@ -501,6 +502,7 @@ async fn upsert(
                     remote_serial: remote_serial.map(Into::into),
                     remote_auxiliary: remote_auxiliary.map(Into::into),
                     state: MachineState::Initializing,
+                    remote_mjpeg,
                 };
                 let machine_reset = MachineReset {
                     id,
@@ -713,6 +715,7 @@ mod tests {
                         remote_serial,
                         remote_auxiliary,
                         state,
+                        remote_mjpeg,
                         ..
                     } = machine;
                     let switch_connections =
@@ -727,6 +730,7 @@ mod tests {
                         remote_serial: remote_serial
                             .map(|serial_addr| serial_addr.try_into().unwrap()),
                         remote_auxiliary: remote_auxiliary.map(|addr| addr.try_into().unwrap()),
+                        remote_mjpeg,
                     };
                     (machine_data, state)
                 })
@@ -809,6 +813,7 @@ mod tests {
                     .try_into()
                     .unwrap(),
             ),
+            remote_mjpeg: None,
         };
         (data, mocks)
     }
@@ -934,6 +939,7 @@ mod tests {
             remote_power: remote_power.into(),
             remote_serial: remote_serial.map(TryInto::try_into).transpose().unwrap(),
             remote_auxiliary: remote_auxiliary.map(TryInto::try_into).transpose().unwrap(),
+            remote_mjpeg: None,
         };
         machine
             .insert_into(machines_table)
@@ -1059,6 +1065,7 @@ mod tests {
             remote_serial: remote_serial.map(Into::into),
             remote_auxiliary: remote_auxiliary.map(Into::into),
             state: MachineState::Initializing,
+            remote_mjpeg: None,
         };
         // The previous reset started around 2023
         let reset_started = DateTime::from_timestamp(60 * 60 * 24 * 365 * 53, 400).unwrap();
@@ -1124,6 +1131,7 @@ mod tests {
                 remote_serial: remote_serial.map(Into::into),
                 remote_auxiliary: remote_auxiliary.map(Into::into),
                 state,
+                remote_mjpeg: None,
             };
 
             diesel::insert_into(machines_table)
@@ -1214,6 +1222,7 @@ mod tests {
                 remote_serial: remote_serial.map(Into::into),
                 remote_auxiliary: remote_auxiliary.map(Into::into),
                 state,
+                remote_mjpeg: None,
             };
             machine
                 .insert_into(machines_table)

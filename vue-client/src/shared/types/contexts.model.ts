@@ -7,10 +7,7 @@
 import type { LocalImage } from './images.model'
 
 // Locally, we use a different shape to more easily interact with it
-export type ContextConfigurationMachine = Record<
-  string,
-  { machine_id: number | string; platform: string }
->
+export type ContextConfigurationMachine = Record<string, { machine_id: number; platform: string }>
 
 export type InventoryMachineState = 'free' | 'registered'
 
@@ -35,7 +32,7 @@ export type PowerState = 'on' | 'off' | 'unknown'
 // This interface is used to more easily interact with machines than the above record shape
 export interface LocalMachine {
   name: string
-  machine_id: string | number
+  machine_id: string
   platform: string
   activeImage?: LocalImage
   serialPorts: string[]

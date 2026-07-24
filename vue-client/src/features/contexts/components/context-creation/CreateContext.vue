@@ -69,7 +69,7 @@ function onContextUpload(machines: ContextConfigurationMachine) {
   Object.keys(machines).forEach((k) => {
     newMachines.push({
       name: k,
-      machine_id: machines[k].machine_id,
+      machine_id: String(machines[k].machine_id),
       platform: machines[k].platform,
       powerState: 'unknown',
       serialPorts: [],
@@ -90,7 +90,7 @@ const showNameWarningBorder = computed(
 function onMachineSelectionChange(machines: InventoryMachine[]) {
   newContext.machines = machines.map((x) => ({
     name: nameGenerator(),
-    machine_id: x.machine_id,
+    machine_id: String(x.machine_id),
     platform: x.properties.platform,
     powerState: 'unknown',
     serialPorts: [],
