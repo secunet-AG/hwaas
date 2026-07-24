@@ -3,8 +3,6 @@ SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www
 
 SPDX-License-Identifier: Apache-2.0
 -->
-<!---->
-<!-- SPDX-License-Identifier: Apache-2.0 -->
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
