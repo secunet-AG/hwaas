@@ -178,27 +178,13 @@ This returns an image hash that you can use to attach a drive.
   the existing hash is returned without re-uploading.
 </Callout>
 
-#### Attaching a Drive and Booting
+#### Attaching a Drive to Machines
 
 Assign a drive to a machine using the image hash from the previous step:
 
 ```sh
 curl "$API_URL/contexts/{context_id}/drives/{drive_name}?image_hash={image_hash}" \
   --request PUT
-```
-
-Then power on the machine:
-
-```sh
-curl "$API_URL/contexts/{context_id}/machines/{machine_name}/power" \
-  --request PUT
-```
-
-#### Powering Off a Machine
-
-```sh
-curl "$API_URL/contexts/{context_id}/machines/{machine_name}/power" \
-  --request DELETE
 ```
 
 #### Enabling USB (Storage, Keyboard, and Mouse)
@@ -224,6 +210,22 @@ curl "$API_URL/contexts/{context_id}/machines/{machine_name}/usb" \
   { "type": "keyboard" },
   { "type": "mouse" }
 ]'
+```
+
+#### Booting
+
+Power on the machine:
+
+```sh
+curl "$API_URL/contexts/{context_id}/machines/{machine_name}/power" \
+  --request PUT
+```
+
+Power off a machine:
+
+```sh
+curl "$API_URL/contexts/{context_id}/machines/{machine_name}/power" \
+  --request DELETE
 ```
 
 #### Working with Networks
@@ -252,6 +254,8 @@ curl "$API_URL/contexts/{context_id}/networks/{network_name}" \
 ]'
 ```
 
+You can also create the network in one request, moving the data into the command above.
+
 List all networks in a context:
 
 ```sh
@@ -273,11 +277,15 @@ curl "$API_URL/contexts/{context_id}/networks/{network_name}" \
 ]'
 ```
 
-#### Accessing Serial Ports
+#### Accessing Serial
 
 ```sh
 curl "$API_URL/contexts/{context_id}/machines/{machine_name}/serial"
 ```
+
+You can read and write serial via `GET` and `POST` requests or directly connect
+to the serial websocket with your favorite tooling via
+`serial/<interface>/websocket`.
 
 #### Listing Network Interfaces
 

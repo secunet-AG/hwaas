@@ -54,8 +54,6 @@ Remote Hands services all run on the Raspberry Pi's, and share an underlying arc
 
 **They are NOT directly available to reach without going through the Context API first.**
 
-This ensures that Contexts are separated from one another, and machines are atomically leased.
-
 #### Remote USB
 
 The `remote-usb` service exposes an emulated USB peripheral device to the hardware over USB OTG functionality. This can be used for a number of use cases, such as:
@@ -80,7 +78,7 @@ You can read more about this setup in the maintainer guide.
 
 #### Remote Power
 
-The `remote-power` service controls the power state of the attached hardware, via a managed power switch.
+The `remote-power` service controls the power state of the attached hardware, usually via a managed power switch.
 
 You can read more about the requirements for such a power switch in the maintainer guide.
 
@@ -126,7 +124,7 @@ The various machines under test. These are accessible only via `remote-hands` se
 They have the following requirements:
 
 - Bootable via USB mass storage
-- Can be powered on and off via external mechanism like siwtchable power sockets
+- Can be powered on and off via external mechanism like switchable power sockets
 - Optional serial output
 - Optional video output
 - Physical networking ports
@@ -135,7 +133,7 @@ They have the following requirements:
 
 ### Frontends
 
-The HWaaS provides a number of end-user frontends, depending on your team's use case.
+The HWaaS provides a number of end-user frontends, depending on your team's use case: a REST API, the User Tooling and a Web UI.
 
 #### REST API
 
