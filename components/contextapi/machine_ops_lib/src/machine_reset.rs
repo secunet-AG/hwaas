@@ -18,10 +18,13 @@ use db_interaction::{
 use diesel::prelude::*;
 use error_utils::log_err;
 use net_ctrl_client_wrapper::NetCtrlClient;
-use rand::Rng;
 use remote_client::RemoteClient;
 use tokio::task::JoinSet;
 use tracing::{debug, error, info_span, instrument, warn, Instrument, Span};
+
+/// Maximum duration to sleep in between retries when force-retrying fallibly operations until
+/// success.
+const MAXIMUM_RETRY_SLEEP_DURATION: Duration = Duration::from_mins(10);
 
 use crate::machine_data::{
     InvalidRemoteAuxiliaryBaseUrl, InvalidRemotePowerBaseUrl, InvalidRemoteSerialBaseUrl,
@@ -135,9 +138,10 @@ pub async fn reset_machine(
     let Some(MachineResetData {
         machine,
         switch_ports,
-    }): Option<MachineResetData> = retry_until_success(read_machine_data_gen)
-        .instrument(span)
-        .await
+    }): Option<MachineResetData> =
+        retry_until_success(read_machine_data_gen, Some(MAXIMUM_RETRY_SLEEP_DURATION))
+            .instrument(span)
+            .await
     else {
         // The machine was not found which we warn against, but still treat as
         // a success.
@@ -214,7 +218,7 @@ pub async fn reset_machine(
                 }
             }
         };
-        retry_until_success(power_off)
+        retry_until_success(power_off, Some(MAXIMUM_RETRY_SLEEP_DURATION))
             .instrument(span.or_current())
             .await;
         debug!("the machine was successfully powered off");
@@ -262,7 +266,7 @@ async fn reset_serial_buffers(
         }
     };
 
-    retry_until_success(buffer_reset).await;
+    retry_until_success(buffer_reset, Some(MAXIMUM_RETRY_SLEEP_DURATION)).await;
 }
 
 /// Deactivate all aux devices connected to the machine. This function retries until it succeeds with
@@ -294,7 +298,7 @@ async fn deactivate_aux_devices(
             }
         }
     };
-    retry_until_success(reset_auxiliaries).await;
+    retry_until_success(reset_auxiliaries, Some(MAXIMUM_RETRY_SLEEP_DURATION)).await;
 }
 
 #[instrument(skip_all)]
@@ -326,7 +330,9 @@ async fn disconnect_switch_ports(
             }
             .instrument(span)
         };
-        join_set.spawn(retry_until_success(disable_port).in_current_span());
+        join_set.spawn(
+            retry_until_success(disable_port, Some(MAXIMUM_RETRY_SLEEP_DURATION)).in_current_span(),
+        );
     }
 
     // Wait until all spawned tasks have completed
@@ -359,7 +365,7 @@ async fn disconnect_switch_ports(
             .await
         }
     };
-    retry_until_success(delete_enabled_ports)
+    retry_until_success(delete_enabled_ports, Some(MAXIMUM_RETRY_SLEEP_DURATION))
         .in_current_span()
         .await;
 }
@@ -393,14 +399,15 @@ async fn deconfigure_usb(
             }
         }
     };
-    retry_until_success(reset).await;
+    retry_until_success(reset, Some(MAXIMUM_RETRY_SLEEP_DURATION)).await;
 }
 
 /// Takes a closure that returns a future with a fallible outcome which is then called
 /// and resolved until it succeeds. There are increasingly long sleeps between retries
-/// (exponential backoff).
+/// (exponential backoff). You can configure the maximum time to sleep between retries with
+/// `max_sleep` which, if given, will never be exceeded (i.e. it "limits" the exponential backoff).
 #[instrument(skip(f))]
-async fn retry_until_success<FutGen, Fut, Err, T>(f: FutGen) -> T
+async fn retry_until_success<FutGen, Fut, Err, T>(f: FutGen, max_sleep: Option<Duration>) -> T
 where
     FutGen: Fn() -> Fut,
     Fut: Future<Output = Result<T, Err>>,
@@ -410,10 +417,16 @@ where
         if let Ok(output) = f().await {
             return output;
         } else {
-            let backoff = 6_u64.pow(backoff_exponent);
-            let jitter = backoff + rand::thread_rng().gen_range(0..backoff);
-            debug!(milliseconds = jitter, "sleeping before retrying");
-            tokio::time::sleep(Duration::from_millis(jitter)).await;
+            let raw_backoff = 6_u64.saturating_pow(backoff_exponent);
+            let backoff = Duration::from_millis(raw_backoff);
+            let sleep_duration = if let Some(value) = max_sleep {
+                std::cmp::min(value, backoff)
+            } else {
+                backoff
+            };
+            debug!(milliseconds = %sleep_duration.as_millis(), "sleeping before retrying");
+
+            tokio::time::sleep(sleep_duration).await;
             backoff_exponent += 1;
         }
     }
@@ -437,4 +450,35 @@ pub enum IrrecoverableMachineResetError {
         address: String,
         error: InvalidRemotePowerBaseUrl,
     },
+}
+
+#[cfg(test)]
+mod test {
+    use std::sync::atomic::AtomicUsize;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn retry_respects_backoff_limit() {
+        let counter = Arc::new(AtomicUsize::new(100));
+        let slow = move || {
+            let inner_counter = counter.clone();
+            async move {
+                let count = inner_counter.fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
+                if count > 0 {
+                    Err("Nope")
+                } else {
+                    Ok(())
+                }
+            }
+        };
+
+        let started = tokio::time::Instant::now();
+        retry_until_success(slow, Some(Duration::from_millis(1))).await;
+        let ended = started.elapsed();
+        assert!(ended > Duration::from_millis(95));
+        // NOTE: In theory this can take arbitrarily long, but for practical reasons this should
+        // suffice I hope.
+        assert!(ended < Duration::from_secs(1));
+    }
 }
