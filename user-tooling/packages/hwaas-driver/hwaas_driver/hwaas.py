@@ -304,15 +304,16 @@ class HwaasMachine:
         Create the JSON data needed to attach a drive with possibly multiple images.
         """
 
-        luns = [
-            '{"path": "' + drive + '", "cdrom": false, "read_only": false}'
-            for drive in drives
+        luns = [{"path": drive, "cdrom": False, "read_only": False} for drive in drives]
+
+        usb_function = [
+            {
+                "type": "storage",
+                "luns": luns,
+            }
         ]
 
-        usb_function = (
-            '[{ "type": "storage", "luns": [' + ", ".join(map(str, luns)) + "] }]"
-        )
-        return usb_function
+        return json.dumps(usb_function)
 
     def attach_drive(self, image_path: str) -> None:
         """
