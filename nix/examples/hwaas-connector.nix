@@ -4,7 +4,7 @@
 
 { pkgs, hwaasTestModules }:
 let
-  image = (pkgs.nixos hwaasTestModules.machines.legacyBox).isoImage;
+  image = (pkgs.nixos hwaasTestModules.user-tooling-machines-legacyBox).isoImage;
   controlVMIp = "192.168.44.1";
   controlVMInterface = "network1";
 in
@@ -17,7 +17,7 @@ in
     nodes.controlVM = { ... }:
       {
         imports = with hwaasTestModules; [
-          hwaasTestVm
+          user-tooling-hwaasTestVm
         ];
 
         hwaas.testVm = {
@@ -44,7 +44,7 @@ in
       ];
     };
 
-    testScript = { ... }: ''
+    testScript = _: ''
       import time
       import json
 

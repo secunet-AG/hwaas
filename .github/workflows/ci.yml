@@ -513,9 +513,6 @@ jobs:
       - if: always()
         name: check user-tooling-checkTestconfig
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.user-tooling-checkTestconfig'
-      - if: always()
-        name: check user-tooling-preCommit
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.user-tooling-preCommit'
   check-verify-ci:
     name: 'Check: verify-ci'
     needs: []

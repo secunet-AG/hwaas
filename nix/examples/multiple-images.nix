@@ -10,7 +10,7 @@ let
     nodes.controlVM = { ... }:
       {
         imports = with hwaasTestModules; [
-          hwaasTestVm
+          user-tooling-hwaasTestVm
         ];
         environment.systemPackages = with pkgs; [ sshpass ];
 
@@ -29,7 +29,7 @@ let
         { machine = "legacy-box_1"; networkInterfaces = [ "LAN1" ]; }
       ];
     };
-    testScript = { ... }: ''
+    testScript = _: ''
       import time
 
       def wait_for_network():
@@ -63,7 +63,7 @@ let
 
   image1 = (pkgs.nixos ({ ... }: {
     imports = [
-      hwaasTestModules.machines.legacyBox
+      hwaasTestModules.user-tooling-machines-legacyBox
     ];
     # Allow ssh access to the HWaaS machine and add the benchmark package
     users.users.nixos = {
@@ -78,7 +78,7 @@ let
 
   image2 = (pkgs.nixos ({ ... }: {
     imports = [
-      hwaasTestModules.machines.legacyBox
+      hwaasTestModules.user-tooling-machines-legacyBox
     ];
     # Allow ssh access to the HWaaS machine and add the benchmark package
     users.users.nixos = {

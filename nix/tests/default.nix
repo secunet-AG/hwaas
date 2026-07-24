@@ -10,5 +10,6 @@ _: {
     ./net-ctrl
     ./remote-hands
     ./contextapi
+    ./user-tooling
   ];
 }

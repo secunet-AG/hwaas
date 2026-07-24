@@ -5,7 +5,7 @@ benchmarks for the HWaaS.
 
 ## Overview
 
-The [user tooling](https://github.com/secunet-AG/hwaas/user-tooling)
+The [user tooling](https://secunet-ag.github.io/hwaas/docs/users#user-tooling)
 is meant to be the go to way to create tests and benchmarks for the HWaaS. The
 goal is to make it easy to onboard new projects to run tests on the HWaaS.
 Simple test and benchmark cases should be easy to create, while the user is
@@ -20,6 +20,5 @@ runtime interaction with the HWaaS machines.
 
 ## How to use
 
-Have a look into the [examples
-folder](https://github.com/secunet-AG/hwaas/user-tooling/examples/)
+Have a look into the [examples folder](../nix/examples/)
 to get an overview of how to use the tooling.

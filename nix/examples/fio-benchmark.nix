@@ -6,7 +6,7 @@
 let
   image = (pkgs.nixos ({ ... }: {
     imports = [
-      hwaasTestModules.machines.legacyBox
+      hwaasTestModules.user-tooling-machines-legacyBox
     ];
 
     # Allow ssh access to the HWaaS machine and add the benchmark package
@@ -29,7 +29,7 @@ pkgs.hwaasTest {
   nodes.controlVM = { ... }:
     {
       imports = with hwaasTestModules; [
-        hwaasTestVm
+        user-tooling-hwaasTestVm
       ];
 
       environment.systemPackages = with pkgs; [ sshpass ];
@@ -60,7 +60,7 @@ pkgs.hwaasTest {
 
   skipTypeCheck = true;
 
-  testScript = { ... }: ''
+  testScript = _: ''
     import json
     import time
     from hwaas_driver import get_collector

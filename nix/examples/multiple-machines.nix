@@ -20,7 +20,7 @@ let
       };
     };
 
-    testScript = { ... }: ''
+    testScript = _: ''
       from hwaas_timer import Timer
 
       start_all()
@@ -54,7 +54,7 @@ let
     '';
   };
 
-  image = (pkgs.nixos hwaasTestModules.machines.legacyBox).isoImage;
+  image = (pkgs.nixos hwaasTestModules.user-tooling-machines-legacyBox).isoImage;
 in
 {
   singleNetwork = pkgs.hwaasTest
@@ -62,7 +62,7 @@ in
       name = "Multiple HWaaS machines in one network";
 
       nodes.controlVM = { ... }: {
-        imports = [ hwaasTestModules.hwaasTestVm ];
+        imports = [ hwaasTestModules.user-tooling-hwaasTestVm ];
 
         hwaas.testVm = {
           enable = true;
@@ -92,7 +92,7 @@ in
       name = "Multiple HWaaS machines in separated networks";
 
       nodes.controlVM = { ... }: {
-        imports = [ hwaasTestModules.hwaasTestVm ];
+        imports = [ hwaasTestModules.user-tooling-hwaasTestVm ];
 
         hwaas.testVm = {
           enable = true;

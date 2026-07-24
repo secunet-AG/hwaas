@@ -4,7 +4,7 @@
 
 { pkgs, hwaasTestModules }:
 let
-  image = (pkgs.nixos hwaasTestModules.machines.legacyBox).isoImage;
+  image = (pkgs.nixos hwaasTestModules.user-tooling-machines-legacyBox).isoImage;
   controlVMIp = "192.168.44.1";
   controlVMInterface = "network1";
 in
@@ -16,7 +16,7 @@ pkgs.hwaasTest {
   nodes.controlVM = { ... }:
     {
       imports = with hwaasTestModules; [
-        hwaasTestVm
+        user-tooling-hwaasTestVm
       ];
 
       hwaas.testVm = {
@@ -45,7 +45,7 @@ pkgs.hwaasTest {
 
   extraPythonPackages = _: [ pkgs.hwaasTimer ];
 
-  testScript = { ... }: ''
+  testScript = _: ''
     from hwaas_timer import Timer
 
     start_all()
