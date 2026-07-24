@@ -42,7 +42,7 @@ function openSerial(e: MouseEvent) {
   emits('onOpenSerial', props.machine.name)
 }
 
-function openVNV(e: MouseEvent) {
+function openKVM(e: MouseEvent) {
   e.preventDefault()
   if (machine.value.powerState !== 'on') return
   emits('onOpenKVM', props.machine.name)
@@ -110,7 +110,7 @@ const canToggle = computed(() => machine.value.powerState === 'on' || machine.va
           <button
             :disabled="machine.powerState !== 'on'"
             class="transition-opacity disabled:opacity-40"
-            @click="openVNV"
+            @click="openKVM"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
