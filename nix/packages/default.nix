@@ -37,6 +37,7 @@ _: {
         documentationSrc = ../../documentation;
         inherit hwaas-oas;
       };
-    };
+    }
+    // import ./user-tooling.nix { inherit pkgs; };
   };
 }

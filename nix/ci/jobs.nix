@@ -57,7 +57,6 @@ let
     "hakari"
     "nextest"
     "pre-commit"
-    "preCommit"
     "verify-ci"
   ];
 

@@ -23,9 +23,7 @@ let
       py.setuptools-scm
     ];
 
-    dependencies = [
-      py.prettytable
-    ];
+    dependencies = [ py.prettytable ];
   };
 
   generallyAllowedLicenses = [
@@ -47,25 +45,32 @@ let
       license = "Mozilla Public License 2.0 (MPL 2.0)";
     }
   ];
-  licenseExceptionsPackagesString = pkgs.lib.strings.concatMapStringsSep " " (p: p.package) licenseExceptions;
-  licenseExceptionsLicensesString = pkgs.lib.strings.concatMapStringsSep ";" (p: p.license) licenseExceptions;
+  licenseExceptionsPackagesString = pkgs.lib.strings.concatMapStringsSep " " (
+    p: p.package
+  ) licenseExceptions;
+  licenseExceptionsLicensesString = pkgs.lib.strings.concatMapStringsSep ";" (
+    p: p.license
+  ) licenseExceptions;
 in
 
 pkgs.python3Packages.buildPythonPackage {
   name = "benchmark-data-collector";
   src = ./.;
 
-  nativeBuildInputs = with pkgs.python3Packages; [
-    setuptools
-  ];
+  nativeBuildInputs = with pkgs.python3Packages; [ setuptools ];
 
-  propagatedBuildInputs = with pkgs.python3Packages; [
-  ];
+  propagatedBuildInputs = with pkgs.python3Packages; [ ];
 
   pyproject = true;
 
   doCheck = true;
-  nativeCheckInputs = with pkgs.python3Packages; [ black mypy pkgs.ruff pytest pip-licenses ];
+  nativeCheckInputs = with pkgs.python3Packages; [
+    black
+    mypy
+    pkgs.ruff
+    pytest
+    pip-licenses
+  ];
   checkPhase = ''
     echo "## run mypy"
     mypy benchmark_data_collector

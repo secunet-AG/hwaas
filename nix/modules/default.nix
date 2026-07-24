@@ -23,6 +23,6 @@
     test-restapi-echo-server = import ./test-restapi-echo-server.nix;
     test-http-sim = moduleWithSystem (import ./test-http-sim.nix);
     test-debug-serials = import ./test-debug-serials.nix;
-
-  };
+  }
+  // import ./user-tooling { inherit moduleWithSystem; };
 }

@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ pkgs
-}:
+{ pkgs }:
 let
   py = pkgs.python3Packages;
 
@@ -23,9 +22,7 @@ let
       py.setuptools-scm
     ];
 
-    dependencies = [
-      py.prettytable
-    ];
+    dependencies = [ py.prettytable ];
   };
 
   generallyAllowedLicenses = [
@@ -54,16 +51,18 @@ let
       license = "Mozilla Public License 2.0 (MPL 2.0)";
     }
   ];
-  licenseExceptionsPackagesString = pkgs.lib.strings.concatMapStringsSep " " (p: p.package) licenseExceptions;
-  licenseExceptionsLicensesString = pkgs.lib.strings.concatMapStringsSep ";" (p: p.license) licenseExceptions;
+  licenseExceptionsPackagesString = pkgs.lib.strings.concatMapStringsSep " " (
+    p: p.package
+  ) licenseExceptions;
+  licenseExceptionsLicensesString = pkgs.lib.strings.concatMapStringsSep ";" (
+    p: p.license
+  ) licenseExceptions;
 in
 pkgs.python3Packages.buildPythonPackage {
   name = "hwaas-data-upload";
   src = ./.;
 
-  nativeBuildInputs = with pkgs.python3Packages; [
-    setuptools
-  ];
+  nativeBuildInputs = with pkgs.python3Packages; [ setuptools ];
 
   propagatedBuildInputs = with pkgs.python3Packages; [
     deepmerge
@@ -74,7 +73,15 @@ pkgs.python3Packages.buildPythonPackage {
   pyproject = true;
 
   doCheck = true;
-  nativeCheckInputs = with pkgs.python3Packages; [ black mypy pkgs.ruff pytest deepmerge pip-licenses pipdeptree ];
+  nativeCheckInputs = with pkgs.python3Packages; [
+    black
+    mypy
+    pkgs.ruff
+    pytest
+    deepmerge
+    pip-licenses
+    pipdeptree
+  ];
   checkPhase = ''
     echo "## run mypy"
     mypy data_upload

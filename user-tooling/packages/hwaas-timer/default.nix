@@ -2,13 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ pkgs
-, buildPythonPackage
-, black
-, mypy
-, pytest
-, ruff
-, setuptools
+{
+  pkgs,
+  buildPythonPackage,
+  black,
+  mypy,
+  pytest,
+  ruff,
+  setuptools,
 }:
 let
   py = pkgs.python3Packages;
@@ -29,9 +30,7 @@ let
       py.setuptools-scm
     ];
 
-    dependencies = [
-      py.prettytable
-    ];
+    dependencies = [ py.prettytable ];
   };
 
   generallyAllowedLicenses = [
@@ -55,21 +54,29 @@ let
       license = "Mozilla Public License 2.0 (MPL 2.0)";
     }
   ];
-  licenseExceptionsPackagesString = pkgs.lib.strings.concatMapStringsSep " " (p: p.package) licenseExceptions;
-  licenseExceptionsLicensesString = pkgs.lib.strings.concatMapStringsSep ";" (p: p.license) licenseExceptions;
+  licenseExceptionsPackagesString = pkgs.lib.strings.concatMapStringsSep " " (
+    p: p.package
+  ) licenseExceptions;
+  licenseExceptionsLicensesString = pkgs.lib.strings.concatMapStringsSep ";" (
+    p: p.license
+  ) licenseExceptions;
 in
 buildPythonPackage {
   name = "hwaas-timer";
   src = ./.;
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  nativeBuildInputs = [ setuptools ];
 
   pyproject = true;
 
   doCheck = true;
-  nativeCheckInputs = [ black mypy ruff pytest pip-licenses ];
+  nativeCheckInputs = [
+    black
+    mypy
+    ruff
+    pytest
+    pip-licenses
+  ];
   checkPhase = ''
     echo "## run mypy"
     mypy hwaas_timer
