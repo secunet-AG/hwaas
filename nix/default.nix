@@ -15,5 +15,6 @@ _: {
     ./packages
     ./ci
     ./examples
+    ./lib/user-tooling
   ];
 }
