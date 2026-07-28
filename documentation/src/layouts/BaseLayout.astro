@@ -14,7 +14,7 @@ const currentPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '')
 
 // Auto-generate doc sidebar items from the content collection
 const docs = await getCollection('docs')
-const order = ['getting-started', 'core-concepts', 'users'] // Note eloquent but change order here, probably prefix with 00 or so in the future
+const order = ['getting-started', 'core-concepts', 'users', 'managing-an-instance', 'aruba-switch'] // Not eloquent but change order here, probably prefix with 00 or so in the future
 docs.sort((a, b) => {
   const ai = order.indexOf(a.id)
   const bi = order.indexOf(b.id)

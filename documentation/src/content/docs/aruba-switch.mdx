@@ -1,0 +1,274 @@
+# Aruba Switch
+
+The following documents were used as source material:
+
+1. [Aruba Basic Operation Guide for ArubaOS-Switch 16.10](https://support.hpe.com/hpesc/public/docDisplay?docId=a00091314en_us)
+1. [Aruba 3810/5400R Management and Configuration Guide for ArubaOS-Switch 16.10](https://www.arubanetworks.com/techdocs/AOS-Switch/16.10/Aruba%203810M%265400R%20Management%20and%20Configuration%20Guide%20for%20ArubaOS-Switch%2016.10.pdf)
+1. [ArubaOS-Switch REST API and JSON Schema Reference Guide 16.04](https://asp.arubanetworks.com/downloads/documents/RmlsZTo5ZjQ2NDBiNC0yMzJlLTExZWItYjBjMC1jYmM0MDNiYmVmODI%3D)
+1. [Aruba REST API Guide for ArubaOS-Switch 16.10](https://support.hpe.com/hpesc/public/docDisplay?docId=a00091319en_us&docLocale=en_US)
+
+A management session with the Aruba switch may be initialized through any of the
+following methods
+
+- Rest API
+- Telnet
+- Serial connection
+- SSHv2
+- WebAgent
+
+The Rest API, Telnet and SSH may be initialized via the OOBM port - if present -
+or a tagged management VLAN with the correct VLAN tag. This requires the
+assignment
+of an IP address to the respective port. In case of using a management VLAN the
+correct port has to be flagged as tagged member of the VLAN. In this project,
+the preferred access method for management is through the Rest API and will be
+further described below.
+
+- On the CLI, ports are often called interfaces.
+- OOBM and a Management VLAN can not be used simultaneously. See Aruba source
+  document No. 2, p.764.
+
+## Update firmware
+
+The switch should use the latest firmware. It is provided by
+[Aruba Support Portal](https://networkingsupport.hpe.com/globalsearch#q=CX%206100&tab=Software&sortCriteria=date%20descending&f-aruba_software_group=AOS-CX&f-aruba_asp_file_content=Software).
+
+Use the filters to find your product series.
+Click on an entry to see the `Software Details`.
+Open the drop-down `Product SKUs` and verify it contains your specific model.
+Download the firmware.
+This binary file needs to be uploaded to the switch.
+
+Here the web GUI is used. Navigate to `System → Update Firmware`.
+Use the `Browse` button or use drag'n'drop to select the previously downloaded
+firmware BLOB. Select a boot slot (primary should be used).
+Then hit `Upload File` and wait. Finally, the web GUI notifies you that a reboot
+is necessary.
+
+After rebooting, the firmware should be up-to-date.
+
+## Basic CLI
+
+The CLI is used when accessing the switch through Telnet, SSH or the Serial
+Connection. Entering the command `menu` will open a menu with access to general
+information about the switch. Depending on the users privileges different
+information are available. A "Manager" is allowed to access the actual config
+information of the switch and change it. An "Operator" may only see limited
+information without the ability to change the config. A manager can also reboot
+the switch and set passwords for roles operator/manager - with generic usernames
+"operator"/"manager", respectively - in this menu. In the section "Privilege
+Levels" the different user roles and their privileges are listed.
+
+The same information available through the menu can be accessed through commands
+on the CLI. Here it is possible to switch between different privilege levels,
+e.g. from Operator to Manager. All currently in a context available commands
+can be viewed by writing `?` or using the Tab-Key. Specific information about
+a command can be viewed the same way. The CLI also supports auto-completion by
+using the Tab-Key.
+
+Users with role operator/manager can also be created through the command
+"password" (in config context - see "Manager Privileges" in section
+"Privilege Levels"). There a custom username can be entered. "password (?)"
+for more information on the options of this command.
+
+Command `show` allows display of information about the switch, e.g. `show ip`
+(as manager).
+
+In general, configurations can be deleted by writing "no" in front of the
+command used for configuration, e.g. `no password ...`.
+
+## Privilege Levels
+
+Privilege levels are enabled through so-called command contexts and determine
+which parts of the switch can be managed and which commands are available to
+users with the appropriate role. In general users can have one of two roles:
+`Operator`, `Manager`. Command contexts are organized in a parent-child
+structure with each child inheriting all privileges of its parent.
+
+It is possible to enable password protection for operator and manager contexts
+respectively. If password protection for the manager context is disabled, any
+user in operator context may switch to manager and thus has manager privileges.
+
+### Operator Privileges
+
+- may execute commands to view certain parts of the config, but not change it
+- CLI: `switch>`, login to manager context through command `enable`
+
+### Manager Privileges
+
+- allows execution of commands that don't require saving, i.e. also changes to config
+- e.g. creation of VLANs
+- CLI: `switch#`, switch to operator context through command `exit`
+- parent context for global configuration context (config), enter in CLI
+  through command `configure`
+  - changes made from CLI usually require command `save` to save changes
+  - is parent to child configuration contexts e.g. context for VLAN 256,
+    interface 3 etc.
+  - being in a child config context only shortens the required commands
+- access to manager through Rest API enables all changes without saving
+
+### Custom roles
+
+- protection against misconfiguration by limiting access in a customary way;
+  uses RBAC
+
+- e.g. a user of role 'dev' gains access to configure VLANs 2, 3 and 42 and may
+  not make changes to any other VLAN
+
+- especially a potential management VLAN can be protected from misconfiguration
+
+- possible through AAA feature of the switch
+
+- services RADIUS or TACACS+, require server
+
+## Create Management-VLAN on CLI
+
+Assumption: The switch is on factory settings, i.e. no management VLANs are
+present and the optional OOBM port has no IP assigned.
+
+1. Connect to the switch via Serial.
+1. Type `config`/`configure` to enter configuration context.
+1. Create the VLAN you want to use as Management-VLAN.
+   - `vlan 42` for VLAN with ID 42 named "VLAN 42".
+   - `vlan 42 name <NAME>` to provide a custom name.
+1. `management-vlan 42` to make VLAN 42 the Management VLAN.
+   1. `vlan 42 ip address <IP>/<SUBNETMASK>` to assign an IPv4 Address to a VLAN
+   1. `save`
+
+Once setup, the switch is accessible on the Management-VLAN through the IP,
+e.g. 192.168.1.11
+
+- telnet, `telnet 192.168.1.11`
+- REST API, see below
+- WebAgent, type IP address in a Browser
+
+The management VLAN is now easier to change through the WebAgent through tab
+`Interfaces/VLANs`.
+
+## Set Ports as TAGGED/Trunk Ports
+
+**_NOTE:_** Trunk Port refers to a port in TAGGED Mode that can handle arbitrary
+amounts of VLANs. Non-Trunk Ports are UNTAGGED and are bound to the VLAN they
+are a member of.
+
+In configuration context, i.e. (config): `interface 13 tagged vlan 42-45` to add
+Port 13 to VLANs 42 to 45 as Tagged, if they exist.
+In context of a specific interface, e.g. (eth-13): `tagged vlan 42-45` same as above.
+
+On the WebInterface Ports may be added/removed to/from VLANs through the tab `Interfaces/VLANs`.
+
+## Create a User for logging into the Switch
+
+Through CLI Menu (default Username)
+
+1. Enter Manager context "#", i.e. either login as manager or from Operator
+   context ">" enter `enable`.
+1. Type `menu`.
+1. Console Passwords -> Set Operator Password/Set Manager Password
+1. Enter new password twice and confirm with Enter-Key both times.
+
+**_NOTE:_** Setting a password this way will default the Username to "manager"
+/"operator" respectively.
+
+Through CLI (Optional custom Username)
+
+1. Enter Configuration context (config).
+1. Create user with a password in plaintext and an optional custom name.
+   - `password manager user-name <NAME> plaintext <PASSWORD>`, creates a Manager
+     with a custom name. For creating an Operator replace "manager" with "operator".
+   - `password manager plaintext <PASSWORD>`, creates a Manager with default
+     name "manager".
+1. `save`
+
+## Rest API
+
+In order to access the switch with the Rest API the Rest interface and web
+management have to be enabled on the CLI.
+
+- Rest interface is enabled by default
+- IPv6 Rest API support is not available, as of ArubaOS 16.10.
+- Rest requests may be sent through the OOBM port, if the switch has one.
+
+All following examples are given with usage of curl. For a clearer output on the
+terminal, it is recommended to use a formatting tool like `json_reformat`.
+Requests will always have the following basic structure, with some requiring
+additional flags like `-X` or an attached body through `-d`:
+
+```bash
+curl <http_method> <address>/rest/v1/<uri>
+```
+
+Additional information can be taken from the documentation files No. 3 and 4.
+
+Some information might be slightly different from the ones given here.
+
+### Enable on CLI
+
+Enabling the Rest interface
+
+Syntax: (no) rest-interface
+
+```console
+switch(config)# rest-interface
+switch(config)# show rest-interface
+
+REST Interface - Server Configuration
+
+  REST Interface             : Enabled
+  REST Operational Status    : Up
+  REST Session Idle Timeout  : 600 seconds
+  HTTP Access                : Enabled
+  HTTPS Access               : Disabled
+```
+
+Enabling web management for HTTP
+
+Syntax: (no) web-management plaintext
+
+```console
+switch(config)# web-management plaintext
+switch(config)# show web-management
+
+Web Management - Server Configuration
+
+HTTP Access    : Enabled
+HTTPS Access   : Disabled
+Idle Timeout   : 600 seconds
+Management URL : http://h17007.www1.hpe.com/device_help
+Support URL    : https://www.hpe.com/us/en/networking.html
+User Interface : Improved
+```
+
+### Login
+
+In case any user has been created on the switch it is necessary to send a login
+request. The reply will include a temporary session ID which has to be attached
+to all subsequent requests as cookie. If no user is configured on the switch,
+the requests can be sent without a cookie; configuration of manager context
+settings is possible.
+
+Request:
+Suppose any user with "test" as both name and password is stored on the switch
+
+```bash
+curl POST 192.168.1.11/rest/v1/login-sessions -d
+'{"userName":"test","password":"test"}'
+```
+
+Response when user validation is successful:
+
+```json
+{
+  "uri": "/rest/v1/login-sessions",
+  "cookie": "sessionId=09CG1bRuT5hkCPzI97mmDjpn4uLtsmgkBsAaWUr9h7GxlkbsiASak1PEyj7Ov3n"
+}
+```
+
+The sessionId has to be included in any subsequent requests by adding the following in front of the HTML method.
+
+```sh
+--cookie "sessionId=09CG1bRuT5hkCPzI97mmDjpn4uLtsmgkBsAaWUr9h7GxlkbsiASak1PEyj7Ov3n"
+```
+
+When password protection is enabled for both operator and manager contexts,
+the login as operator can be skipped to directly login with manager privileges.
