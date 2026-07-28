@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 secunet Security Networks AG <https://www.secunet.com>
+# SPDX-License-Identifier: Apache-2.0
+#
+# Upstream docs:
+# - <https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference>
+# - <https://docs.github.com/en/code-security/concepts/supply-chain-security/about-the-dependabot-yml-file>
+# See: <https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#cooldown->
+.shared_cooldown: &shared_cooldown
+  default-days: 7
+  semver-major-days: 14
+  semver-minor-days: 7
+  semver-patch-days: 3
+version: 2
+updates:
+  - package-ecosystem: "nix"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown: *shared_cooldown
+    assignees:
+      - "lukeweston1234"
+      - "lgrosche"
+  - package-ecosystem: "cargo"
+    directory: "/components/"
+    schedule:
+      interval: "daily"
+    cooldown: *shared_cooldown
+    assignees:
+      - "lukeweston1234"
+      - "cyberhar7an"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown: *shared_cooldown
+    assignees:
+      - "lukeweston1234"
+      - "cyberhar7an"
+
+# NOTE: Currently disabled due to <https://github.com/secunet-AG/hwaas/pull/9#issuecomment-5000680829>
+#- package-ecosystem: "npm"
+#  directory: "/vue-client/"
+#  schedule:
+#    interval: "daily"
+#  assignees:
+#    - "lukeweston1234"
