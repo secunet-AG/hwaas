@@ -1,0 +1,116 @@
+# Hardware Requirements
+
+This page covers the physical components that make up a HWaaS instance. For an
+overview of how these pieces fit together, see the
+[core concepts](./core-concepts).
+
+import Callout from "../../components/Callout.astro";
+
+## Gateway
+
+The [Gateway](./core-concepts#gateway) server is the monolithic entry-point for a
+HWaaS instance.
+
+### Components
+
+It contains a number of components, such as:
+
+- Reverse Proxy
+- [Context API](./core-concepts#context-api)
+- WS Proxy Gateway
+- Web UI Hosting
+- SQLite Database
+- NFS Image Store
+- Net-Ctrl Service
+
+### Recommended Specifications
+
+Due to the virtualization, high network traffic, and various workloads, we recommend the following minimum specifications for production workloads:
+
+- Xeon Silver 4410Y or equivalent x86 CPU
+- 32 GB ECC DDR4 RAM
+- 512GB+ SSD (you may need more, depending on the number and size of images hosted)
+- Dual port 10GbE PCIe adapter
+
+## Networking
+
+The HWaaS supports a two switch setup, with the following requirements:
+
+- A managed VLAN switch
+- A managed VLAN switch with VRF support, used for managing BMR networks
+
+### Onboarding
+
+For more complete onboarding and `netctl` guidelines, see the hardware [onboarding guide](../aruba-switch).
+
+### Custom Implementations
+
+We currently only support the HP Aruba Switch series, yet it is somewhat trivial
+to onboard new routers, provided one can implement the following trait bounds.
+
+```rust
+pub trait Api {
+    async fn get_ports(&self) -> Result<Vec<PortRepresentation>, SwitchApiError>;
+    async fn add_untagged_port(&self, vlan_id : &VlanID, port_id : &PortID) -> Result<(), SwitchApiError>;
+    async fn remove_port(&self, port_id : &PortID) -> Result<(), SwitchApiError>;
+}
+```
+
+Which is expected to provide the following information:
+
+- get_ports: Request list of all ports of a switch. Fails when request is invalid or switch is unreachable. On success returns a data structure containing information about a port.
+- add_untagged_port: Add a port to a VLAN in Untagged mode. Implicitly enables the port. Fails when receiving an invalid ID. Idempotent to redundant adding/enabling.
+- remove_port: Disables the port given by port_id. Implicitly removes it from the VLAN it belonged to prior. Idempotent to redundant disabling.
+
+<Callout type="note">
+  The names you assign to switches here must match the switch names used in your
+  [NetCtrl inventory](./configuration#netctrl-inventory) when registering
+  machines.
+</Callout>
+
+## Power Management
+
+The requirements for a managed power switch are minimal. Effectively, you need to be able to
+write and deploy a bash or similar script that can be invoked to toggle a machines power state.
+
+This is eventually passed as a script invoked by each individual [`remote-hands`](./core-concepts#remote-hands) instance for managing their own power via the [`remote-power`](./core-concepts#remote-power) service.
+
+## Remote Hands
+
+We currently are targetting the Raspberry Pi 4 for the [`remote-hands`](./core-concepts#remote-hands) instances.
+
+This is because of the following requirements:
+
+- USB OTG Support (essential for USB MASS booting)
+- Power over Ethernet
+- Affordable and easily sourceable
+
+In theory, there is no strong requirement to run the `remote-hands` services on Raspberry Pi specifically.
+If you can meet the above requirements, you can deploy on other platforms as well.
+
+### Individual Components
+
+Each `remote-hands` instance requires the following physical components:
+
+- Serial to USB adapter
+- V4L capture card for [MJPEG streaming](./core-concepts#remote-mjpeg)
+- Raspberry Pi PoE header (provides power while keeping USB OTG available)
+- USB Power Blocker (prevents Pi from potentially powering on the BMR)
+
+<Callout type="warning">
+  The USB Power Blocker is not optional. Without it, the Raspberry Pi can
+  back-power the bare metal resource through the USB OTG connection, preventing
+  a clean hard shutdown.
+</Callout>
+
+## Bare Metal Resources
+
+[Bare metal resources](./core-concepts#bare-metal-resources) have a number of optional and required interfaces.
+
+| Component          | Necessary | Description                                                                                                           |
+| ------------------ | --------- | --------------------------------------------------------------------------------------------------------------------- |
+| USB                | Required  | Handles image booting, as well as remote keyboard and mouse.                                                          |
+| Controllable Power | Required  | Machines should **not** go into sleep, but rather have a hard shutdown.                                               |
+| Ethernet           | Optional  | Necessary for machine network access, but you can boot a machine without that machine having a physical network port. |
+| Serial Connection  | Optional  | Serial support is convenient, especially for boot debugging, but not required.                                        |
+| Video Out          | Optional  | Video out can be captured with various adapters + V4L devices. This is not a required component.                      |
