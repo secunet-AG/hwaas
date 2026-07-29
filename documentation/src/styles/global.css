@@ -42,6 +42,15 @@ pre > code {
   background: none !important;
 }
 
+/* Hide the native disclosure triangle on sidebar collection headers; we render
+   our own chevron instead. */
+.sidebar-nav summary {
+  list-style: none;
+}
+.sidebar-nav summary::-webkit-details-marker {
+  display: none;
+}
+
 /* Sidebar toggle tab */
 .sidebar-toggle-btn {
   transition:

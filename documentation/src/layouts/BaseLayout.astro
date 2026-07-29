@@ -12,30 +12,42 @@ const { title, prose = false } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const currentPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '');
 
-// Auto-generate doc sidebar items from the content collection
-const docs = await getCollection('docs')
-const order = ['getting-started', 'core-concepts', 'users', 'managing-an-instance', 'aruba-switch'] // Not eloquent but change order here, probably prefix with 00 or so in the future
-docs.sort((a, b) => {
-  const ai = order.indexOf(a.id)
-  const bi = order.indexOf(b.id)
-  return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi)
-})
+type NavLink = { href: string; label: string }
+type DocItem = NavLink & { children: NavLink[] }
 
-const docItems = await Promise.all(docs.map(async (d) => {
+const docs = await getCollection('docs')
+const docsById = new Map<string, DocItem>(await Promise.all(docs.map(async (d): Promise<[string, DocItem]> => {
   const { headings } = await render(d)
   const label = headings.find(h => h.depth === 1)?.text ?? d.id
   const children = headings.filter(h => h.depth === 2).map(h => ({
     href: `${base}docs/${d.id}#${h.slug}`,
     label: h.text,
   }))
-  return { href: `${base}docs/${d.id}`, label, children }
-}))
+  return [d.id, { href: `${base}docs/${d.id}`, label, children }]
+})))
 
-const navItems = [
-  // { href: '/', label: 'Home', children: [] as { href: string; label: string }[] },
-  ...docItems,
-  { href: `${base}api`, label: 'API Reference', children: [] as { href: string; label: string }[] },
+// Radix icons (https://icons.radix-ui.com, MIT licensed), inlined so we avoid a runtime dependency.
+const icons = {
+  user: '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.50061 0.875C9.50223 0.87533 11.1254 2.49835 11.1256 4.5C11.1254 6.15524 10.0147 7.54948 8.49866 7.9834C9.69596 8.12806 10.7226 8.55058 11.4957 9.3125C12.4775 10.2802 12.9743 11.7208 12.9742 13.6006C12.9739 13.8626 12.7617 14.0752 12.4996 14.0752C12.2377 14.075 12.0254 13.8625 12.025 13.6006C12.0251 11.8806 11.5718 10.7206 10.8287 9.98828C10.0843 9.25473 8.97269 8.87501 7.49963 8.875C6.02676 8.87507 4.91492 9.25482 4.17053 9.98828C3.42772 10.7206 2.97424 11.8809 2.97424 13.6006C2.9739 13.8626 2.76176 14.0752 2.49963 14.0752C2.23769 14.075 2.02537 13.8625 2.02502 13.6006C2.02502 11.7211 2.52208 10.2802 3.50354 9.3125C4.27606 8.55116 5.30254 8.12935 6.49866 7.98438C4.98407 7.5496 3.87578 6.15428 3.87561 4.5C3.87582 2.49815 5.49871 0.875 7.50061 0.875ZM7.50061 1.82422C6.02338 1.82422 4.82504 3.02282 4.82483 4.5C4.82504 5.97718 6.02338 7.1748 7.50061 7.1748C8.97756 7.17447 10.1752 5.97698 10.1754 4.5C10.1752 3.02302 8.97756 1.82455 7.50061 1.82422Z" fill="currentColor"/></svg>',
+  maintainer: '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.92834 0.650246C8.3253 0.650336 8.66968 0.92521 8.75745 1.31236L8.99475 2.36216C9.37407 2.47236 9.73655 2.62282 10.0758 2.80943L10.9869 2.23521C11.3226 2.02392 11.76 2.07297 12.0406 2.35337L12.6471 2.95982C12.9277 3.24057 12.977 3.67868 12.7653 4.0145L12.191 4.92466C12.3775 5.2637 12.5281 5.62568 12.6383 6.00474L13.6881 6.24302C14.0752 6.33086 14.3502 6.67514 14.3502 7.07212V7.92857C14.3502 8.32553 14.0752 8.66981 13.6881 8.75767L12.6383 8.99595C12.5281 9.37514 12.3767 9.73689 12.1901 10.076L12.7643 10.9872C12.9759 11.323 12.9268 11.7602 12.6461 12.0409L12.0406 12.6473C11.7599 12.9281 11.3218 12.9772 10.986 12.7655L10.0748 12.1913C9.73582 12.3777 9.37376 12.5284 8.99475 12.6385L8.75745 13.6883C8.66963 14.0754 8.32526 14.3504 7.92834 14.3504H7.07092C6.67397 14.3504 6.32965 14.0754 6.24182 13.6883L6.00354 12.6376C5.625 12.5274 5.26403 12.3765 4.92542 12.1903L4.01428 12.7655C3.67846 12.9772 3.24035 12.9279 2.95959 12.6473L2.35315 12.0409C2.07276 11.7603 2.02372 11.3229 2.23499 10.9872L2.81018 10.0751C2.62379 9.73614 2.47209 9.37484 2.36194 8.99595L1.31213 8.75767C0.924966 8.66986 0.650024 8.32557 0.650024 7.92857V7.07212C0.650024 6.6751 0.924951 6.33082 1.31213 6.24302L2.36194 6.00474C2.47203 5.62592 2.6229 5.26449 2.8092 4.92564L2.23499 4.0145C2.02326 3.67863 2.0724 3.24056 2.35315 2.95982L2.95862 2.35435C3.23936 2.0736 3.67744 2.02446 4.01331 2.23618L4.92444 2.8104C5.26333 2.62395 5.62465 2.47237 6.00354 2.36216L6.24182 1.31236C6.3296 0.925173 6.67392 0.650284 7.07092 0.650246H7.92834ZM6.71545 3.06821C6.05669 3.18406 5.44722 3.44325 4.92053 3.81236L3.56018 2.95493L2.95374 3.56138L3.81213 4.92173C3.44325 5.44841 3.18369 6.05799 3.06799 6.71665L1.49963 7.07212V7.92857L3.06799 8.28403C3.18375 8.94266 3.44322 9.55232 3.81213 10.079L2.95471 11.4403L3.56018 12.0458L4.92151 11.1883C5.44803 11.5571 6.05701 11.8167 6.71545 11.9325L7.07092 13.4999H7.92834L8.28381 11.9325C8.94261 11.8168 9.55196 11.5573 10.0787 11.1883L11.4391 12.0467L12.0455 11.4403L11.1881 10.0799C11.5573 9.55311 11.8164 8.94299 11.9323 8.28403L13.4996 7.92857V7.07212L11.9323 6.71665C11.8165 6.05777 11.5572 5.44756 11.1881 4.92075L12.0455 3.5604L11.4401 2.95493L10.0797 3.81236C9.55281 3.44318 8.94285 3.18394 8.28381 3.06821L7.92834 1.49986H7.07092L6.71545 3.06821ZM7.49963 5.07505C8.8388 5.07505 9.92529 6.16072 9.92542 7.49986C9.92542 8.8391 8.83888 9.92466 7.49963 9.92466C6.16061 9.9244 5.07483 8.83894 5.07483 7.49986C5.07495 6.16088 6.16069 5.07531 7.49963 5.07505ZM7.49963 5.97544C6.65774 5.9757 5.97534 6.65793 5.97522 7.49986C5.97522 8.34188 6.65767 9.02499 7.49963 9.02525C8.34182 9.02525 9.02502 8.34204 9.02502 7.49986C9.0249 6.65777 8.34174 5.97544 7.49963 5.97544Z" fill="currentColor"/></svg>',
+  api: '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.03606 2.31408C9.13865 2.05778 9.42913 1.93325 9.68548 2.03576C9.94183 2.1383 10.0663 2.42881 9.9638 2.68517L5.9638 12.6852C5.86124 12.9416 5.57077 13.066 5.31438 12.9635C5.05802 12.8609 4.93351 12.5705 5.03606 12.3141L9.03606 2.31408ZM11.1464 5.14611C11.3173 4.97532 11.5813 4.95355 11.7753 5.08166L11.8534 5.14611L13.8534 7.14611L13.9179 7.22423C14.046 7.41829 14.0242 7.68227 13.8534 7.85314L11.8534 9.85314C11.6582 10.0484 11.3417 10.0484 11.1464 9.85314C10.9512 9.65787 10.9512 9.34135 11.1464 9.14611L12.7929 7.49962L11.1464 5.85314L11.082 5.77501C10.9539 5.58094 10.9756 5.31695 11.1464 5.14611ZM3.14641 5.14611C3.34166 4.95094 3.6582 4.95094 3.85344 5.14611C4.04868 5.34135 4.04864 5.65787 3.85344 5.85314L2.20696 7.49962L3.85344 9.14611L3.9179 9.22423C4.04605 9.41829 4.02425 9.68227 3.85344 9.85314C3.68258 10.024 3.41862 10.0458 3.22454 9.91759L3.14641 9.85314L1.14641 7.85314C0.951218 7.65787 0.951173 7.34135 1.14641 7.14611L3.14641 5.14611Z" fill="currentColor"/></svg>',
+}
+
+// Higher level collection of nav groupings
+type Collection = {
+  label: string;
+  icon: string;
+  docs?: string[];
+  href?: string;
+}
+
+const collections: Collection[] = [
+  { label: 'Users', icon: icons.user, docs: ['getting-started', 'core-concepts', 'users'] },
+  { label: 'Maintainers', icon: icons.maintainer, docs: ['managing-an-instance', 'aruba-switch'] },
+  { label: 'API Reference', icon: icons.api, href: `${base}api` },
 ]
+
+const isCurrent = (href: string) => currentPath === href.replace(/\/$/, '').split('#')[0]
 ---
 
 <html lang="en">
@@ -56,40 +68,95 @@ const navItems = [
     </header>
 
     <div class="w-full flex flex-1 min-h-0">
-      <div id="sidebar-wrapper" class="relative shrink-0 w-64 overflow-visible transition-[width] duration-300 ease-in-out">
+      <div id="sidebar-wrapper" class="relative shrink-0 w-68 overflow-visible transition-[width] duration-300 ease-in-out">
         <aside id="sidebar" class="w-full h-full border-r border-(--app-border) px-6 py-3 overflow-y-auto flex flex-col">
           <!-- Nav Bar -->
-          <nav class="flex flex-col gap-0.5 pt-6 flex-1 sidebar-nav">
-            {navItems.map(item => {
-              const itemPath = item.href.replace(/\/$/, '').split('#')[0];
-              const isActive = currentPath === itemPath;
-              return (
-                <>
+          <nav class="flex flex-col gap-1 pt-6 flex-1 sidebar-nav">
+            {collections.map(collection => {
+              const iconMarkup = (
+                <span class="w-4 h-4 shrink-0 flex items-center justify-center" set:html={collection.icon} />
+              );
+
+              // Leaf collection: a direct link (e.g. the API reference).
+              if (collection.href) {
+                const isActive = isCurrent(collection.href);
+                return (
                   <a
-                    href={item.href}
+                    href={collection.href}
                     class:list={[
-                      'px-3 py-2 rounded-md text-sm font-mono transition-colors',
+                      'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-mono font-medium transition-colors',
                       isActive
-                        ? 'text-(--app-primary-text) font-medium'
-                        : 'text-400 text-(--app-secondary-text) hover:text-(--app-primary-text)',
+                        ? 'text-(--app-primary-text)'
+                        : 'text-(--app-secondary-text) hover:text-(--app-primary-text)',
                     ]}
                   >
-                    {item.label.toLocaleUpperCase()}
+                    {iconMarkup}
+                    {collection.label}
                   </a>
-                  { item.children?.length > 0 && (
-                    <div class="flex flex-col gap-0.5 ml-3 border-l border-(--app-border)/60 pl-3 my-1">
-                      {item.children.map(child => (
-                        <a
-                          href={child.href}
-                          data-hash-link
-                          class="px-2 py-1 rounded text-sm text-(--app-secondary-text) hover:text-(--app-primary-text) transition-colors"
-                        >
-                          {child.label}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </>
+                );
+              }
+
+              // Grouped collections, for example "Users", or "Maintainers"
+              const items = (collection.docs ?? []).flatMap(id => {
+                const item = docsById.get(id);
+                return item ? [item] : [];
+              });
+
+              const containsActive = items.some(item => isCurrent(item.href));
+
+              return (
+                <details open={containsActive} class="group">
+                  <summary
+                    class:list={[
+                      'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-mono font-medium cursor-pointer select-none hover:bg-(--app-border)/20 transition-colors',
+                      containsActive
+                        ? 'text-(--app-primary-text)'
+                        : 'text-(--app-secondary-text) hover:text-(--app-primary-text)',
+                    ]}
+                  >
+                    {iconMarkup}
+                    <span class="flex-1">{collection.label}</span>
+                    <svg
+                      class="w-3 h-3 shrink-0 text-(--app-secondary-text) transition-transform group-open:rotate-90"
+                      viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                    >
+                      <path d="M4.5 3L7.5 6L4.5 9" />
+                    </svg>
+                  </summary>
+                  <div class="flex flex-col gap-0.5 ml-4 border-l border-(--app-border)/60 pl-3 my-1">
+                    {items.map(item => {
+                      const isActive = isCurrent(item.href);
+                      return (
+                        <>
+                          <a
+                            href={item.href}
+                            class:list={[
+                              'px-3 py-1.5 rounded-md text-sm transition-colors',
+                              isActive
+                                ? 'text-(--app-primary-text) font-medium'
+                                : 'text-(--app-secondary-text) hover:text-(--app-primary-text)',
+                            ]}
+                          >
+                            {item.label}
+                          </a>
+                          { item.children?.length > 0 && (
+                            <div class="flex flex-col gap-0.5 ml-3 border-l border-(--app-border)/60 pl-3 my-1">
+                              {item.children.map(child => (
+                                <a
+                                  href={child.href}
+                                  data-hash-link
+                                  class="px-2 py-1 rounded text-sm text-(--app-secondary-text) hover:text-(--app-primary-text) transition-colors"
+                                >
+                                  {child.label}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })}
+                  </div>
+                </details>
               );
             })}
           </nav>
@@ -107,7 +174,9 @@ const navItems = [
         </button>
       </div>
       <div class="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
-        {prose ? (
+        <!-- Styled Prose Pages, i.e CMS/Docs content -->
+        {prose ? 
+        (
           <main class="flex w-full justify-center px-12 py-10">
             <div class="sm:mix-w-lg lg:min-w-2xl max-w-3xl w-full">
               <article class="prose prose-invert prose-zinc max-w-full
