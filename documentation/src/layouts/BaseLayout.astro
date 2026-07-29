@@ -43,7 +43,7 @@ type Collection = {
 
 const collections: Collection[] = [
   { label: 'Users', icon: icons.user, docs: ['getting-started', 'core-concepts', 'users'] },
-  { label: 'Maintainers', icon: icons.maintainer, docs: ['managing-an-instance', 'aruba-switch'] },
+  { label: 'Maintainers', icon: icons.maintainer, docs: ['managing-an-instance'] },
   { label: 'API Reference', icon: icons.api, href: `${base}api` },
 ]
 
@@ -178,7 +178,7 @@ const isCurrent = (href: string) => currentPath === href.replace(/\/$/, '').spli
         {prose ? 
         (
           <main class="flex w-full justify-center px-12 py-10">
-            <div class="sm:mix-w-lg lg:min-w-2xl max-w-3xl w-full">
+            <div class="sm:mix-w-lg lg:min-w-2xl max-w-3xl 3xl:max-w-4xl w-full">
               <article class="prose prose-invert prose-zinc max-w-full
                 prose-headings:font-semibold
                 prose-h1:text-3xl prose-h1:mb-6
