@@ -10,8 +10,9 @@ import { useContextStore } from '@/core/stores/context-store'
 import { useKeyboardCapture, type KeyboardReport } from '@/shared/lib/hooks/useKeyboardCapture'
 import { useKeyboardWebsocket } from '@/shared/lib/hooks/useKeyboardWebsocket'
 import useMouseCapture from '@/shared/lib/hooks/useMouseCapture'
+import KvmKeyboardToolbar, { type ComboEvent } from './KvmKeyboardToolbar.vue'
 import { storeToRefs } from 'pinia'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
   machineName: string
@@ -33,6 +34,16 @@ watch(
 const onKeyboardPress = (r: KeyboardReport) => sendMessage(r)
 
 useKeyboardCapture(isActive, onKeyboardPress)
+
+const showKeyboardToolbar = ref(false)
+
+// Turn a key combo into a press followed by a release.
+function onToolbarSend(combo: ComboEvent) {
+  sendMessage({ keys: combo.keys, modifier: combo.modifier, press: true, release: false })
+  window.setTimeout(() => {
+    sendMessage({ keys: [], modifier: 0, press: false, release: true })
+  }, 100)
+}
 
 const { apiUrl } = useApiUrl()
 
@@ -86,6 +97,34 @@ function onClose() {
   >
     <div ref="screenContainer" :class="currentWindowStyle" class="relative flex flex-col">
       <div class="flex w-full items-center justify-end gap-3 p-3">
+        <button
+          id="toggle-keyboard-toolbar"
+          class="cursor-pointer"
+          @click="showKeyboardToolbar = !showKeyboardToolbar"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
+          >
+            <path d="M10 8h.01" />
+            <path d="M12 12h.01" />
+            <path d="M14 8h.01" />
+            <path d="M16 12h.01" />
+            <path d="M18 8h.01" />
+            <path d="M6 8h.01" />
+            <path d="M7 16h10" />
+            <path d="M8 12h.01" />
+            <rect width="20" height="16" x="2" y="4" rx="2" />
+          </svg>
+        </button>
         <button id="minimize" @click="onClose()" class="cursor-pointer">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +132,7 @@ function onClose() {
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="text-(--app-secondary-text) size-8"
+            class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
           >
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
           </svg>
@@ -106,7 +145,7 @@ function onClose() {
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="text-(--app-secondary-text) size-8"
+            class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
           >
             <path
               stroke-linecap="round"
@@ -121,7 +160,7 @@ function onClose() {
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="text-(--app-secondary-text) size-8"
+            class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
           >
             <path
               stroke-linecap="round"
@@ -131,6 +170,7 @@ function onClose() {
           </svg>
         </button>
       </div>
+      <KvmKeyboardToolbar v-if="showKeyboardToolbar" @send="onToolbarSend" />
       <!-- The live mjpeg stream, for the price of an img tag!-->
       <img ref="streamingImage" class="w-full h-full object-fit rounded-lg" :src="mjpegUrl" />
     </div>
