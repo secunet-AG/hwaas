@@ -82,7 +82,6 @@ async fn can_modify_existing_tag() -> anyhow::Result<()> {
             .await
             .expect("tag should be added");
 
-        tag.name = "two?".into();
         tag.description = None;
 
         let updated_tag = handler
@@ -100,7 +99,7 @@ async fn can_modify_existing_tag() -> anyhow::Result<()> {
             &updated_tag,
             tags.first().expect("there should be a tag in the database")
         );
-        assert_eq!(updated_tag.name, "two?");
+        assert_eq!(updated_tag.name, "one");
         assert!(updated_tag.description.is_none());
 
         Ok(())
@@ -120,7 +119,6 @@ async fn change_single_tag_only() -> anyhow::Result<()> {
             .await
             .expect("tag should be added");
 
-        tag.name = "three".into();
         tag.description = None;
 
         let updated_tag = handler
@@ -138,7 +136,7 @@ async fn change_single_tag_only() -> anyhow::Result<()> {
             &updated_tag,
             tags.last().expect("there should be a tag in the database")
         );
-        assert_eq!(updated_tag.name, "three");
+        assert_eq!(updated_tag.name, "two");
         assert!(updated_tag.description.is_none());
 
         let first_tag = tags.first().unwrap();

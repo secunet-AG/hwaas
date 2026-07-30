@@ -8,7 +8,7 @@ use image_api::ExtraImageStoreData;
 async fn images_starts_empty() -> anyhow::Result<()> {
     common::wrap(async |handler, _| {
         let images = handler
-            .list_images()
+            .list_image_metadatas()
             .await
             .context("image metadatas should be readable")?;
         assert!(images.is_empty());
@@ -37,7 +37,7 @@ async fn can_add_single_image() -> anyhow::Result<()> {
         assert_eq!(new_image.file_name, "my cool image.bmrimg");
 
         let images = handler
-            .list_images()
+            .list_image_metadatas()
             .await
             .context("image metadata should be readable")?;
         assert_eq!(images.len(), 1);
@@ -79,7 +79,7 @@ async fn can_add_multiple_images() -> anyhow::Result<()> {
             .context("image should be added")?;
 
         let images = handler
-            .list_images()
+            .list_image_metadatas()
             .await
             .context("image metadata should be readable")?;
 
@@ -99,7 +99,7 @@ async fn can_add_multiple_images() -> anyhow::Result<()> {
 #[test_log::test(tokio::test)]
 async fn can_modify_existing_image_partially() -> anyhow::Result<()> {
     common::wrap(async |handler, _| {
-        let mut image = handler
+        let image = handler
             .add_image(
                 TestStream::new(["bytes for image one".as_bytes()]),
                 image_meta("one"),
@@ -107,28 +107,26 @@ async fn can_modify_existing_image_partially() -> anyhow::Result<()> {
             .await
             .context("image should be added")?;
 
-        image.file_name = "two?".into();
-        image.architecture = Some("risc-v".into());
-
-        let updated_image = handler
-            .modify_image_metadata(image)
+        handler
+            .modify_image_file_name(&image.sha256, "two?".into())
+            .await
+            .context("image metadata should be modified")?;
+        handler
+            .modify_image_architecture(&image.sha256, Some("risc-v".into()))
             .await
             .context("image metadata should be modified")?;
 
         let images = handler
-            .list_images()
+            .list_image_metadatas()
             .await
             .context("image metadata should be readable")?;
+        let updated_image = images.first().unwrap();
 
-        // Make sure the change also persisted into the database
-        assert_eq!(
-            &updated_image,
-            images
-                .first()
-                .expect("there should be image metadata in the database")
-        );
-        assert_eq!(updated_image.file_name, "two?");
-        assert!(updated_image.architecture.is_some_and(|s| s == "risc-v"));
+        assert_eq!(&updated_image.file_name, "two?");
+        assert!(&updated_image
+            .architecture
+            .as_ref()
+            .is_some_and(|s| s == "risc-v"));
 
         Ok(())
     })
@@ -138,21 +136,6 @@ async fn can_modify_existing_image_partially() -> anyhow::Result<()> {
 #[test_log::test(tokio::test)]
 async fn must_not_modify_certain_image_fields() -> anyhow::Result<()> {
     common::wrap(async |handler, _| {
-        macro_rules! quick_modify {
-            ($field:ident, $value:expr) => {{
-                let mut image = handler
-                    .list_images()
-                    .await
-                    .expect("image should be added")
-                    .pop()
-                    .expect("there should be one image to list");
-
-                image.$field = $value;
-
-                handler.modify_image_metadata(image).await
-            }};
-        }
-
         handler
             .add_image(
                 TestStream::new(["bytes for sample image".as_bytes()]),
@@ -161,16 +144,8 @@ async fn must_not_modify_certain_image_fields() -> anyhow::Result<()> {
             .await
             .expect("image should be added");
 
-        let sample_hash = image_api::sha256hash::Sha256Hash::new(
-            "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef".to_string(),
-        )
-        .unwrap();
-        assert!(quick_modify!(sha256, sample_hash.0).is_err());
-        assert!(quick_modify!(size_bytes, 12312i64).is_err());
-        assert!(quick_modify!(created_utc, chrono::DateTime::<chrono::Utc>::default()).is_err());
-
         let images = handler
-            .list_images()
+            .list_image_metadatas()
             .await
             .context("image metadata should be readable")?;
 
@@ -178,8 +153,8 @@ async fn must_not_modify_certain_image_fields() -> anyhow::Result<()> {
             .into_iter()
             .fold((vec![], vec![], vec![]), |mut acc, obj| {
                 acc.0.push(obj.sha256);
-                acc.1.push(obj.size_bytes);
-                acc.2.push(obj.created_utc);
+                acc.1.push(obj.size);
+                acc.2.push(obj.created);
                 acc
             });
         dbg!(&fields);
@@ -212,7 +187,7 @@ async fn change_single_image_only() -> anyhow::Result<()> {
             )
             .await
             .expect("image should be added");
-        let mut image = handler
+        let image = handler
             .add_image(
                 TestStream::new(["moaaar bytes for another image".as_bytes()]),
                 image_meta("two"),
@@ -220,28 +195,29 @@ async fn change_single_image_only() -> anyhow::Result<()> {
             .await
             .expect("image should be added");
 
-        image.file_name = "three".into();
-        image.architecture = Some("bla".into());
-
-        let updated_image = handler
-            .modify_image_metadata(image)
+        handler
+            .modify_image_file_name(&image.sha256, "three".into())
+            .await
+            .context("image metadata should be modified")?;
+        handler
+            .modify_image_architecture(&image.sha256, Some("bla".into()))
             .await
             .context("image metadata should be modified")?;
 
         let images = handler
-            .list_images()
+            .list_image_metadatas()
             .await
             .expect("image metadata should be readable");
+        let updated_image = images
+            .iter()
+            .find(|i| i.sha256 == image.sha256)
+            .expect("there should be an image in the database");
 
-        // Make sure the change also persisted into the database
-        assert_eq!(
-            &updated_image,
-            images
-                .last()
-                .expect("there should be a tag in the database")
-        );
-        assert_eq!(updated_image.file_name, "three");
-        assert!(updated_image.architecture.is_some_and(|d| d == "bla"));
+        assert_eq!(&updated_image.file_name, "three");
+        assert!(updated_image
+            .architecture
+            .as_ref()
+            .is_some_and(|d| d == "bla"));
 
         let first_image = images.first().unwrap();
         assert_eq!(first_image.file_name, "one");
@@ -277,7 +253,7 @@ async fn can_insert_existent_image() -> anyhow::Result<()> {
         assert_eq!(metadata1.sha256, metadata2.sha256);
         // NOTE: Upload timestamp and filename is updated to signal that this image is still of
         // interest.
-        assert_ne!(metadata1.created_utc, metadata2.created_utc);
+        assert_ne!(metadata1.created, metadata2.created);
         assert_ne!(metadata1.file_name, metadata2.file_name);
 
         Ok(())
@@ -296,12 +272,12 @@ async fn can_remove_images() -> anyhow::Result<()> {
             .await
             .expect("image metadata should be added");
         handler
-            .remove_image(image)
+            .remove_image(&image.sha256)
             .await
             .context("image metadata should be removed")?;
 
         let image_list = handler
-            .list_images()
+            .list_image_metadatas()
             .await
             .expect("image metadata should be listed");
 
@@ -331,12 +307,12 @@ async fn can_remove_single_image_only() -> anyhow::Result<()> {
             .expect("image metadata should be added");
 
         handler
-            .remove_image(image)
+            .remove_image(&image.sha256)
             .await
             .expect("image metadata should be removed");
 
         let image_list = handler
-            .list_images()
+            .list_image_metadatas()
             .await
             .expect("image metadata should be listed");
         assert_eq!(image_list.len(), 1);
