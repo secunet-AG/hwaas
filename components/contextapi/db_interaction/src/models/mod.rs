@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 pub mod aliases;
+pub mod bmr_image_metadata;
 pub mod context_id;
 pub mod contexts;
 pub mod drives;

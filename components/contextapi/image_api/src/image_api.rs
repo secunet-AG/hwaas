@@ -8,18 +8,20 @@ use std::pin::Pin;
 use aide::axum::routing::get_with;
 use aide::axum::{ApiRouter, IntoApiResponse};
 use aide::transform::{TransformOperation, TransformPathItem};
-use axum::Json;
 use axum::extract::{DefaultBodyLimit, State};
 use axum::extract::{FromRef, Query};
 use axum::extract::{Multipart, Path};
-use axum::http::StatusCode;
+use axum::http::{Response, StatusCode};
+use axum::response::IntoResponse as _;
+use axum::Json;
 use bytesize::ByteSize;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use tower_http::limit::RequestBodyLimitLayer;
 use tracing::{debug, instrument};
 
-use crate::image_handler::{ImageHandler, ImageHandlerError, ImageMetadata};
+use crate::db::ImageMetadata;
+use crate::image_handler::ImageHandler;
 use crate::sha256hash::Sha256Hash;
 
 /// The REST path parameter that identifies a specific boot image by its sha256 hash
@@ -99,7 +101,7 @@ fn api_method_doc_delete(op: TransformOperation) -> TransformOperation {
 async fn list_images(
     State(image_handler): State<ImageHandler>,
 ) -> Result<Json<Vec<ImageMetadata>>, (StatusCode, String)> {
-    let images = image_handler.list_images().await.map_err(|err| {
+    let images = image_handler.list_image_metadatas().await.map_err(|err| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             format!(
@@ -127,11 +129,11 @@ async fn delete_image(
 async fn status_image(
     State(image_handler): State<ImageHandler>,
     Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-) -> Result<impl IntoApiResponse, (StatusCode, String)> {
+) -> Result<impl IntoApiResponse, Response<axum::body::Body>> {
     let meta_data = image_handler
         .get_image_metadata_by_hash(&image_hash)
         .await
-        .map_err(image_handler_errors_to_http)?;
+        .map_err(|error| error.into_response())?;
     Ok(Json::from(meta_data))
 }
 
@@ -210,9 +212,11 @@ async fn post_image(
     State(image_handler): State<ImageHandler>,
     Query(mut metadata): Query<ExtraImageStoreData>,
     mut multipart: Multipart,
-) -> Result<impl IntoApiResponse, (StatusCode, String)> {
+) -> Result<impl IntoApiResponse, Response<axum::body::Body>> {
     let (stream, user_specified_image_name) =
-        multipart_to_stream(&mut multipart, &metadata.compression).await?;
+        multipart_to_stream(&mut multipart, &metadata.compression)
+            .await
+            .map_err(|error| error.into_response())?;
     if metadata.user_file_name.is_empty() {
         debug!("discarding empty user-provided image filename from query parameters");
         metadata.user_file_name = user_specified_image_name;
@@ -221,22 +225,6 @@ async fn post_image(
     let metadata = image_handler
         .add_image(stream, metadata)
         .await
-        .map_err(image_handler_errors_to_http)?;
+        .map_err(|error| error.into_response())?;
     Ok(Json::from(metadata))
-}
-
-/// Converts the given ImageStorageError into a pair consisting of a HTTP StatusCode and an error
-/// message String
-fn image_handler_errors_to_http(err: ImageHandlerError) -> (StatusCode, String) {
-    match err {
-        ImageHandlerError::StorageError { .. } => (
-            StatusCode::BAD_REQUEST,
-            "Internal error occurred while trying to store the given image".to_string(),
-        ),
-        ImageHandlerError::ImageNotFound => (StatusCode::NOT_FOUND, "Image not found".to_string()),
-        ImageHandlerError::MetadataError => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "An internal error occurred while trying to get the image metadata".to_string(),
-        ),
-    }
 }
