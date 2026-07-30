@@ -13,6 +13,7 @@ import useMouseCapture from '@/shared/lib/hooks/useMouseCapture'
 import KvmKeyboardToolbar, { type ComboEvent } from './KvmKeyboardToolbar.vue'
 import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { Keyboard } from '@lucide/vue'
 
 const props = defineProps<{
   machineName: string
@@ -102,28 +103,9 @@ function onClose() {
           class="cursor-pointer"
           @click="showKeyboardToolbar = !showKeyboardToolbar"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+          <Keyboard
             class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
-          >
-            <path d="M10 8h.01" />
-            <path d="M12 12h.01" />
-            <path d="M14 8h.01" />
-            <path d="M16 12h.01" />
-            <path d="M18 8h.01" />
-            <path d="M6 8h.01" />
-            <path d="M7 16h10" />
-            <path d="M8 12h.01" />
-            <rect width="20" height="16" x="2" y="4" rx="2" />
-          </svg>
+          ></Keyboard>
         </button>
         <button id="minimize" @click="onClose()" class="cursor-pointer">
           <svg

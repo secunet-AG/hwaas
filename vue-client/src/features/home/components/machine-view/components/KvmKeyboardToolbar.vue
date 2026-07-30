@@ -38,6 +38,8 @@ const functionKeys: KeyDef[] = Array.from({ length: 12 }, (_, i) => ({
 }))
 
 // A list of keys that cannot be easily sent due to lack of crossplatform web API for capture
+//
+// https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock
 const commonKeys: KeyDef[] = [
   { label: 'Esc', codes: ['Escape'] },
   { label: 'Tab', codes: ['Tab'] },
@@ -52,6 +54,8 @@ const commonKeys: KeyDef[] = [
 ]
 
 // Common groupings of keys that cannot be captured due to lack of web support
+//
+// https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock
 const combos: KeyDef[] = [
   { label: 'Ctrl+Alt+Del', codes: ['ControlLeft', 'AltLeft', 'Delete'] },
   { label: 'Alt+Tab', codes: ['AltLeft', 'Tab'] },
@@ -60,6 +64,22 @@ const combos: KeyDef[] = [
   { label: 'Ctrl+Alt+F1', codes: ['ControlLeft', 'AltLeft', 'F1'] },
   { label: 'Ctrl+Alt+F2', codes: ['ControlLeft', 'AltLeft', 'F2'] },
   { label: 'Alt+F2', codes: ['AltLeft', 'F2'] },
+]
+
+// See https://docs.kernel.org/admin-guide/sysrq.html
+//
+// https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock
+const sysRqCombos: KeyDef[] = [
+  { label: 'Unraw (R)', codes: ['AltLeft', 'PrintScreen', 'KeyR'] },
+  { label: 'Term (E)', codes: ['AltLeft', 'PrintScreen', 'KeyE'] },
+  { label: 'Kill (I)', codes: ['AltLeft', 'PrintScreen', 'KeyI'] },
+  { label: 'Sync (S)', codes: ['AltLeft', 'PrintScreen', 'KeyS'] },
+  { label: 'Unmount (U)', codes: ['AltLeft', 'PrintScreen', 'KeyU'] },
+  { label: 'Reboot (B)', codes: ['AltLeft', 'PrintScreen', 'KeyB'] },
+  { label: 'Poweroff (O)', codes: ['AltLeft', 'PrintScreen', 'KeyO'] },
+  { label: 'Full oom (F)', codes: ['AltLeft', 'PrintScreen', 'KeyF'] },
+  { label: 'SAK (K)', codes: ['AltLeft', 'PrintScreen', 'KeyK'] },
+  { label: 'Crash (C)', codes: ['AltLeft', 'PrintScreen', 'KeyC'] },
 ]
 
 function toggleModifier(code: string) {
@@ -147,5 +167,28 @@ const buttonClass =
         </button>
       </div>
     </div>
+
+    <details class="group flex flex-col p-3">
+      <summary
+        class="text-(--app-secondary-text)/70 flex cursor-pointer items-center justify-between text-xs"
+        title="These invoke kernel Magic SysRq handlers and only work if SysRq is enabled on the target (e.g. kernel.sysrq=1 via sysctl or CONFIG_MAGIC_SYSRQ)."
+      >
+        <span>Magic SysRq</span>
+        <span class="transition-transform group-open:rotate-90">&rsaquo;</span>
+      </summary>
+      <p class="text-(--app-secondary-text)/50 mt-1.5 text-[0.7rem] leading-snug">
+        Requires SysRq enabled on the target kernel(<code>kernel.sysrq=1</code>).
+      </p>
+      <div class="mt-1.5 flex flex-wrap gap-1.5">
+        <button
+          v-for="combo in sysRqCombos"
+          :key="combo.label"
+          :class="buttonClass"
+          @click="press(combo.codes)"
+        >
+          {{ combo.label }}
+        </button>
+      </div>
+    </details>
   </div>
 </template>
