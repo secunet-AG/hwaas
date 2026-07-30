@@ -13,7 +13,7 @@ export interface KeyboardReport {
 
 type SendFn = (payload: KeyboardReport, policy: 'reliable') => void
 
-export function useKeyboardCapture(active: Ref<boolean>, send: SendFn) {
+export function useKeyboardCapture(active: Ref<boolean>, send: SendFn, sticky?: Set<string>) {
   const overflow = ref(false)
   const held = new Set<string>()
 
@@ -25,7 +25,14 @@ export function useKeyboardCapture(active: Ref<boolean>, send: SendFn) {
     }
     overflow.value = false
 
-    send({ keys, modifier: modifierByte(held), press, release }, 'reliable')
+    // Sticky toolbar modifiers are one use, so here we apply
+    const applySticky = press && keys.length > 0 && sticky !== undefined && sticky.size > 0
+    const modifier = applySticky ? modifierByte(held) | modifierByte(sticky) : modifierByte(held)
+
+    send({ keys, modifier, press, release }, 'reliable')
+
+    // Clear the stick keys, we only use once. Could be changed to a long hold if users prefer.
+    if (applySticky) sticky.clear()
   }
 
   // Filter our modifier keys, if we have too many keys held, return null
@@ -58,6 +65,7 @@ export function useKeyboardCapture(active: Ref<boolean>, send: SendFn) {
 
   // Used when we drop the window
   function releaseAll() {
+    sticky?.clear()
     if (held.size === 0) return
     held.clear()
     send({ keys: [], modifier: 0, press: false, release: true }, 'reliable')
@@ -189,7 +197,6 @@ export const HID_USAGE: Record<string, number> = {
 }
 
 // Maps browser KeyboardEvent.code to the strings to_key() accepts.
-// Modifiers are intentionally absent — they travel in the modifier byte.
 export const CODE_TO_KEY: Record<string, string> = {
   KeyA: 'a',
   KeyB: 'b',
@@ -314,8 +321,9 @@ export function modifierByte(held: Iterable<string>): number {
   return bits
 }
 
-// Non-modifier held codes -> usage IDs, capped at 6 (USB boot-protocol rollover).
-// Returns null when over the limit so the caller can apply its overflow policy.
+// Non-modifier held codes -> usage IDs, capped at 6.
+//
+// Returns null when over the limit.
 export function usageKeys(held: Iterable<string>): number[] | null {
   const usages: number[] = []
   for (const code of held) {

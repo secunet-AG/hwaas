@@ -17,7 +17,7 @@ const MAX_LIFETIME_IN_SECONDS = import.meta.env.VITE_MAXIMUM_CONTEXT_LIFETIME_IN
 const MAX_LIFETIME_IN_HOURS = Math.floor(MAX_LIFETIME_IN_SECONDS / 3600)
 
 const displayMessage = computed(() => {
-  let lifetime = _contextsStore.activeContext.value?.lifetime ?? 0
+  const lifetime = _contextsStore.activeContext.value?.lifetime ?? 0
   return secondsToReadable(lifetime)
 })
 

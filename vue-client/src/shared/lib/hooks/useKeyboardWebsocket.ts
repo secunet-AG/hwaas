@@ -51,7 +51,7 @@ export function useKeyboardWebsocket() {
     wss.value = new WebSocket(activeBaseUrl.value)
     wss.value.binaryType = 'arraybuffer'
 
-    // We actually only care about error messages here
+    // We actually only care about error messages here, as there is no useful information to receive
     wss.value.addEventListener('error', (e) => console.error(e))
   }
 

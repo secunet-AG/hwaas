@@ -12,7 +12,7 @@ import { useKeyboardWebsocket } from '@/shared/lib/hooks/useKeyboardWebsocket'
 import useMouseCapture from '@/shared/lib/hooks/useMouseCapture'
 import KvmKeyboardToolbar, { type ComboEvent } from './KvmKeyboardToolbar.vue'
 import { storeToRefs } from 'pinia'
-import { computed, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
 import { Keyboard } from '@lucide/vue'
 
 const props = defineProps<{
@@ -34,11 +34,19 @@ watch(
 
 const onKeyboardPress = (r: KeyboardReport) => sendMessage(r)
 
-useKeyboardCapture(isActive, onKeyboardPress)
+// Modifiers the user has toggled in the toolbar.
+//
+// Shared with the keyboard capture so a sticky modifier applies to the next real or virtual keypress.
+// This is then dropped after one application. UX decision, can be changed.
+const stickyModifiers = reactive(new Set<string>())
+
+useKeyboardCapture(isActive, onKeyboardPress, stickyModifiers)
 
 const showKeyboardToolbar = ref(false)
 
-// Turn a key combo into a press followed by a release.
+// Key combinations are effectively a press, small wait, and release.
+//
+// Here we apply this on any combination of keys
 function onToolbarSend(combo: ComboEvent) {
   sendMessage({ keys: combo.keys, modifier: combo.modifier, press: true, release: false })
   window.setTimeout(() => {
@@ -152,7 +160,11 @@ function onClose() {
           </svg>
         </button>
       </div>
-      <KvmKeyboardToolbar v-if="showKeyboardToolbar" @send="onToolbarSend" />
+      <KvmKeyboardToolbar
+        v-if="showKeyboardToolbar"
+        :sticky-modifiers="stickyModifiers"
+        @send="onToolbarSend"
+      />
       <!-- The live mjpeg stream, for the price of an img tag!-->
       <img ref="streamingImage" class="w-full h-full object-fit rounded-lg" :src="mjpegUrl" />
     </div>

@@ -6,12 +6,17 @@ SPDX-License-Identifier: Apache-2.0
 
 <script setup lang="ts">
 import { CODE_TO_KEY, isModifier, modifierByte } from '@/shared/lib/hooks/useKeyboardCapture'
-import { reactive } from 'vue'
 
 export interface ComboEvent {
   keys: string[]
   modifier: number
 }
+
+// The sticky modifier set is owned by the parent and shared with the physical
+// keyboard capture, so a toggled modifier applies to the next real keypress.
+const props = defineProps<{
+  stickyModifiers: Set<string>
+}>()
 
 const emit = defineEmits<{
   send: [combo: ComboEvent]
@@ -21,9 +26,6 @@ interface KeyDef {
   label: string
   codes: string[]
 }
-
-// Modifiers the user has currently applied
-const stickyModifiers = reactive(new Set<string>())
 
 const modifierKeys: KeyDef[] = [
   { label: 'Ctrl', codes: ['ControlLeft'] },
@@ -83,13 +85,13 @@ const sysRqCombos: KeyDef[] = [
 ]
 
 function toggleModifier(code: string) {
-  if (stickyModifiers.has(code)) stickyModifiers.delete(code)
-  else stickyModifiers.add(code)
+  if (props.stickyModifiers.has(code)) props.stickyModifiers.delete(code)
+  else props.stickyModifiers.add(code)
 }
 
 // Build a report from the clicked codes, then clear sticky state
 function press(codes: string[]) {
-  const all = [...stickyModifiers, ...codes]
+  const all = [...props.stickyModifiers, ...codes]
   const keys: string[] = []
   for (const code of all) {
     if (isModifier(code)) continue
@@ -97,7 +99,7 @@ function press(codes: string[]) {
     if (name !== undefined) keys.push(name)
   }
   emit('send', { keys, modifier: modifierByte(all) })
-  stickyModifiers.clear()
+  props.stickyModifiers.clear()
 }
 
 const buttonClass =

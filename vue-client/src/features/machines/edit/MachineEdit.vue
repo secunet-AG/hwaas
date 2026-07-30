@@ -52,7 +52,7 @@ async function onSave() {
 
   const defaultDriveName = crypto.randomUUID()
 
-  let createDriveRes = await createDrive(
+  const createDriveRes = await createDrive(
     contextStore.activeContext.id,
     defaultDriveName,
     selectedImage.value.image_hash,
@@ -63,7 +63,7 @@ async function onSave() {
     return
   }
 
-  let enableUsbRes = await enableUsb(
+  const enableUsbRes = await enableUsb(
     contextStore.activeContext.id,
     machine.value?.name,
     defaultDriveName,
