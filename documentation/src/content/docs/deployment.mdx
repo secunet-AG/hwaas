@@ -43,10 +43,9 @@ Boot the Pi and let it resize partitions on first boot.
     mount /dev/disk/by-label/FIRMWARE /mnt
     BOOTFS=/mnt FIRMWARE_RELEASE_STATUS=stable rpi-eeprom-update -d -a
     ```
+    <p class="pt-3 pb-3">Reboot and let it flash itself, then you can switch to USB boot.</p>
 
-    <a href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#boot_order-fields">You can read more about the various boot order options here</a>
-
-    Reboot and let it flash itself, then you can switch to USB boot.
+    <a class="underline" href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#boot_order-fields">You can read more about the various boot order options here</a>
 
 </Callout>
 
@@ -58,7 +57,7 @@ Deploy your NixOS configuration to the Pi. This can be done locally on the Pi:
 nixos-rebuild switch --flake .#ts-bmr1
 ```
 
-Or remotely from your workstation:
+Or remotely from your workstation(preferred):
 
 ```sh
 nixos-rebuild switch --flake .#ts-bmr1 \

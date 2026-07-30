@@ -91,6 +91,14 @@ pre > code {
   content: none;
 }
 
+.callout > pre {
+  background: none !important;
+  padding: 2px 4px 2px 4px;
+  border-radius: 4px;
+  line-height: 200%;
+  font-size: 14px;
+}
+
 pre {
   background: var(--app-background) !important;
   border: 1px solid var(--app-border);
