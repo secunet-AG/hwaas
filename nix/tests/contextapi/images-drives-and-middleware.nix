@@ -155,7 +155,7 @@ testers.runNixOSTest {
       response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images")
       response_json = json.loads(response)
       assert len(response_json) == 1
-      assert response_json[0]["size_bytes"] == 1024 * 104800
+      assert response_json[0]["size"] == 1024 * 104800
 
     # Test if a drive can be generated from a uploaded image
     with subtest("Create drive"):

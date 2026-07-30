@@ -16,7 +16,10 @@
 use anyhow::Context as _;
 use axum::extract::FromRef;
 use db_interaction::connection::DbFacade;
-use db_interaction::schema::{bmr_image_metadatas, bmr_image_tags};
+use db_interaction::models::bmr_image_metadata::{
+    ImageMetadata as ModelImageMetadata, ImageTag as ModelImageTag, ImageTagMap as ModelImageTagMap,
+};
+use db_interaction::schema::{bmr_image_metadatas, bmr_image_tag_map, bmr_image_tags};
 use diesel::RunQueryDsl;
 use std::{
     fs::create_dir_all,
@@ -30,14 +33,9 @@ use tokio::{
 use tracing::{debug, error, info};
 use uuid::Uuid;
 
-use crate::{
-    db::{ImageSize, ImageTagMap},
-    filesystem::write_and_hash,
-    image_api::ExtraImageStoreData,
-    sha256hash::Sha256Hash,
-};
+use crate::{filesystem::write_and_hash, image_api::ExtraImageStoreData, sha256hash::Sha256Hash};
 
-pub use crate::db::{ImageMetadata, ImageTag};
+pub use crate::db::{ImageMetadata, ImageTag, TagName};
 pub use crate::image_file_path::ImageFilePath;
 
 /// Name of the image store folder that uploaded images will be stored temporarily in.
@@ -52,11 +50,29 @@ pub enum ImageHandlerError {
         details: &'static str,
     },
 
-    /// no image with matching sha256 hash found
-    ImageNotFound,
+    /// the requested {0:?} wasn't found
+    NotFound(&'static str),
+
+    /// found multiple matching {0:?} where only a single match was expected
+    OneExpected(&'static str),
 
     /// failed to process image metadata
     MetadataError,
+}
+
+impl axum::response::IntoResponse for ImageHandlerError {
+    fn into_response(self) -> axum::response::Response {
+        use axum::http::StatusCode;
+
+        let code = match &self {
+            Self::NotFound(_) => StatusCode::NOT_FOUND,
+            Self::OneExpected(_) => StatusCode::BAD_REQUEST,
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
+        };
+        let message = self.to_string();
+
+        (code, message).into_response()
+    }
 }
 
 /// Convenience function to create [`ImageHandlerError::StorageError`] variants.
@@ -189,7 +205,7 @@ impl ImageHandler {
     /// it's not possible to tell whether something has been deleted.
     async fn maintenance_prune_unused_files(&self) -> anyhow::Result<Vec<PathBuf>> {
         let images_in_db = self
-            .list_images()
+            .list_image_metadatas()
             .await
             .context("failed to query known BMR images")?;
 
@@ -298,14 +314,80 @@ impl ImageHandler {
 
     /// List all images that are currently in the store
     #[tracing::instrument(skip(self))]
-    pub async fn list_images(&self) -> Result<Vec<ImageMetadata>, ImageHandlerError> {
-        self.db_connection
-            .execute_on_current_thread(|con| bmr_image_metadatas::table.load(con))
+    pub async fn list_image_metadatas(&self) -> Result<Vec<ImageMetadata>, ImageHandlerError> {
+        let (images, tags, mapping) = self
+            .db_connection
+            .execute_on_current_thread(|con| {
+                use diesel::prelude::*;
+
+                let raw_images = bmr_image_metadatas::table
+                    .select(ModelImageMetadata::as_select())
+                    .load(con)?;
+                let raw_tags = bmr_image_tags::table
+                    .select(ModelImageTag::as_select())
+                    .load(con)?;
+                let raw_image_tag_mapping = bmr_image_tag_map::table
+                    .select(ModelImageTagMap::as_select())
+                    .load(con)?;
+                Ok((raw_images, raw_tags, raw_image_tag_mapping))
+
+                //let tags = ModelImageTagMap::belonging_to(&raw_images)
+                //    .inner_join(bmr_image_tags::table)
+                //    // FIXME(hartan): This doesn't work as tuples (like used here) are represented
+                //    // as `Record` in diesel, which is currently only implemented for the
+                //    // `postgres_backend` feature. This could (maybe?) be worked around using
+                //    // another custom type which fuses the image tag map and image tag into one, but
+                //    // I have no idea whether that'll actually work. Also it means duplicating the
+                //    // tag data structure, so we'd have to keep changes in sync in two places.
+                //    .select((ModelImageTagMap::as_select(), ModelImageTag::as_select()))
+                //    .load(con)?;
+                //let tags_per_image = tags
+                //    .grouped_by(&raw_images)
+                //    .into_iter()
+                //    .zip(raw_images)
+                //    .map(|tags, image| ImageMetadata {})
+                //    .collect::<Vec<_>>();
+            })
             .await
             .map_err(|error| {
-                error!(%error, "failed to load all defined images from database");
+                error!(%error, "failed to load all defined BMR image metadata from database");
                 ImageHandlerError::MetadataError
+            })?;
+
+        let mut result = Vec::with_capacity(images.len());
+        for image in images {
+            let tags_by_id = mapping
+                .iter()
+                .filter_map(|map| {
+                    if map.metadata_id() == image.id() {
+                        Some(map.tag_id())
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
+            let image_tags = tags
+                .iter()
+                .filter_map(|tag| {
+                    if tags_by_id.contains(&tag.id()) {
+                        Some(ImageTag::from(tag.clone()))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            result.push(ImageMetadata {
+                sha256: Sha256Hash::new(image.sha256).expect("TODO"),
+                file_name: image.file_name,
+                size: u64::try_from(image.size_bytes).expect("TODO"),
+                created: image.created_utc.into(),
+                architecture: image.architecture,
+                tags: image_tags,
             })
+        }
+
+        Ok(result)
     }
 
     /// Upload a new image to the database.
@@ -323,6 +405,9 @@ impl ImageHandler {
         S: AsyncRead,
     {
         let metadata = self.store_image(stream, partial_metadata).await?;
+        if !metadata.tags.is_empty() {
+            unimplemented!("attaching tags to images during initial upload");
+        }
 
         let result = self
             .db_connection
@@ -330,25 +415,36 @@ impl ImageHandler {
                 use db_interaction::schema::bmr_image_metadatas::dsl::*;
                 use diesel::prelude::*;
 
-                diesel::insert_into(bmr_image_metadatas)
+                let stored_image = diesel::insert_into(bmr_image_metadatas)
                     .values((
-                        sha256.eq(&metadata.sha256),
+                        sha256.eq(&metadata.sha256.0),
                         file_name.eq(&metadata.file_name),
-                        size_bytes.eq(&metadata.size_bytes),
-                        created_utc.eq(&metadata.created_utc),
+                        size_bytes.eq(i64::try_from(metadata.size)
+                            .expect("image size should fit an i64 range")),
+                        created_utc.eq(chrono::DateTime::<chrono::Utc>::from(metadata.created)),
                         architecture.eq(&metadata.architecture),
                     ))
                     .on_conflict(sha256)
                     .do_update()
                     .set((
-                        created_utc.eq(&metadata.created_utc),
+                        created_utc.eq(chrono::DateTime::<chrono::Utc>::from(metadata.created)),
                         file_name.eq(&metadata.file_name),
+                        architecture.eq(&metadata.architecture),
                     ))
-                    .get_result(con)
+                    .get_result::<ModelImageMetadata>(con)?;
+                // TODO(hartan): Fill in tags from user upload in the distant future.
+                let stored_tags = ModelImageTagMap::belonging_to(&stored_image)
+                    .inner_join(bmr_image_tags::table)
+                    .select(ModelImageTag::as_select())
+                    .load::<ModelImageTag>(con)?;
+
+                Ok((stored_image, stored_tags))
             })
             .await;
         match result {
-            Ok(val) => Ok(val),
+            Ok((stored_image, stored_tags)) => {
+                Ok(ImageMetadata::try_from((stored_image, stored_tags)).unwrap_or(metadata))
+            }
             Err(error) => {
                 error!(?error, "failed to store user image metadata in database");
                 let image_file = self
@@ -366,47 +462,68 @@ impl ImageHandler {
         }
     }
 
-    /// Modify an existing image in the database.
+    /// Modify the user filename for an existing image in the database.
     ///
-    /// Only the user-defined `file_name` and stored image `architecture` can be modified after
-    /// an image has been created. If any other metadata fields have been modified, the operation
-    /// will fail. If you want to replace other metadata attributes, you must
-    /// [delete](ImageHandler::remove_image) and [recreate](ImageHandler::add_image) the image from
-    /// scratch.
+    /// To modify the architecture of an image, please refer to
+    /// [`modify_image_architecture`](ImageHandler::modify_image_architecture).
+    /// To modify the tags of an image, please refer to the standalone operations for
+    /// [adding](ImageHandler::add_tags_to_image) and
+    /// [removing](ImageHandler::remove_tags_from_image) tags to/from images.
     ///
     /// If you need to create a nonexistent image, use [`ImageHandler::add_image`].
     #[tracing::instrument]
-    pub async fn modify_image_metadata(
+    pub async fn modify_image_file_name(
         &self,
-        image: ImageMetadata,
-    ) -> Result<ImageMetadata, ImageHandlerError> {
+        image: &Sha256Hash,
+        new_file_name: String,
+    ) -> Result<(), ImageHandlerError> {
         self.db_connection
             .execute_on_current_thread(|con| {
                 use db_interaction::schema::bmr_image_metadatas::dsl::*;
                 use diesel::prelude::*;
 
-                diesel::update(
-                    bmr_image_metadatas.filter(
-                        // Filter for all the fields that users are *not* meant to modify to detect
-                        // a) whether the user modified any of these fields, or b) the object in the
-                        // DB has changed in the meantime.
-                        id.eq(&image.id())
-                            .and(sha256.eq(&image.sha256))
-                            .and(size_bytes.eq(&image.size_bytes))
-                            .and(created_utc.eq(&image.created_utc)),
-                    ),
-                )
-                .set((
-                    file_name.eq(&image.file_name),
-                    architecture.eq(&image.architecture),
-                ))
-                .get_result(con)
+                diesel::update(bmr_image_metadatas.filter(sha256.eq(&image.0)))
+                    .set(file_name.eq(&new_file_name))
+                    .get_result::<ModelImageMetadata>(con)
             })
             .await
             .map_err(|e| {
                 error!(error = %e, "failed to update existing BMR image metadata in the database");
                 ImageHandlerError::MetadataError
+            })?;
+        Ok(())
+    }
+
+    /// Modify the architecture for an existing image in the database.
+    ///
+    /// To modify the user filename of an image, please refer to
+    /// [`modify_image_file_name`](ImageHandler::modify_image_file_name).
+    /// To modify the tags of an image, please refer to the standalone operations for
+    /// [adding](ImageHandler::add_tags_to_image) and
+    /// [removing](ImageHandler::remove_tags_from_image) tags to/from images.
+    ///
+    /// If you need to create a nonexistent image, use [`ImageHandler::add_image`].
+    #[tracing::instrument]
+    pub async fn modify_image_architecture(
+        &self,
+        image: &Sha256Hash,
+        new_architecture: Option<String>,
+    ) -> Result<(), ImageHandlerError> {
+        self.db_connection
+            .execute_on_current_thread(|con| {
+                use db_interaction::schema::bmr_image_metadatas::dsl::*;
+                use diesel::prelude::*;
+
+                diesel::update(bmr_image_metadatas.filter(sha256.eq(&image.0)))
+                    .set(architecture.eq(&new_architecture))
+                    .get_result::<ModelImageMetadata>(con)
             })
+            .await
+            .map_err(|e| {
+                error!(error = %e, "failed to update existing BMR image metadata in the database");
+                ImageHandlerError::MetadataError
+            })?;
+        Ok(())
     }
 
     /// Remove an existing container image.
@@ -414,7 +531,7 @@ impl ImageHandler {
     /// This takes care both of deleting the metadata entry and the actual image blob residing on
     /// disk.
     #[tracing::instrument]
-    pub async fn remove_image(&self, image: ImageMetadata) -> Result<(), ImageHandlerError> {
+    pub async fn remove_image(&self, image: &Sha256Hash) -> Result<(), ImageHandlerError> {
         let maybe_image_metadata = self
             .db_connection
             .execute_on_current_thread(|con| {
@@ -428,15 +545,9 @@ impl ImageHandler {
                     // NOTE(hartan): Ignore all `Option<>` fields because they follow SQL
                     // semantics, so equality with `None` is always false. See:
                     // <https://docs.rs/diesel/2.3.10/diesel/expression_methods/trait.ExpressionMethods.html#method.eq>
-                    bmr_image_metadatas.filter(
-                        id.eq(&image.id())
-                            .and(sha256.eq(&image.sha256))
-                            .and(file_name.eq(&image.file_name))
-                            .and(size_bytes.eq(&image.size_bytes))
-                            .and(created_utc.eq(&image.created_utc)),
-                    ),
+                    bmr_image_metadatas.filter(sha256.eq(&image.0)),
                 )
-                .load::<ImageMetadata>(con)
+                .load::<ModelImageMetadata>(con)
             })
             .await
             .map_err(|e| {
@@ -445,9 +556,9 @@ impl ImageHandler {
             })?;
 
         let metadata = match maybe_image_metadata.len() {
-            0 => return Err(ImageHandlerError::ImageNotFound),
+            0 => return Err(ImageHandlerError::NotFound("BMR image")),
             1 => maybe_image_metadata.first().unwrap(),
-            _ => return Err(ImageHandlerError::MetadataError),
+            _ => return Err(ImageHandlerError::OneExpected("BMR images")),
         };
 
         let image_file = self
@@ -471,12 +582,13 @@ impl ImageHandler {
     #[tracing::instrument(skip(self))]
     pub async fn list_tags(&self) -> Result<Vec<ImageTag>, ImageHandlerError> {
         self.db_connection
-            .execute_on_current_thread(|con| bmr_image_tags::table.load(con))
+            .execute_on_current_thread(|con| bmr_image_tags::table.load::<ModelImageTag>(con))
             .await
             .map_err(|e| {
                 error!(error = %e, "failed to load all defined image tags from database");
                 ImageHandlerError::MetadataError
             })
+            .map(|tag_vec| tag_vec.into_iter().map(ImageTag::from).collect::<Vec<_>>())
     }
 
     /// Add a new tag to the database.
@@ -492,40 +604,52 @@ impl ImageHandler {
             .execute_on_current_thread(|con| {
                 diesel::insert_into(bmr_image_tags)
                     .values((name.eq(tag.name), description.eq(tag.description)))
-                    .get_result(con)
+                    .get_result::<ModelImageTag>(con)
             })
             .await
             .map_err(|e| {
                 error!(error = %e, "failed to add new BMR image tag to the database");
                 ImageHandlerError::MetadataError
             })
+            .map(ImageTag::from)
     }
 
     /// Modify an existing tag in the database.
     ///
-    /// If you need to create a nonexistent tag, use [`ImageHandler::add_tag`].
+    /// The tag to modify is identified by its `name` property. If you need to create a nonexistent
+    /// tag, use [`ImageHandler::add_tag`].
     #[tracing::instrument]
     pub async fn modify_tag(&self, tag: ImageTag) -> Result<ImageTag, ImageHandlerError> {
-        self.db_connection
+        let new_tag = self
+            .db_connection
             .execute_on_current_thread(|con| {
                 use db_interaction::schema::bmr_image_tags::dsl::*;
                 use diesel::prelude::*;
 
-                diesel::update(bmr_image_tags.filter(id.eq(tag.id())))
-                    .set(&tag)
-                    .get_result(con)
+                diesel::update(bmr_image_tags.filter(name.eq(tag.name)))
+                    .set(description.eq(tag.description))
+                    .get_result::<ModelImageTag>(con)
+                    .optional()
             })
             .await
             .map_err(|e| {
                 error!(error = %e, "failed to update existing BMR image tag in the database");
                 ImageHandlerError::MetadataError
-            })
+            })?;
+
+        match new_tag {
+            None => Err(ImageHandlerError::NotFound("BMR image tag")),
+            Some(raw_tag) => Ok(ImageTag::from(raw_tag)),
+        }
     }
 
     /// Remove an existing tag from the database.
+    ///
+    /// If the tag was attached to one or more BMR images, it will be removed from these BMR images,
+    /// too.
     #[tracing::instrument]
     pub async fn remove_tag(&self, tag: ImageTag) -> Result<(), ImageHandlerError> {
-        let num_rows = self
+        let amount = self
             .db_connection
             .execute_on_current_thread(|con| {
                 use db_interaction::schema::bmr_image_tags::dsl::*;
@@ -533,13 +657,9 @@ impl ImageHandler {
 
                 // NOTE(hartan): The closure constrains us in a way that we cannot tell
                 // whether this is caused by the object not existing or something else. See:
-                // <//gitlab.cyberus-technology.de/cyberus/cidoka/hwaas/hwaas/-/work_items/51>
+                // <https://gitlab.cyberus-technology.de/cyberus/cidoka/hwaas/hwaas/-/work_items/51>
                 diesel::delete(
-                    bmr_image_tags.filter(
-                        id.eq(&tag.id())
-                            .and(name.eq(&tag.name))
-                            .and(description.eq(&tag.description)),
-                    ),
+                    bmr_image_tags.filter(name.eq(&tag.name).and(description.eq(&tag.description))),
                 )
                 .execute(con)
             })
@@ -549,56 +669,44 @@ impl ImageHandler {
                 ImageHandlerError::MetadataError
             })?;
 
-        debug_assert_eq!(num_rows, 1, "exactly one row should have been deleted");
-        Ok(())
-    }
-
-    /// Get all tags currently attached to a particular image.
-    #[tracing::instrument(skip(self))]
-    pub async fn get_tags_for_image(
-        &self,
-        image: &ImageMetadata,
-    ) -> Result<Vec<ImageTag>, ImageHandlerError> {
-        self.db_connection
-            .execute_on_current_thread(|con| {
-                use diesel::prelude::*;
-
-                ImageTagMap::belonging_to(image)
-                    .inner_join(bmr_image_tags::table)
-                    .select(ImageTag::as_select())
-                    .load(con)
-            })
-            .await
-            .map_err(|e| {
-                error!(error = %e, ?image, "failed to fetch BMR image tags from the database");
-                ImageHandlerError::MetadataError
-            })
+        match amount {
+            0 => Err(ImageHandlerError::NotFound("BMR image tag")),
+            1 => Ok(()),
+            _ => Err(ImageHandlerError::OneExpected("BMR image tags")),
+        }
     }
 
     /// Add one or more tags to a BMR image.
     ///
+    /// If a given tag name has no backing tag (i.e. a tag with that precise `name` property doesn't
+    /// exist), it is silently ignored.
+    ///
     /// Returns the number of tags added to the image.
     #[tracing::instrument(skip(self))]
-    pub async fn add_tags_to_image<'a, T: IntoIterator<Item = &'a ImageTag> + std::fmt::Debug>(
+    pub async fn add_tags_to_image<'a, T: IntoIterator<Item = TagName> + std::fmt::Debug>(
         &'a self,
         tags: T,
-        image: &ImageMetadata,
+        image: &Sha256Hash,
     ) -> Result<usize, ImageHandlerError> {
         use db_interaction::schema::bmr_image_tag_map::dsl::*;
         use diesel::prelude::*;
 
-        let insert = tags
-            .into_iter()
-            .map(|tag| {
-                (
-                    bmr_image_metadata_id.eq(image.id()),
-                    bmr_image_tag_id.eq(tag.id()),
-                )
-            })
-            .collect::<Vec<_>>();
+        let tag_names = tags.into_iter().collect::<Vec<_>>();
 
         self.db_connection
             .execute_on_current_thread(|con| {
+                let image_id = bmr_image_metadatas::table
+                    .filter(bmr_image_metadatas::sha256.eq(&image.0))
+                    .select(bmr_image_metadatas::id)
+                    .get_result::<i32>(con)?;
+                let selected_tag_ids = bmr_image_tags::table
+                    .filter(bmr_image_tags::name.eq_any(&tag_names))
+                    .select(bmr_image_tags::id)
+                    .load::<i32>(con)?;
+                let insert = selected_tag_ids
+                    .into_iter()
+                    .map(|tag| (bmr_image_metadata_id.eq(image_id), bmr_image_tag_id.eq(tag)))
+                    .collect::<Vec<_>>();
                 diesel::insert_into(bmr_image_tag_map)
                     .values(insert)
                     .execute(con)
@@ -614,31 +722,35 @@ impl ImageHandler {
     ///
     /// Returns the number of tags deleted from the image.
     #[tracing::instrument(skip(self))]
-    pub async fn remove_tags_from_image<
-        'a,
-        T: IntoIterator<Item = &'a ImageTag> + std::fmt::Debug,
-    >(
+    pub async fn remove_tags_from_image<'a, T: IntoIterator<Item = TagName> + std::fmt::Debug>(
         &'a self,
         tags: T,
-        image: &ImageMetadata,
+        image: &Sha256Hash,
     ) -> Result<usize, ImageHandlerError> {
         use db_interaction::schema::bmr_image_tag_map::dsl::*;
         use diesel::prelude::*;
 
+        let tag_names = tags.into_iter().collect::<Vec<_>>();
+
         self.db_connection
             .execute_on_current_thread(|con| {
-                let mut count = 0;
-                for tag in tags {
-                    let num_affected = diesel::delete(bmr_image_tag_map)
-                        .filter(
-                            bmr_image_metadata_id
-                                .eq(image.id())
-                                .and(bmr_image_tag_id.eq(tag.id())),
-                        )
-                        .execute(con)?;
-                    count += num_affected
-                }
-                Ok(count)
+                let image_id = bmr_image_metadatas::table
+                    .filter(bmr_image_metadatas::sha256.eq(&image.0))
+                    .select(bmr_image_metadatas::id)
+                    .get_result::<i32>(con)?;
+                let selected_tag_ids = bmr_image_tags::table
+                    .filter(bmr_image_tags::name.eq_any(&tag_names))
+                    .select(bmr_image_tags::id)
+                    .load::<i32>(con)?;
+
+                let num_affected = diesel::delete(bmr_image_tag_map)
+                    .filter(
+                        bmr_image_metadata_id
+                            .eq(image_id)
+                            .and(bmr_image_tag_id.eq_any(selected_tag_ids)),
+                    )
+                    .execute(con)?;
+                Ok(num_affected)
             })
             .await
             .map_err(|error| {
@@ -657,15 +769,26 @@ impl ImageHandler {
 
         self.db_connection
             .execute_on_current_thread(|con| {
-                bmr_image_metadatas::table
+                let metadata = bmr_image_metadatas::table
                     .filter(bmr_image_metadatas::sha256.eq(&image_hash.0))
-                    .select(ImageMetadata::as_select())
-                    .get_result(con)
+                    .select(ModelImageMetadata::as_select())
+                    .get_result(con)?;
+                let stored_tags = ModelImageTagMap::belonging_to(&metadata)
+                    .inner_join(bmr_image_tags::table)
+                    .select(ModelImageTag::as_select())
+                    .load::<ModelImageTag>(con)?;
+                Ok((metadata, stored_tags))
             })
             .await
             .map_err(|e| {
                 error!(error = %e, "failed to query BMR image by sha256 hash");
-                ImageHandlerError::ImageNotFound
+                ImageHandlerError::NotFound("BMR image")
+            })
+            .and_then(|(metadata, tags)| {
+                ImageMetadata::try_merge_from_db(metadata, tags).map_err(|error| {
+                    error!(%error, "failed to convert database response into valid image metadata");
+                    ImageHandlerError::MetadataError
+                })
             })
     }
 
@@ -749,21 +872,13 @@ impl ImageHandler {
             .map_err(to_storage_error(
                 "cannot move image from temporary to permanent storage",
             ))?;
-        let raw_size = i64::try_from(image_size).map_err(|error| {
-            error!(%error, "failed to convert image size to valid format");
-            ImageHandlerError::MetadataError
-        })?;
-        let image_size = ImageSize::new(raw_size).map_err(|error| {
-            error!(%error, "image has invalid size");
-            ImageHandlerError::MetadataError
-        })?;
-
-        Ok(ImageMetadata::new(crate::db::RawImageMetadata {
+        Ok(ImageMetadata {
             sha256: calculated_image_hash,
-            file_name: Some(user_specified_image_name),
+            file_name: user_specified_image_name,
+            size: image_size as u64,
+            created: std::time::SystemTime::now(),
             architecture: None,
-            size_bytes: image_size,
-            created_utc: None,
-        }))
+            tags: Vec::new(),
+        })
     }
 }
