@@ -35,7 +35,7 @@ unsafe_code = "forbid"
 
 [dependencies]
 aide = { version = "0.13.4", features = ["axum", "axum-extra", "macros"] }
-axum = { version = "0.7.5", features = ["multipart", "ws"] }
+axum = { version = "0.7", features = ["multipart", "ws"] }
 clap = { version = "4.2.0", features = ["derive"] }
 connection_handler = { path = "./connection_handler" }
 error-stack = "0.4"
