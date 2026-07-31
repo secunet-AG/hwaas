@@ -5,7 +5,6 @@
 { check-jsonschema
 , writeTextFile
 , runCommand
-, writeShellScript
 , configSchema
 , lib
 ,

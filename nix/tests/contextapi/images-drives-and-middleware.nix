@@ -21,7 +21,7 @@ testers.runNixOSTest {
   node.specialArgs = { inherit modules; };
   nodes = {
     gateway =
-      { pkgs, config, ... }:
+      { ... }:
       {
         imports =
           [

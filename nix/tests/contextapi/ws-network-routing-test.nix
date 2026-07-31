@@ -20,7 +20,7 @@ testers.runNixOSTest {
   name = "ws-network-routing-test";
   node.specialArgs = { inherit modules; };
   nodes.gateway =
-    { config, pkgs, ... }:
+    { ... }:
     {
       imports =
         [
