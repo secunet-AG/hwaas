@@ -54,7 +54,7 @@ _: {
             enable = true;
           };
           statix.enable = true;
-          # deadnix.enable = true;
+          deadnix.enable = true;
           reuse = {
             enable = true;
             package = pkgs.reuse;
