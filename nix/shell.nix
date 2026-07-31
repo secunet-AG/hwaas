@@ -8,6 +8,7 @@ _: {
   perSystem =
     { pkgs
     , config
+    , lib
     , ...
     }:
     {
@@ -19,25 +20,13 @@ _: {
           figlet "HWaaS dev shell"
           echo -e "\033[0m" # No Color
 
-          # we can't use it for now as the reqwest-middleware dependency needs to be updated by openapi-generator-cli
-          # https://github.com/OpenAPITools/openapi-generator/pull/20577
-          #${config.apps.generate-net-ctrl-client.program}
-
           # context api migrations are done manualy.
           export DATABASE_URL="file:$(git rev-parse --show-toplevel)/components/contextapi/development.db";
         '';
-        inputsFrom = [
-          config.devShells.contextapi
-        ];
-        nativInputsFrom = [ ];
+        inputsFrom = builtins.attrValues (lib.filterAttrs (n: _: n != "default") config.devShells);
         packages = with pkgs; [
           colmena
           figlet
-          rust-analyzer
-          cargo-watch
-          cargo-audit
-          cargo-cyclonedx
-          cargo-nextest
           jq
           nodejs
           pnpm
@@ -45,13 +34,12 @@ _: {
           nixd
           marksman
           httpie
-          diesel-cli
           markdownlint-cli2
           openapi-generator-cli
-          sqlite
           ssh-to-age
           sops
           reuse
+          man-db
         ];
       };
     };
