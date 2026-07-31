@@ -5,7 +5,6 @@
 { pkgs
 , lib
 , jobs
-, system ? "x86_64-linux"
 , workflowPath ? ".github/workflows/ci.yml"
 , workflowName ? "CI"
 , mainBranch ? "main"

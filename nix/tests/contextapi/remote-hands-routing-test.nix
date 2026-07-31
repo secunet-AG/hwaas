@@ -18,7 +18,7 @@ testers.runNixOSTest {
   node.specialArgs = { inherit modules; };
   nodes = {
     sut =
-      { config, ... }:
+      { ... }:
       {
         imports = [
           ./test-modules/test-config.nix

@@ -4,7 +4,7 @@
 
 _: {
   perSystem =
-    { config, pkgs, ... }:
+    { config, ... }:
     {
       apps.ws-proxy-client = {
         type = "app";

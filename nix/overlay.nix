@@ -6,8 +6,6 @@
 {
   perSystem =
     { pkgs
-    , config
-    , lib
     , system
     , ...
     }:
@@ -16,9 +14,9 @@
         inherit system;
         overlays = [
           (import inputs.rust-overlay)
-          (final: prev: {
+          (_final: prev: {
             python3 = prev.python3.override {
-              packageOverrides = pFinal: pPrev: {
+              packageOverrides = _pFinal: pPrev: {
                 plantuml-markdown = pPrev.plantuml-markdown.override {
                   # When the display breaks in runtime check if the c4-lib or sprites
                   # lib that is pinned in the nixpkgs package was changed

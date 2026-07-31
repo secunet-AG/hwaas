@@ -17,7 +17,7 @@ let
 
       nodes = {
         sut =
-          { config, pkgs, ... }:
+          { pkgs, ... }:
           {
             imports = [ modules.remote-serial ];
 

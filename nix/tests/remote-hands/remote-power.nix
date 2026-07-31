@@ -31,7 +31,7 @@ testers.nixosTest {
 
   nodes = {
     sut =
-      { config, pkgs, ... }:
+      { pkgs, ... }:
       {
         imports = [
           modules.remote-power
