@@ -68,7 +68,23 @@ diesel_migrations = { version = "2", default-features = false, features = [
 ] }
 futures = "0.3"
 rand = "0.8.5"
-reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest = { version = "0.13", default-features = false, features = [
+  "json",
+  "stream",
+  "rustls-no-provider",
+] }
+reqwest-middleware = { version = "0.5", features = ["json"] }
+# NOTE(hartan): This is only a transient dependency, but we specify it here to
+# define the features we expect once. Otherwise, it appears the
+# `default-features` are set, which will pull in `aws-lc-sys` as additional
+# crypto backend next to `ring`, which is already requested by other crates we
+# use.
+rustls = { version = "0.23", default-features = false, features = [
+  "logging",
+  "ring",
+  "std",
+  "tls12",
+] }
 schemars = { version = "0.8.0", default-features = false, features = [
   "derive",
   "uuid",
