@@ -5,18 +5,19 @@
 # - <https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference>
 # - <https://docs.github.com/en/code-security/concepts/supply-chain-security/about-the-dependabot-yml-file>
 # See: <https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#cooldown->
-.shared_cooldown: &shared_cooldown
-  default-days: 7
-  semver-major-days: 14
-  semver-minor-days: 7
-  semver-patch-days: 3
 version: 2
 updates:
   - package-ecosystem: "nix"
     directory: "/"
     schedule:
       interval: "weekly"
-    cooldown: *shared_cooldown
+    # NOTE: Dependabot doesn't support YAML aliases/anchors. So we *have* to
+    # repeat the `cooldown` section for each package ecosystem.
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
     assignees:
       - "lukeweston1234"
       - "lgrosche"
@@ -24,7 +25,11 @@ updates:
     directory: "/components/"
     schedule:
       interval: "daily"
-    cooldown: *shared_cooldown
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
     assignees:
       - "lukeweston1234"
       - "cyberhar7an"
@@ -32,7 +37,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    cooldown: *shared_cooldown
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
     assignees:
       - "lukeweston1234"
       - "cyberhar7an"
