@@ -34,10 +34,14 @@ Due to the virtualization, high network traffic, and various workloads, we recom
 
 ## Networking
 
-The HWaaS supports a two switch setup, with the following requirements:
+The HWaaS supports a three and two switch setup, depending on the amount of separation you want and the amount of connections you need.
 
-- A managed VLAN switch
+The minimal setup has the following requirements:
+
+- A managed VLAN switch with PoE+ capabilities, used for the management network and PoE for the Pis
 - A managed VLAN switch with VRF support, used for managing BMR networks
+
+If you want more separation you can split the PoE switch from the management network into two distinct switches. It is advisable to still use a managed PoE switch, so that you can maintain the Pis remotely.
 
 ### Onboarding
 
@@ -46,7 +50,7 @@ For more complete onboarding and `netctl` guidelines, see the hardware [onboardi
 ### Custom Implementations
 
 We currently only support the HP Aruba Switch series, yet it is somewhat trivial
-to onboard new routers, provided one can implement the following trait bounds.
+to onboard new switches, provided one can implement the following trait bounds.
 
 ```rust
 pub trait Api {
@@ -56,11 +60,11 @@ pub trait Api {
 }
 ```
 
-Which is expected to provide the following information:
+The functions are expected to provide the following information:
 
-- get_ports: Request list of all ports of a switch. Fails when request is invalid or switch is unreachable. On success returns a data structure containing information about a port.
-- add_untagged_port: Add a port to a VLAN in Untagged mode. Implicitly enables the port. Fails when receiving an invalid ID. Idempotent to redundant adding/enabling.
-- remove_port: Disables the port given by port_id. Implicitly removes it from the VLAN it belonged to prior. Idempotent to redundant disabling.
+- `get_ports`: Request list of all ports of a switch. Fails when request is invalid or switch is unreachable. On success returns a data structure containing information about a port.
+- `add_untagged_port`: Add a port to a VLAN in Untagged mode. Implicitly enables the port. Fails when receiving an invalid ID. Idempotent to redundant adding/enabling.
+- `remove_port`: Disables the port given by `port_id`. Implicitly removes it from the VLAN it belonged to prior. Idempotent to redundant disabling.
 
 <Callout type="note">
   The names you assign to switches here must match the switch names used in your

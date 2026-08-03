@@ -102,7 +102,7 @@ This is also typically constructed via Nix, but here is an example of the schema
 ```json
 {
   "switch-a": {
-    "model": "aruba",
+    "model": "aruba-aos-cx",
     "ip": "192.168.1.11",
     "port": 80,
     "credentials": {
@@ -110,10 +110,10 @@ This is also typically constructed via Nix, but here is an example of the schema
       "password": "changeme"
     },
     "default_vlan": { "vlan_id": 1 },
-    "mgmt_vlan": { "vlan_id": 42 },
+    "mgmt_vlan": { "vlan_id": 2 },
     "critical_ports": {
-      "mgmt_ports": ["1", "2"],
-      "trunk_ports": ["23", "24"]
+      "mgmt_ports": [ "1/1/1" ],
+      "trunk_ports": [  "1/1/2" ]
     }
   }
 }
@@ -176,7 +176,7 @@ All HWaaS services are available as NixOS modules. Below is a summary of the ava
 
 ### Remote-hands services
 
-Each remote-hands service follows the same pattern. These run on the Raspberry Pi terminal servers.
+Each remote-hands service follows the same pattern. These run on Raspberry Pis.
 
 <Callout type="note">
   Remote-hands services all share a common set of options: `enable`, `address`,
