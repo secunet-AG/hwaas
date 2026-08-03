@@ -127,6 +127,10 @@ aside {
   overflow: hidden;
 }
 
+a:hover {
+  text-decoration: underline;
+}
+
 .scalar-app {
   height: auto !important;
   min-height: 0 !important;
