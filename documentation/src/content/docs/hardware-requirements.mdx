@@ -43,35 +43,6 @@ The minimal setup has the following requirements:
 
 If you want more separation you can split the PoE switch from the management network into two distinct switches. It is advisable to still use a managed PoE switch, so that you can maintain the Pis remotely.
 
-### Onboarding
-
-For more complete onboarding and `netctl` guidelines, see the hardware [onboarding guide](../aruba-switch).
-
-### Custom Implementations
-
-We currently only support the HP Aruba Switch series, yet it is somewhat trivial
-to onboard new switches, provided one can implement the following trait bounds.
-
-```rust
-pub trait Api {
-    async fn get_ports(&self) -> Result<Vec<PortRepresentation>, SwitchApiError>;
-    async fn add_untagged_port(&self, vlan_id : &VlanID, port_id : &PortID) -> Result<(), SwitchApiError>;
-    async fn remove_port(&self, port_id : &PortID) -> Result<(), SwitchApiError>;
-}
-```
-
-The functions are expected to provide the following information:
-
-- `get_ports`: Request list of all ports of a switch. Fails when request is invalid or switch is unreachable. On success returns a data structure containing information about a port.
-- `add_untagged_port`: Add a port to a VLAN in Untagged mode. Implicitly enables the port. Fails when receiving an invalid ID. Idempotent to redundant adding/enabling.
-- `remove_port`: Disables the port given by `port_id`. Implicitly removes it from the VLAN it belonged to prior. Idempotent to redundant disabling.
-
-<Callout type="note">
-  The names you assign to switches here must match the switch names used in your
-  [NetCtrl inventory](./configuration#netctrl-inventory) when registering
-  machines.
-</Callout>
-
 ## Power Management
 
 The requirements for a managed power switch are minimal. Effectively, you need to be able to
