@@ -112,8 +112,8 @@ This is also typically constructed via Nix, but here is an example of the schema
     "default_vlan": { "vlan_id": 1 },
     "mgmt_vlan": { "vlan_id": 2 },
     "critical_ports": {
-      "mgmt_ports": [ "1/1/1" ],
-      "trunk_ports": [  "1/1/2" ]
+      "mgmt_ports": ["1/1/1"],
+      "trunk_ports": ["1/1/2"]
     }
   }
 }
@@ -180,9 +180,13 @@ Each remote-hands service follows the same pattern. These run on Raspberry Pis.
 
 <Callout type="note">
   Remote-hands services all share a common set of options: `enable`, `address`,
-  `port`, `configFile`, `otelEndpoint`, `consoleAddress`, and `openFirewall`.
-  The `remote-serial` service additionally exposes `serialConfig` for baud rate
-  and line settings.
+  `port`, `configFile`, `otelEndpoint`, `consoleAddress`(optional `tokio` console), and `openFirewall`.
+
+These are defined in the repository as a set of NixOS options, and they are all configured with default values.
+
+The `remote-serial` service additionally exposes `serialConfig` for baud rate
+and line settings.
+
 </Callout>
 
 #### Remote USB (`services.remote-usb`)
