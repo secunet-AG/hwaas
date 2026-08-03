@@ -30,7 +30,7 @@ Due to the virtualization, high network traffic, and various workloads, we recom
 - Xeon Silver 4410Y or equivalent x86 CPU
 - 32 GB ECC DDR4 RAM
 - 512GB+ SSD (you may need more, depending on the number and size of images hosted)
-- Dual port 10GbE PCIe adapter
+- Dual port 10GbE PCIe adapter, 3 total LAN ports, with additional IPMI capable port if needed.
 
 ## Networking
 
@@ -102,8 +102,8 @@ Each `remote-hands` instance requires the following physical components:
 - USB Power Blocker (prevents Pi from potentially powering on the BMR)
 
 <Callout type="warning">
-  The USB Power Blocker is not optional. Without it, the Raspberry Pi can
-  be powered by the bare metal resource through the USB OTG connection, preventing
+  The USB Power Blocker is not optional. Without it, the Raspberry Pi can be
+  powered by the bare metal resource through the USB OTG connection, preventing
   a clean hard shutdown or reboot of the Pi.
 </Callout>
 
@@ -111,10 +111,10 @@ Each `remote-hands` instance requires the following physical components:
 
 [Bare metal resources](./core-concepts#bare-metal-resources) have a number of optional and required interfaces.
 
-| Component          | Necessary | Description                                                                                                           |
-| ------------------ | --------- | --------------------------------------------------------------------------------------------------------------------- |
-| USB                | Required  | Handles image booting, as well as remote keyboard and mouse.                                                          |
-| Controllable Power | Required  | Machines should **not** go into sleep, but rather have a hard shutdown.                                               |
-| Ethernet           | Optional  | Necessary for machine network access only. |
-| Serial Connection  | Optional  | Serial support is convenient, especially for boot debugging, but not required.                                        |
-| Video Out          | Optional  | Video out can be captured with various adapters + V4L devices. This is not a required component.                      |
+| Component          | Necessary | Description                                                                                      |
+| ------------------ | --------- | ------------------------------------------------------------------------------------------------ |
+| USB                | Required  | Handles image booting, as well as remote keyboard and mouse.                                     |
+| Controllable Power | Required  | Machines should **not** go into sleep, but rather have a hard shutdown.                          |
+| Ethernet           | Optional  | Necessary for machine network access only.                                                       |
+| Serial Connection  | Optional  | Serial support is convenient, especially for boot debugging, but not required.                   |
+| Video Out          | Optional  | Video out can be captured with various adapters + V4L devices. This is not a required component. |

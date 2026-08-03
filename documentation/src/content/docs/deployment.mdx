@@ -51,13 +51,7 @@ Boot the Pi and let it resize partitions on first boot.
 
 ### Step 2: Deploy the final configuration
 
-Deploy your NixOS configuration to the Pi. This can be done locally on the Pi:
-
-```sh
-nixos-rebuild switch --flake .#ts-bmr1
-```
-
-Or remotely from your workstation(preferred):
+Deploy your NixOS configuration to the Pi. This can be done remotely from your workstation:
 
 ```sh
 nixos-rebuild switch --flake .#ts-bmr1 \
@@ -65,6 +59,8 @@ nixos-rebuild switch --flake .#ts-bmr1 \
   --build-host localhost \
   --use-remote-sudo
 ```
+
+or as a part of the greater deployment process with `colmena`.
 
 <Callout type="note">
     Building aarch64 packages on an x86 workstation requires binfmt emulation. Add this to your
