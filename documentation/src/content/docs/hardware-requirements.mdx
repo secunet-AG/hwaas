@@ -73,7 +73,7 @@ Which is expected to provide the following information:
 The requirements for a managed power switch are minimal. Effectively, you need to be able to
 write and deploy a bash or similar script that can be invoked to toggle a machines power state.
 
-This is eventually passed as a script invoked by each individual [`remote-hands`](./core-concepts#remote-hands) instance for managing their own power via the [`remote-power`](./core-concepts#remote-power) service.
+This is eventually passed as a script invoked by each individual [remote-hands](./core-concepts#remote-hands) instance for managing their own power via the [remote-power](./core-concepts#remote-power) service.
 
 ## Remote Hands
 
@@ -99,8 +99,8 @@ Each `remote-hands` instance requires the following physical components:
 
 <Callout type="warning">
   The USB Power Blocker is not optional. Without it, the Raspberry Pi can
-  back-power the bare metal resource through the USB OTG connection, preventing
-  a clean hard shutdown.
+  be powered by the bare metal resource through the USB OTG connection, preventing
+  a clean hard shutdown or reboot of the Pi.
 </Callout>
 
 ## Bare Metal Resources
@@ -111,6 +111,6 @@ Each `remote-hands` instance requires the following physical components:
 | ------------------ | --------- | --------------------------------------------------------------------------------------------------------------------- |
 | USB                | Required  | Handles image booting, as well as remote keyboard and mouse.                                                          |
 | Controllable Power | Required  | Machines should **not** go into sleep, but rather have a hard shutdown.                                               |
-| Ethernet           | Optional  | Necessary for machine network access, but you can boot a machine without that machine having a physical network port. |
+| Ethernet           | Optional  | Necessary for machine network access only. |
 | Serial Connection  | Optional  | Serial support is convenient, especially for boot debugging, but not required.                                        |
 | Video Out          | Optional  | Video out can be captured with various adapters + V4L devices. This is not a required component.                      |
