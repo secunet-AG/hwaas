@@ -199,9 +199,12 @@
             checks = lib.filterAttrs (n: _: lib.hasPrefix projectName n) checks;
 
             # Extra inputs can be added here; cargo and rustc are provided by default.
-            packages = [
-              pkgs.cargo-cyclonedx
-              pkgs.cyclonedx-cli
+            packages = with pkgs; [
+              rust-analyzer
+              cargo-watch
+              cargo-audit
+              cargo-cyclonedx
+              cyclonedx-cli
             ]
             ++ (lib.optional projectValue.hasWorkspaces [
               pkgs.cargo-hakari
