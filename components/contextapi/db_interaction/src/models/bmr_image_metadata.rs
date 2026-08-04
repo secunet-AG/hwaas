@@ -5,39 +5,6 @@
 
 use crate::schema::{bmr_image_metadatas, bmr_image_tag_map, bmr_image_tags};
 
-/// Magic number to represent that a numeric ID has not been initialized yet.
-// NOTE(hartan): This is a very unfortunate design decision that is more or less forced upon us by
-// the `diesel` crate. It appears there is no trivial way to create a single struct that represents
-// a full database table, while at the same time making the `id` column optional for user-facing
-// operations. This means we cannot reasonably differ between objects with "valid" IDs (i.e. taken
-// from the database) and objects with "invalid" IDs (i.e. created from scratch by users). This
-// would make for nicer API and more directed error messages, though. In a prior job I've made good
-// experiences with a generic ID type that looked something like this:
-//
-//     pub struct ID<T: 'static, U: 'static> {
-//         /// Raw unique ID used to address an object in the database.
-//         ///
-//         /// This represents the tables primary key. The option is used to distinguish between objects
-//         /// that exist in the database (`Some`) and objects that must be created in the database
-//         /// (`None`).
-//         #[serde(skip_deserializing)]
-//         raw: Option<T>,
-//         /// Phantom use of the owned datatype `U` to distinguish type instances.
-//         #[serde(skip)]
-//         _inner: PhantomData<U>,
-//     }
-//
-// This was a breeze to implement with `sqlx`, but not with `diesel`. The trait system used by the
-// latter is incredibly convoluted and the maintainers have a very strong opinion regarding the use
-// of generics with diesel:
-//
-// - <https://github.com/diesel-rs/diesel/discussions/3880>
-// - <https://github.com/diesel-rs/diesel/discussions/4821>
-//
-// After having wasted waaay to many hours trying to figure out this trait system, I hereby
-// surrender.
-pub const ID_I32_UNINITIALIZED: i32 = -1;
-
 /// The image metadata stored for each uploaded image.
 #[derive(
     Debug,
@@ -106,15 +73,6 @@ pub struct ImageTag {
 }
 
 impl ImageTag {
-    /// Create a new tag for uploading into the database.
-    pub fn new<N: Into<String>, D: Into<String>>(name: N, description: Option<D>) -> Self {
-        Self {
-            id: ID_I32_UNINITIALIZED,
-            name: name.into(),
-            description: description.map(|d| d.into()),
-        }
-    }
-
     /// Get the raw, unique database ID representing this image tag.
     pub fn id(&self) -> i32 {
         self.id
