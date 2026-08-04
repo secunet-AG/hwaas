@@ -320,6 +320,7 @@
           hunt = {
             sources = [ ../components/hunt ];
             hasWorkspaces = false;
+            extraDeps = [ pkgs.cacert ];
           };
 
           rpi-status-display = {
@@ -327,10 +328,13 @@
             hasWorkspaces = false;
           };
 
-          net-ctrl.sources = [
-            ../components/net-ctrl
-            ../components/hunt
-          ];
+          net-ctrl = {
+            sources = [
+              ../components/net-ctrl
+              ../components/hunt
+            ];
+            extraDeps = [ pkgs.cacert ];
+          };
 
           ws-gateway = {
             sources = [
@@ -370,7 +374,7 @@
               "contextapi"
               "machine-ops"
             ];
-            extraDeps = [ pkgs.sqlite ];
+            extraDeps = [ pkgs.sqlite pkgs.cacert ];
             extraDepsDevShell = [ pkgs.diesel-cli ];
           };
         };

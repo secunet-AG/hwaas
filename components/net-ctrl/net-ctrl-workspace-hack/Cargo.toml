@@ -23,8 +23,7 @@ futures-task = { version = "0.3", default-features = false, features = ["std"] }
 futures-util = { version = "0.3", default-features = false, features = ["async-await-macro", "channel", "io", "sink"] }
 log = { version = "0.4", default-features = false, features = ["std"] }
 memchr = { version = "2" }
-regex = { version = "1", default-features = false, features = ["perf", "std", "unicode-case", "unicode-perl"] }
-regex-automata = { version = "0.4", default-features = false, features = ["dfa-onepass", "hybrid", "meta", "nfa-backtrack", "perf-inline", "perf-literal", "std", "unicode-case", "unicode-perl", "unicode-word-boundary"] }
+regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa-backtrack", "perf-inline", "perf-literal", "std"] }
 schemars = { version = "0.8", features = ["impl_json_schema", "indexmap2"] }
 serde_json = { version = "1", features = ["raw_value"] }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }

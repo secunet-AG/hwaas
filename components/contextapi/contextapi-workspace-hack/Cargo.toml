@@ -45,7 +45,7 @@ rand = { version = "0.8", features = ["small_rng"] }
 regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
 regex-syntax = { version = "0.8" }
 remote-usb = { path = "../../remote-hands/remote-usb", default-features = false, features = ["usb-serial"] }
-reqwest = { version = "0.13", default-features = false, features = ["hickory-dns", "json", "multipart", "rustls-no-provider", "stream"] }
+reqwest = { version = "0.13", default-features = false, features = ["hickory-dns", "json", "multipart", "rustls", "stream"] }
 reqwest-middleware = { version = "0.5", default-features = false, features = ["json", "multipart"] }
 schemars = { version = "0.8", features = ["impl_json_schema", "indexmap2", "uuid", "uuid1"] }
 serde_core = { version = "1", features = ["alloc"] }
