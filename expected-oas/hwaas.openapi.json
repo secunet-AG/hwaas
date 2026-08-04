@@ -1864,6 +1864,45 @@
         ],
         "type": "object"
       },
+      "QueryParamTag": {
+        "description": "The REST query parameter that represents a boot image tag by name",
+        "properties": {
+          "name": {
+            "description": "Name of the requested tag to operate on",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "QueryParamsArchitecture": {
+        "description": "The REST query parameter that represents a boot image architecture",
+        "properties": {
+          "architecture": {
+            "description": "Compiled architecture of a boot image",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "QueryParamsFileName": {
+        "description": "The REST query parameter that represents a boot image file name",
+        "properties": {
+          "file_name": {
+            "description": "User file name of a boot image",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file_name"
+        ],
+        "type": "object"
+      },
       "QueryParamsImageHash": {
         "properties": {
           "image_hash": {
@@ -6024,6 +6063,124 @@
         ]
       }
     },
+    "/images/tags": {
+      "delete": {
+        "description": "Delete an existing tag from the database",
+        "parameters": [
+          {
+            "description": "Human-readable description of a tag.",
+            "in": "query",
+            "name": "description",
+            "schema": {
+              "description": "Human-readable description of a tag.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": "form"
+          },
+          {
+            "description": "Concise name of a tag.",
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "description": "Concise name of a tag.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Delete an existing tag",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "get": {
+        "description": "List all tags currently known in the database",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ImageTag"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "List known image tags",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "post": {
+        "description": "Define a new tag for attaching to images",
+        "parameters": [
+          {
+            "description": "Human-readable description of a tag.",
+            "in": "query",
+            "name": "description",
+            "schema": {
+              "description": "Human-readable description of a tag.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": "form"
+          },
+          {
+            "description": "Concise name of a tag.",
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "description": "Concise name of a tag.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Create a new tag",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
     "/images/{image_hash}": {
       "delete": {
         "description": "Mark an image for garbage collection",
@@ -6087,6 +6244,299 @@
           }
         },
         "summary": "Get image metadata",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
+    "/images/{image_hash}/architecture": {
+      "get": {
+        "description": "Get the 'architecture' metadata attribute of an image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The architecture"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Get image architecture",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "post": {
+        "description": "Modify the 'architecture' metadata attribute of an image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Compiled architecture of a boot image",
+            "in": "query",
+            "name": "architecture",
+            "schema": {
+              "description": "Compiled architecture of a boot image",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Post image architecture",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
+    "/images/{image_hash}/file_name": {
+      "get": {
+        "description": "Get the 'file name' metadata attribute of an image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The file name"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Get image file name",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "post": {
+        "description": "Modify the 'file name' metadata attribute of an image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "User file name of a boot image",
+            "in": "query",
+            "name": "file_name",
+            "required": true,
+            "schema": {
+              "description": "User file name of a boot image",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Post image metadata file name",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
+    "/images/{image_hash}/tags": {
+      "delete": {
+        "description": "Remove one or more tags from an existing image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Name of the requested tag to operate on",
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "description": "Name of the requested tag to operate on",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Remove tags from an image",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "get": {
+        "description": "List tags currently attached to the given image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ImageTag"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "List tags on an image",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "post": {
+        "description": "Add one or more tags to an existing image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Name of the requested tag to operate on",
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "description": "Name of the requested tag to operate on",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Add tags to an image",
         "tags": [
           "Image API"
         ]

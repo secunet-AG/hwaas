@@ -148,6 +148,57 @@ testers.runNixOSTest {
       response_json = json.loads(response)
       assert response_json["file_name"] == imgName + ".zstd", f"response had unexpected file name: {response_json}"
 
+    with subtest("Read filename only"):
+      response = gateway.succeed(f"curl --fail-with-body --silent \
+        {base_url}/images/{sha_sum}/file_name")
+      file_name = json.loads(response)
+      assert file_name == imgName + ".zstd", f"response had unexpected file name: {response}"
+
+    with subtest("Modify image file name"):
+      gateway.succeed(f"curl --fail-with-body -X POST --silent \
+        --url-query 'file_name=mod_{imgName}' {base_url}/images/{sha_sum}/file_name")
+      response = gateway.succeed(f"curl --fail-with-body --silent \
+        {base_url}/images/{sha_sum}/file_name")
+      file_name = json.loads(response)
+      assert file_name == "mod_" + imgName, f"response had unexpected file name: {response}"
+
+    with subtest("Read architecture only"):
+      response = gateway.succeed(f"curl --fail-with-body --silent \
+        {base_url}/images/{sha_sum}/architecture")
+      architecture = json.loads(response)
+      assert architecture is None, f"response had unexpected architecture: {response}"
+
+    with subtest("Modify image architecture"):
+      gateway.succeed(f"curl --fail-with-body -X POST --silent \
+        --url-query 'architecture=aarch64' {base_url}/images/{sha_sum}/architecture")
+      response = gateway.succeed(f"curl --fail-with-body --silent \
+        {base_url}/images/{sha_sum}/architecture")
+      architecture = json.loads(response)
+      assert architecture == "aarch64", f"response had unexpected architecture: {response}"
+
+    with subtest("Create new tags"):
+      gateway.succeed(f"curl --fail-with-body -X POST --silent \
+        --url-query 'name=tag a' --url-query 'description=some tag' {base_url}/images/tags")
+      gateway.succeed(f"curl --fail-with-body -X POST --silent \
+        --url-query 'name=tag b' --url-query 'description=another tag' {base_url}/images/tags")
+      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/tags")
+      tags = json.loads(response)
+      assert len(tags) == 2, f"response had unexpected number of tags: {response}"
+
+    with subtest("Add tag to image"):
+      gateway.succeed(f"curl --fail-with-body -X POST --silent \
+        --url-query 'name=tag a' {base_url}/images/{sha_sum}/tags")
+      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}")
+      image = json.loads(response)
+      assert image["tags"][0]["name"] == "tag a", f"response had unexpected tags: {response}"
+
+    with subtest("Remove tag from image"):
+      gateway.succeed(f"curl --fail-with-body -X DELETE --silent \
+        --url-query 'name=tag a' {base_url}/images/{sha_sum}/tags")
+      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}")
+      image = json.loads(response)
+      assert len(image["tags"]) == 0, f"response had unexpected tags: {response}"
+
     # Test if 'get_images' returns the right amount of images and sizes
     with subtest("Get images"):
       response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images")
