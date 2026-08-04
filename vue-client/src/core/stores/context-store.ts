@@ -108,7 +108,7 @@ export const useContextStore = defineStore('context', () => {
       if (!machine) throw new Error('Could not find machine')
 
       // Toggle the machine power state. If we get an error, set it to unknown.
-      let res =
+      const res =
         machine.powerState == 'on'
           ? await powerOffMachine(activeContext.value.id, machineName)
           : await powerOnMachine(activeContext.value.id, machineName)
@@ -305,7 +305,7 @@ export const useContextStore = defineStore('context', () => {
     const { data: machines, error: machinesError } = await invalidateMachines(freshContext)
 
     machines?.forEach((x) => {
-      let foundImage = machineImageMap.get(x.machine_id as string)
+      const foundImage = machineImageMap.get(x.machine_id as string)
       if (foundImage) {
         x.activeImage = foundImage
       }

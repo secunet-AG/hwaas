@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export function objToArray<T extends Object, K extends string | number | symbol>(
+export function objToArray<T extends object, K extends string | number | symbol>(
   object: Record<K, T>,
   identifier: string,
 ) {

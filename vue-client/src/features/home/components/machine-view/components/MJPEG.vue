@@ -10,8 +10,10 @@ import { useContextStore } from '@/core/stores/context-store'
 import { useKeyboardCapture, type KeyboardReport } from '@/shared/lib/hooks/useKeyboardCapture'
 import { useKeyboardWebsocket } from '@/shared/lib/hooks/useKeyboardWebsocket'
 import useMouseCapture from '@/shared/lib/hooks/useMouseCapture'
+import KvmKeyboardToolbar, { type ComboEvent } from './KvmKeyboardToolbar.vue'
 import { storeToRefs } from 'pinia'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, useTemplateRef, watch } from 'vue'
+import { Keyboard } from '@lucide/vue'
 
 const props = defineProps<{
   machineName: string
@@ -32,7 +34,25 @@ watch(
 
 const onKeyboardPress = (r: KeyboardReport) => sendMessage(r)
 
-useKeyboardCapture(isActive, onKeyboardPress)
+// Modifiers the user has toggled in the toolbar.
+//
+// Shared with the keyboard capture so a sticky modifier applies to the next real or virtual keypress.
+// This is then dropped after one application. UX decision, can be changed.
+const stickyModifiers = reactive(new Set<string>())
+
+useKeyboardCapture(isActive, onKeyboardPress, stickyModifiers)
+
+const showKeyboardToolbar = ref(false)
+
+// Key combinations are effectively a press, small wait, and release.
+//
+// Here we apply this on any combination of keys
+function onToolbarSend(combo: ComboEvent) {
+  sendMessage({ keys: combo.keys, modifier: combo.modifier, press: true, release: false })
+  window.setTimeout(() => {
+    sendMessage({ keys: [], modifier: 0, press: false, release: true })
+  }, 100)
+}
 
 const { apiUrl } = useApiUrl()
 
@@ -86,6 +106,15 @@ function onClose() {
   >
     <div ref="screenContainer" :class="currentWindowStyle" class="relative flex flex-col">
       <div class="flex w-full items-center justify-end gap-3 p-3">
+        <button
+          id="toggle-keyboard-toolbar"
+          class="cursor-pointer"
+          @click="showKeyboardToolbar = !showKeyboardToolbar"
+        >
+          <Keyboard
+            class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
+          ></Keyboard>
+        </button>
         <button id="minimize" @click="onClose()" class="cursor-pointer">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +122,7 @@ function onClose() {
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="text-(--app-secondary-text) size-8"
+            class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
           >
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
           </svg>
@@ -106,7 +135,7 @@ function onClose() {
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="text-(--app-secondary-text) size-8"
+            class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
           >
             <path
               stroke-linecap="round"
@@ -121,7 +150,7 @@ function onClose() {
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="text-(--app-secondary-text) size-8"
+            class="w-8 text-(--app-primary-border) transition hover:text-(--app-primary-text)"
           >
             <path
               stroke-linecap="round"
@@ -131,6 +160,11 @@ function onClose() {
           </svg>
         </button>
       </div>
+      <KvmKeyboardToolbar
+        v-if="showKeyboardToolbar"
+        :sticky-modifiers="stickyModifiers"
+        @send="onToolbarSend"
+      />
       <!-- The live mjpeg stream, for the price of an img tag!-->
       <img ref="streamingImage" class="w-full h-full object-fit rounded-lg" :src="mjpegUrl" />
     </div>

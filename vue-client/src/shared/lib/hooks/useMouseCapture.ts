@@ -86,7 +86,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
 
   // We fire this when we have entered the componenet
   function startListening() {
-    let el = target.value
+    const el = target.value
     if (!el) throw new Error('Target element for useMouseCapture not found')
 
     el.addEventListener('mousemove', onMouseMove)
@@ -94,53 +94,53 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
   }
 
   function onMouseMove(e: MouseEvent) {
-    let el = target.value
+    const el = target.value
 
     if (!el) {
       throw new Error('Target element for onMouseMove not found')
     }
 
-    let { x, y, width, height } = el.getBoundingClientRect()
+    const { x, y, width, height } = el.getBoundingClientRect()
 
-    let relative_x = e.clientX - x
-    let relative_y = e.clientY - y
+    const relative_x = e.clientX - x
+    const relative_y = e.clientY - y
 
-    let x_ratio = relative_x / width
-    let y_ratio = relative_y / height
+    const x_ratio = relative_x / width
+    const y_ratio = relative_y / height
 
     const HID_MAP_FACTOR = 0x00008000
 
-    let x_final = x_ratio * HID_MAP_FACTOR
-    let y_final = y_ratio * HID_MAP_FACTOR
+    const x_final = x_ratio * HID_MAP_FACTOR
+    const y_final = y_ratio * HID_MAP_FACTOR
 
     sendMessage({ buttons: [], wheel: 0, x: x_final, y: y_final } satisfies MouseReport)
   }
 
   function onMouseDown(e: MouseEvent) {
-    let el = target.value
+    const el = target.value
 
     if (!el) {
       throw new Error('Target element for onMouseMove not found')
     }
 
-    let { x, y, width, height } = el.getBoundingClientRect()
+    const { x, y, width, height } = el.getBoundingClientRect()
 
-    let relative_x = e.clientX - x
-    let relative_y = e.clientY - y
+    const relative_x = e.clientX - x
+    const relative_y = e.clientY - y
 
-    let x_ratio = relative_x / width
-    let y_ratio = relative_y / height
+    const x_ratio = relative_x / width
+    const y_ratio = relative_y / height
 
     const HID_MAP_FACTOR = 0x00008000
 
-    let x_final = x_ratio * HID_MAP_FACTOR
-    let y_final = y_ratio * HID_MAP_FACTOR
+    const x_final = x_ratio * HID_MAP_FACTOR
+    const y_final = y_ratio * HID_MAP_FACTOR
 
     sendMessage({ buttons: [1], wheel: 0, x: x_final, y: y_final } satisfies MouseReport)
   }
 
   function removeScreenListeners() {
-    let el = target.value
+    const el = target.value
 
     el?.removeEventListener('mousemove', onMouseMove)
   }
