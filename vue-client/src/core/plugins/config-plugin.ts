@@ -41,7 +41,11 @@ export const configProvider = (): ConfigState => {
 
   const apiUrl = computed(() => config.value.apiUrl)
 
-  onMounted(async () => {
+  // For local development, simply use vite environment
+  const loadDevelopmentConfig = () => {}
+
+  // For production config, our hosted config.json file
+  const loadProductionConfig = async () => {
     console.info('loading config...')
     try {
       const res = await fetch('/config.json')
@@ -54,7 +58,9 @@ export const configProvider = (): ConfigState => {
     } catch (e) {
       console.error(`Could not load config.json, ${CONTACT_MSG}: ${e}`)
     }
-  })
+  }
+
+  onMounted(async () => {})
 
   return { config, apiUrl }
 }
