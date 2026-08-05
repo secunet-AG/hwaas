@@ -312,6 +312,9 @@ jobs:
         name: check aruba-switch-mock-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-clippy'
       - if: always()
+        name: check aruba-switch-mock-deny
+        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-deny'
+      - if: always()
         name: check aruba-switch-mock-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-docs'
       - if: always()
@@ -341,6 +344,9 @@ jobs:
       - if: always()
         name: check contextapi-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-clippy'
+      - if: always()
+        name: check contextapi-deny
+        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-deny'
       - if: always()
         name: check contextapi-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-docs'
@@ -375,6 +381,9 @@ jobs:
         name: check hunt-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-clippy'
       - if: always()
+        name: check hunt-deny
+        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-deny'
+      - if: always()
         name: check hunt-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-docs'
       - if: always()
@@ -401,6 +410,9 @@ jobs:
       - if: always()
         name: check net-ctrl-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-clippy'
+      - if: always()
+        name: check net-ctrl-deny
+        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-deny'
       - if: always()
         name: check net-ctrl-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-docs'
@@ -454,6 +466,9 @@ jobs:
         name: check remote-hands-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-clippy'
       - if: always()
+        name: check remote-hands-deny
+        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-deny'
+      - if: always()
         name: check remote-hands-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-docs'
       - if: always()
@@ -486,6 +501,9 @@ jobs:
       - if: always()
         name: check rpi-status-display-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-clippy'
+      - if: always()
+        name: check rpi-status-display-deny
+        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-deny'
       - if: always()
         name: check rpi-status-display-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-docs'
@@ -553,6 +571,9 @@ jobs:
       - if: always()
         name: check ws-gateway-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-clippy'
+      - if: always()
+        name: check ws-gateway-deny
+        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-deny'
       - if: always()
         name: check ws-gateway-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-docs'

@@ -51,6 +51,7 @@ let
   checkTypes = [
     "checkTestconfig"
     "clippy"
+    "deny"
     "docs"
     "fmt"
     "golden-test-openapi-spec"
