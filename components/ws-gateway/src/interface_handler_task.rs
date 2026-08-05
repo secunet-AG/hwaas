@@ -10,7 +10,7 @@ use tokio::select;
 use tracing::{debug, error, warn};
 
 use crate::net_dev::AfNetDev;
-use tokio::sync::{broadcast, mpsc, Mutex};
+use tokio::sync::{Mutex, broadcast, mpsc};
 use tokio::task::{Builder, JoinHandle};
 
 use crate::interface_streams::InterfaceStreams;

@@ -4,12 +4,12 @@
 
 use aide::{
     axum::{
-        routing::{get_with, post_with},
         ApiRouter,
+        routing::{get_with, post_with},
     },
     transform::{TransformOperation, TransformPathItem},
 };
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 use std::collections::HashMap;
 
 use crate::api::activation_info::AuxiliaryDevice;

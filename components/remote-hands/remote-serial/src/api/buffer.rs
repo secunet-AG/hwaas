@@ -5,7 +5,7 @@
 use super::ExtractSerial;
 use aide::transform::TransformOperation;
 use axum::body::Bytes;
-use axum::http::{header, StatusCode};
+use axum::http::{StatusCode, header};
 use axum::response::{IntoResponse, Response};
 use tracing::warn;
 

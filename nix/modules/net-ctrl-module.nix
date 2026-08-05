@@ -4,10 +4,11 @@
 
 # deadnix: skip
 perSystem@{ config, ... }:
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 let
   netCtrlCfg = config.services.netCtrl;
@@ -103,17 +104,16 @@ in
           OTEL_TRACES_SAMPLER = "always_on";
           OTEL_LOG_LEVEL = "info";
         };
-        serviceConfig =
-          {
-            User = "${username}";
-            ExecStart = "${netCtrlCfg.package}/bin/net-ctrl -vv ${logFileOpt} --inventory-file ${netCtrlInventory} ${socketAddr}";
-            WorkingDirectory = runDir;
-          }
-          // lib.attrsets.optionalAttrs (netCtrlCfg.port <= 1024) {
-            # For ports below 1024 a special capability is needed (CAP_NET_BIND_SERVICE)
-            CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
-            AmbientCapabilities = "CAP_NET_BIND_SERVICE";
-          };
+        serviceConfig = {
+          User = "${username}";
+          ExecStart = "${netCtrlCfg.package}/bin/net-ctrl -vv ${logFileOpt} --inventory-file ${netCtrlInventory} ${socketAddr}";
+          WorkingDirectory = runDir;
+        }
+        // lib.attrsets.optionalAttrs (netCtrlCfg.port <= 1024) {
+          # For ports below 1024 a special capability is needed (CAP_NET_BIND_SERVICE)
+          CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
+          AmbientCapabilities = "CAP_NET_BIND_SERVICE";
+        };
       };
 
     # Add run dir for user

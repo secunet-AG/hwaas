@@ -16,15 +16,15 @@ use crate::interface_streams::InterfaceStreams;
 pub use crate::network_selector::NetworkSelector;
 use crate::peer::{Peer, PeerID};
 use crate::socket_handler_task::SocketHandlerTask;
-use aide::axum::routing::get_with;
+use aide::NoApi;
 use aide::axum::ApiRouter;
 use aide::axum::IntoApiResponse;
+use aide::axum::routing::get_with;
 use aide::openapi::{Info, OpenApi};
-use aide::NoApi;
+use axum::Router;
 use axum::extract::ws::WebSocket;
 use axum::extract::{ConnectInfo, Path, State, WebSocketUpgrade};
 use axum::response::IntoResponse;
-use axum::Router;
 use axum_extra::headers::Header;
 use axum_extra::typed_header::TypedHeader;
 use schemars::JsonSchema;
@@ -34,7 +34,7 @@ use std::net::SocketAddr;
 use tokio::task::Builder;
 use tower_http::request_id::SetRequestIdLayer;
 use tower_http::trace::TraceLayer;
-use tracing::{debug, instrument, Instrument};
+use tracing::{Instrument, debug, instrument};
 
 // A type-safe path
 #[derive(Deserialize, Serialize, Debug, JsonSchema)]

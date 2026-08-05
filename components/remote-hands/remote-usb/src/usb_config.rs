@@ -15,12 +15,12 @@ use usb_gadget::function::net::{Net, NetClass};
 #[cfg(feature = "usb-serial")]
 use usb_gadget::function::serial::{Serial, SerialClass};
 use usb_gadget::{
+    Class, Config, Gadget, Id, Strings,
     function::{
+        Handle,
         hid::Hid,
         msd::{Lun, Msd},
-        Handle,
     },
-    Class, Config, Gadget, Id, Strings,
 };
 
 /// User-facing meta information after configuration
@@ -258,7 +258,12 @@ impl UsbConfig {
                 let function_type = function.function_type();
                 if let Some(count) = counts.get(function_type.as_str()) {
                     if max < *count {
-                        return Err(Error::new(ErrorKind::InvalidInput, format!("Max amount of '{function_type}' type function is {max}, but {count} were defined.")));
+                        return Err(Error::new(
+                            ErrorKind::InvalidInput,
+                            format!(
+                                "Max amount of '{function_type}' type function is {max}, but {count} were defined."
+                            ),
+                        ));
                     }
                 }
             }

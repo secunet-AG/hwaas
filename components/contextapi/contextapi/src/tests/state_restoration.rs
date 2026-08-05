@@ -9,7 +9,7 @@ use std::{
 
 use context_data_structures::{aliases::ContextId, machine_properties::MachineProperties};
 use reqwest::StatusCode;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use super::test_server_setup::{TestServerOutputs, TestServerSetup};
 
@@ -41,13 +41,15 @@ async fn context_is_available_after_restart() {
     // As a last check we ensure that we can delete the existing network
     let network_url =
         format!("http://{addr}/{API_VERSION}/contexts/{context_id}/networks/{NETWORK_NAME}");
-    assert!(reqwest::Client::new()
-        .delete(&network_url)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        reqwest::Client::new()
+            .delete(&network_url)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 }
 
 // Check that restarting the server does not make

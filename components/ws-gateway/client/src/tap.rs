@@ -7,7 +7,7 @@ use futures_util::{Sink, SinkExt, StreamExt};
 use nom::HexDisplay;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, ReadHalf, WriteHalf};
 use tokio::select;
-use tokio_tun::{result::Result, Tun, TunBuilder};
+use tokio_tun::{Tun, TunBuilder, result::Result};
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::tungstenite::Result as TResult;
 

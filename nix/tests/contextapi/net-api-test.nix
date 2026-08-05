@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Test if the generated NetCtrl client behaves like expected
-{ testers
-, context-api-url-version-prefix
-, httpie
-, jq
-, modules
-,
+{
+  testers,
+  context-api-url-version-prefix,
+  httpie,
+  jq,
+  modules,
 }:
 let
   switch = "switch1";
@@ -31,9 +31,7 @@ testers.runNixOSTest {
         modules.net-ctrl-module
       ];
 
-      context-api-test-config = {
-        inherit switch net_ctrl_port switch_connection_1;
-      };
+      context-api-test-config = { inherit switch net_ctrl_port switch_connection_1; };
 
       context-api-test-config = {
         enable = true;

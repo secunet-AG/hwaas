@@ -4,10 +4,11 @@
 
 # deadnix: skip
 perSystem@{ config, ... }:
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 let
   cfg = config.services.remote-serial;
@@ -24,20 +25,18 @@ let
   # Tests are under ../tests/remote-hands/remote-serial-udev.nix
   serials =
     with cfg.serialConfig;
-    map
-      (
-        serial:
-        {
-          inherit
-            baud_rate
-            char_size
-            stop_bits
-            parity
-            ;
-        }
-        // serial
-      )
-      ttySerials;
+    map (
+      serial:
+      {
+        inherit
+          baud_rate
+          char_size
+          stop_bits
+          parity
+          ;
+      }
+      // serial
+    ) ttySerials;
 
   # turn serial entry into a udev rule string
   mkUdevRule = serial: ''
@@ -169,10 +168,9 @@ in
 
     systemd.services.remote-serial =
       let
-        tokioConsole = lib.strings.optionalString
-          (
-            !builtins.isNull cfg.consoleAddress
-          ) "--tokio-console-address ${cfg.consoleAddress}";
+        tokioConsole = lib.strings.optionalString (
+          !builtins.isNull cfg.consoleAddress
+        ) "--tokio-console-address ${cfg.consoleAddress}";
       in
       {
         description = "HWaaS remote-serial";
@@ -187,26 +185,25 @@ in
           OTEL_LOG_LEVEL = "info";
         };
         path = with pkgs; [ bash ];
-        serviceConfig =
-          {
-            Type = "notify";
-            User = "${username}";
-            ExecStart = ''
-              ${cfg.package}/bin/remote-serial \
-                          -vv \
-                          ${tokioConsole} \
-                          --address ${cfg.address} \
-                          --port ${toString cfg.port} \
-                          --config-file ${cfg.configFile}
-            '';
-            WorkingDirectory = "${runDir}";
-            TimeoutStartSec = "45min";
-          }
-          // lib.optionalAttrs (cfg.port <= 1024) {
-            # For ports below 1024 a special capability is needed additionaly (CAP_NET_BIND_SERVICE)
-            CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
-            AmbientCapabilities = "CAP_NET_BIND_SERVICE";
-          };
+        serviceConfig = {
+          Type = "notify";
+          User = "${username}";
+          ExecStart = ''
+            ${cfg.package}/bin/remote-serial \
+                        -vv \
+                        ${tokioConsole} \
+                        --address ${cfg.address} \
+                        --port ${toString cfg.port} \
+                        --config-file ${cfg.configFile}
+          '';
+          WorkingDirectory = "${runDir}";
+          TimeoutStartSec = "45min";
+        }
+        // lib.optionalAttrs (cfg.port <= 1024) {
+          # For ports below 1024 a special capability is needed additionaly (CAP_NET_BIND_SERVICE)
+          CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
+          AmbientCapabilities = "CAP_NET_BIND_SERVICE";
+        };
       };
 
     systemd.tmpfiles.rules = [ "d ${runDir} 775 ${username} ${group}" ];

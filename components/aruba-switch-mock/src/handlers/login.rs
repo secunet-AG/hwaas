@@ -5,9 +5,9 @@
 use crate::app_state::AppState;
 use crate::credential_cookie_name::CREDENTIAL_COOKIE_NAME;
 use aruba_structs::login_sessions::{RestLoginSessions, RestLoginSessionsResult};
+use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
-use axum::Json;
 use std::sync::Arc;
 use tracing::{debug, error, info};
 use uuid::Uuid;

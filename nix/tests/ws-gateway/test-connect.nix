@@ -2,27 +2,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ nixosTest
-, lib
-, debugging ? false
-, modules
-, ws-proxy-client
-,
+{
+  nixosTest,
+  lib,
+  debugging ? false,
+  modules,
+  ws-proxy-client,
 }:
 let
   # NixOS module shared between all VMs
-  sharedModule =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = with pkgs; [
-        iperf
-      ];
-      networking = {
-        firewall.enable = false;
-        dhcpcd.enable = false;
-        useDHCP = false;
-      };
+  sharedModule = { pkgs, ... }: {
+    environment.systemPackages = with pkgs; [ iperf ];
+    networking = {
+      firewall.enable = false;
+      dhcpcd.enable = false;
+      useDHCP = false;
     };
+  };
 
   # const
   clientIpTap = "192.168.1.22";
@@ -49,57 +45,51 @@ nixosTest {
     # connects to the counterpart running on the server (aka. gateway).
     # On success there will be a tap interface (like tapWS) on the machine which is usable for communicating with the
     # static HWaaS like network.
-    client =
-      { lib
-      , ...
-      }:
-      {
-        # This is/are the network(s) not the vlan :)
-        virtualisation.vlans = [ 1 ];
+    client = { lib, ... }: {
+      # This is/are the network(s) not the vlan :)
+      virtualisation.vlans = [ 1 ];
 
-        imports = [
-          sharedModule
-          modules.test-debug-module
-          modules.ws-client-module
+      imports = [
+        sharedModule
+        modules.test-debug-module
+        modules.ws-client-module
+      ];
+
+      services.debugging.enable = debugging;
+
+      networking = {
+        extraHosts = lib.optionalString debugging "${sutIp} sut";
+        interfaces.eth1.ipv4.addresses = lib.mkForce [
+          {
+            address = clientIp;
+            prefixLength = 24;
+          }
         ];
-
-        services.debugging.enable = debugging;
-
-        networking = {
-          extraHosts = lib.optionalString debugging "${sutIp} sut";
-          interfaces.eth1.ipv4.addresses = lib.mkForce [
+        interfaces.${clientWsTap} = {
+          ipv4.addresses = [
             {
-              address = clientIp;
+              address = clientIpTap;
               prefixLength = 24;
             }
           ];
-          interfaces.${clientWsTap} = {
-            ipv4.addresses = [
-              {
-                address = clientIpTap;
-                prefixLength = 24;
-              }
-            ];
-            virtualType = "tap";
-            virtual = true;
-            mtu = 1470;
-          };
+          virtualType = "tap";
+          virtual = true;
+          mtu = 1470;
         };
-
-        services.websocketProxyClient = {
-          enable = true;
-          baseInterface = clientWsTap;
-          uri = "ws://${serverIp}:${builtins.toString serverPort}/ws/${builtins.toString staticVlan}";
-        };
-
-        # The test needs control over starting the unit - prevent autostart
-        systemd.services.websocket-proxy-client.wantedBy = lib.mkForce [ ];
-
-        environment.systemPackages = [
-          ws-proxy-client
-        ];
-
       };
+
+      services.websocketProxyClient = {
+        enable = true;
+        baseInterface = clientWsTap;
+        uri = "ws://${serverIp}:${builtins.toString serverPort}/ws/${builtins.toString staticVlan}";
+      };
+
+      # The test needs control over starting the unit - prevent autostart
+      systemd.services.websocket-proxy-client.wantedBy = lib.mkForce [ ];
+
+      environment.systemPackages = [ ws-proxy-client ];
+
+    };
 
     # The server node poses the HWaaS Gateway. Once the client connects to the websocketProxyGateway
     # its traffic is tagged with a VLAN and forwarded to the switch.
@@ -196,42 +186,40 @@ nixosTest {
     # For this test, the SUT runs an arbitrary service that the client wants to access.
     # In this particular case the service is a iperf3 server.
     # During the test the client node will pose the iperf3 counterpart.
-    sut =
-      { pkgs, ... }:
-      {
-        # This is/are the network(s) not the vlan :)
-        virtualisation.vlans = [ 3 ];
+    sut = { pkgs, ... }: {
+      # This is/are the network(s) not the vlan :)
+      virtualisation.vlans = [ 3 ];
 
-        imports = [
-          sharedModule
-          modules.test-debug-module
+      imports = [
+        sharedModule
+        modules.test-debug-module
+      ];
+
+      services.debugging.enable = debugging;
+
+      # setup the interface so the client could connect to the service.
+      networking = {
+        interfaces.eth1.ipv4.addresses = lib.mkForce [
+          {
+            address = sutIp;
+            prefixLength = 24;
+          }
         ];
-
-        services.debugging.enable = debugging;
-
-        # setup the interface so the client could connect to the service.
-        networking = {
-          interfaces.eth1.ipv4.addresses = lib.mkForce [
-            {
-              address = sutIp;
-              prefixLength = 24;
-            }
-          ];
-        };
-
-        # start the iperf3 server as systemd service on this system.
-        systemd.services.iperf3-server = {
-          description = "Run the iperf3 server for test scenario";
-          wantedBy = [ "default.target" ];
-          # wait until network is online
-          after = [ "network-online.target" ];
-          wants = [ "network-online.target" ];
-          serviceConfig = {
-            ExecStart = "${pkgs.iperf3}/bin/iperf3 -s -p 7575";
-          };
-        };
-
       };
+
+      # start the iperf3 server as systemd service on this system.
+      systemd.services.iperf3-server = {
+        description = "Run the iperf3 server for test scenario";
+        wantedBy = [ "default.target" ];
+        # wait until network is online
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
+        serviceConfig = {
+          ExecStart = "${pkgs.iperf3}/bin/iperf3 -s -p 7575";
+        };
+      };
+
+    };
   };
 
   # Disable linting for simpler debugging of the testScript

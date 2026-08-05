@@ -10,12 +10,12 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 use tower::BoxError;
-use tracing::{info, Level, Subscriber};
+use tracing::{Level, Subscriber, info};
 use tracing_opentelemetry::OpenTelemetryLayer;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::registry::LookupSpan;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt};
 
 /// Build a new HWaaS tracing instance.
 /// This builder has sane defaults for the HWaaS project.

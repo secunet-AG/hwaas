@@ -2,17 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ pkgs
-, lib
-, jobs
-, workflowPath ? ".github/workflows/ci.yml"
-, workflowName ? "CI"
-, mainBranch ? "main"
-, runner ? "ubuntu-latest"
-, checkoutAction ? "actions/checkout@v7"
-, installNixAction ? "cachix/install-nix-action@v31"
-, cacheAction ? "cachix/cachix-action@v17"
-,
+{
+  pkgs,
+  lib,
+  jobs,
+  workflowPath ? ".github/workflows/ci.yml",
+  workflowName ? "CI",
+  mainBranch ? "main",
+  runner ? "ubuntu-latest",
+  checkoutAction ? "actions/checkout@v7",
+  installNixAction ? "cachix/install-nix-action@v31",
+  cacheAction ? "cachix/cachix-action@v17",
 }:
 
 let
@@ -30,53 +30,43 @@ let
     };
 
   # Steps that every job need to run once at the start
-  commonSteps =
-    [
-      {
-        name = "Check out repository";
-        uses = checkoutAction;
-      }
-      {
-        name = "Install Nix";
-        uses = installNixAction;
-        "with" = {
-          nix_path = "nixpkgs=channel:nixos-unstable";
-        };
-      }
-      {
-        name = "Use cache";
-        uses = cacheAction;
-        "with" = {
-          name = "secunet-ag-hwaas";
-          authToken = "\${{ secrets.CACHIX_AUTH_TOKEN }}";
-        };
-      }
-    ];
+  commonSteps = [
+    {
+      name = "Check out repository";
+      uses = checkoutAction;
+    }
+    {
+      name = "Install Nix";
+      uses = installNixAction;
+      "with" = {
+        nix_path = "nixpkgs=channel:nixos-unstable";
+      };
+    }
+    {
+      name = "Use cache";
+      uses = cacheAction;
+      "with" = {
+        name = "secunet-ag-hwaas";
+        authToken = "\${{ secrets.CACHIX_AUTH_TOKEN }}";
+      };
+    }
+  ];
 
   # Create one job with multiple steps
-  mkJob =
-    job:
-    {
-      name = job.displayName;
-      "runs-on" = runner;
-      inherit (job) needs;
-      steps =
-        commonSteps
-        ++ map
-          (target: mkTargetStep job.phase target)
-          job.targets;
-    };
+  mkJob = job: {
+    name = job.displayName;
+    "runs-on" = runner;
+    inherit (job) needs;
+    steps = commonSteps ++ map (target: mkTargetStep job.phase target) job.targets;
+  };
 
   # Map over all known jobs and create job structure
-  generateJobs =
-    builtins.listToAttrs (
-      map
-        (job: {
-          name = job.id;
-          value = mkJob job;
-        })
-        jobs
-    );
+  generateJobs = builtins.listToAttrs (
+    map (job: {
+      name = job.id;
+      value = mkJob job;
+    }) jobs
+  );
 
   # Create workflow structure of yml file
   workflow = {
@@ -126,61 +116,57 @@ let
       '';
 
   # Actually update ci.yml in the repository.
-  generateCi =
-    pkgs.writeShellApplication {
-      name = "generate-ci";
+  generateCi = pkgs.writeShellApplication {
+    name = "generate-ci";
 
-      runtimeInputs = [
-        pkgs.coreutils
-        pkgs.diffutils
-        pkgs.git
-      ];
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.diffutils
+      pkgs.git
+    ];
 
-      text = ''
-        set -euo pipefail
+    text = ''
+      set -euo pipefail
 
-        destination="${workflowPath}"
-        destination_directory="$(dirname "$destination")"
+      destination="${workflowPath}"
+      destination_directory="$(dirname "$destination")"
 
-        mkdir -p "$destination_directory"
+      mkdir -p "$destination_directory"
 
-        temporary_file="$(mktemp "$destination_directory/.ci.yml.XXXXXX")"
+      temporary_file="$(mktemp "$destination_directory/.ci.yml.XXXXXX")"
 
-        cleanup() {
-          rm -f "$temporary_file"
-        }
+      cleanup() {
+        rm -f "$temporary_file"
+      }
 
-        trap cleanup EXIT
+      trap cleanup EXIT
 
-        cp ${generatedWorkflow} "$temporary_file"
-        chmod u+w "$temporary_file"
+      cp ${generatedWorkflow} "$temporary_file"
+      chmod u+w "$temporary_file"
 
-        # Verify if changes are even needed before actually updating the file.
-        if [[ -f "$destination" ]] && cmp --silent "$temporary_file" "$destination"; then
-          echo "$destination is already up to date."
-          exit 0
-        fi
+      # Verify if changes are even needed before actually updating the file.
+      if [[ -f "$destination" ]] && cmp --silent "$temporary_file" "$destination"; then
+        echo "$destination is already up to date."
+        exit 0
+      fi
 
-        if [[ -f "$destination" ]]; then
-          echo "Updating $destination"
-          echo
-          diff --unified "$destination" "$temporary_file" || true
-          echo
-        else
-          echo "Creating $destination"
-        fi
-
-        mv "$temporary_file" "$destination"
-        trap - EXIT
-
+      if [[ -f "$destination" ]]; then
+        echo "Updating $destination"
         echo
-        echo "Done"
-      '';
-    };
+        diff --unified "$destination" "$temporary_file" || true
+        echo
+      else
+        echo "Creating $destination"
+      fi
+
+      mv "$temporary_file" "$destination"
+      trap - EXIT
+
+      echo
+      echo "Done"
+    '';
+  };
 in
 {
-  inherit
-    generateCi
-    generatedWorkflow
-    ;
+  inherit generateCi generatedWorkflow;
 }

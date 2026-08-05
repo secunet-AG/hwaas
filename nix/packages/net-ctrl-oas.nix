@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ runCommand
-, net-ctrl
-,
-}:
+{ runCommand, net-ctrl }:
 runCommand "generate-netctrl-openapi-json" { } ''
   ${net-ctrl}/bin/net-ctrl-openapi-generator --out-file $out
 ''

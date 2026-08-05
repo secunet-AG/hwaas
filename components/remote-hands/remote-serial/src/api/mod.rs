@@ -7,20 +7,19 @@ mod list;
 mod websocket;
 
 use aide::{
+    OperationIo,
     axum::{
-        routing::{get_with, post_with},
         ApiRouter,
+        routing::{get_with, post_with},
     },
     openapi::OpenApi,
     transform::TransformPathItem,
-    OperationIo,
 };
 use axum::{
-    async_trait,
+    RequestPartsExt, Router, async_trait,
     extract::{FromRequestParts, Path},
-    http::{request::Parts, StatusCode},
+    http::{StatusCode, request::Parts},
     response::{IntoResponse, Response},
-    RequestPartsExt, Router,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -176,7 +175,7 @@ mod tests {
     use tokio::io::{self, AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
     use tokio::time::timeout;
 
-    use crate::api::{get_router, SerialID};
+    use crate::api::{SerialID, get_router};
     use crate::app_state::AppState;
     use crate::serial::serial_task::spawn_io_tasks;
 

@@ -4,10 +4,10 @@
 
 # This test checks that HTTP requests sent to an application are logged to an OpenTelemetry
 # Collector instance.
-{ nixosTest
-, httpie
-, modules
-,
+{
+  nixosTest,
+  httpie,
+  modules,
 }:
 let
   port = 12345;

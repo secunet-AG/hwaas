@@ -5,7 +5,7 @@
 use axum::http::StatusCode;
 use axum_test_helper::TestClient;
 use inventory::{InventoryDummyBackend, SwitchMapping, SwitchModelDetail};
-use net_ctrl_lib::{get_router, SetupData};
+use net_ctrl_lib::{SetupData, get_router};
 use network_type_ids::{Credentials, CriticalPorts, PortID, SwitchDetails, SwitchID, VlanID};
 use std::net::{IpAddr, Ipv4Addr};
 use std::str::FromStr;

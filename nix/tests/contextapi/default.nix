@@ -15,9 +15,7 @@ in
     in
     {
       checks = {
-        contextapi-startup-test = pkgs.callPackage ./contextapi-startup-test.nix {
-          inherit modules;
-        };
+        contextapi-startup-test = pkgs.callPackage ./contextapi-startup-test.nix { inherit modules; };
         contextapi-golden-test-openapi-spec = pkgs.callPackage ./golden-test-openapi-spec.nix {
           inherit (config.packages) contextapi-oas;
         };
@@ -54,10 +52,12 @@ in
         # Same tests as above but enabled for interactive debugging
         contextapi-startup-test-debug = config.checks.contextapi-startup-test.driverInteractive;
         contextapi-images-drives-and-middleware-debug =
-          (config.checks.contextapi-images-drives-and-middleware.override { debugging = true; }).driverInteractive;
+          (config.checks.contextapi-images-drives-and-middleware.override { debugging = true; })
+          .driverInteractive;
         contextapi-net-api-test-debug = config.checks.contextapi-net-api-test.driverInteractive;
         contextapi-remote-hands-aux-device-test-debug =
-          (config.checks.contextapi-remote-hands-aux-device-test.override { debugging = true; }).driverInteractive;
+          (config.checks.contextapi-remote-hands-aux-device-test.override { debugging = true; })
+          .driverInteractive;
         contextapi-remote-hands-routing-test-debug =
           config.checks.contextapi-remote-hands-routing-test.driverInteractive;
         contextapi-remote-serial-test-debug =

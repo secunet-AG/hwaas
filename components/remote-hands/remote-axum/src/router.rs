@@ -4,8 +4,8 @@
 
 use aide::axum::ApiRouter;
 use aide::openapi::{Info, OpenApi};
-use axum::http::{Method, StatusCode, Uri};
 use axum::Router;
+use axum::http::{Method, StatusCode, Uri};
 use std::future::Future;
 use tracing::debug;
 

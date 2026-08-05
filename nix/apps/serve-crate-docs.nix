@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ python3
-, writeShellScript
-, docs
-,
+{
+  python3,
+  writeShellScript,
+  docs,
 }:
 {
   type = "app";

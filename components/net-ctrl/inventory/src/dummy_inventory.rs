@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::backend::InventoryBackendApi;
 use crate::SwitchMapping;
+use crate::backend::InventoryBackendApi;
 use async_trait::async_trait;
 use std::sync::Arc;
 use system_error::Error as SysError;

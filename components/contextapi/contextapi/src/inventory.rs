@@ -5,13 +5,13 @@
 use std::{collections::HashMap, sync::Arc};
 
 use aide::{
-    axum::{routing::get_with, ApiRouter},
+    axum::{ApiRouter, routing::get_with},
     transform::TransformOperation,
 };
 use axum::{
+    Json,
     extract::{FromRef, State},
     http::StatusCode,
-    Json,
 };
 
 use chrono::{NaiveDateTime, Utc};
@@ -181,7 +181,10 @@ async fn handle_get_inventory(
                 machine_id = id,
                 "BUG: machine lookup failed, but the machine should have previously been loaded"
             );
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Missing machines detected. This could be a bug which we encourage you to report to the HWaaS maintainers"));
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Missing machines detected. This could be a bug which we encourage you to report to the HWaaS maintainers",
+            ));
         };
         *seconds_until_free = Some(remaining_seconds);
     }

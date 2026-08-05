@@ -6,9 +6,7 @@
   description = "HWaaS";
 
   nixConfig = {
-    extra-substituters = [
-      "https://secunet-ag-hwaas.cachix.org"
-    ];
+    extra-substituters = [ "https://secunet-ag-hwaas.cachix.org" ];
     extra-trusted-public-keys = [
       "secunet-ag-hwaas.cachix.org-1:TrxqTgaLTUY1ZN4ao5jtABI/7WOm3KUxxEcJwlb7iUo="
     ];

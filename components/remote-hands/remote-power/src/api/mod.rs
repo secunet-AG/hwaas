@@ -6,19 +6,18 @@ mod list;
 mod power;
 pub mod power_status;
 
-use crate::{power::PowerControlBackend, AppState};
+use crate::{AppState, power::PowerControlBackend};
 use aide::{
+    OperationIo,
     axum::routing::{get_with, post_with},
     openapi::OpenApi,
     transform::TransformPathItem,
-    OperationIo,
 };
 use axum::{
-    async_trait,
+    RequestPartsExt, Router, async_trait,
     extract::{FromRef, FromRequestParts, Path},
-    http::{request::Parts, StatusCode},
+    http::{StatusCode, request::Parts},
     response::{IntoResponse, Response},
-    RequestPartsExt, Router,
 };
 use schemars::JsonSchema;
 use serde::Deserialize;

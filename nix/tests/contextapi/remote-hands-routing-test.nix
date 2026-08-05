@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, lib
-, httpie
-, context-api-url-version-prefix
-, modules
-,
+{
+  testers,
+  lib,
+  httpie,
+  context-api-url-version-prefix,
+  modules,
 }:
 let
   ctxPort = "8080";
@@ -17,39 +17,37 @@ testers.runNixOSTest {
   name = "remote-hands-routing-test";
   node.specialArgs = { inherit modules; };
   nodes = {
-    sut =
-      { ... }:
-      {
-        imports = [
-          ./test-modules/test-config.nix
-          ./test-modules/mock-contextapi-satellite-rest-services.nix
-          ./test-modules/mock-remote-usb.nix
-          modules.contextapi-module
-        ];
+    sut = { ... }: {
+      imports = [
+        ./test-modules/test-config.nix
+        ./test-modules/mock-contextapi-satellite-rest-services.nix
+        ./test-modules/mock-remote-usb.nix
+        modules.contextapi-module
+      ];
 
-        context-api-test-config = {
-          enable = true;
-        };
-        services = {
-          mock-remote-usb.enable = true;
-
-          contextApi = {
-            enable = true;
-            openFirewall = true;
-            port = lib.toInt ctxPort;
-          };
-
-          # mimic a netctrl instance
-          mock-contextapi-satellite-rest-services.enable = true;
-        };
-        environment.systemPackages = [ httpie ];
-
-        # overwriting context-api to wait for the echo server
-        systemd.services.context-api = {
-          requires = [ "echo-server.service" ];
-          after = [ "echo-server.service" ];
-        };
+      context-api-test-config = {
+        enable = true;
       };
+      services = {
+        mock-remote-usb.enable = true;
+
+        contextApi = {
+          enable = true;
+          openFirewall = true;
+          port = lib.toInt ctxPort;
+        };
+
+        # mimic a netctrl instance
+        mock-contextapi-satellite-rest-services.enable = true;
+      };
+      environment.systemPackages = [ httpie ];
+
+      # overwriting context-api to wait for the echo server
+      systemd.services.context-api = {
+        requires = [ "echo-server.service" ];
+        after = [ "echo-server.service" ];
+      };
+    };
   };
 
   testScript = ''

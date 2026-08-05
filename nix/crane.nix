@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ inputs, ... }:
-{
+{ inputs, ... }: {
   perSystem =
-    { pkgs
-    , config
-    , lib
-    , ...
+    {
+      pkgs,
+      config,
+      lib,
+      ...
     }:
     let
       cfg = config.hwaas-crates;
@@ -45,10 +45,7 @@
             ]
             ++ project.extraDeps;
 
-            nativeBuildInputs = [
-              pkgs.pkg-config
-            ]
-            ++ project.extraNativeDeps;
+            nativeBuildInputs = [ pkgs.pkg-config ] ++ project.extraNativeDeps;
 
             postUnpack = ''
               cd $sourceRoot/${builtins.baseNameOf project.baseCratePath}
@@ -82,23 +79,21 @@
 
       genPerProject =
         fn:
-        lib.concatMapAttrs
-          (
-            projectName: projectValue:
-            let
-              perProjectCfg = perProject projectValue;
-            in
-            fn { inherit projectName projectValue perProjectCfg; }
-          )
-          cfg.project;
+        lib.concatMapAttrs (
+          projectName: projectValue:
+          let
+            perProjectCfg = perProject projectValue;
+          in
+          fn { inherit projectName projectValue perProjectCfg; }
+        ) cfg.project;
 
       genPerTarget =
         fn:
         genPerProject (
-          { projectName
-          , projectValue
-          , perProjectCfg
-          ,
+          {
+            projectName,
+            projectValue,
+            perProjectCfg,
           }:
           lib.genAttrs projectValue.packages (
             packageName:
@@ -117,20 +112,16 @@
         prefix: lib.attrsets.mapAttrs' (n: v: lib.attrsets.nameValuePair ("${prefix}-" + n) v);
 
       checks = genPerProject (
-        { perProjectCfg
-        , projectName
-        , projectValue
-        , ...
+        {
+          perProjectCfg,
+          projectName,
+          projectValue,
+          ...
         }:
         (prefixAttrNames projectName (
           {
             # Docs and doctests
-            docs = craneLib.cargoDoc (
-              perProjectCfg.commonArgs
-              // {
-                inherit (perProjectCfg) cargoArtifacts;
-              }
-            );
+            docs = craneLib.cargoDoc (perProjectCfg.commonArgs // { inherit (perProjectCfg) cargoArtifacts; });
 
             # Clippy conformity
             clippy = craneLib.cargoClippy (
@@ -142,12 +133,7 @@
             );
 
             # Check formatting
-            fmt = craneLib.cargoFmt (
-              perProjectCfg.commonArgs
-              // {
-                inherit (perProjectCfg) src;
-              }
-            );
+            fmt = craneLib.cargoFmt (perProjectCfg.commonArgs // { inherit (perProjectCfg) src; });
 
             # Run tests with cargo-nextest
             nextest = craneLib.cargoNextest (
@@ -178,9 +164,7 @@
                   cargo hakari verify
                 '';
 
-                nativeBuildInputs = [
-                  pkgs.cargo-hakari
-                ];
+                nativeBuildInputs = [ pkgs.cargo-hakari ];
               }
             );
 
@@ -189,27 +173,23 @@
       );
 
       devShells = genPerProject (
-        { projectName
-        , projectValue
-        , ...
-        }:
-        {
+        { projectName, projectValue, ... }: {
           ${projectName} = craneLib.devShell {
             # Inherit inputs from checks.
             checks = lib.filterAttrs (n: _: lib.hasPrefix projectName n) checks;
 
             # Extra inputs can be added here; cargo and rustc are provided by default.
-            packages = with pkgs; [
-              rust-analyzer
-              cargo-watch
-              cargo-audit
-              cargo-cyclonedx
-              cyclonedx-cli
-            ]
-            ++ (lib.optional projectValue.hasWorkspaces [
-              pkgs.cargo-hakari
-            ])
-            ++ projectValue.extraDepsDevShell;
+            packages =
+              with pkgs;
+              [
+                rust-analyzer
+                cargo-watch
+                cargo-audit
+                cargo-cyclonedx
+                cyclonedx-cli
+              ]
+              ++ (lib.optional projectValue.hasWorkspaces [ pkgs.cargo-hakari ])
+              ++ projectValue.extraDepsDevShell;
           };
         }
       );
@@ -245,7 +225,9 @@
                 ];
                 buildPhaseCargoCommand = ''
                   cargo-cyclonedx cyclonedx --spec-version 1.5 -f json -v
-                  cyclonedx merge --output-file merged.cdx.json --input-files $(find . -name "*.cdx.json") || echo "WARNING: not merging - no files found"
+                  cyclonedx merge --output-file merged.cdx.json \
+                    --input-files $(find . -name "*.cdx.json") ||
+                    echo "WARNING: not merging - no files found"
                 '';
                 installPhaseCommand = ''
                   mkdir $out
@@ -262,8 +244,7 @@
         project = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule (
-              { config, name, ... }:
-              {
+              { config, name, ... }: {
                 options = {
                   sources = lib.mkOption {
                     type = lib.types.nonEmptyListOf lib.types.path;

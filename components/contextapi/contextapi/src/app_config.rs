@@ -152,8 +152,8 @@ impl From<ContextMaxLifetimeSetting> for Duration {
 
 #[cfg(test)]
 mod test {
-    use crate::app_config::ContextApiRequestTimeoutConfig;
     use crate::ContextApiConfig;
+    use crate::app_config::ContextApiRequestTimeoutConfig;
     use serde_json::json;
 
     #[test]

@@ -5,9 +5,9 @@
 use crate::app_state::AppState;
 use crate::credential_cookie_name::CREDENTIAL_COOKIE_NAME;
 use aruba_structs::login_sessions::RestLoginSessions;
+use axum::Extension;
 use axum::extract::State;
 use axum::http::StatusCode;
-use axum::Extension;
 use std::sync::Arc;
 use tower_cookies::Cookies;
 use tracing::{debug, info};

@@ -8,11 +8,11 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::network::{machine_interface_set::EmptyMap, MachineInterfaceSet};
+use crate::network::{MachineInterfaceSet, machine_interface_set::EmptyMap};
 
 use super::{
-    json_ptr::{InterfaceJsonPtr, MachineJsonPtr},
     AddOp, RemoveOp,
+    json_ptr::{InterfaceJsonPtr, MachineJsonPtr},
 };
 
 /// `NetworkSetup` JSON Patch remove operation.

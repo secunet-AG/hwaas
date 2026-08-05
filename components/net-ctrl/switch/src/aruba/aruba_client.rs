@@ -2,20 +2,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::SwitchAPI;
 use crate::aruba::aruba_port_element::{ArubaPort, ArubaPortElementList};
 use crate::aruba::aruba_vlan_id::ArubaVlanId;
 use crate::aruba::aruba_vlan_ports::{ArubaVlanPort, ArubaVlanPortElementList, ArubaVlanPortMode};
 use crate::aruba::unwrapped_response::UnwrappedResponse;
 use crate::switch_api_errors::SwitchApiError;
 use crate::switch_setup_error::SwitchSetupError;
-use crate::SwitchAPI;
 use async_trait::async_trait;
 use dashmap::DashSet;
 use network_type_ids::{PortID, PortRepresentation, SwitchDetails, VlanID};
 use reqwest::StatusCode;
 use reqwest_cookie_store::CookieStoreMutex;
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{OnceCell, RwLock};

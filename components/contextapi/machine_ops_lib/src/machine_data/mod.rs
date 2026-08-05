@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use axum::http::{uri::InvalidUri, Uri};
+use axum::http::{Uri, uri::InvalidUri};
 use db_interaction::models::{aliases::MachineId, machines::SwitchPortValue};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

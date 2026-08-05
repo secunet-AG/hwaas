@@ -30,9 +30,9 @@ use tokio::task::JoinSet;
 use tracing::{debug, error, info, instrument, warn};
 
 use crate::{
+    NetCtrlClient,
     remote_client::RemoteClient,
     single_context_api::{self, drives_handler::DriveHash},
-    NetCtrlClient,
 };
 
 use self::persevering_database_interaction::InteractWithRetriesExt;

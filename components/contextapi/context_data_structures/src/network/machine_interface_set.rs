@@ -4,12 +4,12 @@
 
 use std::collections::{HashMap, HashSet};
 
-use serde::{de::Visitor, ser::SerializeMap, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::Visitor, ser::SerializeMap};
 
 use schemars::{
-    gen::SchemaGenerator,
-    schema::{Schema, SchemaObject},
     JsonSchema,
+    r#gen::SchemaGenerator,
+    schema::{Schema, SchemaObject},
 };
 
 use crate::aliases::MachineNetworkInterface;
@@ -131,9 +131,9 @@ impl From<EmptyMap> for serde_json::Map<String, serde_json::Value> {
 }
 
 // Updates the JSON schema for `EmptyMap` with structural requirements
-fn empty_map_structure_schema(gen: &mut SchemaGenerator) -> Schema {
+fn empty_map_structure_schema(generator: &mut SchemaGenerator) -> Schema {
     type Map = serde_json::Map<String, serde_json::Value>;
-    let mut schema: SchemaObject = Map::json_schema(gen).into();
+    let mut schema: SchemaObject = Map::json_schema(generator).into();
 
     // Disallow additional properties and set max properties = 0.
     let object_validation = schema
@@ -146,9 +146,9 @@ fn empty_map_structure_schema(gen: &mut SchemaGenerator) -> Schema {
 }
 
 // Updates the JSON schema for `NetworkInterfaceSet` with structural requirements.
-fn interface_set_structure_schema(gen: &mut SchemaGenerator) -> Schema {
+fn interface_set_structure_schema(generator: &mut SchemaGenerator) -> Schema {
     let mut schema: SchemaObject =
-        HashMap::<MachineNetworkInterface, EmptyMap>::json_schema(gen).into();
+        HashMap::<MachineNetworkInterface, EmptyMap>::json_schema(generator).into();
     // We disallow empty network interface sets
     let object_validation = schema
         .object

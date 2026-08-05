@@ -15,22 +15,22 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
-use tower_http::timeout::TimeoutLayer;
 use tower_http::BoxError;
+use tower_http::timeout::TimeoutLayer;
 use tracing::{debug, warn};
 
 use crate::api_merge_remote::merge_remote_oas;
 use crate::app_state::{AppState, UnImplementedState};
 use crate::context_manager::{self, ContextManagerCommunication};
-use crate::context_reservation::{context_creation_api_router, ContextCreationApiState};
+use crate::context_reservation::{ContextCreationApiState, context_creation_api_router};
 use crate::inventory::InventoryApiState;
 use crate::remote_client::RemoteClient;
 use crate::single_context_api::{
     ContextManagementApiState, ContextManagerTx, DrivesApiState, GuardedContext, MachineApiState,
     NetworkApiState,
 };
-use crate::{inventory, single_context_api, ContextApiConfig, NetCtrlClient, API_VERSION};
-use image_api::{get_image_api_router, ImageHandler, IntoImageHandler};
+use crate::{API_VERSION, ContextApiConfig, NetCtrlClient, inventory, single_context_api};
+use image_api::{ImageHandler, IntoImageHandler, get_image_api_router};
 
 pub fn get_api(app_conf: ContextApiConfig) -> OpenApi {
     router_with_api(UnImplementedState {}, &app_conf).1

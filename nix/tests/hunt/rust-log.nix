@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, hunt
-,
-}:
+{ testers, hunt }:
 testers.nixosTest {
   name = "rust-log";
 

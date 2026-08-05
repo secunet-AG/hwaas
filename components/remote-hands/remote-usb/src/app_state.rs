@@ -10,7 +10,7 @@ use remote_serial::serial::serial_task::SerialTasks;
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 use tracing::{debug, error, instrument};
-use usb_gadget::{default_udc, function::hid::Hid, RegGadget, Udc};
+use usb_gadget::{RegGadget, Udc, default_udc, function::hid::Hid};
 
 use crate::usb_config::{UsbConfig, UsbFunction, UsbFunctionConfig, UsbFunctionInfo};
 

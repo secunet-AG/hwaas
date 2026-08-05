@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ writeShellScript
-, curl
-, contextApi
-, context-api-url-version-prefix
-,
+{
+  writeShellScript,
+  curl,
+  contextApi,
+  context-api-url-version-prefix,
 }:
 let
   # This script relies on environment variables:

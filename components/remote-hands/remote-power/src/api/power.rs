@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use aide::transform::TransformOperation;
-use axum::{http::StatusCode, Json};
+use axum::{Json, http::StatusCode};
 use tracing::error;
 
 use super::{LockedControl, PowerInterface};

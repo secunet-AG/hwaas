@@ -2,25 +2,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ nixosTest
-, debugging ? false
-, modules
-,
+{
+  nixosTest,
+  debugging ? false,
+  modules,
 }:
 let
   # NixOS module shared between all VMs
-  sharedModule =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = [ pkgs.iperf ];
-      networking = {
-        firewall.enable = false;
-        dhcpcd.enable = false;
-        useDHCP = false;
-      };
-      systemd.network.wait-online.enable = false;
-      networking.enableIPv6 = false;
+  sharedModule = { pkgs, ... }: {
+    environment.systemPackages = [ pkgs.iperf ];
+    networking = {
+      firewall.enable = false;
+      dhcpcd.enable = false;
+      useDHCP = false;
     };
+    systemd.network.wait-online.enable = false;
+    networking.enableIPv6 = false;
+  };
 
   # The following contains all constanst needed by this scenario
   # server used IPs
@@ -71,26 +69,23 @@ let
   };
 
   # Helper to keep client definition small
-  clientOnSutTemplate =
-    idx: conf:
-    { ... }:
-    {
-      imports = [
-        sharedModule
-        ./nodes/client-template.nix
-        modules.test-debug-module
-        modules.ws-client-module
-      ];
+  clientOnSutTemplate = idx: conf: { ... }: {
+    imports = [
+      sharedModule
+      ./nodes/client-template.nix
+      modules.test-debug-module
+      modules.ws-client-module
+    ];
 
-      services.simHwaasClient = {
-        enable = true;
-        inherit serverIp serverPort clientWsTap;
-        net = conf.net.vlan;
-        ip = "11.11.11.${builtins.toString (idx + 1)}";
-        ipTap = conf.net.ipPrefix + "${builtins.toString (idx + 22)}";
-        sutIp = conf.ip;
-      };
+    services.simHwaasClient = {
+      enable = true;
+      inherit serverIp serverPort clientWsTap;
+      net = conf.net.vlan;
+      ip = "11.11.11.${builtins.toString (idx + 1)}";
+      ipTap = conf.net.ipPrefix + "${builtins.toString (idx + 22)}";
+      sutIp = conf.ip;
     };
+  };
 
 in
 nixosTest {
@@ -128,73 +123,69 @@ nixosTest {
     # The switch node simply emulates a test-network switch (later this is a piece of hardware)
     # Traffic comming in from a "tagged" VLAN port/trunk link (eth1)
     # is forwarded to corresponding "untagged" ports (eth2).
-    switch =
-      { lib
-      , ...
-      }:
-      {
-        # This is/are the network(s) not the vlan :)
-        virtualisation.vlans = [
-          2
-          testNet1.hostnet
-          testNet2.hostnet
-          testNet3.hostnet
-        ];
+    switch = { lib, ... }: {
+      # This is/are the network(s) not the vlan :)
+      virtualisation.vlans = [
+        2
+        testNet1.hostnet
+        testNet2.hostnet
+        testNet3.hostnet
+      ];
 
-        imports = [
-          sharedModule
-          modules.test-debug-module
-        ];
+      imports = [
+        sharedModule
+        modules.test-debug-module
+      ];
 
-        services.debugging.enable = debugging;
+      services.debugging.enable = debugging;
 
-        # configure the interfaces
-        networking = {
-          enableIPv6 = false;
-          interfaces = {
-            eth1.ipv4.addresses = lib.mkForce [ ];
-            eth1.ipv6.addresses = lib.mkForce [ ];
-            eth2.ipv4.addresses = lib.mkForce [ ];
-            eth2.ipv6.addresses = lib.mkForce [ ];
-            eth3.ipv4.addresses = lib.mkForce [ ];
-            eth3.ipv6.addresses = lib.mkForce [ ];
-            eth4.ipv4.addresses = lib.mkForce [ ];
-            eth4.ipv6.addresses = lib.mkForce [ ];
-          };
-          vlans = {
-            vlanNet1 = {
-              id = testNet1.vlan;
-              interface = "eth1";
-            };
-          };
-          vlans = {
-            vlanNet2 = {
-              id = testNet2.vlan;
-              interface = "eth1";
-            };
-          };
-          vlans = {
-            vlanNet3 = {
-              id = testNet3.vlan;
-              interface = "eth1";
-            };
-          };
-          bridges = {
-            "br0".interfaces = [
-              "vlanNet1"
-              "eth2"
-            ];
-            "br1".interfaces = [
-              "vlanNet2"
-              "eth3"
-            ];
-            "br2".interfaces = [
-              "vlanNet3"
-              "eth4"
-            ];
+      # configure the interfaces
+      networking = {
+        enableIPv6 = false;
+        interfaces = {
+          eth1.ipv4.addresses = lib.mkForce [ ];
+          eth1.ipv6.addresses = lib.mkForce [ ];
+          eth2.ipv4.addresses = lib.mkForce [ ];
+          eth2.ipv6.addresses = lib.mkForce [ ];
+          eth3.ipv4.addresses = lib.mkForce [ ];
+          eth3.ipv6.addresses = lib.mkForce [ ];
+          eth4.ipv4.addresses = lib.mkForce [ ];
+          eth4.ipv6.addresses = lib.mkForce [ ];
+        };
+        vlans = {
+          vlanNet1 = {
+            id = testNet1.vlan;
+            interface = "eth1";
           };
         };
+        vlans = {
+          vlanNet2 = {
+            id = testNet2.vlan;
+            interface = "eth1";
+          };
+        };
+        vlans = {
+          vlanNet3 = {
+            id = testNet3.vlan;
+            interface = "eth1";
+          };
+        };
+        bridges = {
+          "br0".interfaces = [
+            "vlanNet1"
+            "eth2"
+          ];
+          "br1".interfaces = [
+            "vlanNet2"
+            "eth3"
+          ];
+          "br2".interfaces = [
+            "vlanNet3"
+            "eth4"
+          ];
+        };
       };
+    };
 
     # This node pose a SUT connected to the switch.
     # For this test, the SUT runs an arbitrary service that the client wants to access.

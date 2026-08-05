@@ -5,10 +5,10 @@
 # this file contains the some helper funtions for VLAN interface creation.
 # It has impact on the deployment as it is used by the ws-gateway module.
 # In addition it simplifies the NixOS integration setup for the ws-gateway, too.
-{ lib
-, prefix ? "wsn"
-, networkFilePrefix ? "40-"
-,
+{
+  lib,
+  prefix ? "wsn",
+  networkFilePrefix ? "40-",
 }:
 let
   # Uses a prefix and a number to create a new (vlan)interface name
@@ -53,15 +53,13 @@ let
   promiscConfig =
     { interfaces }:
     builtins.listToAttrs (
-      map
-        (name: {
-          name = lib.strings.concatStrings [
-            networkFilePrefix
-            name
-          ];
-          value = promiscConfigItem name;
-        })
-        interfaces
+      map (name: {
+        name = lib.strings.concatStrings [
+          networkFilePrefix
+          name
+        ];
+        value = promiscConfigItem name;
+      }) interfaces
     );
 in
 {

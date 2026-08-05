@@ -259,7 +259,10 @@ pub async fn initialize(
             }
             Err(InitializationError::MachineInUse) => {
                 // We interpret this as a hard error and return immediately
-                error!(machine_id = id, "attempt to initialize in-use machine detected. Aborting the entire initialization process");
+                error!(
+                    machine_id = id,
+                    "attempt to initialize in-use machine detected. Aborting the entire initialization process"
+                );
                 let _ = errors
                     .unsuccessful_initializations
                     .insert(id, InitializationError::MachineInUse);
@@ -617,7 +620,7 @@ mod tests {
         test_utils::TestDb,
     };
     use tracing_test::traced_test;
-    use wiremock::{matchers::any, Mock, MockServer, ResponseTemplate};
+    use wiremock::{Mock, MockServer, ResponseTemplate, matchers::any};
 
     struct RemoteMocksPerMachine {
         remote_usb: MockServer,
@@ -1301,30 +1304,38 @@ mod tests {
         }
         // Check that no requests were sent for the machines that were skipped or ignored.
         for mocks in &test_setup.mocks_per_machine[1..4] {
-            assert!(mocks
-                .remote_power
-                .received_requests()
-                .await
-                .unwrap_or_default()
-                .is_empty());
-            assert!(mocks
-                .remote_usb
-                .received_requests()
-                .await
-                .unwrap_or_default()
-                .is_empty());
-            assert!(mocks
-                .remote_serial
-                .received_requests()
-                .await
-                .unwrap_or_default()
-                .is_empty());
-            assert!(mocks
-                .remote_auxiliary
-                .received_requests()
-                .await
-                .unwrap_or_default()
-                .is_empty());
+            assert!(
+                mocks
+                    .remote_power
+                    .received_requests()
+                    .await
+                    .unwrap_or_default()
+                    .is_empty()
+            );
+            assert!(
+                mocks
+                    .remote_usb
+                    .received_requests()
+                    .await
+                    .unwrap_or_default()
+                    .is_empty()
+            );
+            assert!(
+                mocks
+                    .remote_serial
+                    .received_requests()
+                    .await
+                    .unwrap_or_default()
+                    .is_empty()
+            );
+            assert!(
+                mocks
+                    .remote_auxiliary
+                    .received_requests()
+                    .await
+                    .unwrap_or_default()
+                    .is_empty()
+            );
         }
     }
 
@@ -1460,27 +1471,35 @@ mod tests {
             remote_serial,
         } in &test_setup.mocks_per_machine
         {
-            assert!(remote_serial
-                .received_requests()
-                .await
-                .unwrap_or_default()
-                .is_empty());
-            assert!(remote_auxiliary
-                .received_requests()
-                .await
-                .unwrap_or_default()
-                .is_empty());
+            assert!(
+                remote_serial
+                    .received_requests()
+                    .await
+                    .unwrap_or_default()
+                    .is_empty()
+            );
+            assert!(
+                remote_auxiliary
+                    .received_requests()
+                    .await
+                    .unwrap_or_default()
+                    .is_empty()
+            );
             // The following services are configured so should at least have received one request
-            assert!(!remote_usb
-                .received_requests()
-                .await
-                .unwrap_or_default()
-                .is_empty());
-            assert!(!remote_power
-                .received_requests()
-                .await
-                .unwrap_or_default()
-                .is_empty());
+            assert!(
+                !remote_usb
+                    .received_requests()
+                    .await
+                    .unwrap_or_default()
+                    .is_empty()
+            );
+            assert!(
+                !remote_power
+                    .received_requests()
+                    .await
+                    .unwrap_or_default()
+                    .is_empty()
+            );
         }
     }
 

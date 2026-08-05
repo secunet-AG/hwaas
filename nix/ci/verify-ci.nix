@@ -2,19 +2,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ pkgs
-, generatedWorkflow
-, workflowPath ? ../../.github/workflows/ci.yml
-,
+{
+  pkgs,
+  generatedWorkflow,
+  workflowPath ? ../../.github/workflows/ci.yml,
 }:
 
 pkgs.runCommand "verify-ci"
-{
-  nativeBuildInputs = [
-    pkgs.coreutils
-    pkgs.diffutils
-  ];
-}
+  {
+    nativeBuildInputs = [
+      pkgs.coreutils
+      pkgs.diffutils
+    ];
+  }
   ''
     set -euox pipefail
 

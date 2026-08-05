@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::CliArgs;
 use crate::error::ClientError;
 use crate::tap::TapDev;
-use crate::CliArgs;
 use futures_util::StreamExt;
 use sd_notify::NotifyState;
 use tokio_tungstenite::connect_async;

@@ -6,9 +6,9 @@ use assert_cmd::cargo_bin;
 use assert_cmd::prelude::*;
 use assert_fs::NamedTempFile;
 use db_interaction::test_utils::TestDb;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::process::Command;
-use wiremock::{matchers::any, Mock, MockServer, ResponseTemplate};
+use wiremock::{Mock, MockServer, ResponseTemplate, matchers::any};
 
 const AUXILIARY_DEVICE_NAME: &str = "aux-1";
 

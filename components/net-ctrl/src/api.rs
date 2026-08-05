@@ -4,11 +4,11 @@
 
 use std::sync::Arc;
 
-use aide::axum::routing::{get_with, post_with, put_with};
 use aide::axum::ApiRouter;
+use aide::axum::routing::{get_with, post_with, put_with};
 use aide::openapi::{Info, OpenApi};
-use axum::http::{Method, StatusCode, Uri};
 use axum::Router;
+use axum::http::{Method, StatusCode, Uri};
 use tracing::debug;
 
 use connection_handler::{ConnectionHandler, ConnectionHandlerError};

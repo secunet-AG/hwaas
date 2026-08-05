@@ -3,17 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use aide::transform::TransformOperation;
-use axum::extract::{Path, State};
 use axum::Json;
+use axum::extract::{Path, State};
 use connection_handler::ConnectionHandler;
 use std::sync::Arc;
 use switch::SwitchAPI;
 use tracing::instrument;
 use tracing::{debug, warn};
 
+use crate::handlers::PathParamsSwitchID;
 use crate::handlers::external_api_errors::ExtApiError;
 use crate::handlers::setup_data::{SetupData, VlanIDVec};
-use crate::handlers::PathParamsSwitchID;
 
 /// Set up a specific switch.
 ///

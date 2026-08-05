@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    AppState,
     api::power_status::PowerStatus,
     power::{PowerControl, PowerState},
-    AppState,
 };
 use aide::transform::TransformOperation;
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 use std::collections::HashMap;
 use tracing::error;
 

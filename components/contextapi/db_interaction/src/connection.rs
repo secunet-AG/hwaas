@@ -5,9 +5,9 @@
 use std::fmt::Debug;
 use std::sync::Arc;
 
-use deadpool_diesel::sqlite::{BuildError, Hook, HookError, Manager, Object, Pool};
 use deadpool_diesel::InteractError;
-use diesel::{connection::SimpleConnection, Connection, SqliteConnection};
+use deadpool_diesel::sqlite::{BuildError, Hook, HookError, Manager, Object, Pool};
+use diesel::{Connection, SqliteConnection, connection::SimpleConnection};
 use diesel_migrations::EmbeddedMigrations;
 use diesel_migrations::MigrationHarness;
 use either::Either;
@@ -131,7 +131,7 @@ impl std::fmt::Display for DatabaseInteractionError {
             Self::AbortedSpawnedInteraction => "the asynchronous database read was aborted",
             Self::PoisonedMutex(_) => {
                 "an unexpected panic has occurred which resulted in mutex poisoning"
-            },
+            }
             Self::Closed => {
                 "the database is permanently unavailable: semaphore closed: this is unexpected, but could happen during application shutdown."
             }

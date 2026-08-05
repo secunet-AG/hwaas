@@ -56,18 +56,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Reservation
-  - Machine IDs are now displayed in the inventory.
-  - Optional reservation of specific machines via adding the `machine_id` key
-    in the reservation request.
+    - Machine IDs are now displayed in the inventory.
+    - Optional reservation of specific machines via adding the `machine_id` key
+      in the reservation request.
 - Power
-  - Support for multiple power interfaces. The `/power` API now either returns
-    or powers all configured power interfaces. Single interfaces can be queried
-    or powered by `/power/<interface_name>`.
+    - Support for multiple power interfaces. The `/power` API now either returns
+      or powers all configured power interfaces. Single interfaces can be queried
+      or powered by `/power/<interface_name>`.
 - Serial
-  - `GET` request for `/serial` API to retrieve configured serial names.
+    - `GET` request for `/serial` API to retrieve configured serial names.
 - Usb
-  - USB OTG HID support for keyboard and mouse via the `/usb/keyboard` and
-    `/usb/mouse` API endpoints.
+    - USB OTG HID support for keyboard and mouse via the `/usb/keyboard` and
+      `/usb/mouse` API endpoints.
 
 ### Changed
 

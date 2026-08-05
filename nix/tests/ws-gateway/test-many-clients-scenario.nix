@@ -2,24 +2,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ nixosTest
-, debugging ? false
-, modules
-,
+{
+  nixosTest,
+  debugging ? false,
+  modules,
 }:
 let
   # NixOS module shared between all VMs
-  sharedModule =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = [ pkgs.iperf ];
-      networking = {
-        firewall.enable = false;
-        dhcpcd.enable = false;
-        useDHCP = false;
-      };
-      systemd.network.wait-online.enable = false;
+  sharedModule = { pkgs, ... }: {
+    environment.systemPackages = [ pkgs.iperf ];
+    networking = {
+      firewall.enable = false;
+      dhcpcd.enable = false;
+      useDHCP = false;
     };
+    systemd.network.wait-online.enable = false;
+  };
 
   # used constants
   serverIp = "11.11.11.1";
@@ -83,44 +81,40 @@ nixosTest {
       # The switch node simply emulates a test-network switch (later this is a piece of hardware)
       # Traffic comming in from a "tagged" VLAN port/trunk link (eth1)
       # is forwarded to corresponding "untagged" ports (eth2).
-      switch =
-        { lib
-        , ...
-        }:
-        {
-          # This is/are the network(s) not the vlan :)
-          virtualisation.vlans = [
-            2
-            3
-          ];
+      switch = { lib, ... }: {
+        # This is/are the network(s) not the vlan :)
+        virtualisation.vlans = [
+          2
+          3
+        ];
 
-          imports = [
-            sharedModule
-            modules.test-debug-module
-          ];
+        imports = [
+          sharedModule
+          modules.test-debug-module
+        ];
 
-          services.debugging.enable = debugging;
+        services.debugging.enable = debugging;
 
-          # configure the interfaces
-          networking = {
-            enableIPv6 = false;
-            interfaces = {
-              eth1.ipv4.addresses = lib.mkForce [ ];
-              eth2.ipv4.addresses = lib.mkForce [ ];
-              eth2.ipv6.addresses = lib.mkForce [ ];
-            };
-            vlans = {
-              "${vlanName}" = {
-                id = staticVlan;
-                interface = "eth1";
-              };
-            };
-            bridges."br0".interfaces = [
-              vlanName
-              "eth2"
-            ];
+        # configure the interfaces
+        networking = {
+          enableIPv6 = false;
+          interfaces = {
+            eth1.ipv4.addresses = lib.mkForce [ ];
+            eth2.ipv4.addresses = lib.mkForce [ ];
+            eth2.ipv6.addresses = lib.mkForce [ ];
           };
+          vlans = {
+            "${vlanName}" = {
+              id = staticVlan;
+              interface = "eth1";
+            };
+          };
+          bridges."br0".interfaces = [
+            vlanName
+            "eth2"
+          ];
         };
+      };
 
       # This node pose a SUT connected to the switch.
       # For this test, the SUT runs an arbitrary service that the client wants to access.

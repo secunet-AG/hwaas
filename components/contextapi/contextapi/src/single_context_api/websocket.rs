@@ -6,16 +6,16 @@ use axum::extract::ws::CloseFrame;
 use axum::extract::ws::Message;
 use axum::extract::ws::WebSocket;
 use axum::http::Uri;
-use futures::try_join;
 use futures::SinkExt;
 use futures::StreamExt;
+use futures::try_join;
 use std::future::Future;
 use tokio::net::TcpStream;
-use tokio_tungstenite::tungstenite::client::IntoClientRequest;
-use tokio_tungstenite::tungstenite::protocol::CloseFrame as TungsteniteCloseFrame;
 use tokio_tungstenite::tungstenite::Error as TungsteniteError;
 use tokio_tungstenite::tungstenite::Message as TungsteniteMessage;
-use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::tungstenite::client::IntoClientRequest;
+use tokio_tungstenite::tungstenite::protocol::CloseFrame as TungsteniteCloseFrame;
+use tokio_tungstenite::{MaybeTlsStream, WebSocketStream, connect_async};
 use tracing::error;
 
 enum WsError {

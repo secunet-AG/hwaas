@@ -99,5 +99,5 @@ This open-source project was developed within the _Factory_ project and is spons
 This project has received public funding from the **European Union** NextGenerationEU within the Important Project of Common European Interest – Cloud Infrastructures and Services (IPCEI-CIS) under grant agreement 13IPC022.
 
 <p align="center">
-  <img alt="Bundesministerium für Wirtschaft und Energie (BMWE)-EU and secunet funding logo" src="documentation/public/logo_sponsored_funding_ic_sec.png" width="400"/>
+    <img alt="Bundesministerium für Wirtschaft und Energie (BMWE)-EU and secunet funding logo" src="documentation/public/logo_sponsored_funding_ic_sec.png" width="400"/>
 </p>

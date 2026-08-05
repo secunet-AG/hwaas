@@ -9,9 +9,9 @@ use std::{
 };
 
 use crate::{
+    API_VERSION,
     single_context_api::context_management::ContextInfo,
     tests::test_server_setup::{TestServerOutputs, TestServerSetup},
-    API_VERSION,
 };
 use axum::http::StatusCode;
 use chrono::Utc;
@@ -20,9 +20,9 @@ use context_data_structures::machine_properties::MachineProperties;
 use db_interaction::models::context_id::ContextIdBytes;
 use diesel::{ExpressionMethods, RunQueryDsl};
 use rand::{Rng, SeedableRng};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use tracing_test::traced_test;
-use wiremock::{matchers::any, Mock, Request, ResponseTemplate};
+use wiremock::{Mock, Request, ResponseTemplate, matchers::any};
 
 /// Obtain a context from the server satisfying the given
 /// resource setup description (`rsd`).
@@ -286,18 +286,20 @@ async fn errors_on_already_reserved_platform_multiple_machines() {
     } = server_setup.start().await;
 
     // Reserve the machine with `platform`
-    assert!(reserve_context(
-        addr,
-        json!({
-            "machines": {
-                "abmr": {
-                    "platform": platform.clone()
+    assert!(
+        reserve_context(
+            addr,
+            json!({
+                "machines": {
+                    "abmr": {
+                        "platform": platform.clone()
+                    }
                 }
-            }
-        })
-    )
-    .await
-    .is_ok());
+            })
+        )
+        .await
+        .is_ok()
+    );
 
     // Now attempt to reserve two machines: One of type `platform`
     // and the other of type `other_platform`. Only the latter is free
@@ -316,18 +318,20 @@ async fn errors_on_already_reserved_platform_multiple_machines() {
     assert_eq!(error_status, StatusCode::UNPROCESSABLE_ENTITY);
 
     // Check that `other_platform` can still be reserved.
-    assert!(reserve_context(
-        addr,
-        json!({
-            "machines": {
-                "abmr": {
-                    "platform": other_platform
+    assert!(
+        reserve_context(
+            addr,
+            json!({
+                "machines": {
+                    "abmr": {
+                        "platform": other_platform
+                    }
                 }
-            }
-        })
-    )
-    .await
-    .is_ok());
+            })
+        )
+        .await
+        .is_ok()
+    );
 }
 
 // This is a more involved test that exercises
@@ -713,12 +717,16 @@ async fn extend_context_lifetime_via_db() {
         context_was_not_found && new_context_reservation.is_ok()
     });
     // Wait for the spawned tasks to finish and assert that they both return `true`.
-    assert!(wait_max_then_check_task
-        .await
-        .expect("wait max task should not have panicked"));
-    assert!(wait_exceeding_new_context_lifetime_task
-        .await
-        .expect("wait exceeding new context lifetime task should not have panicked"));
+    assert!(
+        wait_max_then_check_task
+            .await
+            .expect("wait max task should not have panicked")
+    );
+    assert!(
+        wait_exceeding_new_context_lifetime_task
+            .await
+            .expect("wait exceeding new context lifetime task should not have panicked")
+    );
 }
 
 // Check that context reservation works as expected when we

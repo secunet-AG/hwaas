@@ -28,30 +28,26 @@ able to fix all incidents ourselves but rely on crate authors.
 1. build a NixOS integration test of the context api which uses the test debug
    module.
 
-   <!-- cspell:disable -->
+    ```bash
+    # this is one example test:
+    nix build .#debug-remote-hands-aux-device-test
 
-   ```bash
-   # this is one example test:
-   nix build .#debug-remote-hands-aux-device-test
-
-   # run the interactive test driver:
-   ./result/bin/nixos-test-driver
-   ```
-
-   <!-- cspell:enable -->
+    # run the interactive test driver:
+    ./result/bin/nixos-test-driver
+    ```
 
 1. in the spawned python console of the test-driver you have to
    start the VM which contains the ContextAPI:
 
-   ```python
-   start_all()
-   ```
+    ```python
+    start_all()
+    ```
 
 1. within the launched Qemu window perform the login to get shell access and
    simply enter:
 
-   ```bash
-   tokio-console
-   ```
+    ```bash
+    tokio-console
+    ```
 
 1. profit

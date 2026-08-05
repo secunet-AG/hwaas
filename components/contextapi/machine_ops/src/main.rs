@@ -14,10 +14,10 @@ use machine_ops_lib::{machine_data::MachineData, network_identifiers::upsert_net
 use net_ctrl_client_wrapper::NetCtrlClient;
 use network_ids_cli_args::InsertNetworkIdsArgs;
 use remote_client::RemoteClient;
-use schemars::{schema_for, JsonSchema};
+use schemars::{JsonSchema, schema_for};
 use serde::Deserialize;
-use tracing::{debug, error, Level};
-use tracing_subscriber::{fmt::writer::MakeWriterExt, FmtSubscriber};
+use tracing::{Level, debug, error};
+use tracing_subscriber::{FmtSubscriber, fmt::writer::MakeWriterExt};
 mod initialization_cli_args;
 mod network_ids_cli_args;
 

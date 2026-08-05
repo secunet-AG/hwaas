@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ stdenv
-, nodejs
-, pnpm_10
-, fetchPnpmDeps
-, pnpmConfigHook
-, documentationSrc
-, hwaas-oas
-,
+{
+  stdenv,
+  nodejs,
+  pnpm_10,
+  fetchPnpmDeps,
+  pnpmConfigHook,
+  documentationSrc,
+  hwaas-oas,
 }:
 
 stdenv.mkDerivation (finalAttrs: {

@@ -9,13 +9,12 @@ mod auxiliary_api;
 mod reverse_proxy;
 
 use crate::app_state::{AppState, DeviceState};
-use aide::{openapi::OpenApi, OperationIo};
+use aide::{OperationIo, openapi::OpenApi};
 use axum::{
-    async_trait,
+    RequestPartsExt, Router, async_trait,
     extract::{FromRef, FromRequestParts, Path, Query},
-    http::{request::Parts, StatusCode},
+    http::{StatusCode, request::Parts},
     response::{IntoResponse, Response},
-    RequestPartsExt, Router,
 };
 use schemars::JsonSchema;
 use serde::Deserialize;

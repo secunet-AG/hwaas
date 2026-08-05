@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ stdenv
-, nodejs
-, pnpm_10
-, fetchPnpmDeps
-, pnpmConfigHook
-, vueSrc
-,
+{
+  stdenv,
+  nodejs,
+  pnpm_10,
+  fetchPnpmDeps,
+  pnpmConfigHook,
+  vueSrc,
 }:
 
 stdenv.mkDerivation (finalAttrs: {

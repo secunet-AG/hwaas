@@ -9,13 +9,13 @@ use crate::remote_client::RemoteClient;
 
 use super::{ContextManagerTx, DrivesApiState, GuardedContext};
 use crate::single_context_api::remote_api::get_machine_remote_api_router;
-use aide::axum::{routing::get_with, ApiRouter};
+use aide::axum::{ApiRouter, routing::get_with};
 use aide::transform::{TransformOperation, TransformPathItem};
+use axum::Json;
 use axum::body::Body;
 use axum::extract::{FromRef, FromRequestParts, Path, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::{IntoResponse, Response};
-use axum::Json;
 
 use context_data_structures::aliases::{MachineName, MachineNetworkInterface};
 use context_data_structures::machine_properties::MachineInfo;
@@ -28,7 +28,7 @@ use diesel::prelude::*;
 
 use db_interaction::models::context_id::ContextIdBytes;
 use error_utils::log_then_replace_err;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use tracing::{error, info};
 
 #[derive(Clone)]
@@ -273,7 +273,7 @@ async fn handle_mjpeg_request(
                 StatusCode::NOT_FOUND,
                 "Machine does not posses mjepg url. Perhaps it does not have V4L setup?",
             )
-                .into_response()
+                .into_response();
         }
     };
 

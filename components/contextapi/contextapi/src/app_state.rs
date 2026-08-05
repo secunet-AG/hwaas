@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::NetCtrlClient;
 use crate::app_config::ContextApiConfig;
 use crate::context_manager::ContextManagerMessage;
 use crate::context_reservation::ContextCreationApiState;
@@ -10,7 +11,6 @@ use crate::remote_client::RemoteClient;
 use crate::single_context_api::{
     ContextManagementApiState, DrivesApiState, MachineApiState, NetworkApiState,
 };
-use crate::NetCtrlClient;
 use axum::extract::FromRef;
 use db_interaction::connection::DbFacade;
 use image_api::{ImageHandler, IntoImageHandler};

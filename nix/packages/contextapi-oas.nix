@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ runCommand
-, contextapi
-,
-}:
+{ runCommand, contextapi }:
 runCommand "generate-context-api-openapi-json" { } ''
   ${contextapi}/bin/openapi-generator --out-file $out
 ''

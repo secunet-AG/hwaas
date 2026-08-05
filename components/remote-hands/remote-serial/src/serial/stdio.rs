@@ -5,11 +5,11 @@
 //! Serial backend that communicates with a process via stdin/stdout
 
 use crate::serial::buffer_sizes::BufferSizes;
-use crate::serial::serial_task::{spawn_io_tasks, SerialTasks};
+use crate::serial::serial_task::{SerialTasks, spawn_io_tasks};
 use serde::Deserialize;
 use std::process::Stdio;
 use tokio::process::Command;
-use tracing::{span, Level};
+use tracing::{Level, span};
 
 #[derive(Deserialize)]
 /// Serial config for serial of type stdio

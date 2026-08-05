@@ -6,8 +6,8 @@
 //#![doc = include_str!("../README.md")]
 use std::net::SocketAddr;
 
-use axum::extract::connect_info::IntoMakeServiceWithConnectInfo;
 use axum::Router;
+use axum::extract::connect_info::IntoMakeServiceWithConnectInfo;
 use axum_tracing_opentelemetry::middleware::{OtelAxumLayer, OtelInResponseLayer};
 use tower_http::trace::TraceLayer;
 

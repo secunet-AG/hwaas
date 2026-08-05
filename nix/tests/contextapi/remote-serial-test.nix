@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ lib
-, context-api-url-version-prefix
-, websocat
-, httpie
-, testers
-, debugging ? false
-, modules
-,
+{
+  lib,
+  context-api-url-version-prefix,
+  websocat,
+  httpie,
+  testers,
+  debugging ? false,
+  modules,
 }:
 let
   rsd = import ./rsd.nix;
@@ -22,46 +22,41 @@ testers.runNixOSTest {
   name = "remote-serial-test";
   node.specialArgs = { inherit modules; };
   nodes = {
-    sut =
-      { ... }:
-      {
-        imports =
-          [
-            modules.contextapi-module
-            ./test-modules/test-config.nix
-            ./test-modules/mock-contextapi-satellite-rest-services3.nix
-          ]
-          ++ lib.optionals debugging [
-            ./test-modules/debugging.nix
-          ];
+    sut = { ... }: {
+      imports = [
+        modules.contextapi-module
+        ./test-modules/test-config.nix
+        ./test-modules/mock-contextapi-satellite-rest-services3.nix
+      ]
+      ++ lib.optionals debugging [ ./test-modules/debugging.nix ];
 
-        environment.systemPackages = [
-          websocat
-          httpie
-        ];
+      environment.systemPackages = [
+        websocat
+        httpie
+      ];
 
-        context-api-test-config = {
+      context-api-test-config = {
+        enable = true;
+        remote_usb = "http://localhost:${toString tsPort}/usb";
+        remote_serial = "http://localhost:${toString tsPort}/serial";
+      };
+
+      services = {
+        contextApi = {
           enable = true;
-          remote_usb = "http://localhost:${toString tsPort}/usb";
-          remote_serial = "http://localhost:${toString tsPort}/serial";
+          openFirewall = true;
+          port = lib.toInt ctxPort;
         };
-
-        services = {
-          contextApi = {
-            enable = true;
-            openFirewall = true;
-            port = lib.toInt ctxPort;
-          };
-          reverse-proxy = {
-            enable = true;
-            port = tsPort;
-            port-http-echo = portHttpEcho;
-            port-ws = portWs;
-          };
-
+        reverse-proxy = {
+          enable = true;
+          port = tsPort;
+          port-http-echo = portHttpEcho;
+          port-ws = portWs;
         };
 
       };
+
+    };
   };
 
   testScript = ''

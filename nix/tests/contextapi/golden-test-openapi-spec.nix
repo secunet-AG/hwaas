@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ runCommand
-, jd-diff-patch
-, contextapi-oas
-, openapi-generator-cli
-,
+{
+  runCommand,
+  jd-diff-patch,
+  contextapi-oas,
+  openapi-generator-cli,
 }:
 let
   expected = ../../../expected-oas/contextapi.openapi.json;

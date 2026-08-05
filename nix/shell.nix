@@ -6,31 +6,34 @@ _: {
   imports = [ ];
 
   perSystem =
-    { pkgs
-    , config
-    , lib
-    , ...
+    {
+      pkgs,
+      config,
+      lib,
+      ...
     }:
     {
       devShells.default = pkgs.mkShell {
         shellHook = ''
-          ${config.pre-commit.installationScript}
+          ${config.pre-commit.shellHook}
 
           echo -e "\033[1;36m" # Cyan
           figlet "HWaaS dev shell"
           echo -e "\033[0m" # No Color
 
           # context api migrations are done manualy.
-          export DATABASE_URL="file:$(git rev-parse --show-toplevel)/components/contextapi/development.db";
+          repo_root="$(git rev-parse --show-toplevel)"
+          export DATABASE_URL="file:$repo_root/components/contextapi/development.db";
         '';
-        inputsFrom = builtins.attrValues (lib.filterAttrs (n: _: n != "default") config.devShells);
+        inputsFrom =
+          builtins.attrValues (lib.filterAttrs (n: _: n != "default") config.devShells)
+          ++ config.pre-commit.settings.enabledPackages;
         packages = with pkgs; [
           colmena
           figlet
           jq
           nodejs
           pnpm
-          statix
           nixd
           marksman
           httpie
@@ -38,7 +41,6 @@ _: {
           openapi-generator-cli
           ssh-to-age
           sops
-          reuse
           man-db
         ];
       };

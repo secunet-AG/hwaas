@@ -9,11 +9,11 @@
 //! a JSON document. See the [IETF specification](https://datatracker.ietf.org/doc/html/rfc6901/)
 //! for more information about JSON pointers.
 use crate::aliases::MachineName;
-use schemars::gen::SchemaGenerator;
+use schemars::JsonSchema;
+use schemars::r#gen::SchemaGenerator;
 use schemars::schema::Schema;
 use schemars::schema::SchemaObject;
 use schemars::schema::StringValidation;
-use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -48,8 +48,8 @@ impl From<MachineJsonPtr> for String {
 }
 
 // Updates the JSON schema for `MachineJsonPtr` with structural requirements
-fn machine_json_ptr_structure_schema(gen: &mut SchemaGenerator) -> Schema {
-    let mut schema: SchemaObject = String::json_schema(gen).into();
+fn machine_json_ptr_structure_schema(generator: &mut SchemaGenerator) -> Schema {
+    let mut schema: SchemaObject = String::json_schema(generator).into();
     // Require the string to at least have length 2. It also needs to match a regex
     // that requires the string to start with a forward slash followed by characters that
     // are different from forward slash.
@@ -93,8 +93,8 @@ impl TryFrom<String> for InterfaceJsonPtr {
 }
 
 // Updates the JSON schema for `InterfaceJsonPtr` with structural requirements
-fn tagged_interface_json_ptr_structure_schema(gen: &mut SchemaGenerator) -> Schema {
-    let mut schema: SchemaObject = String::json_schema(gen).into();
+fn tagged_interface_json_ptr_structure_schema(generator: &mut SchemaGenerator) -> Schema {
+    let mut schema: SchemaObject = String::json_schema(generator).into();
     // Require the string to at least have length 4. It also needs to match a regex that
     // requires the string start with a forward slash followed by two segments of characters
     // separated by exactly one forward slash.

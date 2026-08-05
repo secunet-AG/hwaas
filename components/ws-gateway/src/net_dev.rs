@@ -9,7 +9,7 @@ use std::fmt::{Debug, Formatter};
 use std::io::Result as IResult;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::broadcast;
-use tokio::sync::{mpsc, OwnedMutexGuard};
+use tokio::sync::{OwnedMutexGuard, mpsc};
 use tracing::{debug, instrument, trace, warn};
 
 pub struct AfNetDev {

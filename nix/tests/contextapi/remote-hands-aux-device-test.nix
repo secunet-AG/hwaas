@@ -2,17 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, lib
-, httpie
-, context-api-url-version-prefix
-, modules
-, writeText
-, writeShellScript
-, curl
-, writePython3
-, debugging ? false
-,
+{
+  testers,
+  lib,
+  httpie,
+  context-api-url-version-prefix,
+  modules,
+  writeText,
+  writeShellScript,
+  curl,
+  writePython3,
+  debugging ? false,
 }:
 let
   rsd = import ./rsd.nix;
@@ -28,133 +28,129 @@ testers.runNixOSTest {
   name = "remote-hands-aux-device-test";
   node.specialArgs = { inherit modules; };
   nodes = {
-    sut =
-      { config, ... }:
-      {
-        imports = [
-          modules.contextapi-module
-          modules.test-http-sim
-          modules.remote-serial
-          modules.remote-power
-          modules.remote-usb
-          modules.remote-auxiliary
-          ./test-modules/test-config.nix
-          ./test-modules/mock-contextapi-satellite-rest-services.nix
-          ./test-modules/mock-remote-usb.nix
-        ]
-        ++ lib.optionals debugging [
-          ./test-modules/debugging.nix
-        ];
+    sut = { config, ... }: {
+      imports = [
+        modules.contextapi-module
+        modules.test-http-sim
+        modules.remote-serial
+        modules.remote-power
+        modules.remote-usb
+        modules.remote-auxiliary
+        ./test-modules/test-config.nix
+        ./test-modules/mock-contextapi-satellite-rest-services.nix
+        ./test-modules/mock-remote-usb.nix
+      ]
+      ++ lib.optionals debugging [ ./test-modules/debugging.nix ];
 
-        environment.systemPackages = [
-          httpie
-          curl
-        ];
+      environment.systemPackages = [
+        httpie
+        curl
+      ];
 
-        services.contextApi = {
-          enable = true;
-          openFirewall = true;
-          port = lib.toInt ctxPort;
-          config = {
-            image_api_settings = {
-              max_file_size = "20GiB";
-              store = "/tmp";
-            };
-            db_file_path = "/run/context-api/db.sqlite";
-            net_ctrl_base_path = "foo";
-            network_gateway.ws_gateway_url = "bar";
+      services.contextApi = {
+        enable = true;
+        openFirewall = true;
+        port = lib.toInt ctxPort;
+        config = {
+          image_api_settings = {
+            max_file_size = "20GiB";
+            store = "/tmp";
+          };
+          db_file_path = "/run/context-api/db.sqlite";
+          net_ctrl_base_path = "foo";
+          network_gateway.ws_gateway_url = "bar";
 
-            request_timeouts = {
-              # disable ImageAPI request timeouts
-              image_api = null;
-              single_context_api = 30000;
-            };
+          request_timeouts = {
+            # disable ImageAPI request timeouts
+            image_api = null;
+            single_context_api = 30000;
           };
         };
-
-        services = {
-          mock-remote-usb.enable = true;
-          mock-contextapi-satellite-rest-services.enable = true;
-          remote-auxiliary = {
-            enable = true;
-            port = lib.toInt rhPort;
-            configFile = toString (
-              writeText "remote-auxiliary.json" (
-                builtins.toJSON {
-                  devices = {
-                    ${uploadAuxId}.config = {
-                      id = uploadAuxId;
-                      url = "http://127.0.0.1:${uploadAuxPort}";
-                      cmd = writeShellScript "upload-aux-cmd-script" ":";
-                    };
-                    ${statusAuxId}.config = {
-                      id = statusAuxId;
-                      url = "http://127.0.0.1:${statusAuxPort}";
-                      cmd = writeShellScript "status-aux-cmd-script" ":";
-                    };
-                  };
-                }
-              )
-            );
-          };
-          maintainerCli = {
-            enable = true;
-            configMachines = [
-              {
-                id = 1;
-                switch_connections = { };
-                remote_auxiliary = "http://127.0.0.1:${rhPort}/auxiliaries";
-                remote_power = "http://127.0.0.1:${builtins.toString config.services.mock-contextapi-satellite-rest-services.port}/power";
-                remote_serial = null;
-                remote_usb = "http://127.0.0.1:${builtins.toString config.services.mock-remote-usb.port}/usb";
-                platform = "";
-              }
-            ];
-            configNetworks = lib.lists.range 1 2;
-          };
-        };
-
-        systemd.services = {
-          upload-server = {
-            description = "HTTP server";
-            wantedBy = [ "multi-user.target" ];
-            after = [ "network-online.target" ];
-            wants = [ "network-online.target" ];
-            serviceConfig = {
-              ExecStart = writePython3 "upload-server" { } ''
-                import http.server
-                import os
-
-
-                class UploadHandler(http.server.SimpleHTTPRequestHandler):
-                    def do_PUT(self):
-                        # Check for the 64MB limit (64 * 1024 * 1024)
-                        content_length = int(self.headers.get('Content-Length', 0))
-                        if content_length > 67108864:
-                            self.send_error(413, "Payload Too Large")
-                            return
-                        path = self.translate_path(self.path)
-                        os.makedirs(os.path.dirname(path), exist_ok=True)
-                        with open(path, 'wb') as f:
-                            f.write(self.rfile.read(content_length))
-                        self.send_response(201)
-                        self.end_headers()
-
-
-                http.server.test(HandlerClass=UploadHandler, port=${uploadAuxPort})
-              '';
-              WorkingDirectory = uploadserverDir;
-            };
-          };
-          maintainer-cli-init-service = {
-            before = [ "context-api.service" ];
-            # Needed to simulate the power device as the maintainer cli performs a power reset
-            after = [ "echo-server.service" ];
-          };
-        };
-
-        systemd.tmpfiles.rules = [ "d ${uploadserverDir} 0755 root wheel" ];
       };
+
+      services = {
+        mock-remote-usb.enable = true;
+        mock-contextapi-satellite-rest-services.enable = true;
+        remote-auxiliary = {
+          enable = true;
+          port = lib.toInt rhPort;
+          configFile = toString (
+            writeText "remote-auxiliary.json" (
+              builtins.toJSON {
+                devices = {
+                  ${uploadAuxId}.config = {
+                    id = uploadAuxId;
+                    url = "http://127.0.0.1:${uploadAuxPort}";
+                    cmd = writeShellScript "upload-aux-cmd-script" ":";
+                  };
+                  ${statusAuxId}.config = {
+                    id = statusAuxId;
+                    url = "http://127.0.0.1:${statusAuxPort}";
+                    cmd = writeShellScript "status-aux-cmd-script" ":";
+                  };
+                };
+              }
+            )
+          );
+        };
+        maintainerCli = {
+          enable = true;
+          configMachines = [
+            {
+              id = 1;
+              switch_connections = { };
+              remote_auxiliary = "http://127.0.0.1:${rhPort}/auxiliaries";
+              remote_power = "http://127.0.0.1:${builtins.toString config.services.mock-contextapi-satellite-rest-services.port}/power";
+              remote_serial = null;
+              remote_usb = "http://127.0.0.1:${builtins.toString config.services.mock-remote-usb.port}/usb";
+              platform = "";
+            }
+          ];
+          configNetworks = lib.lists.range 1 2;
+        };
+      };
+
+      systemd.services = {
+        upload-server = {
+          description = "HTTP server";
+          wantedBy = [ "multi-user.target" ];
+          after = [ "network-online.target" ];
+          wants = [ "network-online.target" ];
+          serviceConfig = {
+            ExecStart = writePython3 "upload-server" { } ''
+              import http.server
+              import os
+
+
+              class UploadHandler(http.server.SimpleHTTPRequestHandler):
+                  def do_PUT(self):
+                      # Check for the 64MB limit (64 * 1024 * 1024)
+                      content_length = int(self.headers.get('Content-Length', 0))
+                      if content_length > 67108864:
+                          self.send_error(413, "Payload Too Large")
+                          return
+                      path = self.translate_path(self.path)
+                      os.makedirs(os.path.dirname(path), exist_ok=True)
+                      with open(path, 'wb') as f:
+                          f.write(self.rfile.read(content_length))
+                      self.send_response(201)
+                      self.end_headers()
+
+
+              http.server.test(HandlerClass=UploadHandler, port=${uploadAuxPort})
+            '';
+            WorkingDirectory = uploadserverDir;
+          };
+        };
+        maintainer-cli-init-service = {
+          before = [ "context-api.service" ];
+          # Needed to simulate the power device as the maintainer cli performs a power reset
+          after = [ "echo-server.service" ];
+        };
+      };
+
+      systemd.tmpfiles.rules = [ "d ${uploadserverDir} 0755 root wheel" ];
+    };
   };
 
   testScript = ''

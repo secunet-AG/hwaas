@@ -21,8 +21,8 @@ pub(super) async fn serve_app_with_addr(
     addr: impl ToSocketAddrs,
 ) -> (
     impl Future<Output = Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>
-        + Send
-        + 'static,
+    + Send
+    + 'static,
     SocketAddr,
     Sender<()>,
 ) {

@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use clap::Parser;
-use hunt::{hunt_axum_router, HuntBuilder};
+use hunt::{HuntBuilder, hunt_axum_router};
 use sd_notify::NotifyState;
 use tokio::net::TcpListener;
 use tracing::{error, info, warn};

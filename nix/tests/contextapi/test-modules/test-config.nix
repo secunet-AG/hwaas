@@ -5,19 +5,18 @@
 # This is the default ContextAPI config for all tests
 # If a test needs a specific attr, make it an option of this module.
 
-{ config
-, lib
-, modules
-, ...
+{
+  config,
+  lib,
+  modules,
+  ...
 }:
 with lib;
 let
   cfg = config.context-api-test-config;
 in
 {
-  imports = [
-    modules.maintainer-cli
-  ];
+  imports = [ modules.maintainer-cli ];
 
   options.context-api-test-config = {
     enable = lib.mkEnableOption "test ContextAPI config";
@@ -124,9 +123,7 @@ in
           inherit (cfg) store;
           max_file_size = "128Mib";
         };
-        network_gateway = {
-          inherit (cfg) ws_gateway_url;
-        };
+        network_gateway = { inherit (cfg) ws_gateway_url; };
       };
     };
   };

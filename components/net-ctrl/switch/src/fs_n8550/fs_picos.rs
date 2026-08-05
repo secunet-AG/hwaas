@@ -16,7 +16,7 @@ use crate::{SwitchAPI, SwitchApiError, SwitchSetupError};
 use async_trait::async_trait;
 use base64::Engine;
 use dashmap::DashSet;
-use http::{header, HeaderMap};
+use http::{HeaderMap, header};
 use network_type_ids::{PortID, PortRepresentation, SwitchDetails, VlanID};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 use std::sync::Arc;
@@ -242,7 +242,9 @@ impl SwitchAPI for FSN8550 {
 
     async fn setup(&self, vlan_ids: Vec<VlanID>) -> Result<(), SwitchSetupError> {
         if !self.switch_details.critical_ports.mgmt_ports.is_empty() {
-            error!("Management Ports are not allowed to be configured for now. Use the designated management interface.");
+            error!(
+                "Management Ports are not allowed to be configured for now. Use the designated management interface."
+            );
             return Err(SwitchSetupError::InternalError);
         }
 

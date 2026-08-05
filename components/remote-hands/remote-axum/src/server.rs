@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use axum::Router;
-use hunt::{hunt_axum_router, Hunt};
+use hunt::{Hunt, hunt_axum_router};
 use sd_notify::NotifyState;
 use std::future::Future;
 use std::net::SocketAddr;
@@ -13,7 +13,7 @@ use tokio::net::TcpListener;
 use tracing::{debug, info, warn};
 
 async fn wait_for_signal() {
-    use tokio::signal::unix::{signal, SignalKind};
+    use tokio::signal::unix::{SignalKind, signal};
 
     let mut sigint = signal(SignalKind::interrupt()).unwrap();
     let mut sigterm = signal(SignalKind::terminate()).unwrap();

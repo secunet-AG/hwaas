@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use image_api::sha256hash::Sha256Hash;
 use image_api::ImageHandler;
+use image_api::sha256hash::Sha256Hash;
 
 use std::path::PathBuf;
 use tokio::fs;

@@ -7,8 +7,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-pub use super::machine_interface_set::MachineInterfaceSet;
 use super::TaggedMachineNetworkInterface;
+pub use super::machine_interface_set::MachineInterfaceSet;
 
 /// Represents a mapping between [`MachineNames`](crate::aliases::MachineName) and their [`NetworkInterfaces`](crate::aliases::MachineNetworkInterface)
 /// participating in the same network.

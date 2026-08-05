@@ -5,7 +5,7 @@
 use crate::api::HasSerial;
 use aide::transform::TransformOperation;
 use axum::response::{IntoResponse, Response};
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 
 /// Handler for GET /serial requests. Returns all known serial ids.
 pub async fn handle_get_all<S: HasSerial + Send + Sync>(

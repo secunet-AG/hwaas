@@ -2,64 +2,21 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-_: {
-  perSystem =
-    { pkgs
-    , config
-    , ...
-    }:
-    {
-      treefmt.config = {
-        projectRootFile = "flake.nix";
-        programs = {
-          nixpkgs-fmt = {
-            enable = true;
-          };
-          shfmt.enable = true;
-          yamlfmt.enable = true;
-          taplo.enable = true;
-          rustfmt.enable = false;
-          prettier = {
-            enable = true;
-          };
+{ inputs, ... }: {
+  imports = [ inputs.git-hooks-nix.flakeModule ];
+  perSystem = { config, pkgs, ... }: {
+    pre-commit = {
+      check.enable = true;
+      inherit pkgs;
+      settings.hooks = {
+        treefmt = {
+          enable = true;
+          package = config.formatter;
         };
-        settings = {
-          formatter.prettier = {
-            excludes = [
-              "vue-client/pnpm-lock.yaml"
-              "**/*.yml"
-              "**/*.yaml"
-            ];
-          };
-          global.excludes = [
-            "^.cargo/.+$"
-            "components/aruba-switch-mock/reference_schemars/**"
-            "components/contextapi/net_ctrl_client/**"
-            "**/*workspace-hack/Cargo.toml"
-            "expected-oas/**"
-            "vue-client/pnpm-lock.yaml"
-            "*.svg"
-            "*.img"
-            "*.drawio"
-          ];
-        };
-
-      };
-
-      pre-commit = {
-        check.enable = true;
-        settings.hooks = {
-          treefmt = {
-            packageOverrides.treefmt = config.treefmt.build.wrapper;
-            enable = true;
-          };
-          statix.enable = true;
-          deadnix.enable = true;
-          reuse = {
-            enable = true;
-            package = pkgs.reuse;
-          };
-        };
+        statix.enable = true;
+        deadnix.enable = true;
+        reuse.enable = true;
       };
     };
+  };
 }

@@ -20,7 +20,7 @@ use error_utils::log_err;
 use net_ctrl_client_wrapper::NetCtrlClient;
 use remote_client::RemoteClient;
 use tokio::task::JoinSet;
-use tracing::{debug, error, info_span, instrument, warn, Instrument, Span};
+use tracing::{Instrument, Span, debug, error, info_span, instrument, warn};
 
 /// Maximum duration to sleep in between retries when force-retrying fallibly operations until
 /// success.
@@ -465,11 +465,7 @@ mod test {
             let inner_counter = counter.clone();
             async move {
                 let count = inner_counter.fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
-                if count > 0 {
-                    Err("Nope")
-                } else {
-                    Ok(())
-                }
+                if count > 0 { Err("Nope") } else { Ok(()) }
             }
         };
 

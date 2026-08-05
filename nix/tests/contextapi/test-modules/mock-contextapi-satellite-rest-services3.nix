@@ -6,11 +6,12 @@
 # The remote-serial is realized by means of a reverse proxy that redirects websocket traffic
 # to a dedicated websocket echo server. All other HTTP requests to the `port` setup here get redirected
 # to an HTTP echo server.
-{ config
-, lib
-, pkgs
-, modules
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  modules,
+  ...
 }:
 with lib;
 let
