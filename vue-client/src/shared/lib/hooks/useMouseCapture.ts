@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import { useContextStore } from '@/core/stores/context-store'
 import { storeToRefs } from 'pinia'
 import { computed, onUnmounted, ref, watch, type Ref } from 'vue'
@@ -24,7 +25,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
   )
 
   // Build WebSocket for Mouse
-  const { apiUrl } = useApiUrl()
+  const { apiUrl } = useConfig()
 
   const contextStore = useContextStore()
   const contextStoreRefs = storeToRefs(contextStore)

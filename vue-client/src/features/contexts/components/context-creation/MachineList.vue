@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 import { computed, reactive, ref, onMounted } from 'vue'
 import { nameGenerator } from '@/shared/lib/etc/machine-name-generator'
 import type { InventoryMachine } from '@/shared/types/contexts.model'
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
 
 const props = defineProps<{
   disabled: boolean
@@ -27,7 +27,7 @@ const emit = defineEmits<{
 
 const machineList = ref([] as MachineInventoryStateItem[])
 
-const { apiUrl } = useApiUrl()
+const { apiUrl } = useConfig()
 
 async function fetchMachines(): Promise<MachineInventoryStateItem[]> {
   const res = await fetch(`${apiUrl.value}/inventory`)

@@ -2,13 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import { useContextStore } from '@/core/stores/context-store'
 import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, onUnmounted, ref, watch } from 'vue'
 
 export function useSerialWebsocket() {
-  const { apiUrl } = useApiUrl()
+  const { apiUrl } = useConfig()
 
   const contextStore = useContextStore()
   const contextStoreRefs = storeToRefs(contextStore)

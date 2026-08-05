@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
 import type {
   LocalMachine,
   ContextConfigurationMachine,
@@ -17,10 +16,11 @@ import {
   ContextReservationSchema,
 } from '@/shared/schemas/contexts.schema'
 import type { ApiNetwork } from '@/shared/types/networks.model'
+import { useConfig } from '@/core/plugins/config-plugin'
 
 // Wrapping this so we can reuse it in the store and provide the apiURL, which can change
 export const useContextsApi = () => {
-  const { apiUrl } = useApiUrl()
+  const { apiUrl } = useConfig()
 
   const { getAllNetworks } = useNetworksApi()
 

@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Context, LocalMachine, PowerState } from '@/shared/types/contexts.model'
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import {
   MachinePowerResponseSchema,
   NetworkInterfacesSchema,
@@ -17,7 +18,7 @@ export type MachinePowerState = {
 }
 
 export const useMachinesApi = () => {
-  const { apiUrl } = useApiUrl()
+  const { apiUrl } = useConfig()
 
   async function powerOnMachine(
     contextId: string,

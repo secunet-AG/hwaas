@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import { safeFetch, type FetchResult } from '../safeFetch'
 import { GetNetworkSchema, ListMachineNetworksSchema } from '@/shared/schemas/networks.schema'
 import type { ApiNetwork } from '@/shared/types/networks.model'
@@ -23,7 +24,7 @@ export interface NetworkRemoveOp {
 export type NetworkPathProps = (NetworkPatchPath & NetworkAddOp) | NetworkRemoveOp
 
 export const useNetworksApi = () => {
-  const { apiUrl } = useApiUrl()
+  const { apiUrl } = useConfig()
 
   async function listMachineNetworks(contextId: string): Promise<FetchResult<string[]>> {
     const res = await safeFetch<string[]>(

@@ -9,13 +9,15 @@ import type { Context, LocalMachine } from '@/shared/types/contexts.model'
 import type { LocalImage } from '@/shared/types/images.model'
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
+import { useConfig } from '../plugins/config-plugin'
 
 const CONTEXT_LOCALSTORE_KEY = 'context_local_key'
 const CONTEXT_HISTORY_KEY = 'context_history_key'
-const MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS = +import.meta.env
-  .VITE_MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS
 
 export const useContextStore = defineStore('context', () => {
+  const { config } = useConfig()
+  const MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS = config.value.MAXIMUM_CONTEXT_LIFETIME_SECONDS
+
   const _initial = initializeContexts()
   const contexts = ref<Context[]>(_initial.contexts)
   const activeContextIndex = ref<number>(_initial.activeContextIndex)

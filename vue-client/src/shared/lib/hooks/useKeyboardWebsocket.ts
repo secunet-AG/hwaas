@@ -2,14 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import { useContextStore } from '@/core/stores/context-store'
 import { storeToRefs } from 'pinia'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import type { KeyboardReport } from './useKeyboardCapture'
 
 export function useKeyboardWebsocket() {
-  const { apiUrl } = useApiUrl()
+  const { apiUrl } = useConfig()
 
   const contextStore = useContextStore()
   const contextStoreRefs = storeToRefs(contextStore)

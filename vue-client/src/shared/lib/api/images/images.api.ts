@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Images, ImageItem, LocalImage } from '@/shared/types/images.model'
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import { safeFetch, type FetchResult } from '../safeFetch'
 import { GetAllImagesSchema, ImageSchema } from '@/shared/schemas/images.schema'
 
 export const useImageApi = () => {
-  const { apiUrl } = useApiUrl()
+  const { apiUrl } = useConfig()
 
   async function getAllImages(): Promise<FetchResult<Images>> {
     const res = await safeFetch(

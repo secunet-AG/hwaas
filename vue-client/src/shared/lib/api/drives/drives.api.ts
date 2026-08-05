@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiUrlRef, useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
 import type { FetchResult } from '../safeFetch'
 
 export const useDrivesApi = () => {
-  const { apiUrl } = useApiUrl()
+  const { apiUrl } = useConfig()
 
   async function createDrive(
     contextId: string,
