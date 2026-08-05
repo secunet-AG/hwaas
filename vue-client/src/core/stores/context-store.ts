@@ -15,8 +15,7 @@ const CONTEXT_LOCALSTORE_KEY = 'context_local_key'
 const CONTEXT_HISTORY_KEY = 'context_history_key'
 
 export const useContextStore = defineStore('context', () => {
-  const { config } = useConfig()
-  const MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS = config.value.MAXIMUM_CONTEXT_LIFETIME_SECONDS
+  const { MAXIMUM_CONTEXT_LIFETIME_SECONDS } = useConfig()
 
   const _initial = initializeContexts()
   const contexts = ref<Context[]>(_initial.contexts)
@@ -65,7 +64,7 @@ export const useContextStore = defineStore('context', () => {
     const filteredPayload = payload.filter((x) => x.exp > oneWeekAgo)
     const newItem = {
       contextId: reservationResponse,
-      exp: Date.now() + MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS,
+      exp: Date.now() + MAXIMUM_CONTEXT_LIFETIME_SECONDS,
     }
 
     localStorage.setItem(CONTEXT_HISTORY_KEY, JSON.stringify([...filteredPayload, newItem]))

@@ -27,10 +27,10 @@ const emit = defineEmits<{
 
 const machineList = ref([] as MachineInventoryStateItem[])
 
-const { apiUrl } = useConfig()
+const { API_URL } = useConfig()
 
 async function fetchMachines(): Promise<MachineInventoryStateItem[]> {
-  const res = await fetch(`${apiUrl.value}/inventory`)
+  const res = await fetch(`${API_URL}/inventory`)
   const payload = (await res.json()) as InventoryMachine[]
 
   // Filter our free items and initialize with a non selected initial state

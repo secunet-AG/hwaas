@@ -10,7 +10,7 @@ import { computed, onUnmounted, ref, watch } from 'vue'
 import type { KeyboardReport } from './useKeyboardCapture'
 
 export function useKeyboardWebsocket() {
-  const { apiUrl } = useConfig()
+  const { API_URL } = useConfig()
 
   const contextStore = useContextStore()
   const contextStoreRefs = storeToRefs(contextStore)
@@ -28,7 +28,7 @@ export function useKeyboardWebsocket() {
 
     if (!activeContextId || !activeMachineName.value) return null
 
-    return `${apiUrl.value}/contexts/${activeContextId}/machines/${activeMachineName.value}/usb/keyboard/websocket`
+    return `${API_URL}/contexts/${activeContextId}/machines/${activeMachineName.value}/usb/keyboard/websocket`
   })
 
   // Lifecycle hooks

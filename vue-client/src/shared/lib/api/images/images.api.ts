@@ -9,11 +9,11 @@ import { safeFetch, type FetchResult } from '../safeFetch'
 import { GetAllImagesSchema, ImageSchema } from '@/shared/schemas/images.schema'
 
 export const useImageApi = () => {
-  const { apiUrl } = useConfig()
+  const { API_URL } = useConfig()
 
   async function getAllImages(): Promise<FetchResult<Images>> {
     const res = await safeFetch(
-      `${apiUrl.value}/images`,
+      `${API_URL}/images`,
       {
         headers: {
           Accept: 'application/json',
@@ -26,7 +26,7 @@ export const useImageApi = () => {
 
   async function getImage(imageHash: string): Promise<FetchResult<ImageItem>> {
     const res = await safeFetch(
-      `${apiUrl.value}/images/${imageHash}`,
+      `${API_URL}/images/${imageHash}`,
       {
         headers: {
           Accept: 'application/json',
@@ -47,7 +47,7 @@ export const useImageApi = () => {
       formData.append('image', image)
 
       const xhr = new XMLHttpRequest()
-      xhr.open('POST', `${apiUrl.value}/images`)
+      xhr.open('POST', `${API_URL}/images`)
 
       xhr.upload.onprogress = (event) => {
         if (checkForCancellationCallback()) {

@@ -9,7 +9,7 @@ import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, onUnmounted, ref, watch } from 'vue'
 
 export function useSerialWebsocket() {
-  const { apiUrl } = useConfig()
+  const { API_URL } = useConfig()
 
   const contextStore = useContextStore()
   const contextStoreRefs = storeToRefs(contextStore)
@@ -30,7 +30,7 @@ export function useSerialWebsocket() {
     const activeContextId = contextStoreRefs.activeContext.value?.id
     if (!activeContextId || !activeMachineName.value || !activeSerialPort.value) return null
 
-    return `${apiUrl.value}/contexts/${activeContextId}/machines/${activeMachineName.value}/serial/${activeSerialPort.value}`
+    return `${API_URL}/contexts/${activeContextId}/machines/${activeMachineName.value}/serial/${activeSerialPort.value}`
   })
 
   const onError = (payload: any) => {

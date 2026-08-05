@@ -25,7 +25,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
   )
 
   // Build WebSocket for Mouse
-  const { apiUrl } = useConfig()
+  const { API_URL } = useConfig()
 
   const contextStore = useContextStore()
   const contextStoreRefs = storeToRefs(contextStore)
@@ -37,7 +37,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
 
     if (!activeContextId || !machineName) return null
 
-    return `${apiUrl.value}/contexts/${activeContextId}/machines/${machineName}/usb/mouse/websocket`
+    return `${API_URL}/contexts/${activeContextId}/machines/${machineName}/usb/mouse/websocket`
   })
 
   watch(activeBaseUrl, () => buildWebSocket(), { immediate: true }) // Fires at start or on activeBaseUrl change

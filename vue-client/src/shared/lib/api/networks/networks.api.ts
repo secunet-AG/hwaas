@@ -24,11 +24,11 @@ export interface NetworkRemoveOp {
 export type NetworkPathProps = (NetworkPatchPath & NetworkAddOp) | NetworkRemoveOp
 
 export const useNetworksApi = () => {
-  const { apiUrl } = useConfig()
+  const { API_URL } = useConfig()
 
   async function listMachineNetworks(contextId: string): Promise<FetchResult<string[]>> {
     const res = await safeFetch<string[]>(
-      `${apiUrl.value}/contexts/${contextId}/networks`,
+      `${API_URL}/contexts/${contextId}/networks`,
       {
         headers: { Accept: 'application/json' },
       },
@@ -65,7 +65,7 @@ export const useNetworksApi = () => {
 
   async function deleteNetwork(contextId: string, network: string): Promise<FetchResult<number>> {
     try {
-      const res = await fetch(`${apiUrl.value}/contexts/${contextId}/networks/${network}`, {
+      const res = await fetch(`${API_URL}/contexts/${contextId}/networks/${network}`, {
         method: 'DELETE',
       })
       if (res.status >= 400) {
@@ -88,7 +88,7 @@ export const useNetworksApi = () => {
 
   async function getNetwork(contextId: string, network: string): Promise<FetchResult<ApiNetwork>> {
     const res = await safeFetch(
-      `${apiUrl.value}/contexts/${contextId}/networks/${network}`,
+      `${API_URL}/contexts/${contextId}/networks/${network}`,
       {
         headers: {
           Accept: 'application/json',
@@ -107,7 +107,7 @@ export const useNetworksApi = () => {
     payload: Record<string, Record<string, any>> = {},
   ): Promise<FetchResult<number>> {
     try {
-      const res = await fetch(`${apiUrl.value}/contexts/${contextId}/networks/${network}`, {
+      const res = await fetch(`${API_URL}/contexts/${contextId}/networks/${network}`, {
         method: 'PUT',
         body: JSON.stringify(payload),
         headers: {
@@ -147,7 +147,7 @@ export const useNetworksApi = () => {
       value: { [x.port]: {} },
     }))
     try {
-      const res = await fetch(`${apiUrl.value}/contexts/${contextId}/networks/${network}`, {
+      const res = await fetch(`${API_URL}/contexts/${contextId}/networks/${network}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ export const useNetworksApi = () => {
     },
   ): Promise<FetchResult<number>> {
     try {
-      const res = await fetch(`${apiUrl.value}/contexts/${contextId}/networks/${network}`, {
+      const res = await fetch(`${API_URL}/contexts/${contextId}/networks/${network}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -215,7 +215,7 @@ export const useNetworksApi = () => {
     props: NetworkPathProps[],
   ): Promise<FetchResult<number>> {
     try {
-      const res = await fetch(`${apiUrl.value}/contexts/${contextId}/networks/${network}`, {
+      const res = await fetch(`${API_URL}/contexts/${contextId}/networks/${network}`, {
         method: 'PATCH',
         body: JSON.stringify(props),
         headers: {
