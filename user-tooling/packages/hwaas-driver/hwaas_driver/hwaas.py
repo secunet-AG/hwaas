@@ -511,13 +511,15 @@ class Hwaas:
                 for name, config in machine_config.items()
             }
         }
-        response = self.hwaas_connector.post("contexts", json=resource_descriptor)
 
+        response = self.hwaas_connector.post("contexts", json=resource_descriptor)
         # do some polling, till a machine is free for us
+        backoff = 0.2
         while response.status_code != 200:
             logger.info("Could not get context: %s.", response.text)
-            logger.info("Trying again later.")
-            time.sleep(60)
+            logger.info("Trying again in %.1fs.", backoff)
+            time.sleep(backoff)
+            backoff = min(backoff * 2, 5.0)
             response = self.hwaas_connector.post("contexts", json=resource_descriptor)
 
         context = uuid.UUID(response.text)
