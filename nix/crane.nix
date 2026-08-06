@@ -132,8 +132,7 @@
               }
             );
 
-            # Check formatting
-            fmt = craneLib.cargoFmt (perProjectCfg.commonArgs // { inherit (perProjectCfg) src; });
+            # NOTE: All formatting is taken care of by `nix fmt`
 
             # Run tests with cargo-nextest
             nextest = craneLib.cargoNextest (
