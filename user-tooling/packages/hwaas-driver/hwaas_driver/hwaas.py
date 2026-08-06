@@ -32,6 +32,7 @@ import hashlib
 import json
 import logging
 import os
+import random
 import shutil
 import sys
 import tempfile
@@ -513,13 +514,17 @@ class Hwaas:
         }
 
         response = self.hwaas_connector.post("contexts", json=resource_descriptor)
-        # do some polling, till a machine is free for us
-        backoff = 0.2
+        # polling with full jitter and exponential backoff, until a machine is free
+        # jitter here, because we could have a number of pipelines looking for a machine
+        backoff = 0.2  # start with 200ms sleep
+        max_sleep_time = 30.0
+
         while response.status_code != 200:
+            delay = random.uniform(0, backoff)
             logger.info("Could not get context: %s.", response.text)
-            logger.info("Trying again in %.1fs.", backoff)
-            time.sleep(backoff)
-            backoff = min(backoff * 2, 5.0)
+            logger.info("Trying again in %.1fs.", delay)
+            time.sleep(delay)
+            backoff = min(backoff * 2, max_sleep_time)
             response = self.hwaas_connector.post("contexts", json=resource_descriptor)
 
         context = uuid.UUID(response.text)
