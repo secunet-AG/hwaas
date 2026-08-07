@@ -26,7 +26,7 @@ let
     {
       name = "${phase} ${step}";
       "if" = "always()";
-      run = "nix build -L --show-trace ${lib.escapeShellArg target}";
+      run = "nix build --accept-flake-config -L --show-trace ${lib.escapeShellArg target}";
     };
 
   # Steps that every job need to run once at the start
