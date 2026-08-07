@@ -20,7 +20,7 @@ testers.runNixOSTest {
   name = "image-api-test";
   node.specialArgs = { inherit modules; };
   nodes = {
-    gateway = { ... }: {
+    gateway = _: {
       imports = [
         ./test-modules/test-config.nix
         ./test-modules/mock-contextapi-satellite-rest-services.nix
@@ -111,9 +111,7 @@ testers.runNixOSTest {
       assert_image_count_is(0)
       response = upload_image(genImgPath)
       assert_image_count_is(1)
-      body = json.loads(response["body"])
-      assert body["sha256"] == sha_sum, f"Expected sha256sum {sha_sum} but response was {body["sha256"]}"
-      assert body["file_name"] == "myImageName", f"Expected filename 'myImageName' but response was {body["file_name"]}"
+      assert response["body"] == sha_sum, f"Expected {sha_sum} but response was {response}"
 
     # should be idempotent and not create an image duplicate
     with subtest("Upload image a second time"):
@@ -155,7 +153,7 @@ testers.runNixOSTest {
       response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images")
       response_json = json.loads(response)
       assert len(response_json) == 1
-      assert response_json[0]["size"] == 1024 * 104800
+      assert response_json[sha_sum]["size"] == 1024 * 104800
 
     # Test if a drive can be generated from a uploaded image
     with subtest("Create drive"):
