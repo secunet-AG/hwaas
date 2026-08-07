@@ -619,6 +619,31 @@
         ],
         "type": "object"
       },
+      "LegacyImageMetadata": {
+        "description": "The ImageMetadata that can be requested for each uploaded image",
+        "properties": {
+          "created": {
+            "$ref": "#/components/schemas/SystemTime",
+            "description": "The time when the image was first stored"
+          },
+          "file_name": {
+            "description": "The user specified file name of the image",
+            "type": "string"
+          },
+          "size": {
+            "description": "The size of the image in bytes",
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "created",
+          "file_name",
+          "size"
+        ],
+        "type": "object"
+      },
       "License": {
         "additionalProperties": true,
         "description": "License information for the exposed API.",
@@ -5923,15 +5948,13 @@
               "application/json": {
                 "schema": {
                   "additionalProperties": {
-                    "format": "uint64",
-                    "minimum": 0.0,
-                    "type": "integer"
+                    "$ref": "#/components/schemas/LegacyImageMetadata"
                   },
                   "type": "object"
                 }
               }
             },
-            "description": "Return a dictionary containing the image hash and image size in byte"
+            "description": "Return a dictionary containing the image hash and partial metadata including image size in bytes"
           },
           "500": {
             "content": {

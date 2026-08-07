@@ -64,8 +64,8 @@ fn api_doc_image_api(op: TransformPathItem) -> TransformPathItem {
 fn api_method_doc_list_images(op: TransformOperation) -> TransformOperation {
     op.description("Returns a list of all available images currently stored")
         .summary("list images")
-        .response_with::<200, Json<HashMap<String, u64>>, _>(|op| {
-            op.description("Return a dictionary containing the image hash and image size in byte")
+        .response_with::<200, Json<ListImagesResponse>, _>(|op| {
+            op.description("Return a dictionary containing the image hash and partial metadata including image size in bytes")
         })
         .response_with::<500, String, _>(|op| op.description("Internal error reason"))
 }
@@ -90,6 +90,20 @@ fn api_method_doc_delete(op: TransformOperation) -> TransformOperation {
         .response_with::<202, String, _>(|op| op.description("Image marked for garbage collection"))
 }
 
+/// The ImageMetadata that can be requested for each uploaded image
+#[derive(Serialize, JsonSchema)]
+pub struct LegacyImageMetadata {
+    /// The user specified file name of the image
+    file_name: String,
+    /// The size of the image in bytes
+    size: u64,
+    /// The time when the image was first stored
+    created: std::time::SystemTime,
+}
+
+/// Response type for the [`list_images`] endpoint handler.
+pub type ListImagesResponse = HashMap<String, LegacyImageMetadata>;
+
 /// List all images currently stored.
 ///
 /// # Returns
@@ -100,7 +114,7 @@ fn api_method_doc_delete(op: TransformOperation) -> TransformOperation {
 #[axum::debug_handler]
 async fn list_images(
     State(image_handler): State<ImageHandler>,
-) -> Result<Json<Vec<ImageMetadata>>, (StatusCode, String)> {
+) -> Result<Json<ListImagesResponse>, (StatusCode, String)> {
     let images = image_handler.list_image_metadatas().await.map_err(|err| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -110,7 +124,17 @@ async fn list_images(
             ),
         )
     })?;
-    Ok(Json::from(images))
+    let response: ListImagesResponse = HashMap::from_iter(images.into_iter().map(|metadata| {
+        (
+            metadata.sha256.0,
+            LegacyImageMetadata {
+                file_name: metadata.file_name,
+                size: metadata.size,
+                created: metadata.created,
+            },
+        )
+    }));
+    Ok(Json::from(response))
 }
 
 /// This stub behaves like designed - it always returns 202 Accepted.
@@ -226,5 +250,6 @@ async fn post_image(
         .add_image(stream, metadata)
         .await
         .map_err(|error| error.into_response())?;
-    Ok(Json::from(metadata))
+    // Maintain compatibility with earlier API versions
+    Ok(metadata.sha256)
 }
