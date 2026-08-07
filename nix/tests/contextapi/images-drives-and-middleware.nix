@@ -148,33 +148,29 @@ testers.runNixOSTest {
       response_json = json.loads(response)
       assert response_json["file_name"] == imgName + ".zstd", f"response had unexpected file name: {response_json}"
 
-    with subtest("Read filename only"):
+    with subtest("Read full image metadata"):
       response = gateway.succeed(f"curl --fail-with-body --silent \
-        {base_url}/images/{sha_sum}/file_name")
-      file_name = json.loads(response)
-      assert file_name == imgName + ".zstd", f"response had unexpected file name: {response}"
+        {base_url}/images/{sha_sum}/metadata")
+      metadata = json.loads(response)
+      assert metadata["file_name"] == imgName + ".zstd", f"response had unexpected file name: {response}"
+      assert metadata["architecture"] is None, f"response had unexpected architecture: {response}"
+      assert len(metadata["tags"]) == 0, f"response had unexpected tags: {response}"
 
     with subtest("Modify image file name"):
       gateway.succeed(f"curl --fail-with-body -X POST --silent \
-        --url-query 'file_name=mod_{imgName}' {base_url}/images/{sha_sum}/file_name")
+        --url-query 'file_name=mod_{imgName}' {base_url}/images/{sha_sum}/metadata")
       response = gateway.succeed(f"curl --fail-with-body --silent \
-        {base_url}/images/{sha_sum}/file_name")
-      file_name = json.loads(response)
-      assert file_name == "mod_" + imgName, f"response had unexpected file name: {response}"
-
-    with subtest("Read architecture only"):
-      response = gateway.succeed(f"curl --fail-with-body --silent \
-        {base_url}/images/{sha_sum}/architecture")
-      architecture = json.loads(response)
-      assert architecture is None, f"response had unexpected architecture: {response}"
+        {base_url}/images/{sha_sum}/metadata")
+      metadata = json.loads(response)
+      assert metadata["file_name"] == "mod_" + imgName, f"response had unexpected file name: {response}"
 
     with subtest("Modify image architecture"):
       gateway.succeed(f"curl --fail-with-body -X POST --silent \
-        --url-query 'architecture=aarch64' {base_url}/images/{sha_sum}/architecture")
+        --url-query 'architecture=aarch64' {base_url}/images/{sha_sum}/metadata")
       response = gateway.succeed(f"curl --fail-with-body --silent \
-        {base_url}/images/{sha_sum}/architecture")
-      architecture = json.loads(response)
-      assert architecture == "aarch64", f"response had unexpected architecture: {response}"
+        {base_url}/images/{sha_sum}/metadata")
+      metadata = json.loads(response)
+      assert metadata["architecture"] == "aarch64", f"response had unexpected architecture: {response}"
 
     with subtest("Create new tags"):
       gateway.succeed(f"curl --fail-with-body -X POST --silent \
@@ -187,17 +183,17 @@ testers.runNixOSTest {
 
     with subtest("Add tag to image"):
       gateway.succeed(f"curl --fail-with-body -X POST --silent \
-        --url-query 'name=tag a' {base_url}/images/{sha_sum}/tags")
-      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}")
-      image = json.loads(response)
-      assert image["tags"][0]["name"] == "tag a", f"response had unexpected tags: {response}"
+        --url-query 'add_tag=tag a' {base_url}/images/{sha_sum}/metadata")
+      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}/metadata")
+      metadata = json.loads(response)
+      assert metadata["tags"][0]["name"] == "tag a", f"response had unexpected tags: {response}"
 
     with subtest("Remove tag from image"):
       gateway.succeed(f"curl --fail-with-body -X DELETE --silent \
-        --url-query 'name=tag a' {base_url}/images/{sha_sum}/tags")
-      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}")
-      image = json.loads(response)
-      assert len(image["tags"]) == 0, f"response had unexpected tags: {response}"
+        --url-query 'remove_tag=tag a' {base_url}/images/{sha_sum}/metadata")
+      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}/metadata")
+      metadata = json.loads(response)
+      assert len(metadata["tags"]) == 0, f"response had unexpected tags: {response}"
 
     # Test if 'get_images' returns the right amount of images and sizes
     with subtest("Get images"):
