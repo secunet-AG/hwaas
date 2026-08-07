@@ -4,14 +4,16 @@
 
 { config, ... }:
 let
+  # deadnix: skip
   flakeConfig = config;
 in
 {
   perSystem =
     { pkgs, config, ... }:
     let
+      # deadnix: skip
       extendedPkgs = pkgs.appendOverlays [
-        (final: prev: {
+        (final: _: {
           hwaasTimer = config.packages.user-tooling-hwaasTimer;
 
           hwaasTest = import ../../user-tooling/packages/hwaas-integration-test {

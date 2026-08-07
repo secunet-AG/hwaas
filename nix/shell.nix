@@ -30,6 +30,7 @@ _: {
           ++ config.pre-commit.settings.enabledPackages;
         packages = with pkgs; [
           colmena
+          deadnix
           figlet
           jq
           nodejs
