@@ -26,7 +26,7 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build aruba-switch-mock
-        run: nix build -L --show-trace '.#packages.x86_64-linux.aruba-switch-mock'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.aruba-switch-mock'
   build-contextapi:
     name: 'Build: contextapi'
     needs:
@@ -46,13 +46,13 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build contextapi
-        run: nix build -L --show-trace '.#packages.x86_64-linux.contextapi'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.contextapi'
       - if: always()
         name: build contextapi-oas
-        run: nix build -L --show-trace '.#packages.x86_64-linux.contextapi-oas'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.contextapi-oas'
       - if: always()
         name: build contextapi-version
-        run: nix build -L --show-trace '.#packages.x86_64-linux.contextapi-version'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.contextapi-version'
   build-hunt:
     name: 'Build: hunt'
     needs:
@@ -72,7 +72,7 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build hunt
-        run: nix build -L --show-trace '.#packages.x86_64-linux.hunt'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.hunt'
   build-net-ctrl:
     name: 'Build: net-ctrl'
     needs:
@@ -92,13 +92,13 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build net-ctrl
-        run: nix build -L --show-trace '.#packages.x86_64-linux.net-ctrl'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.net-ctrl'
       - if: always()
         name: build net-ctrl-client
-        run: nix build -L --show-trace '.#packages.x86_64-linux.net-ctrl-client'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.net-ctrl-client'
       - if: always()
         name: build net-ctrl-oas
-        run: nix build -L --show-trace '.#packages.x86_64-linux.net-ctrl-oas'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.net-ctrl-oas'
   build-remote:
     name: 'Build: remote'
     needs:
@@ -118,19 +118,19 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build remote-auxiliary
-        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-auxiliary'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.remote-auxiliary'
       - if: always()
         name: build remote-hands-oas
-        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-hands-oas'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.remote-hands-oas'
       - if: always()
         name: build remote-power
-        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-power'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.remote-power'
       - if: always()
         name: build remote-serial
-        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-serial'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.remote-serial'
       - if: always()
         name: build remote-usb
-        run: nix build -L --show-trace '.#packages.x86_64-linux.remote-usb'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.remote-usb'
   build-rpi-status-display:
     name: 'Build: rpi-status-display'
     needs:
@@ -150,7 +150,7 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build rpi-status-display
-        run: nix build -L --show-trace '.#packages.x86_64-linux.rpi-status-display'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.rpi-status-display'
   build-sbom:
     name: 'Build: sbom'
     needs:
@@ -171,40 +171,40 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build sbom-aruba-switch-mock
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-aruba-switch-mock'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-aruba-switch-mock'
       - if: always()
         name: build sbom-contextapi
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-contextapi'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-contextapi'
       - if: always()
         name: build sbom-hunt
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-hunt'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-hunt'
       - if: always()
         name: build sbom-machine-ops
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-machine-ops'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-machine-ops'
       - if: always()
         name: build sbom-net-ctrl
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-net-ctrl'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-net-ctrl'
       - if: always()
         name: build sbom-remote-auxiliary
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-remote-auxiliary'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-remote-auxiliary'
       - if: always()
         name: build sbom-remote-power
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-remote-power'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-remote-power'
       - if: always()
         name: build sbom-remote-serial
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-remote-serial'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-remote-serial'
       - if: always()
         name: build sbom-remote-usb
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-remote-usb'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-remote-usb'
       - if: always()
         name: build sbom-rpi-status-display
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-rpi-status-display'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-rpi-status-display'
       - if: always()
         name: build sbom-ws-gateway
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-ws-gateway'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-ws-gateway'
       - if: always()
         name: build sbom-ws-proxy-client
-        run: nix build -L --show-trace '.#packages.x86_64-linux.sbom-ws-proxy-client'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.sbom-ws-proxy-client'
   build-ungrouped:
     name: 'Build: ungrouped'
     needs:
@@ -225,22 +225,22 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build documentation
-        run: nix build -L --show-trace '.#packages.x86_64-linux.documentation'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.documentation'
       - if: always()
         name: build http-sim
-        run: nix build -L --show-trace '.#packages.x86_64-linux.http-sim'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.http-sim'
       - if: always()
         name: build hwaas-oas
-        run: nix build -L --show-trace '.#packages.x86_64-linux.hwaas-oas'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.hwaas-oas'
       - if: always()
         name: build machine-ops
-        run: nix build -L --show-trace '.#packages.x86_64-linux.machine-ops'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.machine-ops'
       - if: always()
         name: build vue-client
-        run: nix build -L --show-trace '.#packages.x86_64-linux.vue-client'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.vue-client'
       - if: always()
         name: build ws-proxy-client
-        run: nix build -L --show-trace '.#packages.x86_64-linux.ws-proxy-client'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.ws-proxy-client'
   build-ws-gateway:
     name: 'Build: ws-gateway'
     needs:
@@ -260,7 +260,7 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: build ws-gateway
-        run: nix build -L --show-trace '.#packages.x86_64-linux.ws-gateway'
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.ws-gateway'
   check-aruba-switch-mock:
     name: 'Check: aruba-switch-mock'
     needs:
@@ -281,19 +281,19 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check aruba-switch-mock-clippy
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-clippy'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-clippy'
       - if: always()
         name: check aruba-switch-mock-docs
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-docs'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-docs'
       - if: always()
         name: check aruba-switch-mock-fmt
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-fmt'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-fmt'
       - if: always()
         name: check aruba-switch-mock-hakari
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-hakari'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-hakari'
       - if: always()
         name: check aruba-switch-mock-nextest
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-nextest'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-nextest'
   check-contextapi:
     name: 'Check: contextapi'
     needs:
@@ -314,22 +314,22 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check contextapi-clippy
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-clippy'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-clippy'
       - if: always()
         name: check contextapi-docs
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-docs'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-docs'
       - if: always()
         name: check contextapi-fmt
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-fmt'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-fmt'
       - if: always()
         name: check contextapi-golden-test-openapi-spec
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-golden-test-openapi-spec'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-golden-test-openapi-spec'
       - if: always()
         name: check contextapi-hakari
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-hakari'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-hakari'
       - if: always()
         name: check contextapi-nextest
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-nextest'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-nextest'
   check-hunt:
     name: 'Check: hunt'
     needs:
@@ -350,16 +350,16 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check hunt-clippy
-        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-clippy'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-clippy'
       - if: always()
         name: check hunt-docs
-        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-docs'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-docs'
       - if: always()
         name: check hunt-fmt
-        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-fmt'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-fmt'
       - if: always()
         name: check hunt-nextest
-        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-nextest'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-nextest'
   check-net-ctrl:
     name: 'Check: net-ctrl'
     needs:
@@ -380,22 +380,22 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check net-ctrl-clippy
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-clippy'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-clippy'
       - if: always()
         name: check net-ctrl-docs
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-docs'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-docs'
       - if: always()
         name: check net-ctrl-fmt
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-fmt'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-fmt'
       - if: always()
         name: check net-ctrl-golden-test-openapi-spec
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec'
       - if: always()
         name: check net-ctrl-hakari
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-hakari'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-hakari'
       - if: always()
         name: check net-ctrl-nextest
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-nextest'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-nextest'
   check-pre-commit:
     name: 'Check: pre-commit'
     needs: []
@@ -414,7 +414,7 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check pre-commit
-        run: nix build -L --show-trace '.#checks.x86_64-linux.pre-commit'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.pre-commit'
   check-remote:
     name: 'Check: remote'
     needs:
@@ -435,22 +435,22 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check remote-hands-clippy
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-clippy'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-clippy'
       - if: always()
         name: check remote-hands-docs
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-docs'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-docs'
       - if: always()
         name: check remote-hands-fmt
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-fmt'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-fmt'
       - if: always()
         name: check remote-hands-golden-test-openapi-spec
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-golden-test-openapi-spec'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-golden-test-openapi-spec'
       - if: always()
         name: check remote-hands-hakari
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-hakari'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-hakari'
       - if: always()
         name: check remote-hands-nextest
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-nextest'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-nextest'
   check-rpi-status-display:
     name: 'Check: rpi-status-display'
     needs:
@@ -471,16 +471,16 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check rpi-status-display-clippy
-        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-clippy'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-clippy'
       - if: always()
         name: check rpi-status-display-docs
-        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-docs'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-docs'
       - if: always()
         name: check rpi-status-display-fmt
-        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-fmt'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-fmt'
       - if: always()
         name: check rpi-status-display-nextest
-        run: nix build -L --show-trace '.#checks.x86_64-linux.rpi-status-display-nextest'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-nextest'
   check-verify-ci:
     name: 'Check: verify-ci'
     needs: []
@@ -499,7 +499,7 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check verify-ci
-        run: nix build -L --show-trace '.#checks.x86_64-linux.verify-ci'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.verify-ci'
   check-ws-gateway:
     name: 'Check: ws-gateway'
     needs:
@@ -520,19 +520,19 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: check ws-gateway-clippy
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-clippy'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-clippy'
       - if: always()
         name: check ws-gateway-docs
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-docs'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-docs'
       - if: always()
         name: check ws-gateway-fmt
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-fmt'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-fmt'
       - if: always()
         name: check ws-gateway-hakari
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-hakari'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-hakari'
       - if: always()
         name: check ws-gateway-nextest
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-nextest'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-nextest'
   test-aruba-switch-mock:
     name: 'Test: aruba-switch-mock'
     needs:
@@ -552,16 +552,16 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: test aruba-switch-mock-integration-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-integration-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-integration-test'
       - if: always()
         name: test aruba-switch-mock-login-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-login-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-login-test'
       - if: always()
         name: test aruba-switch-mock-ports-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-ports-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-ports-test'
       - if: always()
         name: test aruba-switch-mock-stats-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-stats-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-stats-test'
   test-contextapi:
     name: 'Test: contextapi'
     needs:
@@ -581,34 +581,34 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: test contextapi-cors-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-cors-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-cors-test'
       - if: always()
         name: test contextapi-images-drives-and-middleware
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-images-drives-and-middleware'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-images-drives-and-middleware'
       - if: always()
         name: test contextapi-lifetime-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-lifetime-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-lifetime-test'
       - if: always()
         name: test contextapi-net-api-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-net-api-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-net-api-test'
       - if: always()
         name: test contextapi-remote-hands-aux-device-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-remote-hands-aux-device-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-remote-hands-aux-device-test'
       - if: always()
         name: test contextapi-remote-hands-routing-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-remote-hands-routing-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-remote-hands-routing-test'
       - if: always()
         name: test contextapi-remote-serial-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-remote-serial-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-remote-serial-test'
       - if: always()
         name: test contextapi-startup-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-startup-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-startup-test'
       - if: always()
         name: test contextapi-test-open-telemetry
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-test-open-telemetry'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-test-open-telemetry'
       - if: always()
         name: test contextapi-ws-network-routing-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.contextapi-ws-network-routing-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-ws-network-routing-test'
   test-hunt:
     name: 'Test: hunt'
     needs:
@@ -628,7 +628,7 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: test hunt-rust-log
-        run: nix build -L --show-trace '.#checks.x86_64-linux.hunt-rust-log'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-rust-log'
   test-net-ctrl:
     name: 'Test: net-ctrl'
     needs:
@@ -648,13 +648,13 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: test net-ctrl-get-switches
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-get-switches'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-get-switches'
       - if: always()
         name: test net-ctrl-test-open-telemetry
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-test-open-telemetry'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-test-open-telemetry'
       - if: always()
         name: test net-ctrl-test-switch-client-cache
-        run: nix build -L --show-trace '.#checks.x86_64-linux.net-ctrl-test-switch-client-cache'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-test-switch-client-cache'
   test-remote:
     name: 'Test: remote'
     needs:
@@ -674,25 +674,25 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: test remote-hands-check-otel-traces
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-check-otel-traces'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-check-otel-traces'
       - if: always()
         name: test remote-hands-remote-auxiliary
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-auxiliary'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-auxiliary'
       - if: always()
         name: test remote-hands-remote-power
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-power'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-power'
       - if: always()
         name: test remote-hands-remote-serial-echo
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-echo'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-echo'
       - if: always()
         name: test remote-hands-remote-serial-udev-custom-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-udev-custom-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-udev-custom-test'
       - if: always()
         name: test remote-hands-remote-serial-udev-default-test
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-udev-default-test'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-serial-udev-default-test'
       - if: always()
         name: test remote-hands-remote-usb
-        run: nix build -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-usb'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-usb'
   test-ws-gateway:
     name: 'Test: ws-gateway'
     needs:
@@ -712,19 +712,19 @@ jobs:
           name: secunet-ag-hwaas
       - if: always()
         name: test ws-gateway-test-clients-and-suts-scenario
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-clients-and-suts-scenario'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-clients-and-suts-scenario'
       - if: always()
         name: test ws-gateway-test-connect
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-connect'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-connect'
       - if: always()
         name: test ws-gateway-test-many-clients-scenario
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-many-clients-scenario'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-many-clients-scenario'
       - if: always()
         name: test ws-gateway-test-many-vlans-ping
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-many-vlans-ping'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-many-vlans-ping'
       - if: always()
         name: test ws-gateway-test-open-telemetry
-        run: nix build -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-open-telemetry'
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-test-open-telemetry'
 name: CI
 'on':
   pull_request: {}
