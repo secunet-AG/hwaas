@@ -32,6 +32,7 @@
           enable = true;
           useEditorConfig = true;
         };
+        sqruff.enable = true;
         taplo.enable = true;
         yamlfmt.enable = true;
       };

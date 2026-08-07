@@ -2,7 +2,7 @@
 --
 -- SPDX-License-Identifier: Apache-2.0
 
-CREATE TABLE contexts(
+CREATE TABLE contexts (
     -- Uuid represented as BINARY in sqlite
     id BINARY NOT NULL PRIMARY KEY
 )
