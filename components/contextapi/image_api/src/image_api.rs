@@ -35,27 +35,6 @@ struct PathParamsImageHash {
     image_hash: Sha256Hash,
 }
 
-/// The REST query parameter that represents a boot image file name
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
-struct QueryParamsFileName {
-    /// User file name of a boot image
-    file_name: String,
-}
-
-/// The REST query parameter that represents a boot image architecture
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
-struct QueryParamsArchitecture {
-    /// Compiled architecture of a boot image
-    architecture: Option<String>,
-}
-
-/// The REST query parameter that represents a boot image tag by name
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
-struct QueryParamTag {
-    /// Name of the requested tag to operate on
-    name: crate::db::TagName,
-}
-
 /// Takes the maximum allowed size for image uploads
 ///
 /// # Returns
@@ -79,28 +58,10 @@ where
             api_doc_image_api,
         )
         .api_route_with(
-            "/:image_hash/file_name",
-            get_with(get_image_file_name, api_method_doc_get_image_file_name)
-                .post_with(post_image_file_name, api_method_doc_post_image_file_name),
-            api_doc_image_api,
-        )
-        .api_route_with(
-            "/:image_hash/architecture",
-            get_with(
-                get_image_architecture,
-                api_method_doc_get_image_architecture,
-            )
-            .post_with(
-                post_image_architecture,
-                api_method_doc_post_image_architecture,
-            ),
-            api_doc_image_api,
-        )
-        .api_route_with(
-            "/:image_hash/tags",
-            get_with(list_tags_on_image, api_method_doc_list_tags_on_image)
-                .post_with(post_tag_on_image, api_method_doc_post_tag_on_image)
-                .delete_with(delete_tag_on_image, api_method_doc_delete_tag_on_image),
+            "/:image_hash/metadata",
+            get_with(get_image_metadata, api_method_doc_get_image_metadata)
+                .post_with(post_image_metadata, api_method_doc_post_image_metadata)
+                .delete_with(delete_image_metadata, api_method_doc_delete_image_metadata),
             api_doc_image_api,
         )
         .api_route_with(
@@ -311,88 +272,6 @@ async fn post_image(
     Ok(metadata.sha256)
 }
 
-/// Obtain the user file name for a boot image.
-#[instrument]
-async fn get_image_file_name(
-    State(image_handler): State<ImageHandler>,
-    Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-) -> ApiResult<impl IntoApiResponse> {
-    let image = image_handler
-        .get_image_metadata_by_hash(&image_hash)
-        .await
-        .map_err(|error| error.into_response())?;
-    Ok(Json::from(image.file_name))
-}
-
-fn api_method_doc_get_image_file_name(op: TransformOperation) -> TransformOperation {
-    op.description("Get the 'file name' metadata attribute of an image")
-        .summary("Get image file name")
-        .response_with::<200, Json<String>, _>(|op| op.description("The file name"))
-        .response_with::<500, String, _>(|op| op.description("Internal error reason"))
-}
-
-/// Modify the user file name for a boot image.
-#[instrument]
-async fn post_image_file_name(
-    State(image_handler): State<ImageHandler>,
-    Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-    Query(args): Query<QueryParamsFileName>,
-) -> ApiResult<impl IntoApiResponse> {
-    image_handler
-        .modify_image_file_name(&image_hash, args.file_name)
-        .await
-        .map_err(|error| error.into_response())?;
-    Ok(())
-}
-
-fn api_method_doc_post_image_file_name(op: TransformOperation) -> TransformOperation {
-    op.description("Modify the 'file name' metadata attribute of an image")
-        .summary("Post image metadata file name")
-        .response_with::<200, (), _>(|op| op)
-        .response_with::<500, String, _>(|op| op.description("Internal error reason"))
-}
-
-/// Obtain the user-provided architecture for a boot image.
-#[instrument]
-async fn get_image_architecture(
-    State(image_handler): State<ImageHandler>,
-    Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-) -> ApiResult<impl IntoApiResponse> {
-    let image = image_handler
-        .get_image_metadata_by_hash(&image_hash)
-        .await
-        .map_err(|error| error.into_response())?;
-    Ok(Json::from(image.architecture))
-}
-
-fn api_method_doc_get_image_architecture(op: TransformOperation) -> TransformOperation {
-    op.description("Get the 'architecture' metadata attribute of an image")
-        .summary("Get image architecture")
-        .response_with::<200, Json<String>, _>(|op| op.description("The architecture"))
-        .response_with::<500, String, _>(|op| op.description("Internal error reason"))
-}
-
-/// Modify the user-provided architecture for a boot image.
-#[instrument]
-async fn post_image_architecture(
-    State(image_handler): State<ImageHandler>,
-    Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-    Query(args): Query<QueryParamsArchitecture>,
-) -> ApiResult<impl IntoApiResponse> {
-    image_handler
-        .modify_image_architecture(&image_hash, args.architecture)
-        .await
-        .map_err(|error| error.into_response())?;
-    Ok(())
-}
-
-fn api_method_doc_post_image_architecture(op: TransformOperation) -> TransformOperation {
-    op.description("Modify the 'architecture' metadata attribute of an image")
-        .summary("Post image architecture")
-        .response_with::<200, (), _>(|op| op)
-        .response_with::<500, String, _>(|op| op.description("Internal error reason"))
-}
-
 /// List all tags currently known
 #[instrument]
 async fn list_tags(State(image_handler): State<ImageHandler>) -> ApiResult<impl IntoApiResponse> {
@@ -450,64 +329,121 @@ fn api_method_doc_delete_tag(op: TransformOperation) -> TransformOperation {
         .response_with::<500, String, _>(|op| op.description("Internal error reason"))
 }
 
-/// List the tags currently attached to the given image.
 #[instrument]
-async fn list_tags_on_image(
+async fn get_image_metadata(
     State(image_handler): State<ImageHandler>,
     Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
 ) -> ApiResult<impl IntoApiResponse> {
-    let image = image_handler
+    let metadata = image_handler
         .get_image_metadata_by_hash(&image_hash)
         .await
         .map_err(|error| error.into_response())?;
-    Ok(Json::from(image.tags))
+    Ok(Json::from(metadata))
 }
 
-fn api_method_doc_list_tags_on_image(op: TransformOperation) -> TransformOperation {
-    op.description("List tags currently attached to the given image")
-        .summary("List tags on an image")
-        .response_with::<200, Json<Vec<ImageTag>>, _>(|op| op)
-        .response_with::<500, String, _>(|op| op.description("Internal error reason"))
-}
-
-/// Add one or more tags to an existing image.
-#[instrument]
-async fn post_tag_on_image(
-    State(image_handler): State<ImageHandler>,
-    Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-    Query(tags_to_add): Query<QueryParamTag>,
-) -> ApiResult<impl IntoApiResponse> {
-    image_handler
-        .add_tags_to_image([tags_to_add.name], &image_hash)
-        .await
-        .map_err(|error| error.into_response())?;
-    Ok(())
-}
-
-fn api_method_doc_post_tag_on_image(op: TransformOperation) -> TransformOperation {
-    op.description("Add one or more tags to an existing image")
-        .summary("Add tags to an image")
+fn api_method_doc_get_image_metadata(op: TransformOperation) -> TransformOperation {
+    op.description("Query all available metadata for a BMR image")
+        .summary("Get image metadata")
         .response_with::<200, (), _>(|op| op)
         .response_with::<500, String, _>(|op| op.description("Internal error reason"))
 }
 
-/// Remove one or more tags from an existing image.
-#[instrument]
-async fn delete_tag_on_image(
-    State(image_handler): State<ImageHandler>,
-    Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-    Query(tags_to_remove): Query<QueryParamTag>,
-) -> ApiResult<impl IntoApiResponse> {
-    image_handler
-        .remove_tags_from_image([tags_to_remove.name], &image_hash)
-        .await
-        .map_err(|error| error.into_response())?;
-    Ok(())
+/// Valid boot image metadata fields for modification.
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+pub struct ImageMetadataToModify {
+    /// Modify the user file name of the boot image.
+    file_name: Option<String>,
+    /// Modify the architecture of the boot image.
+    architecture: Option<Option<String>>,
+    /// Add a tag (by name) to the boot image.
+    add_tag: Option<crate::db::TagName>,
 }
 
-fn api_method_doc_delete_tag_on_image(op: TransformOperation) -> TransformOperation {
-    op.description("Remove one or more tags from an existing image")
-        .summary("Remove tags from an image")
+#[instrument]
+async fn post_image_metadata(
+    State(image_handler): State<ImageHandler>,
+    Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
+    Query(metadata): Query<ImageMetadataToModify>,
+) -> ApiResult<impl IntoApiResponse> {
+    let mut errors: Vec<String> = Vec::with_capacity(3);
+
+    if let Some(tag_to_add) = metadata.add_tag {
+        match image_handler
+            .add_tags_to_image([tag_to_add], &image_hash)
+            .await
+        {
+            Ok(_) => (),
+            Err(err) => errors.push(format!("failed to add tag metadata: {err}")),
+        }
+    }
+    if let Some(architecture_to_set) = metadata.architecture {
+        match image_handler
+            .modify_image_architecture(&image_hash, architecture_to_set)
+            .await
+        {
+            Ok(_) => (),
+            Err(err) => errors.push(format!("failed to set architecture metadata: {err}")),
+        }
+    }
+    if let Some(file_name_to_set) = metadata.file_name {
+        match image_handler
+            .modify_image_file_name(&image_hash, file_name_to_set)
+            .await
+        {
+            Ok(_) => (),
+            Err(err) => errors.push(format!("failed to set file name metadata: {err}")),
+        }
+    }
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err((StatusCode::INTERNAL_SERVER_ERROR, Json::from(errors)).into_response())
+    }
+}
+
+fn api_method_doc_post_image_metadata(op: TransformOperation) -> TransformOperation {
+    op.description("Modify metadata for a BMR image")
+        .summary("Modify image metadata")
+        .response_with::<200, (), _>(|op| op)
+        .response_with::<500, String, _>(|op| op.description("Internal error reason"))
+}
+
+/// Valid boot image metadata fields for deletion.
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+pub struct ImageMetadataToDelete {
+    /// Remove a tag (by name) from the boot image.
+    remove_tag: Option<crate::db::TagName>,
+}
+
+#[instrument]
+async fn delete_image_metadata(
+    State(image_handler): State<ImageHandler>,
+    Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
+    Query(metadata): Query<ImageMetadataToDelete>,
+) -> ApiResult<impl IntoApiResponse> {
+    let mut errors: Vec<String> = Vec::with_capacity(3);
+
+    if let Some(tag_to_remove) = metadata.remove_tag {
+        match image_handler
+            .remove_tags_from_image([tag_to_remove], &image_hash)
+            .await
+        {
+            Ok(_) => (),
+            Err(err) => errors.push(format!("failed to remove tag metadata: {err}")),
+        }
+    }
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err((StatusCode::INTERNAL_SERVER_ERROR, Json::from(errors)).into_response())
+    }
+}
+
+fn api_method_doc_delete_image_metadata(op: TransformOperation) -> TransformOperation {
+    op.description("Delete metadata from a BMR image")
+        .summary("Delete image metadata")
         .response_with::<200, (), _>(|op| op)
         .response_with::<500, String, _>(|op| op.description("Internal error reason"))
 }
