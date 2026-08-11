@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::app_state::AppState;
-use aruba_structs::port::{Port, PortElementList};
+use crate::structs::port::{Port, PortElementList};
 use axum::Json;
 use axum::extract::{Path, State};
 use std::sync::Arc;

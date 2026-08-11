@@ -4,6 +4,7 @@
 
 use crate::app_state::AppState;
 use crate::credential_cookie_name::CREDENTIAL_COOKIE_NAME;
+use axum::body::Body;
 use axum::extract::State;
 use axum::http::{Request, StatusCode};
 use axum::middleware::Next;
@@ -12,15 +13,12 @@ use std::sync::Arc;
 use tower_cookies::Cookies;
 use tracing::{debug, error, warn};
 
-pub(crate) async fn check_auth<B>(
+pub(crate) async fn check_auth(
     State(state): State<Arc<AppState>>,
     cookies: Cookies,
-    mut req: Request<B>,
-    next: Next<B>,
-) -> Response
-where
-    B: Send,
-{
+    mut req: Request<Body>,
+    next: Next,
+) -> Response {
     let err_response = (StatusCode::UNAUTHORIZED, "Missing cookie").into_response();
     let c = cookies.get(CREDENTIAL_COOKIE_NAME).ok_or(());
 

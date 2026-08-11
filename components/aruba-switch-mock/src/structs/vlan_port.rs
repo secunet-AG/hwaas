@@ -20,7 +20,7 @@ pub struct VlanPort {
 #[derive(Deserialize, Serialize, JsonSchema, Eq, PartialEq, Hash, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum PortMode {
-    PomUntagged,
-    PomTaggedStatic,
-    PomForbidden,
+    Untagged,
+    TaggedStatic,
+    Forbidden,
 }
