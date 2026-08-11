@@ -47,14 +47,15 @@ impl TapDev {
         })
     }
 
-    pub async fn handle_streams<T: Sink<Message>, R: StreamExt<Item = TResult<Message>>>(
+    pub async fn handle_streams<
+        T: Sink<Message> + std::marker::Unpin,
+        R: StreamExt<Item = TResult<Message>> + std::marker::Unpin,
+    >(
         self,
         ws_tx: T,
         ws_rx: R,
     ) where
         <T as futures_util::Sink<Message>>::Error: std::fmt::Debug,
-        T: std::marker::Unpin,
-        R: std::marker::Unpin,
     {
         let (tap_rx, tap_tx) = tokio::io::split(self.tap);
 
@@ -65,10 +66,9 @@ impl TapDev {
     }
 
     #[instrument(skip(tx, tap_rx))]
-    async fn handle_tx<S: Sink<Message>>(mut tx: S, mut tap_rx: ReadHalf<Tun>)
+    async fn handle_tx<S: Sink<Message> + std::marker::Unpin>(mut tx: S, mut tap_rx: ReadHalf<Tun>)
     where
         <S as futures_util::Sink<Message>>::Error: std::fmt::Debug,
-        S: std::marker::Unpin,
     {
         loop {
             let mut buf = [0u8; MTU_SIZE];
@@ -96,10 +96,10 @@ impl TapDev {
     }
 
     #[instrument(skip(rx, tap_tx))]
-    async fn handle_rx<S: StreamExt<Item = TResult<Message>>>(mut rx: S, mut tap_tx: WriteHalf<Tun>)
-    where
-        S: std::marker::Unpin,
-    {
+    async fn handle_rx<S: StreamExt<Item = TResult<Message>> + std::marker::Unpin>(
+        mut rx: S,
+        mut tap_tx: WriteHalf<Tun>,
+    ) {
         while let Some(m) = rx.next().await {
             match m {
                 Ok(msg) => {

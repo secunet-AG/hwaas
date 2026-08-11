@@ -1,8 +1,13 @@
 [package]
+authors.workspace = true
+description = "Route layer 2 traffic through websockets"
+edition.workspace = true
+license.workspace = true
 name = "ws-gateway"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
 
 [[bin]]
 name = "ws-gateway"
@@ -12,47 +17,22 @@ path = "src/main.rs"
 name = "ws_gateway_lib"
 path = "src/lib.rs"
 
-[workspace]
-resolver = "3"
-members = ["client", "ws-gateway-workspace-hack"]
-
-[lints.rust]
-unsafe_code = "forbid"
+[lints]
+workspace = true
 
 [dependencies]
-afpacket = { version = "0.2.3", features = ["async-tokio"] }
-axum = { version = "0.7.9", features = ["ws", "macros"] }
-axum-extra = { version = "0.9.6", features = ["typed-routing", "typed-header"] }
-clap = { version = "4.0.18", features = ["derive"] }
-dashmap = "5.3.4"
-futures-util = { version = "0.3", default-features = false, features = [
-  "sink",
-  "std",
-] }
-nom = "7.1.1"
-serde = { version = "1.0", features = ["derive"] }
-thiserror = "2.0"
-tokio = { version = "1.24.1", features = [
-  "net",
-  "macros",
-  "rt-multi-thread",
-  "io-util",
-  "signal",
-  "tracing",
-  "sync",
-] }
-tracing = "0.1"
-tower-http = { version = "0.6.2", default-features = false, features = [
-  "trace",
-  "request-id",
-] }
-aide = { version = "0.13.5", features = [
-  "axum",
-  "axum-extra",
-  "axum-headers",
-  "axum-ws",
-  "macros",
-] }
-schemars = { version = "0.8.0", features = ["derive"] }
-hunt = { path = "../hunt" }
-ws-gateway-workspace-hack = { version = "0.1", path = "ws-gateway-workspace-hack" }
+afpacket.workspace = true
+axum.workspace = true
+axum-extra.workspace = true
+clap.workspace = true
+dashmap.workspace = true
+futures-util.workspace = true
+nom.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tower-http.workspace = true
+aide.workspace = true
+schemars.workspace = true
+hunt.workspace = true
