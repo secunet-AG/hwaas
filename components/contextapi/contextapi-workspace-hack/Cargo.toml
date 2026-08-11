@@ -25,6 +25,7 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "serd
 crossbeam-utils = { version = "0.8" }
 deadpool = { version = "0.12", features = ["rt_tokio_1"] }
 either = { version = "1", features = ["use_std"] }
+fastrand = { version = "2" }
 form_urlencoded = { version = "1" }
 futures-channel = { version = "0.3", features = ["sink"] }
 futures-core = { version = "0.3" }
@@ -41,6 +42,7 @@ memchr = { version = "2" }
 num-traits = { version = "0.2" }
 once_cell = { version = "1" }
 percent-encoding = { version = "2" }
+phf_shared = { version = "0.14", default-features = false, features = ["std"] }
 predicates = { version = "3" }
 rand = { version = "0.8", features = ["small_rng"] }
 regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
@@ -53,6 +55,7 @@ serde_core = { version = "1", features = ["alloc"] }
 serde_json = { version = "1", features = ["raw_value"] }
 slab = { version = "0.4" }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
+strum = { version = "0.27", features = ["derive"] }
 sync_wrapper = { version = "1", default-features = false, features = ["futures"] }
 tempfile = { version = "3" }
 test-log = { version = "0.2", features = ["trace"] }
@@ -70,7 +73,9 @@ uuid = { version = "1", features = ["fast-rng", "serde", "v4"] }
 [build-dependencies]
 displaydoc = { version = "0.2", default-features = false, features = ["std"] }
 either = { version = "1", features = ["use_std"] }
+fastrand = { version = "2" }
 log = { version = "0.4", default-features = false, features = ["std"] }
+phf_shared = { version = "0.14", default-features = false, features = ["std"] }
 rand = { version = "0.8", features = ["small_rng"] }
 serde_core = { version = "1", features = ["alloc"] }
 syn-7b89eefb6aaa9bf3 = { package = "syn", version = "3", features = ["full", "visit-mut"] }

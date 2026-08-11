@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 use tower_http::limit::RequestBodyLimitLayer;
 use tracing::{debug, instrument};
 
+use crate::architectures::Architecture;
 use crate::db::ImageMetadata;
 use crate::image_handler::ImageHandler;
 use crate::sha256hash::Sha256Hash;
@@ -354,7 +355,7 @@ pub struct ImageMetadataToModify {
     /// Modify the user file name of the boot image.
     file_name: Option<String>,
     /// Modify the architecture of the boot image.
-    architecture: Option<Option<String>>,
+    architecture: Option<Option<Architecture>>,
     /// Add a tag (by name) to the boot image.
     add_tag: Option<crate::db::TagName>,
 }

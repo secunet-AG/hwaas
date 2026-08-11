@@ -9,6 +9,53 @@
         ],
         "type": "string"
       },
+      "Architecture": {
+        "description": "Supported and known architecture names.",
+        "oneOf": [
+          {
+            "description": "x86 (64-bit), also known as \"amd64\"",
+            "enum": [
+              "x86_64"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "x86 (32-bit)",
+            "enum": [
+              "x86_32"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "Aarch64 (64-bit), also known as \"arm64\"",
+            "enum": [
+              "aarch64"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "Aarch32 (32-bit), also known as \"arm32\"",
+            "enum": [
+              "aarch32"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "RISC-V (64-bit)",
+            "enum": [
+              "riscv64"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "RISC-V (32-bit)",
+            "enum": [
+              "riscv32"
+            ],
+            "type": "string"
+          }
+        ]
+      },
       "AuxiliaryDevice": {
         "description": "User-facing meta information to return as responses for requests",
         "properties": {
@@ -374,11 +421,15 @@
         "description": "The ImageMetadata that can be requested for each uploaded image",
         "properties": {
           "architecture": {
-            "description": "Compilation target architecture",
-            "type": [
-              "string",
-              "null"
-            ]
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Architecture"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Compilation target architecture"
           },
           "created": {
             "$ref": "#/components/schemas/SystemTime",
@@ -439,11 +490,22 @@
             ]
           },
           "architecture": {
-            "description": "Modify the architecture of the boot image.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Architecture"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Modify the architecture of the boot image."
           },
           "file_name": {
             "description": "Modify the user file name of the boot image.",
@@ -6358,11 +6420,22 @@
             "in": "query",
             "name": "architecture",
             "schema": {
-              "description": "Modify the architecture of the boot image.",
-              "type": [
-                "string",
-                "null"
-              ]
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Architecture"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Modify the architecture of the boot image."
             },
             "style": "form"
           },

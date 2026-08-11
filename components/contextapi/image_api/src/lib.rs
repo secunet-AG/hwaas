@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+pub mod architectures;
 mod db;
 mod filesystem;
 mod image_api;

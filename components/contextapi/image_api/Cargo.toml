@@ -18,6 +18,10 @@ axum = { workspace = true, features = ["macros"] }
 chrono.workspace = true
 db_interaction = { version = "0.1", path = "../db_interaction" }
 diesel.workspace = true
+phf = { version = "0.14", default-features = false, features = [
+  "std",
+  "macros",
+] }
 tracing.workspace = true
 tower-http = { version = "0.6", default-features = false, features = [
   "trace",
@@ -47,6 +51,8 @@ displaydoc = { version = "0.2", default-features = false, features = ["std"] }
 [dev-dependencies]
 tempfile = "3.3.0"
 assert_fs.workspace = true
+serde_json.workspace = true
+strum = "*"
 # This crate is actually helpful since calling `tracing_subscriber...init()`
 # multiple times within the same test binary causes a panic inside tracing
 # since a global default subscriber has already been defined. We could check
