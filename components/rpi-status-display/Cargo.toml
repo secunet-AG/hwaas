@@ -1,20 +1,25 @@
 [package]
+authors.workspace = true
+description = "Display text on a display attached to an embedded device"
+edition.workspace = true
+license.workspace = true
 name = "rpi-status-display"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
 
 [[bin]]
 name = "rpi-status-display"
 path = "src/main.rs"
 
-[lints.rust]
-unsafe_code = "forbid"
+[lints]
+workspace = true
 
 [dependencies]
-clap = { version = "4.3.4", features = ["derive"] }
-embedded-graphics = "0.8.0"
-rppal = { version = "0.14.1", features = ["hal"] }
-ssd1306 = "0.8.0"
-sh1106 = "0.5.0"
-embedded-hal = "1.0.0-alpha.9"
+clap.workspace = true
+embedded-graphics.workspace = true
+rppal.workspace = true
+ssd1306.workspace = true
+sh1106.workspace = true
+embedded-hal.workspace = true
