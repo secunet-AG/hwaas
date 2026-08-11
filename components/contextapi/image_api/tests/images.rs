@@ -1,8 +1,10 @@
 mod common;
 
+use std::str::FromStr as _;
+
 use anyhow::Context as _;
 use common::{assert_files, FileType, TestStream};
-use image_api::ExtraImageStoreData;
+use image_api::{architectures::Architecture, ExtraImageStoreData};
 
 #[test_log::test(tokio::test)]
 async fn images_starts_empty() -> anyhow::Result<()> {
@@ -112,7 +114,10 @@ async fn can_modify_existing_image_partially() -> anyhow::Result<()> {
             .await
             .context("image metadata should be modified")?;
         handler
-            .modify_image_architecture(&image.sha256, Some("risc-v".into()))
+            .modify_image_architecture(
+                &image.sha256,
+                Some(Architecture::from_str("riscv64").unwrap()),
+            )
             .await
             .context("image metadata should be modified")?;
 
@@ -126,7 +131,7 @@ async fn can_modify_existing_image_partially() -> anyhow::Result<()> {
         assert!(&updated_image
             .architecture
             .as_ref()
-            .is_some_and(|s| s == "risc-v"));
+            .is_some_and(|s| s == &Architecture::Riscv64));
 
         Ok(())
     })
@@ -200,7 +205,10 @@ async fn change_single_image_only() -> anyhow::Result<()> {
             .await
             .context("image metadata should be modified")?;
         handler
-            .modify_image_architecture(&image.sha256, Some("bla".into()))
+            .modify_image_architecture(
+                &image.sha256,
+                Some(Architecture::from_str("aarch64").unwrap()),
+            )
             .await
             .context("image metadata should be modified")?;
 
@@ -217,7 +225,7 @@ async fn change_single_image_only() -> anyhow::Result<()> {
         assert!(updated_image
             .architecture
             .as_ref()
-            .is_some_and(|d| d == "bla"));
+            .is_some_and(|d| d == &Architecture::Aarch64));
 
         let first_image = images.first().unwrap();
         assert_eq!(first_image.file_name, "one");

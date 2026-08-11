@@ -33,6 +33,7 @@ use tokio::{
 use tracing::{debug, error, info};
 use uuid::Uuid;
 
+use crate::architectures::Architecture;
 use crate::{filesystem::write_and_hash, image_api::ExtraImageStoreData, sha256hash::Sha256Hash};
 
 pub use crate::db::{ImageMetadata, ImageTag, TagName};
@@ -368,23 +369,16 @@ impl ImageHandler {
                 .collect::<Vec<_>>();
             let image_tags = tags
                 .iter()
-                .filter_map(|tag| {
-                    if tags_by_id.contains(&tag.id()) {
-                        Some(ImageTag::from(tag.clone()))
-                    } else {
-                        None
-                    }
-                })
+                .filter(|tag| tags_by_id.contains(&tag.id()))
+                .cloned()
                 .collect::<Vec<_>>();
 
-            result.push(ImageMetadata {
-                sha256: Sha256Hash::new(image.sha256).expect("TODO"),
-                file_name: image.file_name,
-                size: u64::try_from(image.size_bytes).expect("TODO"),
-                created: image.created_utc.into(),
-                architecture: image.architecture,
-                tags: image_tags,
-            })
+            result.push(
+                ImageMetadata::try_merge_from_db(image, image_tags).map_err(|error| {
+                    error!(%error, "failed to convert database response into valid image metadata");
+                    ImageHandlerError::MetadataError
+                })?,
+            )
         }
 
         Ok(result)
@@ -422,14 +416,14 @@ impl ImageHandler {
                         size_bytes.eq(i64::try_from(metadata.size)
                             .expect("image size should fit an i64 range")),
                         created_utc.eq(chrono::DateTime::<chrono::Utc>::from(metadata.created)),
-                        architecture.eq(&metadata.architecture),
+                        architecture.eq(&metadata.architecture.map(|a| a.to_string())),
                     ))
                     .on_conflict(sha256)
                     .do_update()
                     .set((
                         created_utc.eq(chrono::DateTime::<chrono::Utc>::from(metadata.created)),
                         file_name.eq(&metadata.file_name),
-                        architecture.eq(&metadata.architecture),
+                        architecture.eq(&metadata.architecture.map(|a| a.to_string())),
                     ))
                     .get_result::<ModelImageMetadata>(con)?;
                 // TODO(hartan): Fill in tags from user upload in the distant future.
@@ -507,7 +501,7 @@ impl ImageHandler {
     pub async fn modify_image_architecture(
         &self,
         image: &Sha256Hash,
-        new_architecture: Option<String>,
+        new_architecture: Option<Architecture>,
     ) -> Result<(), ImageHandlerError> {
         self.db_connection
             .execute_on_current_thread(|con| {
@@ -515,7 +509,7 @@ impl ImageHandler {
                 use diesel::prelude::*;
 
                 diesel::update(bmr_image_metadatas.filter(sha256.eq(&image.0)))
-                    .set(architecture.eq(&new_architecture))
+                    .set(architecture.eq(&new_architecture.map(|a| a.to_string())))
                     .get_result::<ModelImageMetadata>(con)
             })
             .await
