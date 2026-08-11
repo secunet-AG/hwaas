@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
 members = [
+  "aruba-switch-mock",
   "hunt",
   "rpi-status-display",
 ]
@@ -22,10 +23,11 @@ unsafe_code = "forbid"
 all = "deny"
 
 [workspace.dependencies]
-axum-tracing-opentelemetry = "0.18.1"
 axum = "0.7"
+axum-tracing-opentelemetry = "0.18.1"
 clap = { version = "4.3.4", features = ["derive"] }
 console-subscriber = "0.2"
+dashmap = { version = "5.4", features = ["serde"] }
 embedded-graphics = "0.8.0"
 embedded-hal = "1.0.0-alpha.9"
 futures = "0.3"
@@ -38,11 +40,24 @@ opentelemetry_sdk = "0.22.1"
 reqwest = { version = "0.12.4" }
 reqwest-middleware = { version = "0.4" }
 rppal = { version = "0.14.1", features = ["hal"] }
+schemars = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 sh1106 = "0.5.0"
 ssd1306 = "0.8.0"
 tracing-opentelemetry-instrumentation-sdk = "0.18.1"
 task-local-extensions = "0.1"
-tower = "0.4"
+tokio = { version = "1.23", features = [
+  "io-util",
+  "macros",
+  "net",
+  "rt-multi-thread",
+  "sync",
+  "tracing",
+  "signal",
+] }
+tower = "0.5.0"
+tower-cookies = "0.10.0"
 tower-http = { version = "0.5.2", default-features = false, features = [
   "trace",
   "request-id",
@@ -58,3 +73,4 @@ tracing-subscriber = { version = "0.3", features = [
   "fmt",
   "json",
 ] }
+uuid = { version = "1.2", features = ["v4"] }

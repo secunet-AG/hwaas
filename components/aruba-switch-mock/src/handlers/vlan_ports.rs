@@ -4,7 +4,7 @@
 
 use crate::app_state::AppState;
 
-use aruba_structs::vlan_port::{PortMode, VlanPort};
+use crate::structs::vlan_port::{PortMode, VlanPort};
 use axum::Json;
 use axum::extract::State;
 use serde::{Deserialize, Serialize};
@@ -24,7 +24,7 @@ pub(crate) async fn vlan_ports(State(state): State<Arc<AppState>>) -> Json<VlanP
         .map(|p| VlanPort {
             vlan_id: 1,
             port_id: p.id.to_string(),
-            port_mode: PortMode::PomUntagged,
+            port_mode: PortMode::Untagged,
         })
         .collect();
 

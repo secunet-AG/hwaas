@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use aruba_structs::login_sessions::RestLoginSessions;
-use aruba_structs::port::Port;
+use crate::structs::login_sessions::RestLoginSessions;
+use crate::structs::port::Port;
 use dashmap::{DashMap, DashSet};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
