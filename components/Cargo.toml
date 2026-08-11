@@ -1,0 +1,53 @@
+[workspace]
+resolver = "3"
+members = [
+  "hunt"
+]
+
+[workspace.package]
+authors = ["secunet Security Networks AG <https://www.secunet.com>"]
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+readme = "../README.md"
+repository = "https://github.com/secunet-AG/hwaas"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+# NOTE: Due to some weird interaction in the Rust toolchain it's not currently possible to "forbid"
+# clippy lints unconditionally. See: <https://github.com/rust-lang/rust/issues/81670>
+all = "deny"
+
+[workspace.dependencies]
+axum-tracing-opentelemetry = "0.18.1"
+tracing-opentelemetry = "0.23.0"
+opentelemetry = { version = "0.22.0", features = ["trace"] }
+tracing-journald = "0.3.0"
+tracing-subscriber = { version = "0.3", features = [
+  "ansi",
+  "env-filter",
+  "fmt",
+  "json",
+] }
+console-subscriber = "0.2"
+tracing = "0.1"
+tower = "0.4"
+tower-http = { version = "0.5.2", default-features = false, features = [
+  "trace",
+  "request-id",
+  "limit",
+  "timeout",
+] }
+axum = "0.7"
+futures = "0.3"
+reqwest-middleware = { version = "0.4" }
+reqwest = { version = "0.12.4" }
+task-local-extensions = "0.1"
+init-tracing-opentelemetry = { version = "0.18.1", features = [
+  "tracing_subscriber_ext",
+  "otlp",
+] }
+tracing-opentelemetry-instrumentation-sdk = "0.18.1"
+opentelemetry_sdk = "0.22.1"
