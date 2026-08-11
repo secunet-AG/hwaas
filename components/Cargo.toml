@@ -1,7 +1,8 @@
 [workspace]
 resolver = "3"
 members = [
-  "hunt"
+  "hunt",
+  "rpi-status-display",
 ]
 
 [workspace.package]
@@ -22,17 +23,25 @@ all = "deny"
 
 [workspace.dependencies]
 axum-tracing-opentelemetry = "0.18.1"
-tracing-opentelemetry = "0.23.0"
-opentelemetry = { version = "0.22.0", features = ["trace"] }
-tracing-journald = "0.3.0"
-tracing-subscriber = { version = "0.3", features = [
-  "ansi",
-  "env-filter",
-  "fmt",
-  "json",
-] }
+axum = "0.7"
+clap = { version = "4.3.4", features = ["derive"] }
 console-subscriber = "0.2"
-tracing = "0.1"
+embedded-graphics = "0.8.0"
+embedded-hal = "1.0.0-alpha.9"
+futures = "0.3"
+init-tracing-opentelemetry = { version = "0.18.1", features = [
+  "tracing_subscriber_ext",
+  "otlp",
+] }
+opentelemetry = { version = "0.22.0", features = ["trace"] }
+opentelemetry_sdk = "0.22.1"
+reqwest = { version = "0.12.4" }
+reqwest-middleware = { version = "0.4" }
+rppal = { version = "0.14.1", features = ["hal"] }
+sh1106 = "0.5.0"
+ssd1306 = "0.8.0"
+tracing-opentelemetry-instrumentation-sdk = "0.18.1"
+task-local-extensions = "0.1"
 tower = "0.4"
 tower-http = { version = "0.5.2", default-features = false, features = [
   "trace",
@@ -40,14 +49,12 @@ tower-http = { version = "0.5.2", default-features = false, features = [
   "limit",
   "timeout",
 ] }
-axum = "0.7"
-futures = "0.3"
-reqwest-middleware = { version = "0.4" }
-reqwest = { version = "0.12.4" }
-task-local-extensions = "0.1"
-init-tracing-opentelemetry = { version = "0.18.1", features = [
-  "tracing_subscriber_ext",
-  "otlp",
+tracing = "0.1"
+tracing-journald = "0.3.0"
+tracing-opentelemetry = "0.23.0"
+tracing-subscriber = { version = "0.3", features = [
+  "ansi",
+  "env-filter",
+  "fmt",
+  "json",
 ] }
-tracing-opentelemetry-instrumentation-sdk = "0.18.1"
-opentelemetry_sdk = "0.22.1"
