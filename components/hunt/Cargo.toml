@@ -1,9 +1,13 @@
 [package]
-name = "hunt"
-version = "0.1.0"
-edition = "2021"
+authors.workspace = true
 description = "HWaaS universal notorious tracing (Hunt) is a default tracing setup used by HWaaS rust components"
-license = "Apache-2.0"
+edition.workspace = true
+license.workspace = true
+name = "hunt"
+publish = false
+readme = "README.md"
+repository.workspace = true
+version = "0.1.0"
 
 [lib]
 name = "hunt"
@@ -14,8 +18,8 @@ doctest = false
 name = "hunt-test-app"
 path = "src/bin/hunt-test-app.rs"
 
-[lints.rust]
-unsafe_code = "forbid"
+[lints]
+workspace = true
 
 [features]
 default = ["reqwest"]
@@ -23,33 +27,20 @@ reqwest = ["dep:reqwest", "dep:reqwest-middleware"]
 tower = []
 
 [dependencies]
-axum-tracing-opentelemetry = { version = "0.18.1" }
-tracing-opentelemetry = "0.23.0"
-opentelemetry = { version = "0.22.0", features = ["trace"] }
-tracing-journald = "0.3.0"
-tracing-subscriber = { version = "0.3", features = [
-  "ansi",
-  "env-filter",
-  "fmt",
-  "json",
-] }
-console-subscriber = "0.2"
-tracing = "0.1"
-tower = "0.4"
-tower-http = { version = "0.5.2", default-features = false, features = [
-  "trace",
-  "request-id",
-  "limit",
-  "timeout",
-] }
-axum = "0.7"
-futures = "0.3"
-reqwest-middleware = { version = "0.4", optional = true }
-reqwest = { version = "0.12.4", optional = true }
-task-local-extensions = "0.1"
-init-tracing-opentelemetry = { version = "0.18.1", features = [
-  "tracing_subscriber_ext",
-  "otlp",
-] }
-tracing-opentelemetry-instrumentation-sdk = "0.18.1"
-opentelemetry_sdk = "0.22.1"
+axum-tracing-opentelemetry.workspace = true
+axum.workspace = true
+console-subscriber.workspace = true
+futures.workspace = true
+init-tracing-opentelemetry.workspace = true
+opentelemetry.workspace = true
+opentelemetry_sdk.workspace = true
+reqwest-middleware = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
+task-local-extensions.workspace = true
+tower-http.workspace = true
+tower.workspace = true
+tracing-journald.workspace = true
+tracing-opentelemetry-instrumentation-sdk.workspace = true
+tracing-opentelemetry.workspace = true
+tracing-subscriber.workspace = true
+tracing.workspace = true
