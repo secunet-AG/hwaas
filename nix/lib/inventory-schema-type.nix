@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ check-jsonschema
-, writeTextFile
-, runCommand
-, configSchema
-, lib
-,
+{
+  check-jsonschema,
+  writeTextFile,
+  runCommand,
+  configSchema,
+  lib,
 }:
 appConfig:
 let

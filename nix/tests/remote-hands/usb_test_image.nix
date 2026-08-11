@@ -10,10 +10,11 @@ let
   # TODO: change the device path depending on the used USB OTG serial class
   usbSerialDevice = "ttyACM0";
   myisoconfig =
-    { pkgs
-    , modulesPath
-    , lib
-    , ...
+    {
+      pkgs,
+      modulesPath,
+      lib,
+      ...
     }:
     {
       imports = [

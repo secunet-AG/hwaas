@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::tests::test_server_setup::{TestServerOutputs, TestServerSetup};
 use crate::API_VERSION;
+use crate::tests::test_server_setup::{TestServerOutputs, TestServerSetup};
 use assert_json_diff::assert_json_eq;
 use assert_json_diff::assert_json_include;
 use context_data_structures::machine_properties::MachineProperties;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::time::Duration;
 use tokio::time::sleep;
 use tracing::debug;
@@ -95,13 +95,15 @@ async fn get_machines_all_reserved_and_free_again() {
 
     // delete the context in order to free all reserved ones
     let url = format!("http://{addr}/{API_VERSION}/contexts/{ctx_id}");
-    assert!(client
-        .delete(&url)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        client
+            .delete(&url)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
     sleep(Duration::from_secs(5)).await;
 
     // test if all machines are displayed as free now
@@ -127,11 +129,13 @@ async fn get_machines_all_reserved_reservation_estimates() {
     assert!(response.status().is_success());
     let actual_response_json = response.json::<Value>().await.unwrap();
     assert_json_include!(expected: &expected_response_approximation, actual: &actual_response_json);
-    assert!(actual_response_json
-        .as_array()
-        .unwrap()
-        .iter()
-        .all(|value| value.get(ESTIMATED_RESERVATION_DURATION_KEY).is_some()));
+    assert!(
+        actual_response_json
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|value| value.get(ESTIMATED_RESERVATION_DURATION_KEY).is_some())
+    );
 
     // Patch the context to set a timeout 100 seconds from now
     let timeout_seconds = 100;
@@ -141,14 +145,16 @@ async fn get_machines_all_reserved_reservation_estimates() {
     "lifetime": timeout_seconds,
     });
 
-    assert!(reqwest::Client::new()
-        .patch(context_resource_url)
-        .json(&context_patch)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        reqwest::Client::new()
+            .patch(context_resource_url)
+            .json(&context_patch)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
     // Sleep a bit in order to give the server some time to update the context timeout.
     sleep(Duration::from_secs(3)).await;
 
@@ -164,18 +170,20 @@ async fn get_machines_all_reserved_reservation_estimates() {
     );
     // We check that the estimated reservation duration is at most 10 seconds away to the 100 seconds
     // we asked for when patching our context.
-    assert!(actual_response_json
-        .as_array()
-        .unwrap()
-        .iter()
-        .all(|machine_data| {
-            (machine_data
-                .get(ESTIMATED_RESERVATION_DURATION_KEY)
-                .unwrap()
-                .as_i64()
-                .unwrap()
-                - 100)
-                .unsigned_abs()
-                <= 10
-        }));
+    assert!(
+        actual_response_json
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|machine_data| {
+                (machine_data
+                    .get(ESTIMATED_RESERVATION_DURATION_KEY)
+                    .unwrap()
+                    .as_i64()
+                    .unwrap()
+                    - 100)
+                    .unsigned_abs()
+                    <= 10
+            })
+    );
 }

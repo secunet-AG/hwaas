@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, lib
-, httpie
-, context-api-url-version-prefix
-, modules
-,
+{
+  testers,
+  lib,
+  httpie,
+  context-api-url-version-prefix,
+  modules,
 }:
 let
   ctxPort = "8080";

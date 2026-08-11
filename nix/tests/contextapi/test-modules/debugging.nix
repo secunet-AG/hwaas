@@ -2,11 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ lib
-, pkgs
-, ...
-}:
-with lib;
+{ lib, pkgs, ... }: with lib;
 {
   console.keyMap = "de";
 

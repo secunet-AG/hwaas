@@ -286,9 +286,6 @@ jobs:
         name: check aruba-switch-mock-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-docs'
       - if: always()
-        name: check aruba-switch-mock-fmt
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-fmt'
-      - if: always()
         name: check aruba-switch-mock-hakari
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-hakari'
       - if: always()
@@ -318,9 +315,6 @@ jobs:
       - if: always()
         name: check contextapi-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-docs'
-      - if: always()
-        name: check contextapi-fmt
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-fmt'
       - if: always()
         name: check contextapi-golden-test-openapi-spec
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-golden-test-openapi-spec'
@@ -355,9 +349,6 @@ jobs:
         name: check hunt-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-docs'
       - if: always()
-        name: check hunt-fmt
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-fmt'
-      - if: always()
         name: check hunt-nextest
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-nextest'
   check-net-ctrl:
@@ -384,9 +375,6 @@ jobs:
       - if: always()
         name: check net-ctrl-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-docs'
-      - if: always()
-        name: check net-ctrl-fmt
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-fmt'
       - if: always()
         name: check net-ctrl-golden-test-openapi-spec
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec'
@@ -440,9 +428,6 @@ jobs:
         name: check remote-hands-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-docs'
       - if: always()
-        name: check remote-hands-fmt
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-fmt'
-      - if: always()
         name: check remote-hands-golden-test-openapi-spec
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-golden-test-openapi-spec'
       - if: always()
@@ -475,9 +460,6 @@ jobs:
       - if: always()
         name: check rpi-status-display-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-docs'
-      - if: always()
-        name: check rpi-status-display-fmt
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-fmt'
       - if: always()
         name: check rpi-status-display-nextest
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-nextest'
@@ -524,9 +506,6 @@ jobs:
       - if: always()
         name: check ws-gateway-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-docs'
-      - if: always()
-        name: check ws-gateway-fmt
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-fmt'
       - if: always()
         name: check ws-gateway-hakari
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-hakari'

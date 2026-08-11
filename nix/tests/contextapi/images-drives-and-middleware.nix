@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, lib
-, debugging ? false
-, context-api-url-version-prefix
-, modules
-, writeText
-,
+{
+  testers,
+  lib,
+  debugging ? false,
+  context-api-url-version-prefix,
+  modules,
+  writeText,
 }:
 let
   store = "/run/context-api/images";
@@ -20,58 +20,47 @@ testers.runNixOSTest {
   name = "image-api-test";
   node.specialArgs = { inherit modules; };
   nodes = {
-    gateway =
-      { ... }:
-      {
-        imports =
-          [
-            ./test-modules/test-config.nix
-            ./test-modules/mock-contextapi-satellite-rest-services.nix
-            ./test-modules/mock-remote-usb.nix
-            modules.contextapi-module
-            modules.remote-serial
-            modules.remote-power
-            modules.remote-usb
-            modules.remote-auxiliary
-          ]
-          ++ lib.optionals debugging [
-            ./test-modules/debugging.nix
-          ];
+    gateway = { ... }: {
+      imports = [
+        ./test-modules/test-config.nix
+        ./test-modules/mock-contextapi-satellite-rest-services.nix
+        ./test-modules/mock-remote-usb.nix
+        modules.contextapi-module
+        modules.remote-serial
+        modules.remote-power
+        modules.remote-usb
+        modules.remote-auxiliary
+      ]
+      ++ lib.optionals debugging [ ./test-modules/debugging.nix ];
 
-        context-api-test-config = {
-          enable = true;
-          inherit store;
-        };
-
-        virtualisation = {
-          # Use 4 GiB memory.
-          # Needed because we create some fake images to test the upload
-          memorySize = 4096;
-        };
-
-        services = {
-          mock-remote-usb.enable = true;
-          mock-contextapi-satellite-rest-services.enable = true;
-          http-echo-server.bodyOnly = true;
-          contextApi = {
-            enable = true;
-            openFirewall = true;
-            port = serverPort;
-          };
-          remote-auxiliary = {
-            enable = true;
-            port = lib.toInt rhPort;
-            configFile = toString (
-              writeText "remote-auxiliary.json" (
-                builtins.toJSON {
-                  devices = { };
-                }
-              )
-            );
-          };
-        };
-
+      context-api-test-config = {
+        enable = true;
+        inherit store;
       };
+
+      virtualisation = {
+        # Use 4 GiB memory.
+        # Needed because we create some fake images to test the upload
+        memorySize = 4096;
+      };
+
+      services = {
+        mock-remote-usb.enable = true;
+        mock-contextapi-satellite-rest-services.enable = true;
+        http-echo-server.bodyOnly = true;
+        contextApi = {
+          enable = true;
+          openFirewall = true;
+          port = serverPort;
+        };
+        remote-auxiliary = {
+          enable = true;
+          port = lib.toInt rhPort;
+          configFile = toString (writeText "remote-auxiliary.json" (builtins.toJSON { devices = { }; }));
+        };
+      };
+
+    };
   };
 
   testScript = ''

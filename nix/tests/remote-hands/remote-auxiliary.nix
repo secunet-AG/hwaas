@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, modules
-,
-}:
+{ testers, modules }:
 let
   port = 8080;
   auxMockPort = 12345;
@@ -30,30 +27,28 @@ testers.nixosTest {
   name = "remote-auxiliary-test";
 
   nodes = {
-    sut =
-      { pkgs, ... }:
-      {
-        imports = [
-          modules.remote-auxiliary
-          modules.test-restapi-echo-server
-        ];
+    sut = { pkgs, ... }: {
+      imports = [
+        modules.remote-auxiliary
+        modules.test-restapi-echo-server
+      ];
 
-        services.remote-auxiliary = {
-          enable = true;
-          inherit port;
-          configFile = builtins.toFile "remote-auxiliary.json" (builtins.toJSON auxiliaryConfig);
-        };
-        environment.systemPackages = with pkgs; [
-          httpie
-          util-linux
-        ];
-        systemd.services.remote-auxiliary.after = [ "echo-server.service" ];
-
-        services.http-echo-server = {
-          enable = true;
-          port = auxMockPort;
-        };
+      services.remote-auxiliary = {
+        enable = true;
+        inherit port;
+        configFile = builtins.toFile "remote-auxiliary.json" (builtins.toJSON auxiliaryConfig);
       };
+      environment.systemPackages = with pkgs; [
+        httpie
+        util-linux
+      ];
+      systemd.services.remote-auxiliary.after = [ "echo-server.service" ];
+
+      services.http-echo-server = {
+        enable = true;
+        port = auxMockPort;
+      };
+    };
   };
 
   testScript = ''

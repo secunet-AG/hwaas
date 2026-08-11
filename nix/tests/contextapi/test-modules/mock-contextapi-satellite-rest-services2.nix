@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # A mock used to simulate real HWaaS services (like a Terminal Server or NetCtrl)
-{ config
-, lib
-, modules
-, ...
+{
+  config,
+  lib,
+  modules,
+  ...
 }:
 with lib;
 let

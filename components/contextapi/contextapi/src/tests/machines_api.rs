@@ -6,13 +6,13 @@ use std::collections::HashSet;
 
 use axum::http::HeaderMap;
 use reqwest::header::CONTENT_TYPE;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use tracing_test::traced_test;
 use wiremock::matchers::{any, method};
 use wiremock::{Mock, Request, ResponseTemplate};
 
-use crate::tests::test_server_setup::TestServerSetup;
 use crate::API_VERSION;
+use crate::tests::test_server_setup::TestServerSetup;
 use reqwest::StatusCode;
 use test_log::test;
 use tracing::log::error;
@@ -205,13 +205,15 @@ async fn pass_full_aux_response() {
     // Finally check that we can access the reset endpoint for the machine's auxiliary devices
     let reset_url =
         format!("http://{addr}/{API_VERSION}/contexts/{ctx_id}/machines/abmr1/auxiliaries/reset");
-    assert!(client
-        .post(reset_url)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        client
+            .post(reset_url)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 }
 
 /// Test sending an HTTP GET request to query the remote-usb
@@ -312,13 +314,15 @@ async fn put_power_interface() {
     let url =
         format!("http://{addr}/{API_VERSION}/contexts/{ctx_id}/machines/abmr1/power/{device_id}");
 
-    assert!(reqwest::Client::new()
-        .put(url)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        reqwest::Client::new()
+            .put(url)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 
     // Check mock for expected request
     let req = test_setup_output

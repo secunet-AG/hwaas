@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ lib
-, pkgs
-, config
-, ...
+{
+  lib,
+  pkgs,
+  config,
+  ...
 }:
 let
   cfg = config.services.debug-serials;
@@ -26,28 +27,26 @@ in
 
   config = lib.mkIf cfg.enable {
     systemd.services = builtins.listToAttrs (
-      map
-        (dev: {
-          name = lib.strings.concatStrings [
-            "serial-getty@"
-            dev
-          ];
-          value = {
-            enable = true;
-            serviceConfig = {
-              Restart = "always";
+      map (dev: {
+        name = lib.strings.concatStrings [
+          "serial-getty@"
+          dev
+        ];
+        value = {
+          enable = true;
+          serviceConfig = {
+            Restart = "always";
 
-              # configure baudrate
-              # the serial getty module looks like it would set the baud rate,
-              # but it doesn't.
-              ExecStartPre = ''
-                ${pkgs.coreutils}/bin/stty -F /dev/${dev} 115200 raw
-              '';
-              serialSpeed = [ 115200 ];
-            };
+            # configure baudrate
+            # the serial getty module looks like it would set the baud rate,
+            # but it doesn't.
+            ExecStartPre = ''
+              ${pkgs.coreutils}/bin/stty -F /dev/${dev} 115200 raw
+            '';
+            serialSpeed = [ 115200 ];
           };
-        })
-        cfg.serials
+        };
+      }) cfg.serials
     );
 
     boot.kernelParams =
@@ -60,10 +59,8 @@ in
     '';
 
     # launch as soon as udev sees the device pop up
-    services.udev.extraRules = lib.strings.concatMapStrings
-      (tty: ''
-        KERNEL=="${tty}", TAG+="systemd", ENV{SYSTEMD_WANTS}="serial-getty@${tty}"
-      '')
-      cfg.serials;
+    services.udev.extraRules = lib.strings.concatMapStrings (tty: ''
+      KERNEL=="${tty}", TAG+="systemd", ENV{SYSTEMD_WANTS}="serial-getty@${tty}"
+    '') cfg.serials;
   };
 }

@@ -93,8 +93,8 @@ impl SwitchAPI for DummyTestSwitch {
 
 #[cfg(test)]
 mod tests {
-    use crate::api::SwitchAPI;
     use crate::DummyTestSwitch;
+    use crate::api::SwitchAPI;
     use network_type_ids::PortID;
     use network_type_ids::PortRepresentation;
     use network_type_ids::VlanID;

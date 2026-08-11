@@ -2,16 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ runCommand
-, makeWrapper
-, lib
-, jq
-, httpie
-, gnugrep
-, writeShellScript
-, image
-, utils
-,
+{
+  runCommand,
+  makeWrapper,
+  lib,
+  jq,
+  httpie,
+  gnugrep,
+  writeShellScript,
+  image,
+  utils,
 }:
 let
   wrapper = runCommand "wrap usb test" { nativeBuildInputs = [ makeWrapper ]; } ''

@@ -7,14 +7,12 @@ let
   modules = config.flake.nixosModules;
 in
 {
-  perSystem =
-    { pkgs, ... }:
-    {
-      checks = {
-        aruba-switch-mock-integration-test = pkgs.callPackage ./integration-test.nix { inherit modules; };
-        aruba-switch-mock-login-test = pkgs.callPackage ./login-test.nix { inherit modules; };
-        aruba-switch-mock-stats-test = pkgs.callPackage ./stats-test.nix { inherit modules; };
-        aruba-switch-mock-ports-test = pkgs.callPackage ./ports-test.nix { inherit modules; };
-      };
+  perSystem = { pkgs, ... }: {
+    checks = {
+      aruba-switch-mock-integration-test = pkgs.callPackage ./integration-test.nix { inherit modules; };
+      aruba-switch-mock-login-test = pkgs.callPackage ./login-test.nix { inherit modules; };
+      aruba-switch-mock-stats-test = pkgs.callPackage ./stats-test.nix { inherit modules; };
+      aruba-switch-mock-ports-test = pkgs.callPackage ./ports-test.nix { inherit modules; };
     };
+  };
 }

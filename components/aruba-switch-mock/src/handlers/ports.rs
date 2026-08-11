@@ -4,8 +4,8 @@
 
 use crate::app_state::AppState;
 use aruba_structs::port::{Port, PortElementList};
-use axum::extract::{Path, State};
 use axum::Json;
+use axum::extract::{Path, State};
 use std::sync::Arc;
 use tracing::info;
 

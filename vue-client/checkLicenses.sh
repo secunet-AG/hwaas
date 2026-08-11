@@ -16,8 +16,8 @@ allowedB='^(lightningcss(-.*)?)$'
 allowedX='^(caniuse-lite)$'
 
 json=$(
-  pnpm licenses list --json |
-    jq -r '
+    pnpm licenses list --json |
+        jq -r '
 	to_entries[]
 	| .key as $license
 	| .value[]
@@ -26,13 +26,13 @@ json=$(
 )
 
 echo "$json" | while IFS=$'\t' read -r license name version; do
-  if ! [[ $license =~ $allowedA ]]; then
-    if [[ $name =~ $allowedB ]]; then
-      echo "Allowed license under Apache Category B: $name@$version with license $license"
-    elif [[ $name =~ $allowedX ]]; then
-      echo "Allowed license with third party notice: $name@$version with license $license"
-    else
-      echo "Disallowed license: $license in $name@$version"
+    if ! [[ $license =~ $allowedA ]]; then
+        if [[ $name =~ $allowedB ]]; then
+            echo "Allowed license under Apache Category B: $name@$version with license $license"
+        elif [[ $name =~ $allowedX ]]; then
+            echo "Allowed license with third party notice: $name@$version with license $license"
+        else
+            echo "Disallowed license: $license in $name@$version"
+        fi
     fi
-  fi
 done

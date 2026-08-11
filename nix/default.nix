@@ -7,6 +7,7 @@ _: {
     ./git-hooks.nix
     ./shell.nix
     ./crane.nix
+    ./formatter.nix
     ./modules
     ./tests
     ./apps

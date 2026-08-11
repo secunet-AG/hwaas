@@ -4,7 +4,7 @@
 
 use remote_axum::run_axum_server;
 use remote_init::CliArgs;
-use remote_power::{api, app_config::AppConfig, power, AppState};
+use remote_power::{AppState, api, app_config::AppConfig, power};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 

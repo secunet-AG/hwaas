@@ -7,10 +7,10 @@ use std::ffi::OsStr;
 use std::io::Error;
 use std::path::Path;
 use std::time::SystemTime;
-use tokio::fs::{metadata, read_dir, read_to_string, File};
+use tokio::fs::{File, metadata, read_dir, read_to_string};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWriteExt, BufWriter};
-use tokio_stream::wrappers::ReadDirStream;
 use tokio_stream::StreamExt;
+use tokio_stream::wrappers::ReadDirStream;
 
 /// List all files with the specified file extension of the given directory.
 /// If `None` is provided as file extension, it will match all files that have no extension.

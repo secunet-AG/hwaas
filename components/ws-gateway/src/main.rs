@@ -9,7 +9,7 @@
 //! Both parts forward traffic to the Linux kernel networking Stack via AF_PACKET.
 
 use clap::Parser;
-use hunt::{hunt_axum_router, HuntBuilder};
+use hunt::{HuntBuilder, hunt_axum_router};
 use std::net::SocketAddr;
 use std::process::exit;
 use tokio::net::TcpListener;

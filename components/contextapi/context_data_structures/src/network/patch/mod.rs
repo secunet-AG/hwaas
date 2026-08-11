@@ -261,7 +261,7 @@ mod tests {
 
     use super::*;
     use schemars::schema_for;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
 
     #[test]
     fn deserialize_patch() {
@@ -294,9 +294,11 @@ mod tests {
 
         let network_setup = NetworkSetup::empty();
 
-        assert!(patch
-            .is_applicable(&network_setup, |_, _| ControlFlow::Continue(()))
-            .is_ok());
+        assert!(
+            patch
+                .is_applicable(&network_setup, |_, _| ControlFlow::Continue(()))
+                .is_ok()
+        );
     }
 
     #[test]
@@ -311,9 +313,11 @@ mod tests {
 
         let network_setup = NetworkSetup::empty();
 
-        assert!(patch
-            .is_applicable(&network_setup, |_, _| ControlFlow::Continue(()))
-            .is_ok());
+        assert!(
+            patch
+                .is_applicable(&network_setup, |_, _| ControlFlow::Continue(()))
+                .is_ok()
+        );
     }
 
     #[test]
@@ -335,14 +339,18 @@ mod tests {
         let interface_inspector =
             |_: &MachineNameStr, _: &MachineNetworkInterfaceStr| ControlFlow::Continue(());
 
-        assert!(patch
-            .is_applicable(&network_setup, interface_inspector)
-            .is_ok());
+        assert!(
+            patch
+                .is_applicable(&network_setup, interface_inspector)
+                .is_ok()
+        );
 
         // Also check that the patch is not applicable if there is no entry for /abmr1
-        assert!(patch
-            .is_applicable(&NetworkSetup::empty(), interface_inspector)
-            .is_err());
+        assert!(
+            patch
+                .is_applicable(&NetworkSetup::empty(), interface_inspector)
+                .is_err()
+        );
     }
 
     #[test]
@@ -364,14 +372,18 @@ mod tests {
         let interface_inspector =
             |_: &MachineNameStr, _: &MachineNetworkInterfaceStr| ControlFlow::Continue(());
 
-        assert!(patch
-            .is_applicable(&network_setup, interface_inspector)
-            .is_ok());
+        assert!(
+            patch
+                .is_applicable(&network_setup, interface_inspector)
+                .is_ok()
+        );
 
         // Also check that the patch is not applicable if there is no entry for /abmr1/lan1
-        assert!(patch
-            .is_applicable(&NetworkSetup::empty(), interface_inspector)
-            .is_err());
+        assert!(
+            patch
+                .is_applicable(&NetworkSetup::empty(), interface_inspector)
+                .is_err()
+        );
     }
 
     #[test]
@@ -392,14 +404,18 @@ mod tests {
 
         let interface_inspector =
             |_: &MachineNameStr, _: &MachineNetworkInterfaceStr| ControlFlow::Continue(());
-        assert!(patch
-            .is_applicable(&network_setup, interface_inspector)
-            .is_ok());
+        assert!(
+            patch
+                .is_applicable(&network_setup, interface_inspector)
+                .is_ok()
+        );
 
         // Also check that the patch is not applicable if there is no entry for /abmr1
-        assert!(patch
-            .is_applicable(&NetworkSetup::empty(), interface_inspector)
-            .is_err());
+        assert!(
+            patch
+                .is_applicable(&NetworkSetup::empty(), interface_inspector)
+                .is_err()
+        );
     }
 
     #[test]
@@ -412,9 +428,11 @@ mod tests {
         ))
         .unwrap();
 
-        assert!(patch
-            .is_applicable(&NetworkSetup::empty(), |_, _| ControlFlow::Continue(()))
-            .is_ok());
+        assert!(
+            patch
+                .is_applicable(&NetworkSetup::empty(), |_, _| ControlFlow::Continue(()))
+                .is_ok()
+        );
     }
 
     #[test]
@@ -427,9 +445,11 @@ mod tests {
         ))
         .unwrap();
 
-        assert!(patch
-            .is_applicable(&NetworkSetup::empty(), |_, _| ControlFlow::Continue(()))
-            .is_ok());
+        assert!(
+            patch
+                .is_applicable(&NetworkSetup::empty(), |_, _| ControlFlow::Continue(()))
+                .is_ok()
+        );
     }
 
     #[test]
@@ -441,8 +461,10 @@ mod tests {
         ))
         .unwrap();
 
-        assert!(patch
-            .is_applicable(&NetworkSetup::empty(), |_, _| ControlFlow::Break(()))
-            .is_err());
+        assert!(
+            patch
+                .is_applicable(&NetworkSetup::empty(), |_, _| ControlFlow::Break(()))
+                .is_err()
+        );
     }
 }

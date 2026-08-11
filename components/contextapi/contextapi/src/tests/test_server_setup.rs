@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    ContextApiConfig,
     api::App,
     app_config::ContextMaxLifetimeSetting,
     tests::{
         network_api::{WS_GATEWAY_ADDR, WS_GATEWAY_URI},
         test_server,
     },
-    ContextApiConfig,
 };
 
 use std::time::Duration;
@@ -24,10 +24,10 @@ use futures::executor::block_on;
 use machine_ops_lib::{initialization::InitializationOptions, machine_data::MachineData};
 use net_ctrl_client_wrapper::NetCtrlClient;
 use remote_client::RemoteClient;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use tokio::{net::ToSocketAddrs, sync::oneshot::Sender, task::JoinHandle};
 use tracing::trace;
-use wiremock::{matchers::any, Mock, MockGuard, MockServer, ResponseTemplate};
+use wiremock::{Mock, MockGuard, MockServer, ResponseTemplate, matchers::any};
 
 fn default_properties() -> MachineProperties {
     MachineProperties {

@@ -5,19 +5,19 @@
 use std::sync::Arc;
 
 use crate::single_context_api::drives_handler::{
-    handle_create_drive, handle_delete_drive, CreateDriveError, DeleteDriveError,
+    CreateDriveError, DeleteDriveError, handle_create_drive, handle_delete_drive,
 };
 use aide::axum::IntoApiResponse;
 use aide::{
-    axum::{routing::get_with, ApiRouter},
+    axum::{ApiRouter, routing::get_with},
     transform::{TransformOperation, TransformPathItem},
 };
 use axum::extract::FromRequestParts;
 use axum::extract::{FromRef, State};
 use axum::http::StatusCode;
 use axum::{
-    extract::{Path, Query},
     Json,
+    extract::{Path, Query},
 };
 
 use db_interaction::connection::DbFacade;
@@ -30,14 +30,14 @@ use image_api::ImageHandler;
 use image_api::IntoImageHandler;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use serde_json::Value;
+use serde_json::json;
 use tracing::debug;
 use tracing::error;
 use tracing::error_span;
 
-use super::drives_handler::DriveHash;
 use super::GuardedContext;
+use super::drives_handler::DriveHash;
 
 #[derive(Clone)]
 pub(crate) struct DrivesApiState {

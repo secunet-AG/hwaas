@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ runCommand
-, net-ctrl-openapi
-, openapi-generator-cli
-,
+{
+  runCommand,
+  net-ctrl-openapi,
+  openapi-generator-cli,
 }:
 runCommand "generate-net-ctrl-rust-client" { } ''
   mkdir -p $out

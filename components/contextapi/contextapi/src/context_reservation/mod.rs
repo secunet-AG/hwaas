@@ -5,13 +5,13 @@
 use std::sync::Arc;
 
 use aide::{
-    axum::{routing::post_with, ApiRouter},
+    axum::{ApiRouter, routing::post_with},
     transform::TransformOperation,
 };
 use axum::{
+    Json,
     extract::{FromRef, State},
     http::StatusCode,
-    Json,
 };
 use chrono::Utc;
 use context_data_structures::{aliases::ContextId, rsd::Rsd};
@@ -28,12 +28,12 @@ use db_interaction::schema::machines as machines_schema;
 use db_interaction::{connection::DbFacade, models::machines::Machine as ModelMachine};
 use diesel::prelude::*;
 use error_utils::{log_err, log_then_replace_err};
-use tokio::sync::mpsc::Sender;
 use tokio::sync::Semaphore;
+use tokio::sync::mpsc::Sender;
 use tokio::time::Duration;
 use tracing::{error, error_span};
 
-use crate::{context_manager::ContextManagerMessage, ContextApiConfig};
+use crate::{ContextApiConfig, context_manager::ContextManagerMessage};
 
 use self::reservation_logic::RsdResolutionError;
 

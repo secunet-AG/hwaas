@@ -2,19 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, httpie
-, jq
-, modules
-,
+{
+  testers,
+  httpie,
+  jq,
+  modules,
 }:
 testers.nixosTest {
   name = "stats-test";
   nodes = {
     server = {
-      imports = [
-        modules.aruba-switch-mock
-      ];
+      imports = [ modules.aruba-switch-mock ];
 
       environment.systemPackages = [
         httpie

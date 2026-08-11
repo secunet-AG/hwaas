@@ -10,7 +10,7 @@ instance to follow along.
 There are multiple methods to interact with HWaaS, each tailored to different
 needs.
 
-import Callout from "../../components/Callout.astro";
+import Callout from '../../components/Callout.astro'
 
 **We provide the following frontends**
 
@@ -119,8 +119,8 @@ This returns a Context ID (a UUID) that you will use in all subsequent
 requests.
 
 <Callout type="important">
-  Store your Context ID carefully. Anyone with access to the ID and instance can
-  control the machines in that context.
+    Store your Context ID carefully. Anyone with access to the ID and instance can control the
+    machines in that context.
 </Callout>
 
 #### Checking Context Lifetime
@@ -143,9 +143,8 @@ curl "$API_URL/contexts/{context_id}" \
 ```
 
 <Callout type="warning">
-  Contexts have a configurable maximum total lifetime. You can increment your
-  lifetime to keep it alive, but you cannot exceed this maximum amount without
-  changing your deployment settings.
+    Contexts have a configurable maximum total lifetime. You can increment your lifetime to keep it
+    alive, but you cannot exceed this maximum amount without changing your deployment settings.
 </Callout>
 
 #### Listing Machines in a Context
@@ -174,8 +173,8 @@ curl "$API_URL/images" \
 This returns an image hash that you can use to attach a drive.
 
 <Callout type="note">
-  Images are cached by hash. If an identical image has already been uploaded,
-  the existing hash is returned without re-uploading.
+    Images are cached by hash. If an identical image has already been uploaded, the existing hash is
+    returned without re-uploading.
 </Callout>
 
 #### Attaching a Drive to Machines
@@ -303,8 +302,8 @@ curl "$API_URL/contexts/{context_id}" \
 ```
 
 <Callout type="warning">
-  Deleting a context releases all associated resources (drives, USB, networks,
-  power). This cannot be undone.
+    Deleting a context releases all associated resources (drives, USB, networks, power). This cannot
+    be undone.
 </Callout>
 
 ---
@@ -453,9 +452,8 @@ pkgs.hwaasTest {
 ```
 
 <Callout type="note">
-  The `hwaasTest` function handles context reservation, image uploading, and
-  resource cleanup automatically. You only need to declare what machines and
-  networks you need.
+    The `hwaasTest` function handles context reservation, image uploading, and resource cleanup
+    automatically. You only need to declare what machines and networks you need.
 </Callout>
 
 Depending on how your repository is set up, you can run this as a Nix check or

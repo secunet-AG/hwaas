@@ -7,9 +7,15 @@ _: {
     { config, pkgs, ... }:
     let
       # Generate the job list for all stages
-      jobs = import ./jobs.nix { inherit (pkgs) lib; inherit config; };
+      jobs = import ./jobs.nix {
+        inherit (pkgs) lib;
+        inherit config;
+      };
       # Generate CI yaml file from jobs list
-      generator = import ./generate-ci.nix { inherit pkgs jobs; inherit (pkgs) lib; };
+      generator = import ./generate-ci.nix {
+        inherit pkgs jobs;
+        inherit (pkgs) lib;
+      };
       # Verify staged/committed ci.yml is equal to a freshly build one with the generator
       verificator = import ./verify-ci.nix { inherit pkgs generatedWorkflow; };
       inherit (generator) generatedWorkflow;

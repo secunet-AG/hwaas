@@ -5,7 +5,7 @@
 //! Serial backend that talks to Linux TTY layer
 
 use crate::serial::buffer_sizes::BufferSizes;
-use crate::serial::serial_task::{spawn_io_tasks, SerialTasks};
+use crate::serial::serial_task::{SerialTasks, spawn_io_tasks};
 use serde::{Deserialize, Serialize};
 use serial2_tokio::{CharSize, IntoSettings, KeepSettings, Parity, SerialPort, Settings, StopBits};
 use std::io;

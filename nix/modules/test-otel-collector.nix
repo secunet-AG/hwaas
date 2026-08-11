@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # OpenTelemetry collector module for use in NixOS integration tests
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 let
   otelCfg = config.services.otelCollector;

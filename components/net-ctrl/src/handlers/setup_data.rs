@@ -125,17 +125,21 @@ mod test {
     #[test]
     fn test_try_from_setup_data() {
         // Valid ranges
-        assert!(VlanIDVec::try_from(SetupData {
-            vlan_id_range: 2..6_u16,
-        })
-        .is_ok());
+        assert!(
+            VlanIDVec::try_from(SetupData {
+                vlan_id_range: 2..6_u16,
+            })
+            .is_ok()
+        );
         assert!(VlanIDVec::try_from(2..6_u16).is_ok());
 
         // invalid ranges
-        assert!(VlanIDVec::try_from(SetupData {
-            vlan_id_range: 0..6_u16,
-        })
-        .is_err());
+        assert!(
+            VlanIDVec::try_from(SetupData {
+                vlan_id_range: 0..6_u16,
+            })
+            .is_err()
+        );
         assert!(VlanIDVec::try_from(0..6_u16).is_err());
     }
 }

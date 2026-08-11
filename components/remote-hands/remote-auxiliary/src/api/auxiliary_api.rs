@@ -4,8 +4,8 @@
 
 use aide::{
     axum::{
-        routing::{get_with, ApiMethodRouter},
         ApiRouter,
+        routing::{ApiMethodRouter, get_with},
     },
     operation::{OperationHandler, OperationInput, OperationOutput},
     transform::{TransformOperation, TransformPathItem},
@@ -21,8 +21,8 @@ use std::collections::HashMap;
 use tracing::{instrument, warn};
 use urlencoding::encode;
 
-use crate::api::reverse_proxy::send_aux_request;
 use crate::api::ExtractAux;
+use crate::api::reverse_proxy::send_aux_request;
 use crate::app_state::AppState;
 
 /// Helper function to specify all supported methods for the given handler.

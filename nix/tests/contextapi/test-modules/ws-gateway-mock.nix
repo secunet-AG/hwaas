@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # A mock used to simulate a real ws-gateway.
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 with lib;
 let
@@ -14,9 +15,7 @@ let
   portString = builtins.toString cfg.port;
 in
 {
-  imports = [
-    ./test-config.nix
-  ];
+  imports = [ ./test-config.nix ];
 
   options.services.ws-gateway-mock = {
     enable = mkEnableOption "mocking ws-gateway";

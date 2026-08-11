@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, debugging ? false
-, curl
-, hey
-, httpie
-, jq
-, modules
-,
+{
+  testers,
+  debugging ? false,
+  curl,
+  hey,
+  httpie,
+  jq,
+  modules,
 }:
 let
   netCtrlPort = 8080;

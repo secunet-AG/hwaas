@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ runCommand
-, jd-diff-patch
-, oas
-,
+{
+  runCommand,
+  jd-diff-patch,
+  oas,
 }:
 let
   expected-oas = ../../../expected-oas/net-ctrl.openapi.json;

@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, modules
-,
-}:
+{ testers, modules }:
 let
   port = 8080;
 
@@ -20,24 +17,20 @@ testers.nixosTest {
   name = "remote-serial-echo-test";
 
   nodes = {
-    sut =
-      { pkgs, ... }:
-      {
-        imports = [
-          modules.remote-serial
-        ];
+    sut = { pkgs, ... }: {
+      imports = [ modules.remote-serial ];
 
-        services.remote-serial = {
-          enable = true;
-          inherit port;
-          configFile = builtins.toFile "remote-serial.json" (builtins.toJSON serialConfig);
-        };
-        environment.systemPackages = with pkgs; [
-          httpie
-          websocat
-          util-linux
-        ];
+      services.remote-serial = {
+        enable = true;
+        inherit port;
+        configFile = builtins.toFile "remote-serial.json" (builtins.toJSON serialConfig);
       };
+      environment.systemPackages = with pkgs; [
+        httpie
+        websocat
+        util-linux
+      ];
+    };
   };
 
   testScript = ''

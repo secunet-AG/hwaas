@@ -8,19 +8,19 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{path_params::PathParamsNetwork, ContextApiConfig, NetCtrlClient};
+use crate::{ContextApiConfig, NetCtrlClient, path_params::PathParamsNetwork};
 use aide::{
-    axum::{routing::get_with, ApiRouter, IntoApiResponse},
+    axum::{ApiRouter, IntoApiResponse, routing::get_with},
     transform::{TransformOperation, TransformPathItem},
+};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
 };
 use axum::{
     extract::{FromRef, FromRequestParts, WebSocketUpgrade},
     http::Uri,
-};
-use axum::{
-    extract::{Path, State},
-    http::StatusCode,
-    Json,
 };
 use context_data_structures::aliases::MachineNetworkInterface;
 use context_data_structures::aliases::{MachineName, NetworkNameStr};
@@ -55,8 +55,8 @@ use tracing::{debug, info_span};
 use tracing::{error_span, info};
 
 use super::{
-    websocket::{connect_websockets, create_websocket},
     GuardedContext,
+    websocket::{connect_websockets, create_websocket},
 };
 
 use crate::context_manager::ContextAccessToken;
@@ -558,7 +558,10 @@ async fn handle_patch_network_setup(
         if let Err(patch_op) = patch.is_applicable(&network_setup, machine_interface_inspector) {
             error!(?patch_op, "invalid patch operation");
             if missing_interface_described_in_path {
-                return Err((StatusCode::UNPROCESSABLE_ENTITY, "The patch describes a machine network interface that is not available to the context"));
+                return Err((
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    "The patch describes a machine network interface that is not available to the context",
+                ));
             } else {
                 return Err((StatusCode::CONFLICT, "invalid patch"));
             }
@@ -644,7 +647,10 @@ async fn handle_patch_network_setup(
                         reset_book_keeping(&mut added_interfaces, &mut removed_interfaces);
                     }
                     let Some(interfaces) = network_setup.0.remove(&machine_name) else {
-                        warn!(machine_name, "BUG: no interfaces for machine in the network setup, despite patch being valid");
+                        warn!(
+                            machine_name,
+                            "BUG: no interfaces for machine in the network setup, despite patch being valid"
+                        );
                         continue;
                     };
                     removed_interfaces.extend(interfaces.0.into_iter().map(|interface| {
@@ -758,7 +764,10 @@ async fn handle_connect_network_request(
             .lock()
             .inspect_err(log_err!("unexpected poison error"))
         else {
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong. Unexpected crash detected: Please contact the HWaaS maintainers"));
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Something went wrong. Unexpected crash detected: Please contact the HWaaS maintainers",
+            ));
         };
         ws_cancellations_signals_lock
             .entry(net_id)
@@ -861,7 +870,10 @@ async fn network_setup_to_switch_port_data(
     if interface_count == filtered_ports_with_machine_and_net_id.len() {
         Ok(filtered_ports_with_machine_and_net_id)
     } else {
-        Err((StatusCode::UNPROCESSABLE_ENTITY, "the network setup describes one or more machine interface pairs that are not available to the context"))
+        Err((
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "the network setup describes one or more machine interface pairs that are not available to the context",
+        ))
     }
 }
 
@@ -1050,7 +1062,10 @@ async fn update_network(
         ))?;
 
     if error_occurred {
-        Err((StatusCode::INTERNAL_SERVER_ERROR, "The network update was not successful. What we believe to be the current network state can be extracted via the GET method, but note that its accuracy cannot be guaranteed"))
+        Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "The network update was not successful. What we believe to be the current network state can be extracted via the GET method, but note that its accuracy cannot be guaranteed",
+        ))
     } else {
         Ok(context_access_token)
     }

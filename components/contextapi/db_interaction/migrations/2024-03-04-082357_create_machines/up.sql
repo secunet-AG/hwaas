@@ -2,7 +2,7 @@
 --
 -- SPDX-License-Identifier: Apache-2.0
 
-CREATE TABLE machines(
+CREATE TABLE machines (
     id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
     platform TEXT NOT NULL,
     remote_usb TEXT NOT NULL,

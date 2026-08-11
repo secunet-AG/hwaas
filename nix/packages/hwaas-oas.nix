@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ runCommand
-, contextapi
-, remote-hands-oas
-,
+{
+  runCommand,
+  contextapi,
+  remote-hands-oas,
 }:
 runCommand "generate-hwaas-openapi-json" { } ''
   ARGS=""

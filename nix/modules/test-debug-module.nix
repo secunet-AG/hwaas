@@ -4,10 +4,11 @@
 
 # If we are debugging the scenario (e.g. via driverInteractive) there should be
 # some extra tools available and graphics support
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 let
   cfg = config.services.debugging;

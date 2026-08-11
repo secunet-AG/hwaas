@@ -7,7 +7,7 @@ use axum_tracing_opentelemetry::{
     middleware::{OtelAxumLayer, OtelInResponseLayer},
     tracing_opentelemetry_instrumentation_sdk::find_current_trace_id,
 };
-use tower::{layer::util::Stack, ServiceBuilder};
+use tower::{ServiceBuilder, layer::util::Stack};
 use tower_http::{
     classify::{ServerErrorsAsFailures, SharedClassifier},
     trace::{MakeSpan, TraceLayer},

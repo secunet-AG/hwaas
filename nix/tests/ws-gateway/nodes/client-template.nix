@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ config
-, lib
-, ...
-}:
+{ config, lib, ... }:
 let
   clientCfg = config.services.simHwaasClient;
 in

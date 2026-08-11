@@ -4,11 +4,11 @@
 
 The HWaaS was designed out of a need for an easily extendable HIL test setup. It uses easily sourced hardware components to create setups for teams to have shared access to hardware. It is tightly coupled to NixOS, to allow for maximum reproducibility amongst teams.
 
-import Callout from "../../components/Callout.astro";
+import Callout from '../../components/Callout.astro'
 
 <Callout type="note">
-  The HWaaS is not a one stop solution for all teams, but it will be of
-  particular relevance if your team has some of the following requirements.
+    The HWaaS is not a one stop solution for all teams, but it will be of particular relevance if
+    your team has some of the following requirements.
 </Callout>
 
 - Shared hardware leases amongst your team
@@ -42,9 +42,8 @@ PiKVM is a lightweight KVM solution running on a Raspberry Pi, that allows you t
 The `remote-hands` services are capable of running on Raspberry Pi's or other SBCs, and they are somewhat architecturally similar to the PiKVM.
 
 <Callout type="note">
-  In fact, a strong mental model for the HWaaS is "What if I had NixOS control a
-  number of PiKVMs, and could use this to manage shared hardware leases, network
-  connectivity, and power switches."
+    In fact, a strong mental model for the HWaaS is "What if I had NixOS control a number of PiKVMs,
+    and could use this to manage shared hardware leases, network connectivity, and power switches."
 </Callout>
 
 Where the PiKVM allows you to control a single machine, the HWaaS provides a platform for reproducible testing and functionality around a fleet of devices.

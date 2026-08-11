@@ -4,11 +4,11 @@
 
 # This test checks that HTTP requests sent to an application are logged to an OpenTelemetry
 # Collector instance.
-{ testers
-, httpie
-, context-api-url-version-prefix
-, modules
-,
+{
+  testers,
+  httpie,
+  context-api-url-version-prefix,
+  modules,
 }:
 let
   port = 12345;

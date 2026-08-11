@@ -4,10 +4,7 @@
 
 # deadnix: skip
 perSystem@{ config, ... }:
-{ config
-, lib
-, ...
-}:
+{ config, lib, ... }:
 let
   wsCfg = config.services.websocketProxyClient;
   username = "wsclient";

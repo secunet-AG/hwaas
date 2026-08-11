@@ -2,8 +2,8 @@
 --
 -- SPDX-License-Identifier: Apache-2.0
 
-CREATE TABLE machine_resets(
+CREATE TABLE machine_resets (
     id INTEGER NOT NULL PRIMARY KEY,
     started TIMESTAMP NOT NULL,
-    FOREIGN KEY(id) REFERENCES machines(id) ON DELETE CASCADE
+    FOREIGN KEY (id) REFERENCES machines(id) ON DELETE CASCADE
 )

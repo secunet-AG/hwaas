@@ -4,7 +4,7 @@
 
 use std::{collections::HashMap, sync::Arc};
 
-use remote_power::{api, AppState};
+use remote_power::{AppState, api};
 
 #[tokio::main]
 /// Generate the OpenAPI Spec for the `remote-power` service.

@@ -6,8 +6,8 @@ use std::fmt::{Debug, Formatter};
 
 use std::sync::Arc;
 
-use dashmap::try_result::TryResult;
 use dashmap::DashMap;
+use dashmap::try_result::TryResult;
 
 use tracing::log::debug;
 use tracing::{error, instrument};

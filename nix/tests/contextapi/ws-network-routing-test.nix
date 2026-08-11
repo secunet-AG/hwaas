@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, lib
-, context-api-url-version-prefix
-, debugging ? false
-, modules
-,
+{
+  testers,
+  lib,
+  context-api-url-version-prefix,
+  debugging ? false,
+  modules,
 }:
 let
   serverPort = 8080;
@@ -19,38 +19,33 @@ in
 testers.runNixOSTest {
   name = "ws-network-routing-test";
   node.specialArgs = { inherit modules; };
-  nodes.gateway =
-    { ... }:
-    {
-      imports =
-        [
-          modules.contextapi-module
-          ./test-modules/test-config.nix
-          ./test-modules/mock-contextapi-satellite-rest-services.nix
-          ./test-modules/mock-remote-usb.nix
-          ./test-modules/ws-gateway-mock.nix
-        ]
-        ++ lib.optionals debugging [
-          ./test-modules/debugging.nix
-        ];
+  nodes.gateway = { ... }: {
+    imports = [
+      modules.contextapi-module
+      ./test-modules/test-config.nix
+      ./test-modules/mock-contextapi-satellite-rest-services.nix
+      ./test-modules/mock-remote-usb.nix
+      ./test-modules/ws-gateway-mock.nix
+    ]
+    ++ lib.optionals debugging [ ./test-modules/debugging.nix ];
 
-      context-api-test-config.enable = true;
+    context-api-test-config.enable = true;
 
-      services = {
-        mock-contextapi-satellite-rest-services.enable = true;
-        mock-remote-usb.enable = true;
-        ws-gateway-mock = {
-          enable = true;
-          port = wsEchoPort;
-        };
+    services = {
+      mock-contextapi-satellite-rest-services.enable = true;
+      mock-remote-usb.enable = true;
+      ws-gateway-mock = {
+        enable = true;
+        port = wsEchoPort;
+      };
 
-        contextApi = {
-          enable = true;
-          openFirewall = true;
-          port = serverPort;
-        };
+      contextApi = {
+        enable = true;
+        openFirewall = true;
+        port = serverPort;
       };
     };
+  };
 
   testScript = ''
     import json

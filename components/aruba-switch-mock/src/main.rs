@@ -16,10 +16,10 @@ use std::fs::File;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::{info, Level};
+use tracing::{Level, info};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{filter, fmt, Layer};
+use tracing_subscriber::{Layer, filter, fmt};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, modules
-,
-}:
+{ testers, modules }:
 let
   port = 8080;
 
@@ -30,23 +27,19 @@ testers.nixosTest {
   name = "remote-power-test";
 
   nodes = {
-    sut =
-      { pkgs, ... }:
-      {
-        imports = [
-          modules.remote-power
-        ];
+    sut = { pkgs, ... }: {
+      imports = [ modules.remote-power ];
 
-        services.remote-power = {
-          enable = true;
-          inherit port;
-          configFile = builtins.toFile "remote-power.json" (builtins.toJSON powerConfig);
-        };
-        environment.systemPackages = with pkgs; [
-          httpie
-          util-linux
-        ];
+      services.remote-power = {
+        enable = true;
+        inherit port;
+        configFile = builtins.toFile "remote-power.json" (builtins.toJSON powerConfig);
       };
+      environment.systemPackages = with pkgs; [
+        httpie
+        util-linux
+      ];
+    };
   };
 
   testScript = ''

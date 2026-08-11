@@ -4,13 +4,13 @@
 
 use aide::{
     axum::{
-        routing::{get_with, post_with},
         ApiRouter,
+        routing::{get_with, post_with},
     },
     transform::{TransformOperation, TransformPathItem},
 };
 use axum::extract::rejection::JsonRejection;
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 use std::path::PathBuf;
 use tracing::{debug, error, instrument};
 

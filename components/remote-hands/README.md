@@ -148,23 +148,23 @@ This is a full list of hardware required for a `remote-hands` setup:
 
 - RPI 4 Model B (2GB or more)
 - A PoE (Power-over-Ethernet) board for the RPI
-  - The RPIs original power port is needed for USB OTG.
+    - The RPIs original power port is needed for USB OTG.
 - USB Stick (USB 3 for better speed) or SD card for the RPI
-  - Will be flashed with NixOS for RPI and act as a local hard drive.
-    Generates deterministic and reproducible deployments of `remote-hands`.
+    - Will be flashed with NixOS for RPI and act as a local hard drive.
+      Generates deterministic and reproducible deployments of `remote-hands`.
 - LAN cable for the RPI to the general network
 - Some test hardware/BMR, which can be remote-controlled by `remote-hands`
 - A power solution for the BMR, depending on the selected [power control technology](#remote-power-service)
 - Male USB-C to male USB cable
-  - Is needed to enable the usage of USB OTG. It is connected to the power port
-    of the RPI with the USB-C side. The type of the other side of the cable depends
-    on the ports existing on the BMR.
+    - Is needed to enable the usage of USB OTG. It is connected to the power port
+      of the RPI with the USB-C side. The type of the other side of the cable depends
+      on the ports existing on the BMR.
 - Some form of serial connection via cable
-  - Depending on the BMR a serial cable and a serial-to-USB adapter might be used
-    to plug into one of the RPIs USB ports.
+    - Depending on the BMR a serial cable and a serial-to-USB adapter might be used
+      to plug into one of the RPIs USB ports.
 - Optional: USB power decoupler
-  - Can be added between the USB cable and the BMR
-    so that the RPi does not draw power from the BMR via the USB connection.
+    - Can be added between the USB cable and the BMR
+      so that the RPi does not draw power from the BMR via the USB connection.
 
 ### Cable connections
 

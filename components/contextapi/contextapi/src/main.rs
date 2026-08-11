@@ -5,7 +5,7 @@
 use axum::http::Method;
 use clap::Parser;
 use error_stack::{Report, ResultExt};
-use hunt::{hunt_axum_router, HuntBuilder};
+use hunt::{HuntBuilder, hunt_axum_router};
 use sd_notify::NotifyState;
 use std::fs;
 use std::net::SocketAddr;
@@ -14,8 +14,8 @@ use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::{error, info};
 
-use context_api_lib::api::App;
 use context_api_lib::ContextApiConfig;
+use context_api_lib::api::App;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

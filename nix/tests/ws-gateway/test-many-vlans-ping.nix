@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ nixosTest
-, lib
-, debugging ? false
-, modules
-,
+{
+  nixosTest,
+  lib,
+  debugging ? false,
+  modules,
 }:
 let
   # NixOS module shared between server and switch
@@ -29,9 +29,7 @@ let
   inherit (import ../../lib/vlan-config.nix { inherit lib; }) vlanConfig vlanIfaceName;
 
   # define VLANs for server; the last parameter is the amount;
-  serverVlans = vlanConfig {
-    inherit baseInterface numberOfVlans;
-  };
+  serverVlans = vlanConfig { inherit baseInterface numberOfVlans; };
 
   # define VLANs for switch
   switchVlans = {
@@ -50,60 +48,56 @@ nixosTest {
 
     # The server offers many VLAN interfaces
     # In order to allow a ping, an IP address must be configured
-    server =
-      { ... }:
-      {
-        imports = [
-          sharedModule
-          modules.test-debug-module
+    server = { ... }: {
+      imports = [
+        sharedModule
+        modules.test-debug-module
+      ];
+
+      services.debugging.enable = debugging;
+
+      networking = {
+        interfaces.${baseInterface}.ipv4.addresses = [
+          {
+            address = serverIp;
+            prefixLength = 24;
+          }
         ];
-
-        services.debugging.enable = debugging;
-
-        networking = {
-          interfaces.${baseInterface}.ipv4.addresses = [
-            {
-              address = serverIp;
-              prefixLength = 24;
-            }
-          ];
-          interfaces.${vlanInterface}.ipv4.addresses = [
-            {
-              address = serverIpVlan;
-              prefixLength = 24;
-            }
-          ];
-          vlans = serverVlans;
-        };
+        interfaces.${vlanInterface}.ipv4.addresses = [
+          {
+            address = serverIpVlan;
+            prefixLength = 24;
+          }
+        ];
+        vlans = serverVlans;
       };
+    };
 
     # The switch in this scenario only configures one VLAN interface
     # In order to allow a ping, an IP address must be configured
-    switch =
-      { ... }:
-      {
-        imports = [
-          sharedModule
-          modules.test-debug-module
-        ];
-        services.debugging.enable = debugging;
+    switch = { ... }: {
+      imports = [
+        sharedModule
+        modules.test-debug-module
+      ];
+      services.debugging.enable = debugging;
 
-        networking = {
-          interfaces.${baseInterface}.ipv4.addresses = [
-            {
-              address = switchIp;
-              prefixLength = 24;
-            }
-          ];
-          interfaces.${vlanInterface}.ipv4.addresses = [
-            {
-              address = switchIpVlan;
-              prefixLength = 24;
-            }
-          ];
-          vlans = switchVlans;
-        };
+      networking = {
+        interfaces.${baseInterface}.ipv4.addresses = [
+          {
+            address = switchIp;
+            prefixLength = 24;
+          }
+        ];
+        interfaces.${vlanInterface}.ipv4.addresses = [
+          {
+            address = switchIpVlan;
+            prefixLength = 24;
+          }
+        ];
+        vlans = switchVlans;
       };
+    };
   };
 
   # Disable linting for simpler debugging of the testScript

@@ -4,10 +4,7 @@
 
 # deadnix: skip
 perSystem@{ config, ... }:
-{ config
-, lib
-, ...
-}:
+{ config, lib, ... }:
 let
   rpiStatusDisplayCfg = config.services.rpi-status-display;
   username = "status-display";

@@ -4,10 +4,11 @@
 
 # deadnix: skip
 perSystem@{ config }:
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 let
   maintainerCliCfg = config.services.maintainerCli;
@@ -83,9 +84,7 @@ in
 
   config = lib.mkIf maintainerCliCfg.enable {
 
-    environment.systemPackages = [
-      maintainerCliCfg.package
-    ];
+    environment.systemPackages = [ maintainerCliCfg.package ];
 
     systemd.services.maintainer-cli-init-service = {
       description = "HWaaS Maintainer CLI init task";

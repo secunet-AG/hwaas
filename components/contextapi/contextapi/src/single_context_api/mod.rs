@@ -12,11 +12,11 @@ pub(crate) mod remote_api;
 mod websocket;
 
 use aide::OperationIo;
+use axum::RequestPartsExt;
 use axum::async_trait;
 use axum::extract::{FromRef, FromRequestParts, Path};
 use axum::http::request::Parts;
 use axum::response::{IntoResponse, Response};
-use axum::RequestPartsExt;
 use db_interaction::models::context_id::ContextIdBytes;
 use reqwest::StatusCode;
 

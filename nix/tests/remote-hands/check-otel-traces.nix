@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, modules
-,
-}:
+{ testers, modules }:
 let
   powerPort = 8080;
   serialPort = 8081;
@@ -50,67 +47,65 @@ testers.nixosTest {
   name = "otel-traces-test";
 
   nodes = {
-    sut =
-      { pkgs, ... }:
-      {
+    sut = { pkgs, ... }: {
 
-        imports = [
-          modules.remote-power
-          modules.remote-serial
-          modules.remote-usb
-          modules.remote-auxiliary
-          modules.test-otel-collector
-        ];
+      imports = [
+        modules.remote-power
+        modules.remote-serial
+        modules.remote-usb
+        modules.remote-auxiliary
+        modules.test-otel-collector
+      ];
 
-        systemd.services = {
-          remote-power = {
-            requires = [ "otel-collector.service" ];
-            after = [ "otel-collector.service" ];
-          };
-          remote-serial = {
-            requires = [ "otel-collector.service" ];
-            after = [ "otel-collector.service" ];
-          };
-          remote-auxiliary = {
-            requires = [ "otel-collector.service" ];
-            after = [ "otel-collector.service" ];
-          };
-          remote-usb = {
-            requires = [ "otel-collector.service" ];
-            after = [ "otel-collector.service" ];
-          };
+      systemd.services = {
+        remote-power = {
+          requires = [ "otel-collector.service" ];
+          after = [ "otel-collector.service" ];
         };
-        services = {
-          otelCollector.enable = true;
-          remote-power = {
-            enable = true;
-            port = powerPort;
-            configFile = builtins.toFile "remote-power.json" (builtins.toJSON powerConfig);
-          };
-          remote-serial = {
-            enable = true;
-            port = serialPort;
-            configFile = builtins.toFile "remote-serial.json" (builtins.toJSON serialConfig);
-          };
-          remote-auxiliary = {
-            enable = true;
-            port = auxPort;
-            configFile = builtins.toFile "remote-auxiliary.json" (builtins.toJSON auxiliaryConfig);
-          };
-          remote-usb = {
-            enable = true;
-            port = usbPort;
-            configFile = builtins.toFile "remote-usb.json" (builtins.toJSON usbConfig);
-          };
+        remote-serial = {
+          requires = [ "otel-collector.service" ];
+          after = [ "otel-collector.service" ];
         };
-        environment.systemPackages = with pkgs; [
-          httpie
-          util-linux
-        ];
-
-        # Provide a dummy usb device controller (UDC) for remote-usb.
-        boot.kernelModules = [ "dummy_hcd" ];
+        remote-auxiliary = {
+          requires = [ "otel-collector.service" ];
+          after = [ "otel-collector.service" ];
+        };
+        remote-usb = {
+          requires = [ "otel-collector.service" ];
+          after = [ "otel-collector.service" ];
+        };
       };
+      services = {
+        otelCollector.enable = true;
+        remote-power = {
+          enable = true;
+          port = powerPort;
+          configFile = builtins.toFile "remote-power.json" (builtins.toJSON powerConfig);
+        };
+        remote-serial = {
+          enable = true;
+          port = serialPort;
+          configFile = builtins.toFile "remote-serial.json" (builtins.toJSON serialConfig);
+        };
+        remote-auxiliary = {
+          enable = true;
+          port = auxPort;
+          configFile = builtins.toFile "remote-auxiliary.json" (builtins.toJSON auxiliaryConfig);
+        };
+        remote-usb = {
+          enable = true;
+          port = usbPort;
+          configFile = builtins.toFile "remote-usb.json" (builtins.toJSON usbConfig);
+        };
+      };
+      environment.systemPackages = with pkgs; [
+        httpie
+        util-linux
+      ];
+
+      # Provide a dummy usb device controller (UDC) for remote-usb.
+      boot.kernelModules = [ "dummy_hcd" ];
+    };
   };
 
   # This test checks whether all micro-services emit correct Open-Telemetry

@@ -3,18 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // @ts-check
-import { defineConfig } from "astro/config";
-import tailwindcss from "@tailwindcss/vite";
-import mdx from "@astrojs/mdx";
+import { defineConfig } from 'astro/config'
+import tailwindcss from '@tailwindcss/vite'
+import mdx from '@astrojs/mdx'
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env.NODE_ENV === 'production'
 
 // https://astro.build/config
 export default defineConfig({
-  site: isProd ? "https://secunet-ag.github.io" : "http://localhost:4321",
-  base: isProd ? "/hwaas/" : "/",
-  trailingSlash: "never",
-  build: { format: "file" },
+  site: isProd ? 'https://secunet-ag.github.io' : 'http://localhost:4321',
+  base: isProd ? '/hwaas/' : '/',
+  trailingSlash: 'never',
+  build: { format: 'file' },
   integrations: [mdx()],
   vite: {
     plugins: [tailwindcss()],
@@ -24,7 +24,7 @@ export default defineConfig({
   },
   markdown: {
     shikiConfig: {
-      theme: "catppuccin-mocha",
+      theme: 'catppuccin-mocha',
     },
   },
-});
+})

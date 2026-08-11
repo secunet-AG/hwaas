@@ -2,9 +2,9 @@
 --
 -- SPDX-License-Identifier: Apache-2.0
 
-CREATE TABLE switch_ports(
+CREATE TABLE switch_ports (
     id INTEGER NOT NULL PRIMARY KEY,
     switch TEXT NOT NULL,
     port TEXT NOT NULL,
-    UNIQUE(switch, port)
+    UNIQUE (switch, port)
 )

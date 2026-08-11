@@ -2,26 +2,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ nixosTest
-, lib
-, debugging ? false
-, modules
-,
+{
+  nixosTest,
+  lib,
+  debugging ? false,
+  modules,
 }:
 let
   # NixOS module shared between all VMs
-  sharedModule =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = with pkgs; [
-        iperf
-      ];
-      networking = {
-        firewall.enable = false;
-        dhcpcd.enable = false;
-        useDHCP = false;
-      };
+  sharedModule = { pkgs, ... }: {
+    environment.systemPackages = with pkgs; [ iperf ];
+    networking = {
+      firewall.enable = false;
+      dhcpcd.enable = false;
+      useDHCP = false;
     };
+  };
 
   # const
   clientIpTap = "192.168.1.22";
@@ -177,42 +173,40 @@ nixosTest {
     # For this test, the SUT runs an arbitrary service that the client wants to access.
     # In this particular case the service is a iperf3 server.
     # During the test the client node will pose the iperf3 counterpart.
-    sut =
-      { pkgs, ... }:
-      {
-        # This is/are the network(s) not the vlan :)
-        virtualisation.vlans = [ 3 ];
+    sut = { pkgs, ... }: {
+      # This is/are the network(s) not the vlan :)
+      virtualisation.vlans = [ 3 ];
 
-        imports = [
-          sharedModule
-          modules.test-debug-module
+      imports = [
+        sharedModule
+        modules.test-debug-module
+      ];
+
+      services.debugging.enable = debugging;
+
+      # setup the interface so the client could connect to the service.
+      networking = {
+        interfaces.eth1.ipv4.addresses = lib.mkForce [
+          {
+            address = sutIp;
+            prefixLength = 24;
+          }
         ];
-
-        services.debugging.enable = debugging;
-
-        # setup the interface so the client could connect to the service.
-        networking = {
-          interfaces.eth1.ipv4.addresses = lib.mkForce [
-            {
-              address = sutIp;
-              prefixLength = 24;
-            }
-          ];
-        };
-
-        # start the iperf3 server as systemd service on this system.
-        systemd.services.iperf3-server = {
-          description = "Run the iperf3 server for test scenario";
-          wantedBy = [ "default.target" ];
-          # wait until network is online
-          after = [ "network-online.target" ];
-          wants = [ "network-online.target" ];
-          serviceConfig = {
-            ExecStart = "${pkgs.iperf3}/bin/iperf3 -s -p 7575";
-          };
-        };
-
       };
+
+      # start the iperf3 server as systemd service on this system.
+      systemd.services.iperf3-server = {
+        description = "Run the iperf3 server for test scenario";
+        wantedBy = [ "default.target" ];
+        # wait until network is online
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
+        serviceConfig = {
+          ExecStart = "${pkgs.iperf3}/bin/iperf3 -s -p 7575";
+        };
+      };
+
+    };
   };
 
   # Disable linting for simpler debugging of the testScript

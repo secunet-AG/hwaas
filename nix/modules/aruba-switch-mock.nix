@@ -4,10 +4,11 @@
 
 # deadnix: skip
 perSystem@{ config }:
-{ pkgs
-, config
-, lib
-, ...
+{
+  pkgs,
+  config,
+  lib,
+  ...
 }:
 let
   arubaDummyCfg = config.services.arubaDummySwitch;

@@ -6,8 +6,8 @@ use axum::http::Request;
 use axum_extra::headers::{Error, Header, HeaderName, HeaderValue};
 use schemars::JsonSchema;
 use std::fmt::{Display, Formatter};
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use tower_http::request_id::{MakeRequestId, RequestId};
 
 // A `MakeRequestId` that increments an atomic counter

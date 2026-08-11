@@ -2,22 +2,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ runCommand
-, remote-serial
-, remote-power
-, remote-usb
-, remote-auxiliary
-,
+{
+  runCommand,
+  remote-serial,
+  remote-power,
+  remote-usb,
+  remote-auxiliary,
 }:
 runCommand "generate-remote-hands-openapi-json"
-{
-  nativeBuildInputs = [
-    remote-serial
-    remote-power
-    remote-usb
-    remote-auxiliary
-  ];
-}
+  {
+    nativeBuildInputs = [
+      remote-serial
+      remote-power
+      remote-usb
+      remote-auxiliary
+    ];
+  }
   ''
     mkdir -p $out
     remote-serial-openapi-generator > $out/remote-serial.openapi.json

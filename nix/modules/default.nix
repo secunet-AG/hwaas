@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ moduleWithSystem, ... }:
-{
+{ moduleWithSystem, ... }: {
   flake.nixosModules = {
     aruba-switch-mock = moduleWithSystem (import ./aruba-switch-mock.nix);
     rpi-status-display = moduleWithSystem (import ./rpi-status-display.nix);

@@ -3,11 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 _: {
-  perSystem =
-    { pkgs, self', ... }:
-    {
-      checks.hunt-rust-log = pkgs.callPackage ./rust-log.nix {
-        inherit (self'.packages) hunt;
-      };
-    };
+  perSystem = { pkgs, self', ... }: {
+    checks.hunt-rust-log = pkgs.callPackage ./rust-log.nix { inherit (self'.packages) hunt; };
+  };
 }

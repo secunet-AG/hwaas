@@ -13,14 +13,13 @@ You can extend the setup by just onboarding a new Raspberry Pi and attaching the
 
 This is the monolithic entry point for a HWaaS instance. A typical setup will have a VPN terminate here, with a reverse proxy for routing to each instance's Context API and Web UI.
 
-import Callout from "../../components/Callout.astro";
+import Callout from '../../components/Callout.astro'
 
 <Callout type="danger">
-  The HWaaS is currently NOT a multi-tenant solution. While some care has been
-  taken to ensure that team members will not trample over each other, the
-  current threat model is built around the assumption that each gateway instance
-  is not publicly available and is limited to trusted team members, via a VPN or
-  similar.
+    The HWaaS is currently NOT a multi-tenant solution. While some care has been taken to ensure
+    that team members will not trample over each other, the current threat model is built around the
+    assumption that each gateway instance is not publicly available and is limited to trusted team
+    members, via a VPN or similar.
 </Callout>
 
 The gateway server is typically responsible for monitoring as well, but due to the modularity of the HWaaS, this is all up to each team's discretion.
@@ -34,9 +33,9 @@ The gateway is also responsible for the NFS server used to deliver images to the
 Contexts are the unit of separation for machines under test. They are configured with a default and maximum lifetime.
 
 <Callout type="warning">
-  Anyone with access to the UUID for a context is able to perform various
-  actions with it, such as booting machines, loading images, deleting a context,
-  and all of the `remote-hands` functionality.
+    Anyone with access to the UUID for a context is able to perform various actions with it, such as
+    booting machines, loading images, deleting a context, and all of the `remote-hands`
+    functionality.
 </Callout>
 
 The `contextapi`, typically runs on the [Gateway](#gateway) and handles a number of core tasks:

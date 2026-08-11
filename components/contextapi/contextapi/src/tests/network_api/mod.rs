@@ -6,8 +6,8 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     str::FromStr,
     sync::{
-        atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc, OnceLock,
+        atomic::{AtomicBool, AtomicUsize, Ordering},
     },
     time::Duration,
 };
@@ -17,21 +17,21 @@ use context_data_structures::network::TaggedMachineNetworkInterface;
 use db_interaction::models::aliases::NetworkId;
 use futures::{SinkExt, StreamExt};
 use reqwest::Response;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use test_log::test;
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::{Error, Message};
 use tracing_test::traced_test;
-use wiremock::{matchers::method, Mock, ResponseTemplate};
+use wiremock::{Mock, ResponseTemplate, matchers::method};
 
 use crate::{
-    tests::{test_server_setup::TestServerOutputs, TestServerSetup},
     API_VERSION,
+    tests::{TestServerSetup, test_server_setup::TestServerOutputs},
 };
 use axum::{
+    Router,
     extract::{Path, WebSocketUpgrade},
     http::StatusCode,
-    Router,
 };
 
 // Address of dummy websocket gateway used in the test(s) that need it
@@ -131,27 +131,31 @@ async fn interface_reuse_with_put() {
     let network1_url = format!("http://{addr}/{API_VERSION}/contexts/{ctx_id}/networks/{network1}");
     let client = reqwest::Client::new();
 
-    assert!(client
-        .put(&network1_url)
-        .json(&setup)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        client
+            .put(&network1_url)
+            .json(&setup)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 
     // Using the setup with another network should work.
     let network2 = "bar";
     let network2_url = format!("http://{addr}/{API_VERSION}/contexts/{ctx_id}/networks/{network2}");
 
-    assert!(client
-        .put(&network2_url)
-        .json(&setup)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        client
+            .put(&network2_url)
+            .json(&setup)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 
     // Check that `setup` is now associated with network2
     assert_eq!(
@@ -382,23 +386,27 @@ async fn connection_error_handling() {
                     "lan1": {}
                 }
             });
-            assert!(client
-                .put(&url)
-                .json(&setup)
+            assert!(
+                client
+                    .put(&url)
+                    .json(&setup)
+                    .send()
+                    .await
+                    .unwrap()
+                    .status()
+                    .is_success()
+            );
+        }
+        // Delete the network as we no longer need it here
+        assert!(
+            client
+                .delete(&url)
                 .send()
                 .await
                 .unwrap()
                 .status()
-                .is_success());
-        }
-        // Delete the network as we no longer need it here
-        assert!(client
-            .delete(&url)
-            .send()
-            .await
-            .unwrap()
-            .status()
-            .is_success());
+                .is_success()
+        );
         drop(guard);
         drop(guard2);
         (
@@ -490,14 +498,16 @@ async fn connection_error_handling() {
     );
 
     // The server should return an error code here
-    assert!(client
-        .put(&resource_url)
-        .json(&next_setup)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_server_error());
+    assert!(
+        client
+            .put(&resource_url)
+            .json(&next_setup)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_server_error()
+    );
 
     // Check that the current network setup now consists of can_connect1 and can_connect2.
     // The former is still part of the setup because it could not be disconnected.
@@ -525,13 +535,15 @@ async fn connection_error_handling() {
 
     // Check that when we delete the setup it does not succeed, and
     // the interface that cannot be disconnected remains
-    assert!(client
-        .delete(&resource_url)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_server_error());
+    assert!(
+        client
+            .delete(&resource_url)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_server_error()
+    );
 
     assert_eq!(
         client
@@ -779,14 +791,16 @@ async fn websocket_termination() {
     let client = reqwest::Client::new();
 
     // Create a network with no machines connected to it
-    assert!(client
-        .put(&resource_url)
-        .json(&json!({}))
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        client
+            .put(&resource_url)
+            .json(&json!({}))
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 
     // Check that GET returns an empty network setup
     assert_eq!(
@@ -860,13 +874,15 @@ async fn websocket_termination() {
     let wait_delete_wait = tokio::spawn(async move {
         tokio::time::sleep(Duration::from_millis(50)).await;
         called_delete_clone.store(true, Ordering::Release);
-        assert!(client
-            .delete(&resource_url_clone)
-            .send()
-            .await
-            .unwrap()
-            .status()
-            .is_success());
+        assert!(
+            client
+                .delete(&resource_url_clone)
+                .send()
+                .await
+                .unwrap()
+                .status()
+                .is_success()
+        );
 
         tokio::time::sleep(Duration::from_millis(30)).await
     });
@@ -1000,14 +1016,16 @@ async fn put_patch_get_assert<const EXPECT_SUCCESSFUL_PATCH_RESPONSE: bool>(
     let resource_url =
         format!("http://{addr}/{API_VERSION}/contexts/{ctx_id}/networks/{network_name}");
     let client = reqwest::Client::new();
-    assert!(client
-        .put(&resource_url)
-        .json(&initial_network_setup)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        client
+            .put(&resource_url)
+            .json(&initial_network_setup)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 
     let patch_response_status = client
         .patch(&resource_url)
@@ -1243,14 +1261,16 @@ async fn interface_reuse_in_patch() {
       machine: {interface: {}}
     });
 
-    assert!(client
-        .put(&network1_url)
-        .json(&setup)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        client
+            .put(&network1_url)
+            .json(&setup)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 
     // Create a new network with an empty network setup
     let network2 = "bar";
@@ -1263,14 +1283,16 @@ async fn interface_reuse_in_patch() {
       "op": "add", "path": format!("/{machine}"), "value": {interface: {}}
     }]);
 
-    assert!(client
-        .patch(&network2_url)
-        .json(&patch)
-        .send()
-        .await
-        .unwrap()
-        .status()
-        .is_success());
+    assert!(
+        client
+            .patch(&network2_url)
+            .json(&patch)
+            .send()
+            .await
+            .unwrap()
+            .status()
+            .is_success()
+    );
 
     // Now `setup` should correspond to the state of network2 and network1 should now be empty
     assert_eq!(

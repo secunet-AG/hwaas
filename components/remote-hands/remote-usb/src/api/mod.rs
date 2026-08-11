@@ -8,7 +8,7 @@ mod usb;
 use aide::openapi::OpenApi;
 use axum::{Json, Router};
 use remote_serial::api::serial_router;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::convert::Infallible;
 
 use self::hid::hid_router;

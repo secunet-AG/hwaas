@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use aide::{
-    axum::{routing::get_with, ApiRouter},
+    axum::{ApiRouter, routing::get_with},
     transform::{TransformOperation, TransformPathItem},
 };
-use axum::{http::StatusCode, Json};
+use axum::{Json, http::StatusCode};
 
 use super::ExtractAux;
 use crate::api::activation_info::AuxiliaryDevice;

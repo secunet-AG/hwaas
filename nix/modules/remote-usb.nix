@@ -4,10 +4,11 @@
 
 # deadnix: skip
 perSystem@{ config, ... }:
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 let
   cfg = config.services.remote-usb;
@@ -65,10 +66,9 @@ in
 
     systemd.services.remote-usb =
       let
-        tokioConsole = lib.strings.optionalString
-          (
-            !builtins.isNull cfg.consoleAddress
-          ) "--tokio-console-address ${cfg.consoleAddress}";
+        tokioConsole = lib.strings.optionalString (
+          !builtins.isNull cfg.consoleAddress
+        ) "--tokio-console-address ${cfg.consoleAddress}";
       in
       {
         description = "HWaaS remote-usb";
@@ -87,25 +87,24 @@ in
           # For modprobe
           "/run/current-system/sw"
         ];
-        serviceConfig =
-          {
-            Type = "notify";
-            ExecStart = ''
-              ${cfg.package}/bin/remote-usb \
-                          -vv \
-                          ${tokioConsole} \
-                          --address ${cfg.address} \
-                          --port ${toString cfg.port} \
-                          --config-file ${cfg.configFile}
-            '';
-            WorkingDirectory = runDir;
-            TimeoutStartSec = "45min";
-          }
-          // lib.optionalAttrs (cfg.port <= 1024) {
-            # For ports below 1024 a special capability is needed additionaly (CAP_NET_BIND_SERVICE)
-            CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
-            AmbientCapabilities = "CAP_NET_BIND_SERVICE";
-          };
+        serviceConfig = {
+          Type = "notify";
+          ExecStart = ''
+            ${cfg.package}/bin/remote-usb \
+                        -vv \
+                        ${tokioConsole} \
+                        --address ${cfg.address} \
+                        --port ${toString cfg.port} \
+                        --config-file ${cfg.configFile}
+          '';
+          WorkingDirectory = runDir;
+          TimeoutStartSec = "45min";
+        }
+        // lib.optionalAttrs (cfg.port <= 1024) {
+          # For ports below 1024 a special capability is needed additionaly (CAP_NET_BIND_SERVICE)
+          CapabilityBoundingSet = "CAP_NET_BIND_SERVICE";
+          AmbientCapabilities = "CAP_NET_BIND_SERVICE";
+        };
       };
 
     systemd.tmpfiles.rules = [ "d ${runDir} 775 root root" ];

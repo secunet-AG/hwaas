@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&family=Geist:ital,wght@0,100..900;1,100..900&display=swap");
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&family=Geist:ital,wght@0,100..900;1,100..900&display=swap');
+@import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: "Geist", sans-serif;
-  --font-mono: "Geist Mono", monospace;
+  --font-sans: 'Geist', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
 }
 
 :root {
@@ -27,8 +27,8 @@
 
   --app-border: #45484d;
 
-  --scalar-font: "Geist", sans-serif;
-  --scalar-font-code: "Geist Mono", monospace;
+  --scalar-font: 'Geist', sans-serif;
+  --scalar-font-code: 'Geist Mono', monospace;
 
   --scalar-border-color: var(--app-border);
   --scalar-background-1: var(--app-background);

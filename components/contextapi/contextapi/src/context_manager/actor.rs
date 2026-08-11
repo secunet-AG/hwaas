@@ -35,9 +35,9 @@ use tokio_stream::StreamMap;
 use tracing::{debug, error, info, info_span, instrument, trace, warn};
 
 use crate::{
+    NetCtrlClient,
     context_manager::{context_permit::ContextAccess, context_termination::terminate_context},
     remote_client::RemoteClient,
-    NetCtrlClient,
 };
 
 use super::message::ContextManagerMessage;
@@ -211,7 +211,9 @@ async fn run_context_manager(
                 }
                 Err(e) => {
                     span.in_scope(|| {
-                        log_err!("failed to retrieve context lifetime from the database. Retrying later.")(&e)
+                        log_err!(
+                            "failed to retrieve context lifetime from the database. Retrying later."
+                        )(&e)
                     });
                     // We retry by issuing a new timeout command
                     const TIMEOUT_RETRY_DURATION: Duration = Duration::from_secs(5);

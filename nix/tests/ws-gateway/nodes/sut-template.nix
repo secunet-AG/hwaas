@@ -2,17 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ debugging
-, sharedModule
-, test-debug-module
-,
-}:
-{ hostnet, ip }:
-{ pkgs
-, lib
-, ...
-}:
 {
+  debugging,
+  sharedModule,
+  test-debug-module,
+}:
+{ hostnet, ip }: { pkgs, lib, ... }: {
   # This is/are the network(s) not the vlan :)
   virtualisation.vlans = [ hostnet ];
 

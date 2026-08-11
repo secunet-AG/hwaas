@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::backend::InventoryBackendApi;
 use crate::SwitchMapping;
+use crate::backend::InventoryBackendApi;
 use async_trait::async_trait;
 use libc::{EBADMSG, ENOENT};
 use std::path::PathBuf;

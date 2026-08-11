@@ -4,7 +4,7 @@
 
 use crate::serial::byte_ring::ByteRing;
 use std::sync::Arc;
-use tokio::sync::{broadcast, mpsc, RwLock};
+use tokio::sync::{RwLock, broadcast, mpsc};
 
 /// Shared state for one serial device.
 ///

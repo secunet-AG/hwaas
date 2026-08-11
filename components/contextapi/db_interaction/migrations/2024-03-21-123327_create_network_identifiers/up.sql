@@ -2,6 +2,6 @@
 --
 -- SPDX-License-Identifier: Apache-2.0
 
-CREATE TABLE network_identifiers(
+CREATE TABLE network_identifiers (
     id SMALLINT NOT NULL PRIMARY KEY
 )

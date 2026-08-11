@@ -4,10 +4,11 @@
 
 # deadnix: skip
 perSystem@{ config }:
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
 let
   contextCfg = config.services.contextApi;
@@ -84,10 +85,9 @@ in
 
     systemd.services.context-api =
       let
-        tokioConsole = lib.strings.optionalString
-          (
-            !builtins.isNull contextCfg.consoleAddress
-          ) "--tokio-console-address ${contextCfg.consoleAddress}";
+        tokioConsole = lib.strings.optionalString (
+          !builtins.isNull contextCfg.consoleAddress
+        ) "--tokio-console-address ${contextCfg.consoleAddress}";
         configFile = pkgs.writeText "contextAPI configuration.json" (builtins.toJSON contextCfg.config);
       in
       {
@@ -102,29 +102,28 @@ in
           OTEL_TRACES_SAMPLER = "always_on";
           OTEL_LOG_LEVEL = "info";
         };
-        serviceConfig =
-          {
-            Type = "notify";
-            User = "${username}";
-            ExecStart = ''
-              ${contextCfg.package}/bin/contextapi \
-                          -vv \
-                          --address ${contextCfg.address} \
-                          --port ${builtins.toString contextCfg.port} \
-                          --config-file ${configFile} ${tokioConsole}
-            '';
-            WorkingDirectory = "${runDir}";
-            # use custom kill signal to trigger graceful shutdown
-            KillSignal = "SIGINT";
-            CapabilityBoundingSet = "CAP_NET_RAW";
-            AmbientCapabilities = "CAP_NET_RAW";
-            TimeoutStartSec = "45min";
-          }
-          // lib.attrsets.optionalAttrs (contextCfg.port <= 1024) {
-            # For ports below 1024 a special capability is needed additionaly (CAP_NET_BIND_SERVICE)
-            CapabilityBoundingSet = "CAP_NET_BIND_SERVICE CAP_NET_RAW";
-            AmbientCapabilities = "CAP_NET_BIND_SERVICE CAP_NET_RAW";
-          };
+        serviceConfig = {
+          Type = "notify";
+          User = "${username}";
+          ExecStart = ''
+            ${contextCfg.package}/bin/contextapi \
+                        -vv \
+                        --address ${contextCfg.address} \
+                        --port ${builtins.toString contextCfg.port} \
+                        --config-file ${configFile} ${tokioConsole}
+          '';
+          WorkingDirectory = "${runDir}";
+          # use custom kill signal to trigger graceful shutdown
+          KillSignal = "SIGINT";
+          CapabilityBoundingSet = "CAP_NET_RAW";
+          AmbientCapabilities = "CAP_NET_RAW";
+          TimeoutStartSec = "45min";
+        }
+        // lib.attrsets.optionalAttrs (contextCfg.port <= 1024) {
+          # For ports below 1024 a special capability is needed additionaly (CAP_NET_BIND_SERVICE)
+          CapabilityBoundingSet = "CAP_NET_BIND_SERVICE CAP_NET_RAW";
+          AmbientCapabilities = "CAP_NET_BIND_SERVICE CAP_NET_RAW";
+        };
       };
 
     systemd.tmpfiles.rules = [ "d ${runDir} 775 ${username} ${groupname}" ];

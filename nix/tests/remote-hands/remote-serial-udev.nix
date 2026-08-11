@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ testers
-, modules
-,
-}:
+{ testers, modules }:
 let
   port = 8080;
   serialPath = "/dev/ttyS0";
@@ -16,23 +13,21 @@ let
       inherit name;
 
       nodes = {
-        sut =
-          { pkgs, ... }:
-          {
-            imports = [ modules.remote-serial ];
+        sut = { pkgs, ... }: {
+          imports = [ modules.remote-serial ];
 
-            services.remote-serial = {
-              enable = true;
-              inherit port;
-              configFile = builtins.toFile "remote-serial.json" (builtins.toJSON serialConfig);
-            };
-
-            environment.systemPackages = with pkgs; [
-              httpie
-              websocat
-              util-linux
-            ];
+          services.remote-serial = {
+            enable = true;
+            inherit port;
+            configFile = builtins.toFile "remote-serial.json" (builtins.toJSON serialConfig);
           };
+
+          environment.systemPackages = with pkgs; [
+            httpie
+            websocat
+            util-linux
+          ];
+        };
       };
 
       inherit testScript;
