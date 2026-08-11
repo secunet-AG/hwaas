@@ -23,6 +23,7 @@ byteorder = { version = "1" }
 cookie = { version = "0.18", default-features = false, features = ["percent-encode"] }
 crossbeam-utils = { version = "0.8" }
 either = { version = "1", features = ["use_std"] }
+fastrand = { version = "2" }
 form_urlencoded = { version = "1" }
 futures = { version = "0.3" }
 futures-channel = { version = "0.3", features = ["sink"] }
@@ -56,6 +57,7 @@ serde_core = { version = "1", features = ["alloc"] }
 serde_json = { version = "1", features = ["raw_value"] }
 slab = { version = "0.4" }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
+strum = { version = "0.27", features = ["derive"] }
 sync_wrapper = { version = "1", default-features = false, features = ["futures"] }
 thiserror = { version = "2" }
 time = { version = "0.3", features = ["formatting", "macros", "parsing"] }
@@ -78,6 +80,7 @@ anyhow = { version = "1" }
 byteorder = { version = "1" }
 displaydoc = { version = "0.2", default-features = false, features = ["std"] }
 either = { version = "1", features = ["use_std"] }
+fastrand = { version = "2" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 once_cell = { version = "1" }
 serde = { version = "1", features = ["derive"] }

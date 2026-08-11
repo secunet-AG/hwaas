@@ -30,6 +30,7 @@ diesel.workspace = true
 displaydoc.workspace = true
 futures.workspace = true
 hex.workspace = true
+phf.workspace = true
 regex.workspace = true
 schemars.workspace = true
 serde.workspace = true
@@ -47,6 +48,8 @@ workspace-hack = { version = "0.1", path = "../../workspace-hack" }
 [dev-dependencies]
 tempfile.workspace = true
 assert_fs.workspace = true
+serde_json.workspace = true
+strum = "*"
 # This crate is actually helpful since calling `tracing_subscriber...init()`
 # multiple times within the same test binary causes a panic inside tracing
 # since a global default subscriber has already been defined. We could check

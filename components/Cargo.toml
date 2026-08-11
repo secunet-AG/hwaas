@@ -148,6 +148,10 @@ opentelemetry_sdk = { version = "0.27.1", default-features = false, features = [
   "trace",
 ] }
 pastey = { version = "0.2", default-features = false }
+phf = { version = "0.11", default-features = false, features = [
+  "std",
+  "macros",
+] }
 predicates = { version = "3", default-features = false }
 rand = { version = "0.8.5", default-features = false, features = ["std"] }
 regex = { version = "1.7.0", default-features = false }
