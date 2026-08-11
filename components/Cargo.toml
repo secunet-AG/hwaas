@@ -115,6 +115,10 @@ nom = "7.1.1"
 opentelemetry = { version = "0.27.1", features = ["trace"] }
 opentelemetry_sdk = "0.27.1"
 pastey = "0.2"
+phf = { version = "0.11", default-features = false, features = [
+  "std",
+  "macros",
+] }
 predicates = "3"
 rand = "0.8.5"
 regex = "1.7.0"

@@ -9,13 +9,14 @@
 //!
 //! [`ImageHandler`]: crate::ImageHandler
 
+use crate::architectures::Architecture;
 use crate::sha256hash::Sha256Hash;
 use db_interaction::models::bmr_image_metadata::{
     ImageMetadata as ModelImageMetadata, ImageTag as ModelImageTag,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
+use std::{str::FromStr as _, time::SystemTime};
 
 /// Type alias for tag names.
 pub type TagName = String;
@@ -65,7 +66,7 @@ pub struct ImageMetadata {
     // NOTE: `SystemTime` is chosen for compat with an earlier API version
     pub created: SystemTime,
     /// Compilation target architecture
-    pub architecture: Option<String>,
+    pub architecture: Option<Architecture>,
     /// Arbitrary user-defined tags with extra information
     pub tags: Vec<ImageTag>,
 }
@@ -90,6 +91,14 @@ impl ImageMetadata {
             column: "size",
             cause: error.to_string(),
         })?;
+        let architecture = if let Some(ref arch) = metadata.architecture {
+            Some(Architecture::from_str(arch).map_err(|error| InvalidEntry {
+                column: "architecture",
+                cause: error.to_string(),
+            })?)
+        } else {
+            None
+        };
         let tags = tags.into_iter().map(ImageTag::from).collect::<Vec<_>>();
 
         Ok(Self {
@@ -97,7 +106,7 @@ impl ImageMetadata {
             file_name: metadata.file_name,
             size,
             created: metadata.created_utc.into(),
-            architecture: metadata.architecture,
+            architecture,
             tags,
         })
     }
