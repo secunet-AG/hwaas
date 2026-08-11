@@ -4,6 +4,8 @@ members = [
   "aruba-switch-mock",
   "hunt",
   "rpi-status-display",
+  "ws-gateway",
+  "ws-proxy-client",
 ]
 
 [workspace.package]
@@ -23,29 +25,46 @@ unsafe_code = "forbid"
 all = "deny"
 
 [workspace.dependencies]
-axum = "0.7"
+afpacket = { version = "0.2.3", features = ["async-tokio"] }
+aide = { version = "0.13.5", features = [
+  "axum",
+  "axum-extra",
+  "axum-headers",
+  "axum-ws",
+  "macros",
+] }
+axum = { version = "0.7", features = ["ws", "macros"] }
+axum-extra = { version = "0.9.6", features = ["typed-routing", "typed-header"] }
 axum-tracing-opentelemetry = "0.18.1"
 clap = { version = "4.3.4", features = ["derive"] }
 console-subscriber = "0.2"
 dashmap = { version = "5.4", features = ["serde"] }
 embedded-graphics = "0.8.0"
 embedded-hal = "1.0.0-alpha.9"
+etherparse = "0.13.0"
 futures = "0.3"
+futures-util = { version = "0.3", default-features = false, features = [
+  "sink",
+  "std",
+] }
+hunt = { path = "./hunt" }
 init-tracing-opentelemetry = { version = "0.18.1", features = [
   "tracing_subscriber_ext",
   "otlp",
 ] }
+nom = "7.1.1"
 opentelemetry = { version = "0.22.0", features = ["trace"] }
 opentelemetry_sdk = "0.22.1"
 reqwest = { version = "0.12.4" }
 reqwest-middleware = { version = "0.4" }
 rppal = { version = "0.14.1", features = ["hal"] }
-schemars = "0.8"
+schemars = { version = "0.8", features = ["derive"] }
+sd-notify = "0.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sh1106 = "0.5.0"
 ssd1306 = "0.8.0"
-tracing-opentelemetry-instrumentation-sdk = "0.18.1"
+thiserror = "2.0"
 task-local-extensions = "0.1"
 tokio = { version = "1.23", features = [
   "io-util",
@@ -56,6 +75,8 @@ tokio = { version = "1.23", features = [
   "tracing",
   "signal",
 ] }
+tokio-tun = "0.7.0"
+tokio-tungstenite = { version = "0.26.1", features = ["stream"] }
 tower = "0.5.0"
 tower-cookies = "0.10.0"
 tower-http = { version = "0.5.2", default-features = false, features = [
@@ -67,10 +88,12 @@ tower-http = { version = "0.5.2", default-features = false, features = [
 tracing = "0.1"
 tracing-journald = "0.3.0"
 tracing-opentelemetry = "0.23.0"
+tracing-opentelemetry-instrumentation-sdk = "0.18.1"
 tracing-subscriber = { version = "0.3", features = [
   "ansi",
   "env-filter",
   "fmt",
   "json",
 ] }
+url = "2.4.0"
 uuid = { version = "1.2", features = ["v4"] }
