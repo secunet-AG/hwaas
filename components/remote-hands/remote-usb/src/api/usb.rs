@@ -52,7 +52,7 @@ async fn handle_get_usb<T: UsbConfigurable>(
     // Loop over function information and set path to be the filename whenever we
     // encounter the storage variant.
     for info in &mut infos {
-        if let UsbFunctionInfo::Storage { ref mut luns } = info {
+        if let UsbFunctionInfo::Storage { luns } = info {
             for lun in luns {
                 lun.path = PathBuf::from(&lun.path)
                     .file_name()

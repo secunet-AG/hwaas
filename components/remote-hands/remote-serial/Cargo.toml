@@ -1,9 +1,14 @@
 [package]
-name = "remote-serial"
-edition = "2021"
+authors.workspace = true
 default-run = "remote-serial"
+description = "Manage serial connections to remote devices under test"
+edition.workspace = true
+license.workspace = true
+name = "remote-serial"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "1.0.0"
-license = "Apache-2.0"
 
 [lib]
 name = "remote_serial"
@@ -21,35 +26,23 @@ path = "src/bin/openapi-generator.rs"
 workspace = true
 
 [dependencies]
-aide = { version = "0.13", features = [
-  "axum",
-  "axum-extra",
-  "axum-ws",
-  "macros",
-] }
-axum = { version = "0.7", features = ["macros", "ws"] }
-schemars = "0.8"
+aide.workspace = true
+axum.workspace = true
+schemars.workspace = true
 serde.workspace = true
-serde_json = "1"
-serial2-tokio = { version = "0.1", features = ["serde"] }
+serde_json.workspace = true
+serial2-tokio.workspace = true
 remote-axum.workspace = true
 remote-init.workspace = true
-tracing = "0.1"
-tokio = { version = "1", features = [
-  "rt-multi-thread",
-  "macros",
-  "process",
-  "tracing",
-  "full",
-] }
-remote-hands-workspace-hack = { version = "0.1", path = "../remote-hands-workspace-hack" }
-futures = "0.3.32"
-tokio-util = "0.7.18"
+tracing.workspace = true
+tokio.workspace = true
+futures.workspace = true
+tokio-util.workspace = true
 
 [dev-dependencies]
-tokio-test = "0.4.5"
-bytes = "1.11.1"
-tower = "0.5.3"
-tokio-tungstenite = "0.24.0"
-dashmap = "7.0.0-rc2"
-axum-test = { version = "16.4.1", features = ["ws"] }
+tokio-test.workspace = true
+bytes.workspace = true
+tower.workspace = true
+tokio-tungstenite.workspace = true
+dashmap.workspace = true
+axum-test.workspace = true

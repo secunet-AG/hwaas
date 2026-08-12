@@ -1,8 +1,13 @@
 [package]
+authors.workspace = true
+description = "Shared bootstrapping of CLI and config file handling for remote-hands components"
+edition.workspace = true
+license.workspace = true
 name = "remote-init"
-edition = "2021"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "1.0.0"
-license = "Apache-2.0"
 
 [lib]
 name = "remote_init"
@@ -12,10 +17,9 @@ path = "src/lib.rs"
 workspace = true
 
 [dependencies]
-clap = { version = "4", features = ["derive"] }
+clap.workspace = true
 hunt.workspace = true
 serde.workspace = true
-serde_json = "1"
-tokio = { version = "1", features = ["signal", "sync"] }
-tracing = "0.1"
-remote-hands-workspace-hack = { version = "0.1", path = "../remote-hands-workspace-hack" }
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
