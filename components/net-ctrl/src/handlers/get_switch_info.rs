@@ -8,12 +8,11 @@ use axum::extract::{Path, State};
 use std::sync::Arc;
 use tracing::instrument;
 
-use crate::handlers::external_api_errors::ExtApiError;
-use connection_handler::ConnectionHandler;
-use network_type_ids::PortRepresentation;
-use switch::SwitchAPI;
-
+use crate::connection_handler::ConnectionHandler;
 use crate::handlers::PathParamsSwitchID;
+use crate::handlers::external_api_errors::ExtApiError;
+use crate::network_type_ids::PortRepresentation;
+use crate::switch::SwitchAPI;
 
 /// Requests information about a single Switch.
 ///

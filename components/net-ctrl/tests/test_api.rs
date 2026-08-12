@@ -4,13 +4,15 @@
 
 use axum::http::StatusCode;
 use axum_test_helper::TestClient;
-use inventory::{InventoryDummyBackend, SwitchMapping, SwitchModelDetail};
+use net_ctrl_lib::network_type_ids::{
+    Credentials, CriticalPorts, PortID, SwitchDetails, SwitchID, VlanID,
+};
+use net_ctrl_lib::switch::SwitchModel;
+use net_ctrl_lib::{InventoryDummyBackend, SwitchMapping, SwitchModelDetail};
 use net_ctrl_lib::{SetupData, get_router};
-use network_type_ids::{Credentials, CriticalPorts, PortID, SwitchDetails, SwitchID, VlanID};
 use std::net::{IpAddr, Ipv4Addr};
 use std::str::FromStr;
 use std::sync::Arc;
-use switch::SwitchModel;
 use test_log::test;
 
 async fn get_test_client() -> (TestClient, Arc<SwitchMapping>) {

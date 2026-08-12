@@ -9,12 +9,11 @@ use axum::http::StatusCode;
 use std::sync::Arc;
 use tracing::{debug, instrument, warn};
 
-use crate::handlers::external_api_errors::ExtApiError;
-use connection_handler::ConnectionHandler;
-use network_type_ids::{PortID, SwitchID, VlanID};
-use switch::SwitchAPI;
-
+use crate::connection_handler::ConnectionHandler;
 use crate::handlers::PathParamsSwitchAndPortID;
+use crate::handlers::external_api_errors::ExtApiError;
+use crate::network_type_ids::{PortID, SwitchID, VlanID};
+use crate::switch::SwitchAPI;
 
 /// Adds the port as untagged with the given port_id to the Vlan with the given vlan_id on the switch identified by switch_id.
 ///

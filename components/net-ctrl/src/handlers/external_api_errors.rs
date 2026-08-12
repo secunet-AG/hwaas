@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::connection_handler::ConnectionHandlerError;
+use crate::network_type_ids::IDParseError;
+use crate::switch::{SwitchApiError, SwitchSetupError};
 use aide::OperationOutput;
 use aide::r#gen::GenContext;
 use aide::openapi::Operation;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use connection_handler::ConnectionHandlerError;
-use network_type_ids::IDParseError;
-use switch::{SwitchApiError, SwitchSetupError};
 
 #[derive(Debug, Clone)]
 pub struct ExtApiError(StatusCode, String);
@@ -67,8 +67,7 @@ impl OperationOutput for ExtApiError {
                 Fix: Try again later, check if the switch failed or the physical connection is disrupted.",
             ),
         ];
-        let res = v
-            .iter()
+        v.iter()
             .map(|(c, d)| {
                 (
                     Some(c.as_u16()),
@@ -78,8 +77,7 @@ impl OperationOutput for ExtApiError {
                     },
                 )
             })
-            .collect();
-        res
+            .collect()
     }
 }
 

@@ -4,7 +4,8 @@
 
 use std::net::SocketAddr;
 
-use connection_handler::ConnectionHandler;
+use crate::connection_handler::ConnectionHandler;
+use crate::inventory::{InventoryBackend, InventoryConnector};
 use external::api::{disable_port, enable_port, get_switch_info, get_switches, setup_switch};
 use external::api::{
     okapi_add_operation_for_disable_port_, okapi_add_operation_for_enable_port_,
@@ -12,7 +13,6 @@ use external::api::{
     okapi_add_operation_for_setup_switch_,
 };
 use external::{ExtApiError, ExtApiErrorContent};
-use inventory::{InventoryBackend, InventoryConnector};
 
 use crate::ConnectionHandlerShutdownFairing;
 
@@ -42,8 +42,6 @@ async fn parse_bad_request(_req: &Request<'_>) -> ExtApiError {
 
 #[cfg(test)]
 mod golden_test {
-    use pretty_assertions::assert_eq;
-
     use crate::openapi;
 
     #[test]

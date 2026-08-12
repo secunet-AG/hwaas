@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
-use connection_handler::SwitchMapping;
 use error_stack::{Context, Report, Result, ResultExt};
+use net_ctrl_lib::SwitchMapping;
 use schemars::schema_for;
 use std::path::PathBuf;
 use std::str::FromStr;

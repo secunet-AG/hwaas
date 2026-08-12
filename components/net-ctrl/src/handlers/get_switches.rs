@@ -8,9 +8,9 @@ use axum::extract::State;
 use std::sync::Arc;
 use tracing::instrument;
 
+use crate::connection_handler::ConnectionHandler;
+use crate::connection_handler::SwitchMapping;
 use crate::handlers::external_api_errors::ExtApiError;
-use connection_handler::ConnectionHandler;
-use connection_handler::SwitchMapping;
 
 /// Requests a list of all Switches.
 ///

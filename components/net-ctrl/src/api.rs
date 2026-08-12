@@ -11,8 +11,8 @@ use axum::Router;
 use axum::http::{Method, StatusCode, Uri};
 use tracing::debug;
 
-use connection_handler::{ConnectionHandler, ConnectionHandlerError};
-use inventory::{InventoryBackend, InventoryConnector};
+use crate::connection_handler::{ConnectionHandler, ConnectionHandlerError};
+use crate::inventory::{InventoryBackend, InventoryConnector};
 
 use crate::app_state::AppState;
 use crate::handlers::{get_switch_info, get_switches, handle_ports, setup_switch};

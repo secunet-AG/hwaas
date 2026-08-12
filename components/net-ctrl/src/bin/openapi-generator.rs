@@ -5,7 +5,7 @@
 use clap::Parser;
 use error_stack::Report;
 use error_stack::{Context, Result, ResultExt};
-use inventory::InventoryDummyBackend;
+use net_ctrl_lib::InventoryDummyBackend;
 use net_ctrl_lib::get_api;
 use std::fmt;
 use std::fs;
