@@ -13,5 +13,11 @@ pub enum ClientError {
     #[error("Bad URL format")]
     BadURL(#[from] url::ParseError),
     #[error("Establishing websocket connection failed")]
-    ConnectionFailure(#[from] tokio_tungstenite::tungstenite::Error),
+    ConnectionFailure(Box<tokio_tungstenite::tungstenite::Error>),
+}
+
+impl From<tokio_tungstenite::tungstenite::Error> for ClientError {
+    fn from(value: tokio_tungstenite::tungstenite::Error) -> Self {
+        Self::ConnectionFailure(Box::new(value))
+    }
 }

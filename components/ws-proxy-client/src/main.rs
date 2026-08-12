@@ -54,9 +54,8 @@ async fn main() -> Result<(), ClientError> {
             info!("Finished");
         })
     }
-    .map_err(|e| {
+    .inspect_err(|e| {
         error!("{}", e.to_string());
-        e
     })
 }
 
