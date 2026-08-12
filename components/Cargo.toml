@@ -3,6 +3,7 @@ resolver = "3"
 members = [
   "aruba-switch-mock",
   "hunt",
+  "remote-hands/remote-*",
   "rpi-status-display",
   "ws-gateway",
   "ws-proxy-client",
@@ -35,26 +36,34 @@ aide = { version = "0.13.5", features = [
 ] }
 axum = { version = "0.7", features = ["ws", "macros"] }
 axum-extra = { version = "0.9.6", features = ["typed-routing", "typed-header"] }
+axum-test = { version = "16.4.1", features = ["ws"] }
 axum-tracing-opentelemetry = "0.18.1"
+bytes = "1.11.1"
 clap = { version = "4.3.4", features = ["derive"] }
 console-subscriber = "0.2"
 dashmap = { version = "5.4", features = ["serde"] }
 embedded-graphics = "0.8.0"
 embedded-hal = "1.0.0-alpha.9"
+enum_dispatch = "0.3"
 etherparse = "0.13.0"
 futures = "0.3"
 futures-util = { version = "0.3", default-features = false, features = [
   "sink",
   "std",
 ] }
+hidg = "0.2.0"
 hunt = { path = "./hunt" }
 init-tracing-opentelemetry = { version = "0.18.1", features = [
   "tracing_subscriber_ext",
   "otlp",
 ] }
+itertools = "0.13.0"
 nom = "7.1.1"
 opentelemetry = { version = "0.22.0", features = ["trace"] }
 opentelemetry_sdk = "0.22.1"
+remote-axum = { path = "./remote-hands/remote-axum/" }
+remote-init = { path = "./remote-hands/remote-init/" }
+remote-serial = { path = "./remote-hands/remote-serial/" }
 reqwest = { version = "0.12.4" }
 reqwest-middleware = { version = "0.4" }
 rppal = { version = "0.14.1", features = ["hal"] }
@@ -62,6 +71,7 @@ schemars = { version = "0.8", features = ["derive"] }
 sd-notify = "0.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serial2-tokio = { version = "0.1", features = ["serde"] }
 sh1106 = "0.5.0"
 ssd1306 = "0.8.0"
 thiserror = "2.0"
@@ -70,13 +80,16 @@ tokio = { version = "1.23", features = [
   "io-util",
   "macros",
   "net",
+  "process",
   "rt-multi-thread",
+  "signal",
   "sync",
   "tracing",
-  "signal",
 ] }
+tokio-test = "0.4.5"
 tokio-tun = "0.7.0"
 tokio-tungstenite = { version = "0.26.1", features = ["stream"] }
+tokio-util = "0.7.18"
 tower = "0.5.0"
 tower-cookies = "0.10.0"
 tower-http = { version = "0.5.2", default-features = false, features = [
@@ -96,4 +109,7 @@ tracing-subscriber = { version = "0.3", features = [
   "json",
 ] }
 url = "2.4.0"
+urlencoding = "2.1.3"
+usb-gadget = "0.7"
+usbd-hid-macros = "0.7.0"
 uuid = { version = "1.2", features = ["v4"] }

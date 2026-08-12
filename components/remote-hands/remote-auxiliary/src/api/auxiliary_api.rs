@@ -13,8 +13,9 @@ use aide::{
 use axum::body::Bytes;
 use axum::extract::{DefaultBodyLimit, Path};
 use axum::handler::Handler;
-use axum::http::{HeaderMap, Method, StatusCode, Uri};
+use axum::http::{HeaderMap, Method, StatusCode};
 use axum::response::Response;
+use reqwest::Url;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -131,10 +132,10 @@ fn create_url(
     url: &str,
     path_suffix: Option<String>,
     query: HashMap<String, String>,
-) -> Result<Uri, ()> {
+) -> Result<Url, ()> {
     match path_suffix {
-        None => url_with_query(url.to_string(), query).parse::<Uri>(),
-        Some(suf) => url_with_query(format!("{}/{}", url, suf), query).parse::<Uri>(),
+        None => url_with_query(url.to_string(), query).parse::<Url>(),
+        Some(suf) => url_with_query(format!("{}/{}", url, suf), query).parse::<Url>(),
     }
     .map_err(|e| {
         warn!("could not build URL: {}", e);

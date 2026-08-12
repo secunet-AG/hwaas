@@ -3,32 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use axum::body::Bytes;
-use axum::http::{HeaderMap, Method, StatusCode, Uri};
-use axum::response::{IntoResponse, Response};
-use tracing::{error, trace, warn};
+use axum::http::{HeaderMap, Method, StatusCode};
+use axum::response::Response;
+use reqwest::Url;
+use tracing::{trace, warn};
 
 /// Send an HTTP request with the given parameters to an auxiliary device.
 pub async fn send_aux_request(
     method: Method,
-    url: Uri,
+    url: Url,
     headers: HeaderMap,
     body: Option<Bytes>,
 ) -> Result<Response, (StatusCode, &'static str)> {
-    // Build request with url and method
-    let mut req = hyper::Request::builder().uri(url).method(method);
-
-    // Insert headers to request
-    insert_response_headers(req.headers_mut(), headers)?;
-
-    // Add body to request
-    let req = req.body(body.unwrap_or_default()).map_err(|e| {
-        warn!("Auxiliary Device request failed: {}", e);
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Error occurred while forwarding the request internally",
-        )
-    })?;
-
     // Execute request and await response
     let response = reqwest::Client::builder()
         .build()
@@ -39,13 +25,10 @@ pub async fn send_aux_request(
                 "Cannot build HTTP client",
             )
         })?
-        .execute(req.try_into().map_err(|e| {
-            warn!("Cannot send HTTP request: {}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Cannot send HTTP request",
-            )
-        })?)
+        .request(method, url)
+        .headers(headers)
+        .body(body.unwrap_or_default())
+        .send()
         .await
         .map_err(|e| {
             warn!("Auxiliary Device request failed: {}", e);
@@ -56,29 +39,21 @@ pub async fn send_aux_request(
         })?;
     trace!("send_aux_request res: {:?}", response.status());
 
-    Ok(http::Response::from(response).into_response())
-}
-
-/// Helper function to insert headers into a HeaderMap
-fn insert_response_headers(
-    hdrs: Option<&mut HeaderMap>,
-    headers: HeaderMap,
-) -> Result<(), (StatusCode, &'static str)> {
-    let Some(hdrs) = hdrs else {
-        error!("Failed to build response: could not get headers (ResponseBuilder error)");
-        return Err((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not build response",
-        ));
-    };
-
-    for (k, v) in headers {
-        if let Some(k) = k {
-            hdrs.insert(k, v);
-        } else {
-            warn!("Empty header key for value: {:?}", v);
-        }
+    // Inspired by: <https://github.com/tokio-rs/axum/blob/151cd5c12325373b86daf405a6afc0a0086a6706/examples/reqwest-response/src/main.rs>
+    let mut response_builder = axum::response::Response::builder().status(response.status());
+    if let Some(hdr_map) = response_builder.headers_mut() {
+        *hdr_map = response.headers().clone();
     }
-
-    Ok(())
+    response_builder
+        .body(axum::body::Body::from(response.bytes().await.unwrap()))
+        .map_err(|e| {
+            warn!(
+                "failed to translate auxiliary device response into valid format: {:?}",
+                e
+            );
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Error while processing auxiliary device response",
+            )
+        })
 }

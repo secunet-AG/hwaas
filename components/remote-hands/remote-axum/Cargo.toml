@@ -1,8 +1,13 @@
 [package]
+authors.workspace = true
+description = "Shared bootstrapping of an axum router for remote-hands components"
+edition.workspace = true
+license.workspace = true
 name = "remote-axum"
-edition = "2021"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "1.0.0"
-license = "Apache-2.0"
 
 [lib]
 name = "remote_axum"
@@ -12,13 +17,12 @@ path = "src/lib.rs"
 workspace = true
 
 [dependencies]
-aide = { version = "0.13", features = ["axum", "axum-extra", "macros"] }
-axum = "0.7"
+aide.workspace = true
+axum.workspace = true
 hunt.workspace = true
-sd-notify = "0.4"
-serde = "1"
-serde_json = "1"
+sd-notify.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 remote-init.workspace = true
-tokio = { version = "1", features = ["signal", "sync"] }
-tracing = "0.1"
-remote-hands-workspace-hack = { version = "0.1", path = "../remote-hands-workspace-hack" }
+tokio.workspace = true
+tracing.workspace = true
