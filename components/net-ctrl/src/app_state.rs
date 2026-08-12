@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use axum::extract::FromRef;
 
-use connection_handler::ConnectionHandler;
+use crate::connection_handler::ConnectionHandler;
 
 /// full state of the app
 /// Handlers receive a clone of this state from the Axum framework.

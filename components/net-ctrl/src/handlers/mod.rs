@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use network_type_ids::{PortID, SwitchID};
+use crate::network_type_ids::{PortID, SwitchID};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

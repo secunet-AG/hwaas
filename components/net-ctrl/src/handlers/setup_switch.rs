@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::connection_handler::ConnectionHandler;
+use crate::switch::SwitchAPI;
 use aide::transform::TransformOperation;
 use axum::Json;
 use axum::extract::{Path, State};
-use connection_handler::ConnectionHandler;
 use std::sync::Arc;
-use switch::SwitchAPI;
 use tracing::instrument;
 use tracing::{debug, warn};
 

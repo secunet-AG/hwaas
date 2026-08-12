@@ -2,15 +2,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::inventory::{InventoryDummyBackend, SwitchMapping, SwitchModelDetail};
+use crate::network_type_ids::{
+    Credentials, CriticalPorts, PortID, SwitchDetails, SwitchID, VlanID,
+};
+use crate::switch::SwitchModel;
 use axum::http::StatusCode;
 use axum_test_helper::TestClient;
-use inventory::{InventoryDummyBackend, SwitchMapping, SwitchModelDetail};
 use net_ctrl_lib::{SetupData, get_router};
-use network_type_ids::{Credentials, CriticalPorts, PortID, SwitchDetails, SwitchID, VlanID};
 use std::net::{IpAddr, Ipv4Addr};
 use std::str::FromStr;
 use std::sync::Arc;
-use switch::SwitchModel;
 use test_log::test;
 
 async fn get_test_client() -> (TestClient, Arc<SwitchMapping>) {
