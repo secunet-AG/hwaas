@@ -39,8 +39,8 @@ impl From<VlanID> for ArubaVlanId {
 
 #[cfg(test)]
 mod test {
-    use crate::aruba::aruba_vlan_id::ArubaVlanId;
     use crate::network_type_ids::VlanID;
+    use crate::switch::aruba::aruba_vlan_id::ArubaVlanId;
     use serde_json::json;
 
     #[test]

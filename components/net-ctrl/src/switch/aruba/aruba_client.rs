@@ -606,8 +606,8 @@ async fn handle_response(response: UnwrappedResponse) -> Result<(), (StatusCode,
 
 #[cfg(test)]
 mod test {
-    use crate::aruba::aruba_client::ArubaClient;
     use crate::network_type_ids::{CriticalPorts, SwitchDetails, VlanID};
+    use crate::switch::aruba::aruba_client::ArubaClient;
     use reqwest_cookie_store::CookieStoreMutex;
     use reqwest_middleware::ClientBuilder;
     use std::net::{IpAddr, Ipv4Addr};

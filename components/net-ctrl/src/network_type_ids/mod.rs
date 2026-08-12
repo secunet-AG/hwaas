@@ -10,6 +10,6 @@ mod vlan_id;
 
 pub use port_id::PortID;
 pub use port_representation::PortRepresentation;
-pub use switch_details::SwitchDetails;
+pub use switch_details::{Credentials, CriticalPorts, SwitchDetails};
 pub use switch_id::SwitchID;
 pub use vlan_id::{IDParseError, VlanID};

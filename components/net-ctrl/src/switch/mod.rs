@@ -11,5 +11,6 @@ mod switch_api_errors;
 mod switch_setup_error;
 
 pub use api::{SwitchAPI, SwitchBackend, SwitchModel};
+pub use dummy::dummy_test_switch::DummyTestSwitch;
 pub use switch_api_errors::SwitchApiError;
 pub use switch_setup_error::SwitchSetupError;

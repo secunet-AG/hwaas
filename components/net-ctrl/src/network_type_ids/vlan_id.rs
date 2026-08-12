@@ -112,7 +112,7 @@ impl Display for VlanID {
 
 #[cfg(test)]
 mod tests {
-    use crate::VlanID;
+    use crate::network_type_ids::VlanID;
     use serde_json::json;
 
     #[test]

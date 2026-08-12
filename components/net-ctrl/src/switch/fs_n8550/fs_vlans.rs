@@ -27,7 +27,7 @@ pub(crate) struct FSN8550VlansVlanIdContainer {
 
 #[cfg(test)]
 mod test {
-    use crate::fs_n8550::fs_vlans::{
+    use crate::switch::fs_n8550::fs_vlans::{
         FSN8550VlansContainer, FSN8550VlansModule, FSN8550VlansVlanIdContainer,
     };
     use serde_json::json;

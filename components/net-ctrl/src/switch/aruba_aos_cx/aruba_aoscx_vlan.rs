@@ -49,8 +49,8 @@ impl TryInto<VlanID> for &ArubaAosCxVlan {
 
 #[cfg(test)]
 mod test {
-    use crate::aruba_aos_cx::aruba_aoscx_vlan::ArubaAosCxVlan;
     use crate::network_type_ids::VlanID;
+    use crate::switch::aruba_aos_cx::aruba_aoscx_vlan::ArubaAosCxVlan;
     use serde_json::json;
 
     #[test]
