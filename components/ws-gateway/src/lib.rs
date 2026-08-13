@@ -80,7 +80,6 @@ pub fn get_router(interface_prefix: String) -> Router<()> {
 }
 
 #[tracing::instrument(skip(ws, conn, peer, addr))]
-#[axum::debug_handler]
 async fn handler(
     State(conn): State<ConnectionHandler>,
     TypedHeader(peer): TypedHeader<PeerID>,

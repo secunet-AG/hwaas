@@ -7,8 +7,6 @@ use crate::inventory::backend::InventoryBackendApi;
 use async_trait::async_trait;
 use std::path::PathBuf;
 use system_error::Error as SysError;
-use tokio::fs;
-use tracing::warn;
 
 pub struct PushInventoryFileBackend {
     _file_path: PathBuf,
@@ -28,16 +26,5 @@ impl PushInventoryFileBackend {
 impl InventoryBackendApi for PushInventoryFileBackend {
     async fn get_switch_mapping(&self) -> Result<SwitchMapping, SysError> {
         Ok(self.mapping.clone())
-    }
-
-    async fn update(&mut self) {
-        let contents = fs::read_to_string(&self._file_path)
-            .await
-            .map_err(|e| warn!("{}", e))
-            .unwrap_or_default();
-
-        self.mapping = serde_json::from_str::<SwitchMapping>(contents.as_str())
-            .map_err(|e| warn!("{}", e))
-            .unwrap_or_default();
     }
 }

@@ -12,8 +12,6 @@ use system_error::Error as SysError;
 #[enum_dispatch]
 pub trait InventoryBackendApi {
     async fn get_switch_mapping(&self) -> Result<SwitchMapping, SysError>;
-
-    async fn update(&mut self);
 }
 
 #[enum_dispatch(InventoryBackendApi)]

@@ -33,8 +33,4 @@ impl InventoryBackendApi for InventoryDummyBackend {
     async fn get_switch_mapping(&self) -> Result<SwitchMapping, SysError> {
         Ok(self.current.clone())
     }
-
-    async fn update(&mut self) {
-        self.current = InventoryDummyBackend::temp_to_current(self._temp.clone())
-    }
 }

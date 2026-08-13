@@ -35,8 +35,4 @@ impl InventoryBackendApi for PullInventoryFileBackend {
             })?,
         )
     }
-
-    async fn update(&mut self) {
-        // nothing to do - the file is read at the next `get_switch_mapping` is called
-    }
 }

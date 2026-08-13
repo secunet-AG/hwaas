@@ -85,7 +85,7 @@ impl TapDev {
                 continue;
             }
 
-            let msg = Message::Binary(buf[..read].to_vec().into());
+            let msg = Message::Binary(buf[..read].to_vec());
 
             if let Err(e) = tx.send(msg).await {
                 warn!("Could not send: {:?}", e);
