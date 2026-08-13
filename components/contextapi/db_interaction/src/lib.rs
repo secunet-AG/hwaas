@@ -5,5 +5,4 @@
 pub mod connection;
 pub mod models;
 pub mod schema;
-#[cfg(feature = "test_utils")]
 pub mod test_utils;

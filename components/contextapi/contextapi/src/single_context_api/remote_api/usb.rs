@@ -261,7 +261,7 @@ fn drives_to_hashes(
     functions: &mut [UsbFunctionConfig],
 ) -> Result<(), (StatusCode, &'static str)> {
     for function in functions {
-        if let UsbFunctionConfig::Storage { ref mut luns } = function {
+        if let UsbFunctionConfig::Storage { luns } = function {
             for lun in luns {
                 let drive = &lun.path;
                 let hash = drives
@@ -280,7 +280,7 @@ fn hashes_to_drives(
     functions: &mut [UsbFunctionInfo],
 ) -> Result<(), (StatusCode, &'static str)> {
     for function in functions {
-        if let UsbFunctionInfo::Storage { ref mut luns } = function {
+        if let UsbFunctionInfo::Storage { luns } = function {
             for lun in luns {
                 let hash = Sha256Hash(lun.path.clone());
                 let Some((drive, _)) = drives.iter().find(|(_k, v)| **v == hash) else {

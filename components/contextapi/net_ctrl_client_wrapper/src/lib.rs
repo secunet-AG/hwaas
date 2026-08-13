@@ -50,7 +50,7 @@ impl NetCtrlClient {
     pub async fn disable_port(
         &self,
         switch_port: &db_interaction::models::machines::SwitchPort,
-    ) -> Result<(), impl std::error::Error + Send + Sync + 'static> {
+    ) -> Result<(), impl std::error::Error + Send + Sync + 'static + use<>> {
         net_ctrl_client::apis::default_api::switches_switch_id_ports_port_id_delete(
             &self.config,
             &switch_port.port.clone(),

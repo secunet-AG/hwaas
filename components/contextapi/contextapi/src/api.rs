@@ -16,7 +16,6 @@ use std::time::Duration;
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
 use tower_http::BoxError;
-use tower_http::timeout::TimeoutLayer;
 use tracing::{debug, warn};
 
 use crate::api_merge_remote::merge_remote_oas;
@@ -31,6 +30,10 @@ use crate::single_context_api::{
 };
 use crate::{API_VERSION, ContextApiConfig, NetCtrlClient, inventory, single_context_api};
 use image_api::{ImageHandler, IntoImageHandler, get_image_api_router};
+
+const MILLIS_PER_SECOND: u64 = 1000;
+const SECONDS_PER_DAY: u64 = 86400;
+const MILLIS_PER_DAY: u64 = MILLIS_PER_SECOND * SECONDS_PER_DAY;
 
 pub fn get_api(app_conf: ContextApiConfig) -> OpenApi {
     router_with_api(UnImplementedState {}, &app_conf).1
@@ -54,11 +57,9 @@ where
             // `timeout` will produce an error if the handler takes
             // too long, so we must handle those
             .layer(HandleErrorLayer::new(handle_error))
-            .option_layer(
-                option_timeout
-                    .map(Duration::from_millis)
-                    .map(|dur| TimeoutLayer::with_status_code(StatusCode::REQUEST_TIMEOUT, dur)),
-            )
+            .timeout(Duration::from_millis(
+                option_timeout.unwrap_or(MILLIS_PER_DAY),
+            ))
     };
 
     let single_context_router = single_context_api::get_router::single_context_router::<S>(
