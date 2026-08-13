@@ -1,8 +1,12 @@
 [package]
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
 name = "remote_client"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
 
 [lib]
 name = "remote_client"
@@ -16,4 +20,3 @@ axum.workspace = true
 db_interaction.workspace = true
 reqwest.workspace = true
 tracing.workspace = true
-contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }

@@ -29,7 +29,7 @@
           };
 
           cargoToml = "${project.baseCratePath}/Cargo.toml";
-          cargoLock = "${project.baseCratePath}/Cargo.lock";
+          cargoLock = ../components/Cargo.lock;
 
           # Common crane arguments can be set here to avoid repeating them later
           commonArgs = {
@@ -145,28 +145,6 @@
                 cargoNextestExtraArgs = lib.optionalString projectValue.hasWorkspaces "--workspace";
               }
             );
-          }
-          // lib.optionalAttrs projectValue.hasWorkspaces {
-
-            # Ensure that cargo-hakari is up to date
-            hakari = craneLib.mkCargoDerivation (
-              perProjectCfg.commonArgs
-              // {
-                inherit (perProjectCfg) src;
-                pname = "${projectName}-hakari";
-                cargoArtifacts = null;
-                doInstallCargoArtifacts = false;
-
-                buildPhaseCargoCommand = ''
-                  cargo hakari generate --diff  # workspace-hack Cargo.toml is up-to-date
-                  cargo hakari manage-deps --dry-run  # all workspace crates depend on workspace-hack
-                  cargo hakari verify
-                '';
-
-                nativeBuildInputs = [ pkgs.cargo-hakari ];
-              }
-            );
-
           }
         ))
       );

@@ -201,7 +201,6 @@ pub struct ExtraImageStoreData {
 /// # Returns
 /// An empty Ok on success and a status code and message on error.
 #[instrument(skip(multipart))]
-#[axum::debug_handler]
 async fn post_image(
     State(image_handler): State<ImageHandler>,
     Query(mut metadata): Query<ExtraImageStoreData>,

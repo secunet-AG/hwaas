@@ -2,6 +2,15 @@
 resolver = "3"
 members = [
   "aruba-switch-mock",
+  "contextapi/context_data_structures",
+  "contextapi/contextapi",
+  "contextapi/db_interaction",
+  "contextapi/error_utils",
+  "contextapi/image_api",
+  "contextapi/machine_ops_lib",
+  "contextapi/net_ctrl_client",
+  "contextapi/net_ctrl_client_wrapper",
+  "contextapi/remote_client",
   "hunt",
   "net-ctrl",
   "remote-hands/remote-*",
@@ -30,60 +39,107 @@ all = "deny"
 afpacket = { version = "0.2.3", features = ["async-tokio"] }
 aide = { version = "0.13.5", features = [
   "axum",
+  "axum-multipart",
   "axum-extra",
   "axum-headers",
   "axum-ws",
   "macros",
 ] }
+anyhow = "1"
+assert_fs = "1"
+assert-json-diff = "2"
+async-compression = { version = "0.4", default-features = false, features = [
+  "zstd",
+  "tokio",
+] }
+async-stream = "0.3.5"
 async-trait = "0.1.53"
-axum = { version = "0.7", features = ["ws", "macros"] }
+axum = { version = "0.7", features = ["ws", "macros", "json", "multipart"] }
 axum-extra = { version = "0.9.6", features = ["typed-routing", "typed-header"] }
 axum-test = { version = "16.4.1", features = ["ws"] }
 axum-test-helper = "0.4"
-axum-tracing-opentelemetry = "0.18.1"
+axum-tracing-opentelemetry = "0.24.0"
 base64 = "0.22.1"
 bytes = "1.11.1"
+bytesize = { version = "2.0.1", features = ["serde"] }
+chrono = { version = "0.4", default-features = false, features = [
+  "std",
+  "clock",
+  "serde",
+] }
 clap = { version = "4.3.4", features = ["derive"] }
-console-subscriber = "0.2"
+console-subscriber = "0.4.1"
+context_data_structures = { path = "./contextapi/context_data_structures/" }
+contextapi = { path = "./contextapi/contextapi/" }
 dashmap = { version = "5.4", features = ["serde"] }
+db_interaction = { path = "./contextapi/db_interaction/" }
+deadpool-diesel = { version = "0.6", features = ["sqlite", "rt_tokio_1"] }
+diesel = { version = "2", default-features = false, features = [
+  "chrono",
+  "sqlite",
+  "returning_clauses_for_sqlite_3_35",
+] }
+diesel_migrations = { version = "2", default-features = false, features = [
+  "sqlite",
+] }
+either = { version = "1", features = ["use_std"] }
 embedded-graphics = "0.8.0"
 embedded-hal = "1.0.0-alpha.9"
 enum_dispatch = "0.3"
 error-stack = "0.4"
+error_utils = { path = "contextapi/error_utils/" }
 etherparse = "0.13.0"
 futures = "0.3"
 futures-util = { version = "0.3", default-features = false, features = [
   "sink",
   "std",
 ] }
+hex = "0.4.3"
 hidg = "0.2.0"
 http = "1.1.0"
 hunt = { path = "./hunt" }
-init-tracing-opentelemetry = { version = "0.18.1", features = [
+image_api = { path = "./contextapi/image_api/" }
+init-tracing-opentelemetry = { version = "0.24.2", features = [
   "tracing_subscriber_ext",
   "otlp",
 ] }
 itertools = "0.13.0"
 libc = "0.2.132"
+machine_ops_lib = { path = "./contextapi/machine_ops_lib" }
+net_ctrl_client = { path = "./contextapi/net_ctrl_client" }
+net_ctrl_client_wrapper = { path = "./contextapi/net_ctrl_client_wrapper" }
 nom = "7.1.1"
-opentelemetry = { version = "0.22.0", features = ["trace"] }
-opentelemetry_sdk = "0.22.1"
+opentelemetry = { version = "0.27.1", features = ["trace"] }
+opentelemetry_sdk = "0.27.1"
+paste = { version = "1" }
+rand = "0.8.5"
+regex = "1.7.0"
 remote-axum = { path = "./remote-hands/remote-axum/" }
+remote_client = { path = "./contextapi/remote_client/" }
 remote-init = { path = "./remote-hands/remote-init/" }
 remote-serial = { path = "./remote-hands/remote-serial/" }
-reqwest = { version = "0.12.4", features = ["multipart"] }
-reqwest-middleware = { version = "0.4", features = ["json", "multipart"] }
+remote-usb = { path = "./remote-hands/remote-usb/" }
+reqwest = { version = "0.12.4", features = ["multipart", "json", "stream"] }
+reqwest-middleware = { version = "0.4", features = [
+  "json",
+  "multipart",
+  "rustls-tls",
+] }
 reqwest_cookie_store = "0.8.0"
 rppal = { version = "0.14.1", features = ["hal"] }
-schemars = { version = "0.8", features = ["derive"] }
+schemars = { version = "0.8", features = ["derive", "uuid", "uuid1"] }
 sd-notify = "0.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_with = { version = "3.8", default-features = false, features = ["std"] }
 serial2-tokio = { version = "0.1", features = ["serde"] }
+sha2 = "0.10.6"
 sh1106 = "0.5.0"
 ssd1306 = "0.8.0"
+strum_macros = { version = "0.26", default-features = false }
 system_error = "0.2.0"
 task-local-extensions = "0.1"
+tempfile = "3.3.0"
 test-log = "0.2"
 thiserror = "2.0"
 tokio = { version = "1.23", features = [
@@ -95,15 +151,18 @@ tokio = { version = "1.23", features = [
   "rt-multi-thread",
   "signal",
   "sync",
+  "time",
   "tracing",
 ] }
+tokio-stream = { version = "0.1.11", features = ["fs"] }
 tokio-test = "0.4.5"
 tokio-tun = "0.7.0"
-tokio-tungstenite = { version = "0.26.1", features = ["stream"] }
-tokio-util = "0.7.18"
+tokio-tungstenite = { version = "0.24.0", features = ["stream"] }
+tokio-util = { version = "0.7.18", features = ["io"] }
 tower = "0.5.0"
 tower-cookies = "0.10.0"
 tower-http = { version = "0.5.2", default-features = false, features = [
+  "cors",
   "trace",
   "request-id",
   "limit",
@@ -111,16 +170,19 @@ tower-http = { version = "0.5.2", default-features = false, features = [
 ] }
 tracing = "0.1"
 tracing-journald = "0.3.0"
-tracing-opentelemetry = "0.23.0"
-tracing-opentelemetry-instrumentation-sdk = "0.18.1"
+tracing-opentelemetry = "0.28.0"
+tracing-opentelemetry-instrumentation-sdk = "0.24.2"
 tracing-subscriber = { version = "0.3", features = [
   "ansi",
   "env-filter",
   "fmt",
   "json",
 ] }
-url = "2.4.0"
+tracing-test = "0.2"
+trait-variant = "0.1"
+url = { version = "2.4.0", features = ["serde"] }
 urlencoding = "2.1.3"
 usb-gadget = "0.7"
 usbd-hid-macros = "0.7.0"
-uuid = { version = "1.2", features = ["v4"] }
+uuid = { version = "1.2", features = ["v4", "fast-rng", "serde"] }
+wiremock = "0.6"

@@ -1,8 +1,13 @@
 [package]
+authors.workspace = true
+description = "Unified database access"
+edition.workspace = true
+license.workspace = true
 name = "db_interaction"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
 
 [lib]
 name = "db_interaction"
@@ -12,8 +17,9 @@ path = "src/lib.rs"
 workspace = true
 
 [dependencies]
+assert_fs.workspace = true
 chrono.workspace = true
-context_data_structures = { workspace = true, features = ["aliases"] }
+context_data_structures.workspace = true
 deadpool-diesel.workspace = true
 diesel.workspace = true
 diesel_migrations.workspace = true
@@ -23,11 +29,3 @@ serde.workspace = true
 strum_macros.workspace = true
 tokio.workspace = true
 uuid.workspace = true
-contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }
-
-[features]
-test_utils = ["assert_fs"]
-
-[dependencies.assert_fs]
-optional = true
-workspace = true
