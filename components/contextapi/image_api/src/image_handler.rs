@@ -228,18 +228,18 @@ impl ImageHandler {
 
         let mut files_in_store = tokio::fs::read_dir(&self.store_path)
             .await
-            .with_context(|| format!("failed to read files in {:?}", &self.store_path))?;
+            .with_context(|| format!("failed to read files in {:?}", self.store_path))?;
         let err_entry = || {
             format!(
                 "failed to read next directory entry im image store {:?}",
-                &self.store_path,
+                self.store_path,
             )
         };
 
         // Check all files in the filesystem first
         while let Some(entry) = files_in_store.next_entry().await.with_context(err_entry)? {
             let raw_entry_path = entry.path();
-            let err_context = || format!("failed to prune file {:?}", &raw_entry_path);
+            let err_context = || format!("failed to prune file {:?}", raw_entry_path);
 
             if !raw_entry_path.is_file() {
                 debug!(entry = %raw_entry_path.display(), "skipping entry in image store since it's not a file");
@@ -677,8 +677,8 @@ impl ImageHandler {
     ///
     /// Returns the number of tags added to the image.
     #[tracing::instrument(skip(self))]
-    pub async fn add_tags_to_image<'a, T: IntoIterator<Item = TagName> + std::fmt::Debug>(
-        &'a self,
+    pub async fn add_tags_to_image<T: IntoIterator<Item = TagName> + std::fmt::Debug>(
+        &self,
         tags: T,
         image: &Sha256Hash,
     ) -> Result<usize, ImageHandlerError> {
@@ -716,8 +716,8 @@ impl ImageHandler {
     ///
     /// Returns the number of tags deleted from the image.
     #[tracing::instrument(skip(self))]
-    pub async fn remove_tags_from_image<'a, T: IntoIterator<Item = TagName> + std::fmt::Debug>(
-        &'a self,
+    pub async fn remove_tags_from_image<T: IntoIterator<Item = TagName> + std::fmt::Debug>(
+        &self,
         tags: T,
         image: &Sha256Hash,
     ) -> Result<usize, ImageHandlerError> {

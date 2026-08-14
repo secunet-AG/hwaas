@@ -8,23 +8,23 @@ use std::pin::Pin;
 use aide::axum::routing::get_with;
 use aide::axum::{ApiRouter, IntoApiResponse};
 use aide::transform::{TransformOperation, TransformPathItem};
+use axum::Json;
 use axum::extract::{DefaultBodyLimit, State};
 use axum::extract::{FromRef, Query};
 use axum::extract::{Multipart, Path};
 use axum::http::{Response, StatusCode};
 use axum::response::IntoResponse;
-use axum::Json;
 use bytesize::ByteSize;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use tower_http::limit::RequestBodyLimitLayer;
 use tracing::{debug, instrument};
 
+use crate::ImageTag;
 use crate::architectures::Architecture;
 use crate::db::ImageMetadata;
 use crate::image_handler::ImageHandler;
 use crate::sha256hash::Sha256Hash;
-use crate::ImageTag;
 
 /// Generic result type for API responses.
 type ApiResult<T> = Result<T, Response<axum::body::Body>>;

@@ -11,7 +11,7 @@ mod image_file_path;
 mod image_handler;
 pub mod sha256hash;
 
-pub use image_api::{get_image_api_router, Compression, ExtraImageStoreData};
+pub use image_api::{Compression, ExtraImageStoreData, get_image_api_router};
 pub use image_api_settings::ImageApiSettings;
 pub use image_handler::{
     ImageHandler, ImageHandlerError, ImageMetadata, ImageTag, IntoImageHandler,
