@@ -3,7 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ws-proxy:
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   wsCfg = config.services.websocketProxyClient;
   username = "wsclient";
@@ -26,9 +31,9 @@ let
     };
   };
 
-  mkServices = lib.mapAttrs' (iface: net: lib.nameValuePair
-    "websocket-proxy-client-${iface}"
-    {
+  mkServices = lib.mapAttrs' (
+    iface: net:
+    lib.nameValuePair "websocket-proxy-client-${iface}" {
       description = "HWaaS Websocket L2 Proxy Client for ${iface}";
       wantedBy = [ "multi-user.target" ];
       # wait until network is online
@@ -50,7 +55,8 @@ let
         StartLimitBurst = 5;
         StartLimitIntervalSec = 30;
       };
-    });
+    }
+  );
 in
 {
   options.services.websocketProxyClient = {
@@ -66,8 +72,12 @@ in
       type = lib.types.attrsOf networkOptions;
       default = { };
       example = {
-        tap0 = { uri = "ws://192.168.1.24/ws/1"; };
-        tap1 = { envFile = "/var/lib/hwaas/network.conf"; };
+        tap0 = {
+          uri = "ws://192.168.1.24/ws/1";
+        };
+        tap1 = {
+          envFile = "/var/lib/hwaas/network.conf";
+        };
       };
       description = "List of websocket interfaces/networks to connect.";
     };
@@ -75,13 +85,14 @@ in
 
   config = lib.mkIf wsCfg.enable {
 
-    assertions = builtins.attrValues (builtins.mapAttrs
-      (_: net: {
+    assertions = builtins.attrValues (
+      builtins.mapAttrs (_: net: {
         assertion = (net.uri != null) != (net.envFile != null);
-        message = ''Either uri or envFile is required for each websocketProxyClient network entry.
-                  Please specify exactly one.'';
-      })
-      wsCfg.networks);
+        message = ''
+          Either uri or envFile is required for each websocketProxyClient network entry.
+                            Please specify exactly one.'';
+      }) wsCfg.networks
+    );
 
     users.users.${username} = {
       isNormalUser = true;

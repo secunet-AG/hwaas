@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ lib, modulesPath, ... }:
-{
+{ lib, modulesPath, ... }: {
   imports = [
     ./hwaas-test-base.nix
     "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"

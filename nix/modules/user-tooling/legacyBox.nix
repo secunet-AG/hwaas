@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ hwaasTestLegacyBios }:
-{ pkgs, lib, ... }: {
+{ hwaasTestLegacyBios }: { pkgs, lib, ... }: {
   imports = [
     # Nixos installer image with legacy bios support
     hwaasTestLegacyBios

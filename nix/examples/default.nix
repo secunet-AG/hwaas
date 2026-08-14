@@ -16,9 +16,7 @@ in
         (final: _: {
           hwaasTimer = config.packages.user-tooling-hwaasTimer;
 
-          hwaasTest = import ../../user-tooling/packages/hwaas-integration-test {
-            pkgs = final;
-          };
+          hwaasTest = import ../../user-tooling/packages/hwaas-integration-test { pkgs = final; };
         })
       ];
     in

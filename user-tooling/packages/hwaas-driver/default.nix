@@ -22,9 +22,7 @@ let
       py.setuptools-scm
     ];
 
-    dependencies = [
-      py.prettytable
-    ];
+    dependencies = [ py.prettytable ];
   };
 
   generallyAllowedLicenses = [
@@ -57,16 +55,18 @@ let
       license = "MPL-2.0 AND MIT";
     }
   ];
-  licenseExceptionsPackagesString = pkgs.lib.strings.concatMapStringsSep " " (p: p.package) licenseExceptions;
-  licenseExceptionsLicensesString = pkgs.lib.strings.concatMapStringsSep ";" (p: p.license) licenseExceptions;
+  licenseExceptionsPackagesString = pkgs.lib.strings.concatMapStringsSep " " (
+    p: p.package
+  ) licenseExceptions;
+  licenseExceptionsLicensesString = pkgs.lib.strings.concatMapStringsSep ";" (
+    p: p.license
+  ) licenseExceptions;
 in
 pkgs.python3Packages.buildPythonPackage {
   name = "hwaas-driver";
   src = ./.;
 
-  nativeBuildInputs = with pkgs.python3Packages; [
-    setuptools
-  ];
+  nativeBuildInputs = with pkgs.python3Packages; [ setuptools ];
 
   propagatedBuildInputs = with pkgs.python3Packages; [
     benchmarkDataCollector
@@ -79,7 +79,15 @@ pkgs.python3Packages.buildPythonPackage {
   pyproject = true;
 
   doCheck = true;
-  nativeCheckInputs = with pkgs.python3Packages; [ black mypy pkgs.ruff pytest responses types-tqdm pip-licenses ];
+  nativeCheckInputs = with pkgs.python3Packages; [
+    black
+    mypy
+    pkgs.ruff
+    pytest
+    responses
+    types-tqdm
+    pip-licenses
+  ];
   checkPhase = ''
     echo "## run mypy"
     mypy hwaas_driver

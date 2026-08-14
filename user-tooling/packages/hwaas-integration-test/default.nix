@@ -23,7 +23,7 @@ let
   checkTestconfig = import ../../../nix/lib/user-tooling/check-testconfig { inherit lib; };
 in
 helpers
-  // {
+// {
   inherit checkTestconfig;
 
   filterTestConfig =
@@ -41,8 +41,9 @@ helpers
     removeAttrs hwaasTestConfig hwaasConfigOnlyAttributes;
 
   mkTestConfig =
-    { extraPythonPackages ? _: [ ]
-    , ...
+    {
+      extraPythonPackages ? _: [ ],
+      ...
     }@hwaasTestConfig:
     let
       benchmarkDataCollector = pkgs.callPackage ../benchmark-data-collector { };
@@ -60,12 +61,13 @@ helpers
     };
 
   mkTestScript =
-    { name
-    , testScript
-    , machines ? { }
-    , networks ? { }
-    , apiUrl
-    , ...
+    {
+      name,
+      testScript,
+      machines ? { },
+      networks ? { },
+      apiUrl,
+      ...
     }:
     testScriptArgs:
     let
@@ -103,26 +105,21 @@ helpers
 
   mkTest =
     let
-      standardNixosTestConfig =
-        { lib, ... }:
-        {
-          config.nixpkgs.pkgs = lib.mkDefault pkgs;
-        };
+      standardNixosTestConfig = { lib, ... }: { config.nixpkgs.pkgs = lib.mkDefault pkgs; };
     in
     (import "${pkgs.path}/nixos/lib/testing-python.nix" {
       inherit (pkgs.stdenv.hostPlatform) system;
       inherit pkgs;
-      extraConfigurations = [
-        standardNixosTestConfig
-      ];
+      extraConfigurations = [ standardNixosTestConfig ];
     }).simpleTest;
 
   __functor =
-    { filterTestConfig
-    , mkTest
-    , mkTestConfig
-    , mkTestScript
-    , ...
+    {
+      filterTestConfig,
+      mkTest,
+      mkTestConfig,
+      mkTestScript,
+      ...
     }:
     hwaasTestConfig:
     let
@@ -132,7 +129,5 @@ helpers
 
       test = mkTest testConfig;
     in
-    lib.recursiveUpdate test {
-      meta.tag = "nix-integration-test";
-    };
+    lib.recursiveUpdate test { meta.tag = "nix-integration-test"; };
 }

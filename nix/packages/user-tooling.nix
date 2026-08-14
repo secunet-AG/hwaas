@@ -5,8 +5,14 @@
 { pkgs, ... }:
 
 rec {
-  user-tooling-benchmarkDataCollector = pkgs.callPackage ../../user-tooling/packages/benchmark-data-collector { };
+  user-tooling-benchmarkDataCollector =
+    pkgs.callPackage ../../user-tooling/packages/benchmark-data-collector
+      { };
   user-tooling-hwaasDataUpload = pkgs.callPackage ../../user-tooling/packages/data-upload { };
-  user-tooling-hwaasPythonDriver = pkgs.callPackage ../../user-tooling/packages/hwaas-driver { benchmarkDataCollector = user-tooling-benchmarkDataCollector; };
-  user-tooling-hwaasTimer = pkgs.python3Packages.callPackage ../../user-tooling/packages/hwaas-timer { };
+  user-tooling-hwaasPythonDriver = pkgs.callPackage ../../user-tooling/packages/hwaas-driver {
+    benchmarkDataCollector = user-tooling-benchmarkDataCollector;
+  };
+  user-tooling-hwaasTimer =
+    pkgs.python3Packages.callPackage ../../user-tooling/packages/hwaas-timer
+      { };
 }

@@ -4,19 +4,20 @@
 
 { pkgs, hwaasTestModules }:
 let
-  image = (pkgs.nixos ({ ... }: {
-    imports = [
-      hwaasTestModules.user-tooling-machines-legacyBox
-    ];
+  image =
+    (pkgs.nixos (
+      { ... }: {
+        imports = [ hwaasTestModules.user-tooling-machines-legacyBox ];
 
-    # Allow ssh access to the HWaaS machine and add the benchmark package
-    users.users.nixos = {
-      initialHashedPassword = pkgs.lib.mkForce null;
-      initialPassword = "1234";
-      packages = with pkgs; [ fio ];
-    };
+        # Allow ssh access to the HWaaS machine and add the benchmark package
+        users.users.nixos = {
+          initialHashedPassword = pkgs.lib.mkForce null;
+          initialPassword = "1234";
+          packages = with pkgs; [ fio ];
+        };
 
-  })).isoImage;
+      }
+    )).isoImage;
 
   controlVMIp = "192.168.44.1";
   controlVMInterface = "network1";
@@ -26,24 +27,24 @@ pkgs.hwaasTest {
 
   apiUrl = "http://api.hwaas.placeholder.com/v5";
 
-  nodes.controlVM = { ... }:
-    {
-      imports = with hwaasTestModules; [
-        user-tooling-hwaasTestVm
-      ];
+  nodes.controlVM = { ... }: {
+    imports = with hwaasTestModules; [ user-tooling-hwaasTestVm ];
 
-      environment.systemPackages = with pkgs; [ sshpass ];
+    environment.systemPackages = with pkgs; [ sshpass ];
 
-      hwaas.testVm = {
-        enable = true;
-        networks = {
-          "${controlVMInterface}" = {
-            ipv4Address = { address = controlVMIp; prefixLength = 24; };
-            dhcp = true;
+    hwaas.testVm = {
+      enable = true;
+      networks = {
+        "${controlVMInterface}" = {
+          ipv4Address = {
+            address = controlVMIp;
+            prefixLength = 24;
           };
+          dhcp = true;
         };
       };
     };
+  };
 
   machines = {
     legacy-box = {
@@ -54,7 +55,10 @@ pkgs.hwaasTest {
 
   networks = {
     "${controlVMInterface}" = [
-      { machine = "legacy-box"; networkInterfaces = [ "LAN1" ]; }
+      {
+        machine = "legacy-box";
+        networkInterfaces = [ "LAN1" ];
+      }
     ];
   };
 

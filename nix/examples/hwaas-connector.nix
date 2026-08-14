@@ -14,22 +14,22 @@ in
 
     apiUrl = "http://api.hwaas.placeholder.com/v5";
 
-    nodes.controlVM = { ... }:
-      {
-        imports = with hwaasTestModules; [
-          user-tooling-hwaasTestVm
-        ];
+    nodes.controlVM = { ... }: {
+      imports = with hwaasTestModules; [ user-tooling-hwaasTestVm ];
 
-        hwaas.testVm = {
-          enable = true;
-          networks = {
-            "${controlVMInterface}" = {
-              ipv4Address = { address = controlVMIp; prefixLength = 24; };
-              dhcp = true;
+      hwaas.testVm = {
+        enable = true;
+        networks = {
+          "${controlVMInterface}" = {
+            ipv4Address = {
+              address = controlVMIp;
+              prefixLength = 24;
             };
+            dhcp = true;
           };
         };
       };
+    };
 
     machines = {
       legacy-box = {
@@ -40,7 +40,10 @@ in
 
     networks = {
       "${controlVMInterface}" = [
-        { machine = "legacy-box"; networkInterfaces = [ "LAN1" ]; }
+        {
+          machine = "legacy-box";
+          networkInterfaces = [ "LAN1" ];
+        }
       ];
     };
 

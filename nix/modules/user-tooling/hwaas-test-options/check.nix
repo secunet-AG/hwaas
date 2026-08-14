@@ -5,7 +5,14 @@
 { lib, config, ... }:
 let
   inherit (builtins) filter map;
-  inherit (lib) assertMsg concatLines flatten mapAttrsToList mkOption types;
+  inherit (lib)
+    assertMsg
+    concatLines
+    flatten
+    mapAttrsToList
+    mkOption
+    types
+    ;
 
   inherit (config) assertions machines;
 
@@ -13,23 +20,20 @@ let
 
   extractMessages = map ({ message, ... }: message);
 
-  checkMachine =
-    name:
-    { image, config, ... }:
-    [
-      {
-        assertion = !(image != null && config != null);
-        message = "Cannot set ${name}.image and ${name}.config!";
-      }
-      {
-        assertion = !(image == null && config == null);
-        message = "${name} has no image and no config!";
-      }
-      {
-        assertion = config == null;
-        message = "${name} has a config. Using this option is currently not supported!";
-      }
-    ];
+  checkMachine = name: { image, config, ... }: [
+    {
+      assertion = !(image != null && config != null);
+      message = "Cannot set ${name}.image and ${name}.config!";
+    }
+    {
+      assertion = !(image == null && config == null);
+      message = "${name} has no image and no config!";
+    }
+    {
+      assertion = config == null;
+      message = "${name} has a config. Using this option is currently not supported!";
+    }
+  ];
 
   forEachMachine = machines: flatten (mapAttrsToList checkMachine machines);
 in

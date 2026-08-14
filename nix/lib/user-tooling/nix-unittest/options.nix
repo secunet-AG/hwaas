@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ lib
-, config
-, ...
-}:
+{ lib, config, ... }:
 let
   assertionOptions = {
     check = lib.mkOption {
@@ -36,23 +33,34 @@ in
 {
   options = {
     tests = lib.mkOption {
-      type = with lib.types; listOf (submodule { options = assertionOptions; });
+      type =
+        with lib.types;
+        listOf (submodule {
+          options = assertionOptions;
+        });
     };
 
     results = lib.mkOption {
       internal = true;
-      type = with lib.types; listOf (submodule { options = resultOptions; });
+      type =
+        with lib.types;
+        listOf (submodule {
+          options = resultOptions;
+        });
       description = ''
         The results of the evaluated tests.
       '';
-      default = builtins.map
-        ({ check, expected, message }:
-          {
-            result = (builtins.tryEval check).success == expected;
-            inherit message;
-          }
-        )
-        config.tests;
+      default = builtins.map (
+        {
+          check,
+          expected,
+          message,
+        }:
+        {
+          result = (builtins.tryEval check).success == expected;
+          inherit message;
+        }
+      ) config.tests;
     };
 
     passed = lib.mkOption {
@@ -61,9 +69,7 @@ in
       description = ''
         Whether all tests passed.
       '';
-      default = builtins.all
-        ({ result, ... }: result)
-        config.results;
+      default = builtins.all ({ result, ... }: result) config.results;
     };
 
     text = lib.mkOption {
@@ -74,17 +80,15 @@ in
       '';
       default =
         let
-          maxLen =
-            lib.lists.fold lib.trivial.max (-1)
-              (builtins.map ({ message, ... }: builtins.stringLength message) config.results);
+          maxLen = lib.lists.fold lib.trivial.max (-1) (
+            builtins.map ({ message, ... }: builtins.stringLength message) config.results
+          );
           desiredLen = maxLen + 1;
-          padRight = msg:
-            msg + lib.fixedWidthString (desiredLen - (builtins.stringLength msg)) " " "";
+          padRight = msg: msg + lib.fixedWidthString (desiredLen - (builtins.stringLength msg)) " " "";
         in
-        lib.concatMapStringsSep
-          "\n"
-          ({ result, message }: (padRight message) + (if result then "success" else "failure"))
-          config.results;
+        lib.concatMapStringsSep "\n" (
+          { result, message }: (padRight message) + (if result then "success" else "failure")
+        ) config.results;
     };
   };
 }

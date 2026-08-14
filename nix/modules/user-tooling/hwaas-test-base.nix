@@ -2,13 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ ... }:
-{
+_: {
   system.stateVersion = "23.11";
   nixpkgs.hostPlatform = "x86_64-linux";
 
   # These kernel modules are required to
-  # let the kernel detect the USB drives 
+  # let the kernel detect the USB drives
   # after the kernel has booted from the USB disk
   boot.initrd.availableKernelModules = [
     "xhci_pci"

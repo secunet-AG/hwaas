@@ -7,26 +7,29 @@ let
   testBase = image_num: ip: {
     apiUrl = "http://api.hwaas.placeholder.com/v5";
 
-    nodes.controlVM = { ... }:
-      {
-        imports = with hwaasTestModules; [
-          user-tooling-hwaasTestVm
-        ];
-        environment.systemPackages = with pkgs; [ sshpass ];
+    nodes.controlVM = { ... }: {
+      imports = with hwaasTestModules; [ user-tooling-hwaasTestVm ];
+      environment.systemPackages = with pkgs; [ sshpass ];
 
-        hwaas.testVm = {
-          enable = true;
-          networks = {
-            "network1" = {
-              ipv4Address = { address = "192.168.44.1"; prefixLength = 24; };
-              dhcp = true;
+      hwaas.testVm = {
+        enable = true;
+        networks = {
+          "network1" = {
+            ipv4Address = {
+              address = "192.168.44.1";
+              prefixLength = 24;
             };
+            dhcp = true;
           };
         };
       };
+    };
     networks = {
       network1 = [
-        { machine = "legacy-box_1"; networkInterfaces = [ "LAN1" ]; }
+        {
+          machine = "legacy-box_1";
+          networkInterfaces = [ "LAN1" ];
+        }
       ];
     };
     testScript = _: ''
@@ -61,41 +64,43 @@ let
     '';
   };
 
-  image1 = (pkgs.nixos ({ ... }: {
-    imports = [
-      hwaasTestModules.user-tooling-machines-legacyBox
-    ];
-    # Allow ssh access to the HWaaS machine and add the benchmark package
-    users.users.nixos = {
-      initialHashedPassword = pkgs.lib.mkForce null;
-      initialPassword = "1234";
-    };
-    environment.etc.image = {
-      enable = true;
-      text = "image1";
-    };
-  })).isoImage;
+  image1 =
+    (pkgs.nixos (
+      { ... }: {
+        imports = [ hwaasTestModules.user-tooling-machines-legacyBox ];
+        # Allow ssh access to the HWaaS machine and add the benchmark package
+        users.users.nixos = {
+          initialHashedPassword = pkgs.lib.mkForce null;
+          initialPassword = "1234";
+        };
+        environment.etc.image = {
+          enable = true;
+          text = "image1";
+        };
+      }
+    )).isoImage;
 
-  image2 = (pkgs.nixos ({ ... }: {
-    imports = [
-      hwaasTestModules.user-tooling-machines-legacyBox
-    ];
-    # Allow ssh access to the HWaaS machine and add the benchmark package
-    users.users.nixos = {
-      initialHashedPassword = pkgs.lib.mkForce null;
-      initialPassword = "1234";
-    };
-    environment.etc.image = {
-      enable = true;
-      text = "image2";
-    };
-  })).isoImage;
+  image2 =
+    (pkgs.nixos (
+      { ... }: {
+        imports = [ hwaasTestModules.user-tooling-machines-legacyBox ];
+        # Allow ssh access to the HWaaS machine and add the benchmark package
+        users.users.nixos = {
+          initialHashedPassword = pkgs.lib.mkForce null;
+          initialPassword = "1234";
+        };
+        environment.etc.image = {
+          enable = true;
+          text = "image2";
+        };
+      }
+    )).isoImage;
 in
 {
   # Test whether image1 is booted and image2 is integrated as an additional image.
   # Split the test in two parts for stability reasons.
-  mounting = pkgs.hwaasTest
-    ({
+  mounting = pkgs.hwaasTest (
+    {
       name = "First Part of Multiple Images";
       machines = {
         legacy-box_1 = {
@@ -104,10 +109,12 @@ in
           additionalImages = [ "${image2}/iso/hwaas.iso" ];
         };
       };
-    } // (testBase "1" "192.168.44.2"));
+    }
+    // (testBase "1" "192.168.44.2")
+  );
   # Test whether image2 is booted and the boot sequence is therefore not dependent on other factors, such as the name of the image.
-  bootOrder = pkgs.hwaasTest
-    ({
+  bootOrder = pkgs.hwaasTest (
+    {
       name = "Second Part of Multiple Images";
       machines = {
         legacy-box_1 = {
@@ -116,5 +123,7 @@ in
           additionalImages = [ "${image1}/iso/hwaas.iso" ];
         };
       };
-    } // (testBase "2" "192.168.44.2"));
+    }
+    // (testBase "2" "192.168.44.2")
+  );
 }

@@ -57,8 +57,8 @@ let
   image = (pkgs.nixos hwaasTestModules.user-tooling-machines-legacyBox).isoImage;
 in
 {
-  singleNetwork = pkgs.hwaasTest
-    ({
+  singleNetwork = pkgs.hwaasTest (
+    {
       name = "Multiple HWaaS machines in one network";
 
       nodes.controlVM = { ... }: {
@@ -68,7 +68,10 @@ in
           enable = true;
           networks = {
             network1 = {
-              ipv4Address = { address = "192.168.44.1"; prefixLength = 24; };
+              ipv4Address = {
+                address = "192.168.44.1";
+                prefixLength = 24;
+              };
               dhcp = true;
               dhcpConfig = {
                 ServerAddress = "192.168.44.1/24";
@@ -81,14 +84,22 @@ in
 
       networks = {
         network1 = [
-          { machine = "legacy-box_1"; networkInterfaces = [ "LAN1" ]; }
-          { machine = "legacy-box_2"; networkInterfaces = [ "LAN1" ]; }
+          {
+            machine = "legacy-box_1";
+            networkInterfaces = [ "LAN1" ];
+          }
+          {
+            machine = "legacy-box_2";
+            networkInterfaces = [ "LAN1" ];
+          }
         ];
       };
-    } // (testBase "192.168.44.2" "192.168.44.3"));
+    }
+    // (testBase "192.168.44.2" "192.168.44.3")
+  );
 
-  multiNetwork = pkgs.hwaasTest
-    ({
+  multiNetwork = pkgs.hwaasTest (
+    {
       name = "Multiple HWaaS machines in separated networks";
 
       nodes.controlVM = { ... }: {
@@ -98,11 +109,17 @@ in
           enable = true;
           networks = {
             network1 = {
-              ipv4Address = { address = "192.168.44.1"; prefixLength = 24; };
+              ipv4Address = {
+                address = "192.168.44.1";
+                prefixLength = 24;
+              };
               dhcp = true;
             };
             network2 = {
-              ipv4Address = { address = "192.168.45.1"; prefixLength = 24; };
+              ipv4Address = {
+                address = "192.168.45.1";
+                prefixLength = 24;
+              };
               dhcp = true;
             };
           };
@@ -111,11 +128,19 @@ in
 
       networks = {
         network1 = [
-          { machine = "legacy-box_1"; networkInterfaces = [ "LAN1" ]; }
+          {
+            machine = "legacy-box_1";
+            networkInterfaces = [ "LAN1" ];
+          }
         ];
         network2 = [
-          { machine = "legacy-box_2"; networkInterfaces = [ "LAN1" ]; }
+          {
+            machine = "legacy-box_2";
+            networkInterfaces = [ "LAN1" ];
+          }
         ];
       };
-    } // (testBase "192.168.44.2" "192.168.45.2"));
+    }
+    // (testBase "192.168.44.2" "192.168.45.2")
+  );
 }

@@ -2,13 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-{ ... }:
-{
-  perSystem =
-    { pkgs, ... }:
-    {
-      checks = {
-        user-tooling-checkTestconfig = pkgs.callPackage ./check-testconfig.nix { };
-      };
+_: {
+  perSystem = { pkgs, ... }: {
+    checks = {
+      user-tooling-checkTestconfig = pkgs.callPackage ./check-testconfig.nix { };
     };
+  };
 }

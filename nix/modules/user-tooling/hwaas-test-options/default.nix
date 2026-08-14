@@ -5,7 +5,17 @@
 { lib, ... }:
 let
   inherit (lib) mkOption;
-  inherit (lib.types) attrsOf deferredModule either functionTo listOf nullOr str submodule int;
+  inherit (lib.types)
+    attrsOf
+    deferredModule
+    either
+    functionTo
+    listOf
+    nullOr
+    str
+    submodule
+    int
+    ;
 
   machineOptions = {
     platform = mkOption {
@@ -79,14 +89,20 @@ in
     };
 
     machines = mkOption {
-      type = attrsOf (submodule { options = machineOptions; });
+      type = attrsOf (submodule {
+        options = machineOptions;
+      });
       description = ''
         A set of machine configurations.
       '';
     };
 
     networks = mkOption {
-      type = attrsOf (listOf (submodule { options = connectionOptions; }));
+      type = attrsOf (
+        listOf (submodule {
+          options = connectionOptions;
+        })
+      );
       description = ''
         A set of virtual networks consisting of a list of connections.
       '';
