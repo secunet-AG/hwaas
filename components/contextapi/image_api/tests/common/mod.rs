@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #![allow(
     dead_code,
     reason = "this is shared test code, but clippy doesn't understand this"
@@ -6,9 +10,9 @@
 use anyhow::Context as _;
 use assert_fs::fixture::PathChild as _;
 use core::pin::Pin;
+use futures::FutureExt as _;
 use futures::task::Context;
 use futures::task::Poll;
-use futures::FutureExt as _;
 use image_api::ImageHandler;
 use std::cell::LazyCell;
 use std::panic::UnwindSafe;

@@ -1,10 +1,14 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 mod common;
 
 use std::str::FromStr as _;
 
 use anyhow::Context as _;
-use common::{assert_files, FileType, TestStream};
-use image_api::{architectures::Architecture, ExtraImageStoreData};
+use common::{FileType, TestStream, assert_files};
+use image_api::{ExtraImageStoreData, architectures::Architecture};
 
 #[test_log::test(tokio::test)]
 async fn images_starts_empty() -> anyhow::Result<()> {
@@ -128,10 +132,12 @@ async fn can_modify_existing_image_partially() -> anyhow::Result<()> {
         let updated_image = images.first().unwrap();
 
         assert_eq!(&updated_image.file_name, "two?");
-        assert!(&updated_image
-            .architecture
-            .as_ref()
-            .is_some_and(|s| s == &Architecture::Riscv64));
+        assert!(
+            &updated_image
+                .architecture
+                .as_ref()
+                .is_some_and(|s| s == &Architecture::Riscv64)
+        );
 
         Ok(())
     })
@@ -165,18 +171,24 @@ async fn must_not_modify_certain_image_fields() -> anyhow::Result<()> {
         dbg!(&fields);
 
         // All the non-mutable fields should have equal contents.
-        assert!(fields
-            .0
-            .iter()
-            .all(|elem| elem == fields.0.first().unwrap()));
-        assert!(fields
-            .1
-            .iter()
-            .all(|elem| elem == fields.1.first().unwrap()));
-        assert!(fields
-            .2
-            .iter()
-            .all(|elem| elem == fields.2.first().unwrap()));
+        assert!(
+            fields
+                .0
+                .iter()
+                .all(|elem| elem == fields.0.first().unwrap())
+        );
+        assert!(
+            fields
+                .1
+                .iter()
+                .all(|elem| elem == fields.1.first().unwrap())
+        );
+        assert!(
+            fields
+                .2
+                .iter()
+                .all(|elem| elem == fields.2.first().unwrap())
+        );
         Ok(())
     })
     .await
@@ -222,10 +234,12 @@ async fn change_single_image_only() -> anyhow::Result<()> {
             .expect("there should be an image in the database");
 
         assert_eq!(&updated_image.file_name, "three");
-        assert!(updated_image
-            .architecture
-            .as_ref()
-            .is_some_and(|d| d == &Architecture::Aarch64));
+        assert!(
+            updated_image
+                .architecture
+                .as_ref()
+                .is_some_and(|d| d == &Architecture::Aarch64)
+        );
 
         let first_image = images.first().unwrap();
         assert_eq!(first_image.file_name, "one");

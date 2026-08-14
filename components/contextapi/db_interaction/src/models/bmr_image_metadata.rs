@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! # BMR Image Metadata Handling
 //!
 //! This modules defines data types and utility functions to facilitate storage and processing of
