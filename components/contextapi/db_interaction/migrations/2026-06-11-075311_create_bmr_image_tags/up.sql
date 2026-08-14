@@ -1,4 +1,8 @@
-CREATE TABLE bmr_image_tags(
+-- SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+--
+-- SPDX-License-Identifier: Apache-2.0
+
+CREATE TABLE bmr_image_tags (
     -- Unique ID of a given tag
     id INTEGER NOT NULL PRIMARY KEY,
     -- Human readable (short) name of the tag
@@ -9,5 +13,5 @@ CREATE TABLE bmr_image_tags(
 
     -- Equal tag names should refer to identical tags, anything else is just
     -- confusing.
-    CONSTRAINT bmr_image_tags_have_unique_names UNIQUE(name)
+    CONSTRAINT bmr_image_tags_have_unique_names UNIQUE (name)
 )

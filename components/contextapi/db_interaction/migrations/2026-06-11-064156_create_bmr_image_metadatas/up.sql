@@ -1,4 +1,8 @@
-CREATE TABLE bmr_image_metadatas(
+-- SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+--
+-- SPDX-License-Identifier: Apache-2.0
+
+CREATE TABLE bmr_image_metadatas (
     -- Unique ID of a given image
     id INTEGER NOT NULL PRIMARY KEY,
     -- SHA256 checksum of the full image blob

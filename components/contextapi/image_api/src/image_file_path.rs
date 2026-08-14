@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 //! # Utilities for working with file paths of BMR images
 
 use std::path::{Component, Path, PathBuf};
