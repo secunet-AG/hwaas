@@ -3,20 +3,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import './assets/main.css'
-
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router.ts'
-import { createPinia } from 'pinia'
-import { apiUrlPlugin } from './core/plugins/apiUrlPlugin.ts'
 import { toolTipPlugin } from './core/plugins/tooltip-plugin.ts'
+import { loadConfig, provideConfig } from './core/plugins/config-plugin.ts'
+
+const config = await loadConfig()
 
 const app = createApp(App)
-const pinia = createPinia()
-
+provideConfig(app, config)
 app.use(router)
-app.use(pinia)
-app.use(apiUrlPlugin)
+app.use(createPinia())
 app.use(toolTipPlugin)
-
 app.mount('#app')

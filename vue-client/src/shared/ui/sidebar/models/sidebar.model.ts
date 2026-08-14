@@ -32,9 +32,9 @@ export const SIDEBAR_CONFIG = [
     displayName: 'Images',
     icon: CubeIcon,
   },
-  {
-    name: 'settings',
-    displayName: 'Settings',
-    icon: SettingsIcon,
-  },
+  // {
+  //   name: 'settings',
+  //   displayName: 'Settings',
+  //   icon: SettingsIcon,
+  // },
 ] satisfies SidebarRoute[]

@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiUrlRef, useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
 import type { FetchResult } from '../safeFetch'
 
 export const useDrivesApi = () => {
-  const { apiUrl } = useApiUrl()
+  const { API_URL } = useConfig()
 
   async function createDrive(
     contextId: string,
@@ -15,7 +15,7 @@ export const useDrivesApi = () => {
   ): Promise<FetchResult<number>> {
     try {
       const res = await fetch(
-        `${apiUrl.value}/contexts/${contextId}/drives/${driveId}?image_hash=${imageHash}`,
+        `${API_URL}/contexts/${contextId}/drives/${driveId}?image_hash=${imageHash}`,
         {
           method: 'PUT',
         },

@@ -5,7 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script setup lang="ts">
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import { useContextStore } from '@/core/stores/context-store'
 import { useKeyboardCapture, type KeyboardReport } from '@/shared/lib/hooks/useKeyboardCapture'
 import { useKeyboardWebsocket } from '@/shared/lib/hooks/useKeyboardWebsocket'
@@ -54,7 +55,7 @@ function onToolbarSend(combo: ComboEvent) {
   }, 100)
 }
 
-const { apiUrl } = useApiUrl()
+const { API_URL } = useConfig()
 
 const contextStore = useContextStore()
 const contextStoreRefs = storeToRefs(contextStore)
@@ -62,7 +63,7 @@ const contextStoreRefs = storeToRefs(contextStore)
 const mjpegUrl = computed(() => {
   const activeContextId = contextStoreRefs.activeContext.value?.id
 
-  return `${apiUrl.value}/contexts/${activeContextId}/machines/${props.machineName}/mjpeg`
+  return `${API_URL}/contexts/${activeContextId}/machines/${props.machineName}/mjpeg`
 })
 
 onBeforeUnmount(() => {

@@ -2,14 +2,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import { useContextStore } from '@/core/stores/context-store'
 import { storeToRefs } from 'pinia'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import type { KeyboardReport } from './useKeyboardCapture'
 
 export function useKeyboardWebsocket() {
-  const { apiUrl } = useApiUrl()
+  const { API_URL } = useConfig()
 
   const contextStore = useContextStore()
   const contextStoreRefs = storeToRefs(contextStore)
@@ -27,7 +28,7 @@ export function useKeyboardWebsocket() {
 
     if (!activeContextId || !activeMachineName.value) return null
 
-    return `${apiUrl.value}/contexts/${activeContextId}/machines/${activeMachineName.value}/usb/keyboard/websocket`
+    return `${API_URL}/contexts/${activeContextId}/machines/${activeMachineName.value}/usb/keyboard/websocket`
   })
 
   // Lifecycle hooks

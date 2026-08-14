@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import { useContextStore } from '@/core/stores/context-store'
 import { storeToRefs } from 'pinia'
 import { computed, onUnmounted, ref, watch, type Ref } from 'vue'
@@ -24,7 +25,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
   )
 
   // Build WebSocket for Mouse
-  const { apiUrl } = useApiUrl()
+  const { API_URL } = useConfig()
 
   const contextStore = useContextStore()
   const contextStoreRefs = storeToRefs(contextStore)
@@ -36,7 +37,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
 
     if (!activeContextId || !machineName) return null
 
-    return `${apiUrl.value}/contexts/${activeContextId}/machines/${machineName}/usb/mouse/websocket`
+    return `${API_URL}/contexts/${activeContextId}/machines/${machineName}/usb/mouse/websocket`
   })
 
   watch(activeBaseUrl, () => buildWebSocket(), { immediate: true }) // Fires at start or on activeBaseUrl change

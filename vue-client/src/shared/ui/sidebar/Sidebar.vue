@@ -24,10 +24,10 @@ const onSidebarClick = (item: SidebarRoute) => {
     <div
       class="border-(--app-secondary-border) flex h-full w-full flex-col items-center justify-center border-r-[1px] px-3 py-6 sm:px-8"
     >
-      <div class="flex h-full max-h-[512px] flex-col justify-between gap-3">
+      <div class="flex h-full max-h-[512px] flex-col justify-center gap-36">
         <button v-on:click="onSidebarClick(item)" v-for="item in SIDEBAR_CONFIG" :key="item.name">
           <Tooltip
-            :options="{ message: item.displayName, xOffsetOverride: -24, yOffsetOverride: 32 }"
+            :options="{ message: item.displayName, xOffsetOverride: 42, yOffsetOverride: -12 }"
             class="z-0"
           >
             <component

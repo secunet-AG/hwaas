@@ -7,7 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel } from '@headlessui/vue'
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import type { LocalMachine } from '@/shared/types/contexts.model'
 import NetworkMachineList from './NetworkMachineList.vue'
 import { useMachinesApi } from '@/shared/lib/api/machines/machines.api'

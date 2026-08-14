@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
 import type {
   LocalMachine,
   ContextConfigurationMachine,
@@ -17,10 +16,11 @@ import {
   ContextReservationSchema,
 } from '@/shared/schemas/contexts.schema'
 import type { ApiNetwork } from '@/shared/types/networks.model'
+import { useConfig } from '@/core/plugins/config-plugin'
 
 // Wrapping this so we can reuse it in the store and provide the apiURL, which can change
 export const useContextsApi = () => {
-  const { apiUrl } = useApiUrl()
+  const { API_URL } = useConfig()
 
   const { getAllNetworks } = useNetworksApi()
 
@@ -38,7 +38,7 @@ export const useContextsApi = () => {
     })
 
     const res = await safeFetch(
-      `${apiUrl.value}/contexts`,
+      `${API_URL}/contexts`,
       {
         method: 'POST',
         headers: {
@@ -54,7 +54,7 @@ export const useContextsApi = () => {
 
   async function deleteContext(contextId: string): Promise<FetchResult<number>> {
     try {
-      const res = await fetch(`${apiUrl.value}/contexts/${contextId}`, {
+      const res = await fetch(`${API_URL}/contexts/${contextId}`, {
         method: 'DELETE',
       })
       if (res.status >= 400) {
@@ -78,14 +78,14 @@ export const useContextsApi = () => {
   async function getLifetimeFromContext(
     contextId: string,
   ): Promise<FetchResult<{ lifetime: number }>> {
-    const res = await safeFetch(`${apiUrl.value}/contexts/${contextId}`, {}, ContextLifetimeSchema)
+    const res = await safeFetch(`${API_URL}/contexts/${contextId}`, {}, ContextLifetimeSchema)
     return res
   }
 
   async function getMachinesFromContext(contextId: string): Promise<FetchResult<LocalMachine[]>> {
     try {
       const { data, error } = await safeFetch(
-        `${apiUrl.value}/contexts/${contextId}/machines`,
+        `${API_URL}/contexts/${contextId}/machines`,
         {},
         ContextMachinesSchema,
       )
@@ -140,7 +140,7 @@ export const useContextsApi = () => {
     machineId: string,
   ): Promise<FetchResult<{ id: number; platform: string }>> {
     const res = await safeFetch(
-      `${apiUrl.value}/contexts/${contextId}/machines/${machineId}`,
+      `${API_URL}/contexts/${contextId}/machines/${machineId}`,
       {},
       ContextMachineSchema,
     )
@@ -204,7 +204,7 @@ export const useContextsApi = () => {
     lifetime: number,
   ): Promise<FetchResult<number>> {
     try {
-      const res = await fetch(`${apiUrl.value}/contexts/${context.id}`, {
+      const res = await fetch(`${API_URL}/contexts/${context.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

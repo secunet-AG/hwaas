@@ -9,13 +9,14 @@ import type { Context, LocalMachine } from '@/shared/types/contexts.model'
 import type { LocalImage } from '@/shared/types/images.model'
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
+import { useConfig } from '../plugins/config-plugin'
 
 const CONTEXT_LOCALSTORE_KEY = 'context_local_key'
 const CONTEXT_HISTORY_KEY = 'context_history_key'
-const MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS = +import.meta.env
-  .VITE_MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS
 
 export const useContextStore = defineStore('context', () => {
+  const { MAXIMUM_CONTEXT_LIFETIME_SECONDS } = useConfig()
+
   const _initial = initializeContexts()
   const contexts = ref<Context[]>(_initial.contexts)
   const activeContextIndex = ref<number>(_initial.activeContextIndex)
@@ -63,7 +64,7 @@ export const useContextStore = defineStore('context', () => {
     const filteredPayload = payload.filter((x) => x.exp > oneWeekAgo)
     const newItem = {
       contextId: reservationResponse,
-      exp: Date.now() + MAXIMUM_CONTEXT_LIFETIME_IN_SECONDS,
+      exp: Date.now() + MAXIMUM_CONTEXT_LIFETIME_SECONDS,
     }
 
     localStorage.setItem(CONTEXT_HISTORY_KEY, JSON.stringify([...filteredPayload, newItem]))

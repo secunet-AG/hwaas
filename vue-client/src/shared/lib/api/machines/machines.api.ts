@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Context, LocalMachine, PowerState } from '@/shared/types/contexts.model'
-import { useApiUrl } from '@/core/plugins/apiUrlPlugin'
+import { useConfig } from '@/core/plugins/config-plugin'
+
 import {
   MachinePowerResponseSchema,
   NetworkInterfacesSchema,
@@ -17,14 +18,14 @@ export type MachinePowerState = {
 }
 
 export const useMachinesApi = () => {
-  const { apiUrl } = useApiUrl()
+  const { API_URL } = useConfig()
 
   async function powerOnMachine(
     contextId: string,
     machineName: string,
   ): Promise<FetchResult<MachinePowerState[]>> {
     const res = await safeFetch<MachinePowerState[]>(
-      `${apiUrl.value}/contexts/${contextId}/machines/${machineName}/power`,
+      `${API_URL}/contexts/${contextId}/machines/${machineName}/power`,
       {
         method: 'PUT',
         headers: {
@@ -41,7 +42,7 @@ export const useMachinesApi = () => {
     machineName: string,
   ): Promise<FetchResult<MachinePowerState[]>> {
     const res = await safeFetch(
-      `${apiUrl.value}/contexts/${contextId}/machines/${machineName}/power`,
+      `${API_URL}/contexts/${contextId}/machines/${machineName}/power`,
       {
         method: 'DELETE',
         headers: {
@@ -58,7 +59,7 @@ export const useMachinesApi = () => {
     machineName: string,
   ): Promise<FetchResult<MachinePowerState[]>> {
     const res = await safeFetch(
-      `${apiUrl.value}/contexts/${contextId}/machines/${machineName}/power`,
+      `${API_URL}/contexts/${contextId}/machines/${machineName}/power`,
       {
         headers: {
           Accept: 'application/json',
@@ -103,7 +104,7 @@ export const useMachinesApi = () => {
     driveName: string,
   ): Promise<FetchResult<string>> {
     try {
-      const res = await fetch(`${apiUrl.value}/contexts/${contextId}/machines/${machineName}/usb`, {
+      const res = await fetch(`${API_URL}/contexts/${contextId}/machines/${machineName}/usb`, {
         body: JSON.stringify([
           {
             type: 'storage',
@@ -171,7 +172,7 @@ export const useMachinesApi = () => {
 
   async function getSerial(contextId: string, machineName: string): Promise<FetchResult<string[]>> {
     const res = await safeFetch(
-      `${apiUrl.value}/contexts/${contextId}/machines/${machineName}/serial`,
+      `${API_URL}/contexts/${contextId}/machines/${machineName}/serial`,
       {
         headers: {
           Accept: 'application/json',
@@ -188,7 +189,7 @@ export const useMachinesApi = () => {
     machineName: string,
   ): Promise<FetchResult<string[]>> {
     const res = await safeFetch(
-      `${apiUrl.value}/contexts/${contextId}/machines/${machineName}/network-interfaces`,
+      `${API_URL}/contexts/${contextId}/machines/${machineName}/network-interfaces`,
       {
         headers: {
           Accept: 'application/json',

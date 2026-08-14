@@ -42,16 +42,6 @@ const router = createRouter({
       name: 'images',
       component: () => import('./features/images/Images.vue'),
     },
-    {
-      path: '/settings',
-      name: 'settings',
-      component: () => import('./features/settings/Settings.vue'),
-    },
-    {
-      path: '/invite/:inviteUrl',
-      name: 'invite',
-      component: () => import('./features/invite/Invite.vue'),
-    },
   ],
 })
 
