@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 use anyhow::Context as _;
 use image_api::ImageHandlerError;
 use image_api::ImageTag;
