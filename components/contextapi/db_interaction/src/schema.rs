@@ -1,8 +1,38 @@
-// SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 // @generated automatically by Diesel CLI.
+
+diesel::table! {
+    bmr_image_metadatas (id) {
+        id -> Integer,
+        sha256 -> Text,
+        upload_name -> Text,
+        file_name -> Text,
+        size_bytes -> BigInt,
+        // NOTE(hartan): In my experience, letting the database itself "handle" datetimes and
+        // timezones reliably leads to unexpected results at some point. Diesel actually has a way
+        // to encode datetime objects with timezones in the database using a "Text" field as backing
+        // storage. All the parsing and conversion magic takes place in the Rust library
+        // deserializing the query results. This does require modifications to the generated schema,
+        // though, as this is not a native component of SQLite. See:
+        // <https://github.com/diesel-rs/diesel/discussions/4192>
+        created_utc -> TimestamptzSqlite,
+        architecture -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    bmr_image_tag_map (bmr_image_metadata_id, bmr_image_tag_id) {
+        bmr_image_metadata_id -> Integer,
+        bmr_image_tag_id -> Integer,
+    }
+}
+
+diesel::table! {
+    bmr_image_tags (id) {
+        id -> Integer,
+        name -> Text,
+        description -> Nullable<Text>,
+    }
+}
 
 diesel::table! {
     context_lifetimes (context_id) {

@@ -54,7 +54,33 @@ pub struct ImageMetadata {
     /// The size of the image in bytes
     size: u64,
     /// The time when the image was first stored
-    created: SystemTime,
+    created_utc: DateTime<Utc>,
+    /// Architecture the image was built for
+    architecture: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, JsonSchema, Debug, diesel::Queryable, diesel::Selectable)]
+#[diesel(
+    table_name = bmr_image_tags,
+    check_for_backend(diesel::sqlite::Sqlite)
+)]
+pub struct ImageTag {
+    /// Internal ID of the database entry
+    id: ImageTagId,
+    /// Human-readable name of the tag as shown in the UI.
+    name: String,
+    /// Human-readable description of what this tag represents.
+    description: Option<String>,
+}
+
+impl ImageTag {
+    pub fn new<N: Into<String>, D: Into<String>>(name: N, description: Option<D>) -> Self {
+        Self {
+            id: ImageTagId::new_empty(),
+            name: name.into(),
+            description: description.map(|d| d.into()),
+        }
+    }
 }
 
 /// Handles storage of boot images
