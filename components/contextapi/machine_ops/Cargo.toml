@@ -1,8 +1,12 @@
 [package]
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
 name = "machine-ops"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
 
 [[bin]]
 name = "machine-ops"
@@ -12,12 +16,12 @@ path = "src/main.rs"
 workspace = true
 
 [dependencies]
-anyhow = "1"
+anyhow.workspace = true
+clap.workspace = true
 contextapi.workspace = true
 db_interaction.workspace = true
-machine_ops_lib = { workspace = true, features = ["cli"] }
-clap.workspace = true
 diesel.workspace = true
+machine_ops_lib.workspace = true
 net_ctrl_client_wrapper.workspace = true
 remote_client.workspace = true
 reqwest.workspace = true
@@ -26,13 +30,12 @@ serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true
 tracing.workspace = true
-tracing-subscriber = "0.3"
-contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }
+tracing-subscriber.workspace = true
 
 [dev-dependencies]
-assert_cmd = "2"
+assert_cmd.workspace = true
 assert_fs.workspace = true
-predicates = "3"
-db_interaction = { workspace = true, features = ["test_utils"] }
+predicates.workspace = true
+db_interaction.workspace = true
 wiremock.workspace = true
-tracing-test = "0.2"
+tracing-test.workspace = true
