@@ -7,6 +7,7 @@ members = [
   "contextapi/db_interaction",
   "contextapi/error_utils",
   "contextapi/image_api",
+  "contextapi/machine_ops",
   "contextapi/machine_ops_lib",
   "contextapi/net_ctrl_client",
   "contextapi/net_ctrl_client_wrapper",
@@ -46,6 +47,7 @@ aide = { version = "0.13.5", features = [
   "macros",
 ] }
 anyhow = "1"
+assert_cmd = "2"
 assert_fs = "1"
 assert-json-diff = "2"
 async-compression = { version = "0.4", default-features = false, features = [
@@ -112,6 +114,7 @@ nom = "7.1.1"
 opentelemetry = { version = "0.27.1", features = ["trace"] }
 opentelemetry_sdk = "0.27.1"
 paste = { version = "1" }
+predicates = "3"
 rand = "0.8.5"
 regex = "1.7.0"
 remote-axum = { path = "./remote-hands/remote-axum/" }
