@@ -134,6 +134,7 @@ schemars = { version = "0.8", features = ["derive", "uuid", "uuid1"] }
 sd-notify = "0.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_repr = "^0.1"
 serde_with = { version = "3.8", default-features = false, features = ["std"] }
 serial2-tokio = { version = "0.1", features = ["serde"] }
 sha2 = "0.10.6"

@@ -9,18 +9,11 @@ readme = "README.md"
 repository.workspace = true
 version = "0.1.0"
 
-[lib]
-name = "net_ctrl_client"
-path = "src/lib.rs"
-
-[lints]
-workspace = true
-
 [dependencies]
 serde.workspace = true
 serde_with.workspace = true
 serde_json.workspace = true
+serde_repr.workspace = true
 url.workspace = true
-uuid.workspace = true
 reqwest.workspace = true
 reqwest-middleware.workspace = true
