@@ -15,14 +15,17 @@ updates:
     # repeat the `cooldown` section for each package ecosystem.
     cooldown:
       default-days: 7
-      semver-major-days: 14
-      semver-minor-days: 7
-      semver-patch-days: 3
     assignees:
       - "lukeweston1234"
       - "lgrosche"
   - package-ecosystem: "cargo"
-    directory: "/components/"
+    directories:
+      - "/components/contextapi"
+      - "/components/hunt"
+      - "/components/net-ctrl"
+      - "/components/remote-hands"
+      - "/components/rpi-status-display"
+      - "/components/ws-gateway"
     schedule:
       interval: "daily"
     cooldown:
@@ -39,9 +42,6 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
-      semver-major-days: 14
-      semver-minor-days: 7
-      semver-patch-days: 3
     assignees:
       - "lukeweston1234"
       - "cyberhar7an"
