@@ -33,7 +33,7 @@ jobs:
       - name: Build Documentation
         run: nix build -L .#packages.x86_64-linux.documentation
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: result/dist
   deploy:
