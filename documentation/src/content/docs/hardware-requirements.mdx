@@ -70,12 +70,13 @@ Each `remote-hands` instance requires the following physical components:
 - Serial to USB adapter
 - V4L capture card for [MJPEG streaming](./core-concepts#remote-mjpeg)
 - Raspberry Pi PoE header (provides power while keeping USB OTG available)
-- USB Power Blocker (prevents Pi from potentially powering on the BMR)
+- USB Power Blocker (prevents Pi from potentially being powered by the BMR)
 
 <Callout type="warning">
     The USB Power Blocker is not optional. Without it, the Raspberry Pi can be powered by the bare
     metal resource through the USB OTG connection, preventing a clean hard shutdown or reboot of the
-    Pi.
+    Pi. If the BMR is a Pi-similar device that can be powered via USB, it can be the other way
+    around as well.
 </Callout>
 
 ## Bare Metal Resources
