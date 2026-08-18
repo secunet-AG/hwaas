@@ -79,13 +79,16 @@ function onContextUpload(machines: ContextConfigurationMachine) {
   newContext.machines = newMachines
 }
 
-const showNameWarningBorder = computed(
-  () =>
-    !existingContextId.value &&
-    newContext.machines.length &&
-    !newContext.name.length &&
-    'shadow-[0_8px_30px_rgb(0,0,0,0.12)] shadow-red-300/30 border-red-300/60!',
-)
+const showNameWarningBorder = computed(() => {
+  // We have an error if we do not have an existing context id, machines, or a name selected
+  const hasExistingContextError =
+    !existingContextId.value && newContext.machines.length && !newContext.name.length
+  if (hasExistingContextError) {
+    return 'shadow-[0_8px_30px_rgb(0,0,0,0.12)] shadow-red-300/30 border-red-300/60!'
+  } else {
+    return ''
+  }
+})
 
 function onMachineSelectionChange(machines: InventoryMachine[]) {
   newContext.machines = machines.map((x) => ({
