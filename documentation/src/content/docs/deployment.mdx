@@ -4,7 +4,7 @@ Once your [hardware](./hardware-requirements) is in place, deployment covers
 building and pushing system configurations to the [Gateway](./core-concepts#gateway)
 and each [`remote-hands`](./core-concepts#remote-hands) terminal server.
 
-import Callout from "../../components/Callout.astro";
+import Callout from '../../components/Callout.astro'
 
 ## Overview
 
@@ -14,9 +14,9 @@ building and pushing system configurations.
 These deployments can be quite large, and require cross compilation using `binfmt` for the [`remote-hands`](./core-concepts#remote-hands) instances.
 
 <Callout type="note">
-  Before the [Context API](./core-concepts#context-api) can hand out machines,
-  each bare metal resource must be registered in the database. See [Registering
-  machines](./configuration#registering-machines) in the configuration guide.
+    Before the [Context API](./core-concepts#context-api) can hand out machines, each bare metal
+    resource must be registered in the database. See [Registering
+    machines](./configuration#registering-machines) in the configuration guide.
 </Callout>
 
 ## Deploying Remote-Hands (Raspberry Pi)
@@ -76,8 +76,8 @@ or as a part of the greater deployment process with `colmena`.
 </Callout>
 
 <Callout type="note">
-  The specific NixOS module options for each service are documented in the
-  [configuration guide](./configuration#nixos-module-options).
+    The specific NixOS module options for each service are documented in the [configuration
+    guide](./configuration#nixos-module-options).
 </Callout>
 
 ## Binary Cache

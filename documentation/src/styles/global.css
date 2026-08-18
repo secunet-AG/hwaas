@@ -9,8 +9,8 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: "Geist", sans-serif;
-  --font-mono: "Geist Mono", monospace;
+  --font-sans: 'Geist', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
   --breakpoint-3xl: 120rem;
 }
 

@@ -4,7 +4,7 @@ This page covers observing a running instance and the security model you should
 keep in mind when operating one. For the architecture these concerns apply to,
 see the [core concepts](./core-concepts).
 
-import Callout from "../../components/Callout.astro";
+import Callout from '../../components/Callout.astro'
 
 ## Monitoring
 
@@ -16,9 +16,8 @@ reference deployments, but the following architecture has proved succesful for t
 - `loki` - handles log aggregation
 
 <Callout type="note">
-  Every HWaaS service exposes an `otelEndpoint` option for its OpenTelemetry
-  collector. See the [NixOS module
-  options](./configuration#nixos-module-options) for where to point traces.
+    Every HWaaS service exposes an `otelEndpoint` option for its OpenTelemetry collector. See the
+    [NixOS module options](./configuration#nixos-module-options) for where to point traces.
 </Callout>
 
 ## Security
@@ -26,16 +25,15 @@ reference deployments, but the following architecture has proved succesful for t
 There are a few key points for any administrator looking to manage a HWaaS instance.
 
 <Callout type="danger">
-  The HWaaS is not a multi-tenant solution, and does not have an authentication
-  system. We recommend using a VPN to encapsulate each instance.
+    The HWaaS is not a multi-tenant solution, and does not have an authentication system. We
+    recommend using a VPN to encapsulate each instance.
 </Callout>
 
 - Anyone with a `context-id` can mutate the machines under test; they can change BIOS/UEFI settings, power them on and off, etc.
 - Anyone with access to the [Gateway](./core-concepts#gateway) server or monitoring stack can enumerate the [contexts](./core-concepts#context-api) in use.
 
 <Callout type="warning">
-  Context hashes provide separation, not secrecy: they are not treated as
-  credentials, are not hashed with a password-grade algorithm (e.g. BCrypt or
-  Argon2), and may appear in logs. Do not rely on a context-id being
-  confidential.
+    Context hashes provide separation, not secrecy: they are not treated as credentials, are not
+    hashed with a password-grade algorithm (e.g. BCrypt or Argon2), and may appear in logs. Do not
+    rely on a context-id being confidential.
 </Callout>

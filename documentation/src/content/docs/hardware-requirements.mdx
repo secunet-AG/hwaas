@@ -4,7 +4,7 @@ This page covers the physical components that make up a HWaaS instance. For an
 overview of how these pieces fit together, see the
 [core concepts](./core-concepts).
 
-import Callout from "../../components/Callout.astro";
+import Callout from '../../components/Callout.astro'
 
 ## Gateway
 
@@ -73,9 +73,9 @@ Each `remote-hands` instance requires the following physical components:
 - USB Power Blocker (prevents Pi from potentially powering on the BMR)
 
 <Callout type="warning">
-  The USB Power Blocker is not optional. Without it, the Raspberry Pi can be
-  powered by the bare metal resource through the USB OTG connection, preventing
-  a clean hard shutdown or reboot of the Pi.
+    The USB Power Blocker is not optional. Without it, the Raspberry Pi can be powered by the bare
+    metal resource through the USB OTG connection, preventing a clean hard shutdown or reboot of the
+    Pi.
 </Callout>
 
 ## Bare Metal Resources
