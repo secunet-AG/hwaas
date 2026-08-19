@@ -31,6 +31,7 @@ repository = "https://github.com/secunet-AG/hwaas"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
+warnings = "deny"
 
 [workspace.lints.clippy]
 # NOTE: Due to some weird interaction in the Rust toolchain it's not currently possible to "forbid"

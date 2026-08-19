@@ -180,8 +180,9 @@
           commonArgs
           // {
             inherit cargoArtifacts;
-
-            cargoClippyExtraArgs = "--workspace --all-targets -- --deny warnings";
+            # Only lint workspace members and not their dependencies
+            # Additionally exclude `net_ctrl_client` since it is completely auto generated
+            cargoClippyExtraArgs = "--workspace --all-targets --exclude net_ctrl_client -- --no-deps";
           }
         );
 
