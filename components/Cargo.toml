@@ -16,6 +16,7 @@ members = [
   "net-ctrl",
   "remote-hands/remote-*",
   "rpi-status-display",
+  "workspace-hack",
   "ws-gateway",
   "ws-proxy-client",
 ]

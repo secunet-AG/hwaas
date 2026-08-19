@@ -1,0 +1,16 @@
+# This file contains settings for `cargo hakari`.
+# See https://docs.rs/cargo-hakari/latest/cargo_hakari/config
+
+hakari-package = "workspace-hack"
+
+# Format version 4 requires cargo-hakari >= 0.9.22.
+dep-format-version = "4"
+
+# Cargo resolver 2 and 3 are equivalent from Hakari's point of view.
+resolver = "2"
+
+platforms = [
+  # Add explicit CI/developer targets here later if required.
+]
+
+# exact-versions = true
