@@ -1,0 +1,36 @@
+# Managing an Instance
+
+Below are the high-level principles for managing a physical HWaaS instance.
+It's worth noting that HWaaS units are generally managed with physical, on-prem access.
+
+Maintainers will need to be able to connect machines under test, add new [`remote-hands`](./core-concepts#remote-hands) instances,
+have physical switch access, etc.
+
+import Callout from '../../components/Callout.astro'
+
+<Callout type="note">
+    We are currently working on refactoring our example deployment. Getting a setup up and running
+    without this reference may prove quite difficult. In the meantime, we will discuss the
+    high-level requirements and concepts for maintainers.
+</Callout>
+
+## Before You Start
+
+The maintainer guide assumes you are already familiar with the HWaaS
+[core concepts](./core-concepts) — in particular the
+[Gateway](./core-concepts#gateway), the [Context API](./core-concepts#context-api),
+and the [`remote-hands`](./core-concepts#remote-hands) services, and how they fit
+together.
+
+If you are instead trying to _use_ a running instance rather than operate one,
+see the [user guide](./users).
+
+## In This Guide
+
+The maintainer documentation is split into the following sections:
+
+- **[Hardware Requirements](./hardware-requirements)** — the physical components that make up an instance: the [Gateway](./core-concepts#gateway) server, networking, power, and the [`remote-hands`](./core-concepts#remote-hands) Raspberry Pis.
+- **[Deployment](./deployment)** — building and pushing system configurations with Nix, including the two-step Raspberry Pi setup and cross-compilation.
+- **[Configuration](./configuration)** — registering [bare metal resources](./core-concepts#bare-metal-resources) with the [Maintainer CLI](./core-concepts#maintainer-cli), the [Context API](./core-concepts#context-api) and NetCtrl schemas, and NixOS module options.
+- **[Secrets & SSH](./secrets-and-ssh)** — managing secrets with SOPS and useful SSH configuration patterns.
+- **[Monitoring & Security](./monitoring-and-security)** — observability with a Grafana stack and the instance security model.

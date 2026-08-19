@@ -11,6 +11,7 @@
 @theme {
   --font-sans: 'Geist', sans-serif;
   --font-mono: 'Geist Mono', monospace;
+  --breakpoint-3xl: 120rem;
 }
 
 :root {
@@ -40,6 +41,15 @@
 pre > code {
   border: none !important;
   background: none !important;
+}
+
+/* Hide the native disclosure triangle on sidebar collection headers; we render
+   our own chevron instead. */
+.sidebar-nav summary {
+  list-style: none;
+}
+.sidebar-nav summary::-webkit-details-marker {
+  display: none;
 }
 
 /* Sidebar toggle tab */
@@ -81,6 +91,14 @@ pre > code {
   content: none;
 }
 
+.callout > pre {
+  background: none !important;
+  padding: 2px 4px 2px 4px;
+  border-radius: 4px;
+  line-height: 200%;
+  font-size: 14px;
+}
+
 pre {
   background: var(--app-background) !important;
   border: 1px solid var(--app-border);
@@ -107,6 +125,10 @@ aside {
 /* Prevent Scalar from escaping its container */
 [data-scalar-client] {
   overflow: hidden;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 .scalar-app {

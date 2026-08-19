@@ -1,0 +1,274 @@
+# Configuration
+
+This page covers registering machines with the [Maintainer CLI](./core-concepts#maintainer-cli),
+the configuration schemas for the [Context API](./core-concepts#context-api) and
+network controller, and the NixOS module options for every HWaaS service.
+
+import Callout from '../../components/Callout.astro'
+
+## Maintainer CLI
+
+The `machine-ops` CLI is used to interact with the HWaaS database and run CRUD operations for registering machines.
+Before the [Context API](./core-concepts#context-api) can hand out machines to users, each [bare metal resource](./core-concepts#bare-metal-resources) must be registered in the database
+with its associated [`remote-hands`](./core-concepts#remote-hands) service URLs and switch port mappings.
+
+### Registering machines
+
+Machine data is provided as a JSON array. Each entry describes a single BMR and its connections to
+remote-hands services and network switches.
+
+<Callout type="note">
+    This is typically handled in the `nix` configuration, and not something maintainers will have to
+    roll themselves.
+</Callout>
+
+```json
+[
+    {
+        "id": 1,
+        "platform": "Intel-NUC-x86_64",
+        "remote_power": "http://ts-bmr1:8082/power",
+        "remote_usb": "http://ts-bmr1:8080/usb",
+        "remote_serial": "http://ts-bmr1:8081/serial",
+        "remote_auxiliary": "http://ts-bmr1:8083/auxiliaries",
+        "remote_mjpeg": "http://ts-bmr1:8084",
+        "switch_connections": {
+            "lan0": {
+                "switch": "switch-a",
+                "port": "5"
+            }
+        }
+    }
+]
+```
+
+<Callout type="warning">
+    The `switch` value in `switch_connections` must match a switch name defined in your [NetCtrl
+    inventory](#netctrl-inventory). The `port` value must correspond to a physical port on that
+    switch.
+</Callout>
+
+## Configuration Reference
+
+### Context API configuration
+
+The [Context API](./core-concepts#context-api) is configured in Nix, and then deserialized from a JSON file.
+
+Below are the key fields and their defaults.
+
+```json
+{
+    "context_lifetime": 3600,
+    "context_max_lifetime": 7200,
+    "db_file_path": "/var/lib/contextapi/db.sqlite",
+    "max_db_connections": 9,
+    "net_ctrl_base_path": "http://127.0.0.1:8000",
+    "network_gateway": {
+        "ws_gateway_url": "ws://10.0.0.123:8080"
+    },
+    "image_api_settings": {
+        "max_file_size": "5 GB",
+        "store": "/var/lib/contextapi/images"
+    },
+    "remote_max_request_size": 67108864,
+    "remote_oas_paths": [],
+    "request_timeouts": {
+        "context_management_api": 120000,
+        "image_api": 120000,
+        "single_context_api": 60000
+    }
+}
+```
+
+| Field                              | Default          | Description                                                                      |
+| ---------------------------------- | ---------------- | -------------------------------------------------------------------------------- |
+| `context_lifetime`                 | `3600`           | Default context lifetime in seconds                                              |
+| `context_max_lifetime`             | `7200`           | Maximum lifetime a user can extend to                                            |
+| `db_file_path`                     | _required_       | Path to the SQLite database                                                      |
+| `max_db_connections`               | `9`              | Max DB connection pool size (defaults to 1/4 of available parallelism)           |
+| `net_ctrl_base_path`               | _required_       | Base URL for the NetCtrl service                                                 |
+| `network_gateway.ws_gateway_url`   | _required_       | WebSocket gateway URL                                                            |
+| `image_api_settings.max_file_size` | _required_       | Maximum upload size ([ByteSize](https://docs.rs/bytesize) format, e.g. `"5 GB"`) |
+| `image_api_settings.store`         | _required_       | Filesystem path for image storage (typically an NFS export)                      |
+| `remote_max_request_size`          | `67108864`       | Max request body size forwarded to remote-hands (bytes)                          |
+| `request_timeouts.*`               | `60000`-`120000` | Per-API request timeouts in milliseconds                                         |
+
+### NetCtrl inventory
+
+The network controller needs an inventory of your managed switches.
+
+This is also typically constructed via Nix, but here is an example of the schema:
+
+```json
+{
+    "switch-a": {
+        "model": "aruba-aos-cx",
+        "ip": "192.168.1.11",
+        "port": 80,
+        "credentials": {
+            "username": "hwaas",
+            "password": "changeme"
+        },
+        "default_vlan": { "vlan_id": 1 },
+        "mgmt_vlan": { "vlan_id": 2 },
+        "critical_ports": {
+            "mgmt_ports": ["1/1/1"],
+            "trunk_ports": ["1/1/2"]
+        }
+    }
+}
+```
+
+| Field                        | Description                                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `model`                      | Switch type: `aruba`, `aruba2540`, `aruba-aos-cx`, `aruba-cx6100`, `fs-picos`, `dummy`, `dummy24`, `dummy48` |
+| `ip`                         | Management IP address of the switch                                                                          |
+| `port`                       | REST API port (optional, uses default if omitted)                                                            |
+| `credentials`                | Username and password for REST API authentication (optional for unprotected switches)                        |
+| `default_vlan`               | The default/native VLAN ID                                                                                   |
+| `mgmt_vlan`                  | Management VLAN ID (protected from modification by NetCtrl)                                                  |
+| `critical_ports.mgmt_ports`  | Ports that should never be modified (management uplinks)                                                     |
+| `critical_ports.trunk_ports` | Trunk ports that carry tagged traffic between switches                                                       |
+
+<Callout type="warning">
+    Credentials in the NetCtrl inventory should be managed as secrets rather than committed in
+    plaintext. See [Secrets & SSH](./secrets-and-ssh) for how the HWaaS handles this with SOPS.
+</Callout>
+
+## NixOS Module Options
+
+All HWaaS services are available as NixOS modules. Below is a summary of the available options for each service.
+
+### Gateway services
+
+#### Context API (`services.contextApi`)
+
+```nix
+{
+  services.contextApi = {
+    enable = true;
+    address = "0.0.0.0";      # Listen address
+    port = 8080;               # Listen port
+    config = { /* ... */ };    # Context API config (attribute set or path)
+    otelEndpoint = "http://127.0.0.1:4317";  # OpenTelemetry collector
+    consoleAddress = null;     # Tokio console address (e.g. "127.0.0.1:6669")
+    openFirewall = false;      # Automatically open firewall port
+  };
+}
+```
+
+#### Network Controller (`services.netCtrl`)
+
+```nix
+{
+  services.netCtrl = {
+    enable = true;
+    address = "0.0.0.0";
+    port = 8000;
+    inventory = { /* switch inventory attrset */ };
+    otelEndpoint = "http://localhost:4317";
+    enableLogFile = true;
+    openFirewall = false;
+  };
+}
+```
+
+### Remote-hands services
+
+Each remote-hands service follows the same pattern. These run on Raspberry Pis.
+
+<Callout type="note">
+  Remote-hands services all share a common set of options: `enable`, `address`,
+  `port`, `configFile`, `otelEndpoint`, `consoleAddress`(optional `tokio` console), and `openFirewall`.
+
+These are defined in the repository as a set of NixOS options, and they are all configured with default values.
+
+The `remote-serial` service additionally exposes `serialConfig` for baud rate
+and line settings.
+
+</Callout>
+
+#### Remote USB (`services.remote-usb`)
+
+```nix
+{
+  services.remote-usb = {
+    enable = true;
+    address = "0.0.0.0";
+    port = 8080;
+    configFile = "/etc/hwaas/remote-usb.json";
+    openFirewall = true;
+  };
+}
+```
+
+#### Remote Serial (`services.remote-serial`)
+
+```nix
+{
+  services.remote-serial = {
+    enable = true;
+    address = "0.0.0.0";
+    port = 8081;
+    configFile = "/etc/hwaas/remote-serial.json";
+    serialConfig = {
+      baud_rate = 115200;
+      char_size = 8;       # 5, 6, 7, or 8
+      parity = "none";     # "odd", "even", or "none"
+      stop_bits = 1;       # 1 or 2
+    };
+    openFirewall = true;
+  };
+}
+```
+
+#### Remote Power (`services.remote-power`)
+
+```nix
+{
+  services.remote-power = {
+    enable = true;
+    address = "0.0.0.0";
+    port = 8082;
+    configFile = "/etc/hwaas/remote-power.json";
+    openFirewall = true;
+  };
+}
+```
+
+#### Remote Auxiliary (`services.remote-auxiliary`)
+
+```nix
+{
+  services.remote-auxiliary = {
+    enable = true;
+    address = "0.0.0.0";
+    port = 8083;
+    configFile = "/etc/hwaas/remote-auxiliary.json";
+    openFirewall = true;
+  };
+}
+```
+
+#### Remote MJPEG
+
+[Remote MJPEG](./core-concepts#remote-mjpeg) is slightly different, it is simply an MJPEG streamer, which is then proxied through the [`contextapi`](./core-concepts#context-api).
+
+You can create your own custom `gstreamer` or `ffmpeg` pipeline, but `usteamer` is quite straightforward and handles changes in resolution automatically (if your capture card supports it).
+
+```nix
+{
+    services.ustreamer = {
+        enable = true;
+        device = "/dev/videoMUT"; # udev rule applied for naming
+        listenAddress = "0.0.0.0:8084";
+        extraArgs = [
+        "--format=yuyv"
+        "--resolution=1280x720"
+        "--workers=3"
+        "--persistent"
+        "--drop-same-frames=30"
+        ];
+    };
+}
+```

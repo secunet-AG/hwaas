@@ -1,0 +1,87 @@
+# Deployment
+
+Once your [hardware](./hardware-requirements) is in place, deployment covers
+building and pushing system configurations to the [Gateway](./core-concepts#gateway)
+and each [`remote-hands`](./core-concepts#remote-hands) terminal server.
+
+import Callout from '../../components/Callout.astro'
+
+## Overview
+
+Deployment is most easily handled with Nix. We suggest using `colmena`, or the native `nixos-rebuild` tools for
+building and pushing system configurations.
+
+These deployments can be quite large, and require cross compilation using `binfmt` for the [`remote-hands`](./core-concepts#remote-hands) instances.
+
+<Callout type="note">
+    Before the [Context API](./core-concepts#context-api) can hand out machines, each bare metal
+    resource must be registered in the database. See [Registering
+    machines](./configuration#registering-machines) in the configuration guide.
+</Callout>
+
+## Deploying Remote-Hands (Raspberry Pi)
+
+Each remote-hands runs NixOS on a Raspberry Pi 4. Setup is a two-step process.
+
+### Step 1: Boot the generic NixOS image
+
+Download the latest aarch64 SD image from [NixOS Hydra](https://hydra.nixos.org/job/nixos/trunk-combined/nixos.sd_image.aarch64-linux)
+and write it to a USB stick (preferred over SD cards for speed):
+
+```sh
+dd if=nixos-sd-image-*.img of=/dev/sdX bs=4M status=progress
+```
+
+Boot the Pi and let it resize partitions on first boot.
+
+<Callout type="warning">
+    Many Raspberry Pi 4 units ship with firmware that cannot boot from USB. If your Pi doesn't boot
+    from USB, write the image to an SD card first, boot it, then update the firmware:
+
+    ```sh
+    nix-shell -p raspberrypi-eeprom
+    mount /dev/disk/by-label/FIRMWARE /mnt
+    BOOTFS=/mnt FIRMWARE_RELEASE_STATUS=stable rpi-eeprom-update -d -a
+    ```
+    <p class="pt-3 pb-3">Reboot and let it flash itself, then you can switch to USB boot.</p>
+
+    <a class="underline" href="https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#boot_order-fields">You can read more about the various boot order options here</a>
+
+</Callout>
+
+### Step 2: Deploy the final configuration
+
+Deploy your NixOS configuration to the Pi. This can be done remotely from your workstation:
+
+```sh
+nixos-rebuild switch --flake .#ts-bmr1 \
+  --target-host ts-bmr1 \
+  --build-host localhost \
+  --use-remote-sudo
+```
+
+or as a part of the greater deployment process with `colmena`.
+
+<Callout type="note">
+    Building aarch64 packages on an x86 workstation requires binfmt emulation. Add this to your
+    NixOS configuration:
+
+    ```nix
+    boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+    ```
+
+    This uses QEMU to transparently run aarch64 binaries. It's **much** slower than native compilation but
+    reliable for deployment builds.
+
+</Callout>
+
+<Callout type="note">
+    The specific NixOS module options for each service are documented in the [configuration
+    guide](./configuration#nixos-module-options).
+</Callout>
+
+## Binary Cache
+
+We strongly suggest using a binary cache when building this project, in order to ensure reasonable build times.
+
+Cross-compilation for the [`remote-hands`](./core-concepts#remote-hands) services is particularly painful, and can result on full day builds even with strong hardware.

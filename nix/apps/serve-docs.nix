@@ -7,9 +7,11 @@ _: {
     apps.serve-docs = {
       type = "app";
       program = "${pkgs.writeShellScript "serve-docs" ''
+        set -e
         DOCS_DIR="$(${pkgs.git}/bin/git rev-parse --show-toplevel)/documentation"
-        cp ${config.packages.hwaas-oas} "$DOCS_DIR/public/openapi.json"
+        cp --remove-destination --no-preserve=mode,ownership ${config.packages.hwaas-oas} "$DOCS_DIR/public/openapi.json"
         cd "$DOCS_DIR"
+        ${pkgs.pnpm_10}/bin/pnpm i
         exec ${pkgs.pnpm_10}/bin/pnpm dev
       ''}";
     };

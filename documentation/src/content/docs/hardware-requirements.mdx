@@ -1,0 +1,92 @@
+# Hardware Requirements
+
+This page covers the physical components that make up a HWaaS instance. For an
+overview of how these pieces fit together, see the
+[core concepts](./core-concepts).
+
+import Callout from '../../components/Callout.astro'
+
+## Gateway
+
+The [Gateway](./core-concepts#gateway) server is the monolithic entry-point for a
+HWaaS instance.
+
+### Components
+
+It contains a number of components, such as:
+
+- Reverse Proxy
+- [Context API](./core-concepts#context-api)
+- WS Proxy Gateway
+- Web UI Hosting
+- SQLite Database
+- NFS Image Store
+- Net-Ctrl Service
+
+### Recommended Specifications
+
+Due to the virtualization, high network traffic, and various workloads, we recommend the following minimum specifications for production workloads:
+
+- Xeon Silver 4410Y or equivalent x86 CPU
+- 32 GB ECC DDR4 RAM
+- 512GB+ SSD (you may need more, depending on the number and size of images hosted)
+- Dual port 10GbE PCIe adapter, 3 total LAN ports, with additional IPMI capable port if needed.
+
+## Networking
+
+The HWaaS supports a three and two switch setup, depending on the amount of separation you want and the amount of connections you need.
+
+The minimal setup has the following requirements:
+
+- A managed VLAN switch with PoE+ capabilities, used for the management network and PoE for the Pis
+- A managed VLAN switch with VRF support, used for managing BMR networks
+
+If you want more separation you can split the PoE switch from the management network into two distinct switches. It is advisable to still use a managed PoE switch, so that you can maintain the Pis remotely.
+
+## Power Management
+
+The requirements for a managed power switch are minimal. Effectively, you need to be able to
+write and deploy a bash or similar script that can be invoked to toggle a machines power state.
+
+This is eventually passed as a script invoked by each individual [remote-hands](./core-concepts#remote-hands) instance for managing their own power via the [remote-power](./core-concepts#remote-power) service.
+
+## Remote Hands
+
+We currently are targetting the Raspberry Pi 4 for the [`remote-hands`](./core-concepts#remote-hands) instances.
+
+This is because of the following requirements:
+
+- USB OTG Support (essential for USB MASS booting)
+- Power over Ethernet
+- Affordable and easily sourceable
+
+In theory, there is no strong requirement to run the `remote-hands` services on Raspberry Pi specifically.
+If you can meet the above requirements, you can deploy on other platforms as well.
+
+### Individual Components
+
+Each `remote-hands` instance requires the following physical components:
+
+- Serial to USB adapter
+- V4L capture card for [MJPEG streaming](./core-concepts#remote-mjpeg)
+- Raspberry Pi PoE header (provides power while keeping USB OTG available)
+- USB Power Blocker (prevents Pi from potentially being powered by the BMR)
+
+<Callout type="warning">
+    The USB Power Blocker is not optional. Without it, the Raspberry Pi can be powered by the bare
+    metal resource through the USB OTG connection, preventing a clean hard shutdown or reboot of the
+    Pi. If the BMR is a Pi-similar device that can be powered via USB, it can be the other way
+    around as well.
+</Callout>
+
+## Bare Metal Resources
+
+[Bare metal resources](./core-concepts#bare-metal-resources) have a number of optional and required interfaces.
+
+| Component          | Necessary | Description                                                                                      |
+| ------------------ | --------- | ------------------------------------------------------------------------------------------------ |
+| USB                | Required  | Handles image booting, as well as remote keyboard and mouse.                                     |
+| Controllable Power | Required  | Machines should **not** go into sleep, but rather have a hard shutdown.                          |
+| Ethernet           | Optional  | Necessary for machine network access only.                                                       |
+| Serial Connection  | Optional  | Serial support is convenient, especially for boot debugging, but not required.                   |
+| Video Out          | Optional  | Video out can be captured with various adapters + V4L devices. This is not a required component. |
