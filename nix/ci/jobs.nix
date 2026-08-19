@@ -43,6 +43,7 @@ let
     "sbom"
     "user-tooling"
     "verify-ci"
+    "vue-client"
     "ws-gateway"
   ];
 
@@ -50,7 +51,9 @@ let
   # Everything else is a test and runs after the build.
   checkTypes = [
     "checkTestconfig"
+    "check"
     "clippy"
+    "deny"
     "docs"
     "fmt"
     "golden-test-openapi-spec"

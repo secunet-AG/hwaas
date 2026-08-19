@@ -236,9 +236,6 @@ jobs:
         name: build machine-ops
         run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.machine-ops'
       - if: always()
-        name: build vue-client
-        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.vue-client'
-      - if: always()
         name: build ws-proxy-client
         run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.ws-proxy-client'
   build-user-tooling:
@@ -270,6 +267,26 @@ jobs:
       - if: always()
         name: build user-tooling-hwaasTimer
         run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.user-tooling-hwaasTimer'
+  build-vue-client:
+    name: 'Build: vue-client'
+    needs:
+      - check-vue-client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: build vue-client
+        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.vue-client'
   build-ws-gateway:
     name: 'Build: ws-gateway'
     needs:
@@ -312,6 +329,9 @@ jobs:
         name: check aruba-switch-mock-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-clippy'
       - if: always()
+        name: check aruba-switch-mock-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-deny'
+      - if: always()
         name: check aruba-switch-mock-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-docs'
       - if: always()
@@ -341,6 +361,9 @@ jobs:
       - if: always()
         name: check contextapi-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-clippy'
+      - if: always()
+        name: check contextapi-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-deny'
       - if: always()
         name: check contextapi-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-docs'
@@ -375,6 +398,9 @@ jobs:
         name: check hunt-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-clippy'
       - if: always()
+        name: check hunt-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-deny'
+      - if: always()
         name: check hunt-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-docs'
       - if: always()
@@ -401,6 +427,9 @@ jobs:
       - if: always()
         name: check net-ctrl-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-clippy'
+      - if: always()
+        name: check net-ctrl-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-deny'
       - if: always()
         name: check net-ctrl-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-docs'
@@ -454,6 +483,9 @@ jobs:
         name: check remote-hands-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-clippy'
       - if: always()
+        name: check remote-hands-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-deny'
+      - if: always()
         name: check remote-hands-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-docs'
       - if: always()
@@ -486,6 +518,9 @@ jobs:
       - if: always()
         name: check rpi-status-display-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-clippy'
+      - if: always()
+        name: check rpi-status-display-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-deny'
       - if: always()
         name: check rpi-status-display-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-docs'
@@ -532,6 +567,27 @@ jobs:
       - if: always()
         name: check verify-ci
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.verify-ci'
+  check-vue-client:
+    name: 'Check: vue-client'
+    needs:
+      - check-pre-commit
+      - check-verify-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use cache
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: secunet-ag-hwaas
+      - if: always()
+        name: check vue-client-licenses-check
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.vue-client-licenses-check'
   check-ws-gateway:
     name: 'Check: ws-gateway'
     needs:
@@ -553,6 +609,9 @@ jobs:
       - if: always()
         name: check ws-gateway-clippy
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-clippy'
+      - if: always()
+        name: check ws-gateway-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-deny'
       - if: always()
         name: check ws-gateway-docs
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-docs'

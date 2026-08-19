@@ -145,6 +145,19 @@
                 cargoNextestExtraArgs = lib.optionalString projectValue.hasWorkspaces "--workspace";
               }
             );
+
+            # Run cargo-deny
+            deny =
+              let
+                denyConfig = ../components/deny.toml;
+              in
+              craneLib.cargoDeny (
+                perProjectCfg.commonArgs
+                // {
+                  inherit (perProjectCfg) src;
+                  cargoDenyExtraArgs = "--config ${denyConfig}";
+                }
+              );
           }
           // lib.optionalAttrs projectValue.hasWorkspaces {
 

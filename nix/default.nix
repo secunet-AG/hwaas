@@ -16,5 +16,6 @@ _: {
     ./ci
     ./examples
     ./lib/user-tooling
+    ./checks
   ];
 }

@@ -26,14 +26,26 @@ stdenv.mkDerivation (finalAttrs: {
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     pnpm = pnpm_10;
-    fetcherVersion = 3;
-    hash = "sha256-qdJHn4HVRKezgvlVzMw2HCF9jRgtjo7oBfSR7qJa1xw=";
+    fetcherVersion = 4;
+    hash = "sha256-2FI9/Sd4fanUAncW+nH7hoOIRK4xudZzzNBPqwZr6wQ=";
   };
 
-  installPhase = ''
-    pnpm install
+  buildPhase = ''
+    runHook preBuild
     pnpm build
-    mkdir -p $out/dist
-    cp -r ./dist $out
+    runHook postBuild
   '';
+
+  installPhase = ''
+    runHook preInstall
+    mkdir -p "$out"
+    cp -r dist "$out/dist"
+    runHook postInstall
+  '';
+
+  passthru = {
+    inherit (finalAttrs) pnpmDeps;
+    pnpm = pnpm_10;
+    node = nodejs;
+  };
 })
