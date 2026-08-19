@@ -167,7 +167,7 @@ mod test {
     async fn test_get_switches() {
         let conn = get_conn_handler().await;
         let sid = SwitchID::new(SWITCH.to_string());
-        assert!(conn.get_switches().await.unwrap().get(&sid).is_some())
+        assert!(conn.get_switches().await.unwrap().contains_key(&sid))
     }
 
     #[tokio::test]
