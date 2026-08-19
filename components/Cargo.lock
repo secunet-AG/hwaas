@@ -185,6 +185,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid 1.15.1",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -720,6 +721,7 @@ dependencies = [
  "serde_json",
  "url",
  "uuid 1.15.1",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -770,6 +772,7 @@ dependencies = [
  "url",
  "uuid 1.15.1",
  "wiremock",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -1004,6 +1007,7 @@ dependencies = [
  "strum_macros 0.26.4",
  "tokio",
  "uuid 1.15.1",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -1358,6 +1362,7 @@ name = "error_utils"
 version = "0.1.0"
 dependencies = [
  "tracing",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -1880,6 +1885,7 @@ dependencies = [
  "tracing-opentelemetry",
  "tracing-opentelemetry-instrumentation-sdk",
  "tracing-subscriber",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -2217,6 +2223,7 @@ dependencies = [
  "tower-http",
  "tracing",
  "uuid 1.15.1",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -2458,6 +2465,7 @@ dependencies = [
  "tracing-subscriber",
  "tracing-test",
  "wiremock",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -2484,6 +2492,7 @@ dependencies = [
  "url",
  "uuid 1.15.1",
  "wiremock",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -2653,6 +2662,7 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -2666,6 +2676,7 @@ dependencies = [
  "serde_repr",
  "serde_with",
  "url",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -2676,6 +2687,7 @@ dependencies = [
  "hunt",
  "net_ctrl_client",
  "reqwest-middleware",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -3411,6 +3423,7 @@ dependencies = [
  "tokio",
  "tracing",
  "urlencoding",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -3426,6 +3439,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -3438,6 +3452,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -3454,6 +3469,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -3478,6 +3494,7 @@ dependencies = [
  "tokio-util",
  "tower 0.5.3",
  "tracing",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -3498,6 +3515,7 @@ dependencies = [
  "tracing",
  "usb-gadget",
  "usbd-hid-macros",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -3508,6 +3526,7 @@ dependencies = [
  "db_interaction",
  "reqwest 0.12.12",
  "tracing",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -3670,6 +3689,7 @@ dependencies = [
  "rppal",
  "sh1106",
  "ssd1306",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -5673,6 +5693,67 @@ dependencies = [
 ]
 
 [[package]]
+name = "workspace-hack"
+version = "0.1.0"
+dependencies = [
+ "aho-corasick",
+ "axum",
+ "axum-extra",
+ "bstr",
+ "byteorder",
+ "cookie",
+ "crossbeam-utils",
+ "deadpool",
+ "either",
+ "form_urlencoded",
+ "futures-channel",
+ "futures-core",
+ "futures-executor",
+ "futures-io",
+ "futures-sink",
+ "futures-task",
+ "futures-util",
+ "hyper 1.11.0",
+ "hyper-util",
+ "idna",
+ "indexmap 2.7.1",
+ "libc",
+ "log",
+ "memchr",
+ "mime_guess",
+ "num-traits",
+ "once_cell",
+ "percent-encoding",
+ "phf_shared",
+ "predicates",
+ "rand 0.8.5",
+ "rand_core 0.6.4",
+ "regex",
+ "regex-automata 0.4.18",
+ "regex-syntax 0.8.11",
+ "reqwest 0.12.12",
+ "schemars 0.8.22",
+ "serde",
+ "serde_core",
+ "serde_json",
+ "smallvec",
+ "syn 2.0.98",
+ "syn 3.0.3",
+ "sync_wrapper 1.0.2",
+ "tempfile",
+ "time",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tower 0.4.13",
+ "tower 0.5.3",
+ "tracing",
+ "tracing-core",
+ "url",
+ "uuid 1.15.1",
+]
+
+[[package]]
 name = "write16"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5703,6 +5784,7 @@ dependencies = [
  "tokio",
  "tower-http",
  "tracing",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -5721,6 +5803,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "url",
+ "workspace-hack",
 ]
 
 [[package]]

@@ -34,6 +34,7 @@ aide.workspace = true
 schemars.workspace = true
 bytesize.workspace = true
 async-compression.workspace = true
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }
 
 [dev-dependencies]
 tempfile.workspace = true

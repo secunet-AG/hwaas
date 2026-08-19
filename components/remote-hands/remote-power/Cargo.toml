@@ -36,3 +36,4 @@ remote-axum.workspace = true
 remote-init.workspace = true
 tracing.workspace = true
 tokio.workspace = true
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }

@@ -36,3 +36,4 @@ tower-http.workspace = true
 aide.workspace = true
 schemars.workspace = true
 hunt.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }

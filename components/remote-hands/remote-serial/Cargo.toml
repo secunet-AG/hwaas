@@ -38,6 +38,7 @@ tracing.workspace = true
 tokio.workspace = true
 futures.workspace = true
 tokio-util.workspace = true
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }
 
 [dev-dependencies]
 tokio-test.workspace = true

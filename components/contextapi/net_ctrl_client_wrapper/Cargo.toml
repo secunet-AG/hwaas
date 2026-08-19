@@ -21,3 +21,4 @@ hunt.workspace = true
 reqwest-middleware.workspace = true
 net_ctrl_client.workspace = true
 db_interaction.workspace = true
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }

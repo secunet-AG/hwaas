@@ -4,336 +4,301 @@
 
 { inputs, ... }: {
   perSystem =
-    {
-      pkgs,
-      config,
-      lib,
-      ...
-    }:
+    { pkgs, lib, ... }:
     let
-      cfg = config.hwaas-crates;
       craneLib = (inputs.crane.mkLib pkgs).overrideToolchain (
         p: p.rust-bin.fromRustupToolchainFile ../rust-toolchain.toml
       );
 
-      # per crate variables and processed information
-      perProject =
-        project:
-        let
-          # filter the sources for building a single crate.
-          src = lib.fileset.toSource {
-            root = ../components;
-            fileset = lib.fileset.unions (
-              (map (x: craneLib.fileset.commonCargoSources x) project.sources) ++ project.unfilteredSources
-            );
-          };
+      workspaceRoot = ../components;
 
-          cargoToml = "${project.baseCratePath}/Cargo.toml";
-          cargoLock = ../components/Cargo.lock;
+      # The complete Rust workspace source.
+      #
+      # Deliberately use the same workspace source for every final package.
+      # cargoExtraArgs selects which Cargo package gets built.
+      #
+      # This avoids having to construct partial Cargo workspaces and keeps the
+      # Nix implementation considerably simpler.
+      workspaceSrc = lib.fileset.toSource {
+        root = workspaceRoot;
 
-          # Common crane arguments can be set here to avoid repeating them later
-          commonArgs = {
-            strictDeps = true;
-            inherit src cargoToml cargoLock;
-            buildInputs = [
-              pkgs.openssl
-            ]
-            ++ lib.optionals pkgs.stdenv.isDarwin [
-              # Additional darwin specific inputs can be set here
-              pkgs.libiconv
-              pkgs.darwin.apple_sdk.frameworks.Security
-            ]
-            ++ project.extraDeps;
+        fileset = lib.fileset.unions [
+          # All normal Cargo/Rust sources, including Cargo.toml/Cargo.lock.
+          (craneLib.fileset.commonCargoSources workspaceRoot)
 
-            nativeBuildInputs = [ pkgs.pkg-config ] ++ project.extraNativeDeps;
+          # cargo-hakari configuration used by the hakari check.
+          ../components/.config/hakari.toml
 
-            postUnpack = ''
-              cd $sourceRoot/${builtins.baseNameOf project.baseCratePath}
-              sourceRoot="."
-            '';
-            # Additional environment variables can be set directly
-            # MY_CUSTOM_VAR = "some value";
-          };
+          # Non-Rust inputs used by ContextAPI.
+          ../components/contextapi/db_interaction/migrations
+          ../components/contextapi/context_data_structures/src/network/patch/test_fixtures
+        ];
+      };
 
-          # Build *just* the cargo dependencies (of the entire workspace),
-          # so we can reuse all of that work (e.g. via cachix) when running in CI
-          # It is *highly* recommended to use something like cargo-hakari to avoid
-          # cache misses when building individual top-level-crates
-          cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+      # Inputs necessary for building *any* member of the workspace.
+      #
+      # Since buildDepsOnly builds dependencies for the entire workspace,
+      # SQLite must be present here even though only ContextAPI needs it
+      # directly.
+      commonArgs = {
+        src = workspaceSrc;
 
-          individualCrateArgs = commonArgs // {
-            inherit cargoArtifacts;
-            inherit (craneLib.crateNameFromCargoToml { inherit cargoToml; }) version;
-            # NB: we disable tests since we'll run them all via cargo-nextest
-            doCheck = false;
-          };
-        in
-        {
-          inherit
-            commonArgs
-            individualCrateArgs
-            src
-            cargoArtifacts
-            ;
+        cargoToml = ../components/Cargo.toml;
+        cargoLock = ../components/Cargo.lock;
+
+        strictDeps = true;
+
+        # The root manifest is a virtual workspace, so provide explicit
+        # derivation metadata instead of asking crane to infer a package.
+        pname = "hwaas-workspace";
+        version = "0.0.0";
+
+        buildInputs = [
+          pkgs.openssl
+          pkgs.sqlite
+        ]
+        ++ lib.optionals pkgs.stdenv.isDarwin [
+          # Additional darwin specific inputs can be set here
+          pkgs.libiconv
+          pkgs.darwin.apple_sdk.frameworks.Security
+        ];
+
+        nativeBuildInputs = [ pkgs.pkg-config ];
+      };
+
+      # Build the dependency graph exactly once and allow all later
+      # derivations to reuse the resulting target directory.
+      cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+
+      # Metadata for every package that is currently exported.
+      #
+      # manifestPath is used only for reading pname/version and generating
+      # the per-package SBOM.
+      packageDefinitions = {
+        aruba-switch-mock = {
+          manifest = ../components/aruba-switch-mock/Cargo.toml;
+          manifestPath = "aruba-switch-mock/Cargo.toml";
         };
 
-      genPerProject =
-        fn:
-        lib.concatMapAttrs (
-          projectName: projectValue:
-          let
-            perProjectCfg = perProject projectValue;
-          in
-          fn { inherit projectName projectValue perProjectCfg; }
-        ) cfg.project;
+        hunt = {
+          manifest = ../components/hunt/Cargo.toml;
+          manifestPath = "hunt/Cargo.toml";
+        };
 
-      genPerTarget =
-        fn:
-        genPerProject (
-          {
-            projectName,
-            projectValue,
-            perProjectCfg,
-          }:
-          lib.genAttrs projectValue.packages (
-            packageName:
-            (fn {
-              inherit
-                projectName
-                projectValue
-                packageName
-                perProjectCfg
-                ;
-            })
-          )
-        );
+        rpi-status-display = {
+          manifest = ../components/rpi-status-display/Cargo.toml;
+          manifestPath = "rpi-status-display/Cargo.toml";
+        };
 
-      prefixAttrNames =
-        prefix: lib.attrsets.mapAttrs' (n: v: lib.attrsets.nameValuePair ("${prefix}-" + n) v);
+        net-ctrl = {
+          manifest = ../components/net-ctrl/Cargo.toml;
+          manifestPath = "net-ctrl/Cargo.toml";
+        };
 
-      checks = genPerProject (
-        {
-          perProjectCfg,
-          projectName,
-          projectValue,
-          ...
-        }:
-        (prefixAttrNames projectName (
-          {
-            # Docs and doctests
-            docs = craneLib.cargoDoc (perProjectCfg.commonArgs // { inherit (perProjectCfg) cargoArtifacts; });
+        ws-gateway = {
+          manifest = ../components/ws-gateway/Cargo.toml;
+          manifestPath = "ws-gateway/Cargo.toml";
+        };
 
-            # Clippy conformity
-            clippy = craneLib.cargoClippy (
-              perProjectCfg.commonArgs
-              // {
-                inherit (perProjectCfg) cargoArtifacts;
-                cargoClippyExtraArgs = "--all-targets -- --deny warnings";
-              }
-            );
+        ws-proxy-client = {
+          manifest = ../components/ws-proxy-client/Cargo.toml;
+          manifestPath = "ws-proxy-client/Cargo.toml";
+        };
 
-            # NOTE: All formatting is taken care of by `nix fmt`
+        remote-auxiliary = {
+          manifest = ../components/remote-hands/remote-auxiliary/Cargo.toml;
+          manifestPath = "remote-hands/remote-auxiliary/Cargo.toml";
+        };
 
-            # Run tests with cargo-nextest
-            nextest = craneLib.cargoNextest (
-              perProjectCfg.commonArgs
-              // {
-                inherit (perProjectCfg) cargoArtifacts;
-                partitions = 1;
-                partitionType = "count";
-                cargoNextestPartitionsExtraArgs = "--no-tests=pass";
-                cargoNextestExtraArgs = lib.optionalString projectValue.hasWorkspaces "--workspace";
-              }
-            );
-          }
-        ))
-      );
+        remote-power = {
+          manifest = ../components/remote-hands/remote-power/Cargo.toml;
+          manifestPath = "remote-hands/remote-power/Cargo.toml";
+        };
 
-      devShells = genPerProject (
-        { projectName, projectValue, ... }: {
-          ${projectName} = craneLib.devShell {
-            # Inherit inputs from checks.
-            checks = lib.filterAttrs (n: _: lib.hasPrefix projectName n) checks;
+        remote-serial = {
+          manifest = ../components/remote-hands/remote-serial/Cargo.toml;
+          manifestPath = "remote-hands/remote-serial/Cargo.toml";
+        };
 
-            # Extra inputs can be added here; cargo and rustc are provided by default.
-            packages =
-              with pkgs;
-              [
-                rust-analyzer
-                cargo-watch
-                cargo-audit
-                cargo-cyclonedx
-                cyclonedx-cli
-              ]
-              ++ (lib.optional projectValue.hasWorkspaces [ pkgs.cargo-hakari ])
-              ++ projectValue.extraDepsDevShell;
-          };
-        }
-      );
+        remote-usb = {
+          manifest = ../components/remote-hands/remote-usb/Cargo.toml;
+          manifestPath = "remote-hands/remote-usb/Cargo.toml";
+        };
 
-      # packages for all needed binaries
-      packages =
-        (genPerTarget (
-          { packageName, perProjectCfg, ... }:
-          craneLib.buildPackage (
-            perProjectCfg.individualCrateArgs
-            // {
-              pname = packageName;
-              cargoExtraArgs = "-p ${packageName}";
-              inherit (perProjectCfg) src;
-            }
-          )
-        ))
-        # Add sbom package for all binaries
-        // (prefixAttrNames "sbom" (
-          genPerTarget (
-            { packageName, perProjectCfg, ... }:
-            craneLib.mkCargoDerivation (
-              perProjectCfg.individualCrateArgs
-              // {
-                pname = "sbom-${packageName}";
-                version = "3.1.0";
-                cargoArtifacts = null;
-                doInstallCargoArtifacts = false;
-                doCheck = false;
-                nativeBuildInputs = [
-                  pkgs.cargo-cyclonedx
-                  pkgs.cyclonedx-cli
-                ];
-                buildPhaseCargoCommand = ''
-                  cargo-cyclonedx cyclonedx --spec-version 1.5 -f json -v
-                  cyclonedx merge --output-file merged.cdx.json \
-                    --input-files $(find . -name "*.cdx.json") ||
-                    echo "WARNING: not merging - no files found"
-                '';
-                installPhaseCommand = ''
-                  mkdir $out
-                  find . -name "*.cdx.json" -exec cp -t $out {} +
-                '';
-              }
-            )
-          )
-        ));
+        contextapi = {
+          manifest = ../components/contextapi/contextapi/Cargo.toml;
+          manifestPath = "contextapi/contextapi/Cargo.toml";
+        };
 
-    in
-    {
-      options.hwaas-crates = {
-        project = lib.mkOption {
-          type = lib.types.attrsOf (
-            lib.types.submodule (
-              { config, name, ... }: {
-                options = {
-                  sources = lib.mkOption {
-                    type = lib.types.nonEmptyListOf lib.types.path;
-                    description = "all sources are filtered; only the listed one are used to build the crate";
-                  };
-                  unfilteredSources = lib.mkOption {
-                    type = lib.types.listOf lib.types.path;
-                    default = [ ];
-                    description = "additional unfiltered sources; e.g. for sql migrations";
-                  };
-                  packages = lib.mkOption {
-                    type = lib.types.nonEmptyListOf lib.types.str;
-                    description = "name of all packages in this project to build";
-                    default = [ name ];
-                  };
-                  baseCratePath = lib.mkOption {
-                    type = lib.types.path;
-                    default = builtins.elemAt config.sources 0;
-                    readOnly = true;
-                  };
-                  hasWorkspaces = lib.mkOption {
-                    type = lib.types.bool;
-                    default = true;
-                    description = "enables the workspace build and some checks";
-                  };
-                  extraDeps = lib.mkOption {
-                    default = [ ];
-                    type = lib.types.listOf lib.types.package;
-                    description = "additional runtime packages";
-                  };
-                  extraNativeDeps = lib.mkOption {
-                    default = [ ];
-                    type = lib.types.listOf lib.types.package;
-                    description = "additional build time packages";
-                  };
-                  extraDepsDevShell = lib.mkOption {
-                    default = [ ];
-                    type = lib.types.listOf lib.types.package;
-                    description = "additional devshell packages";
-                  };
-                };
-              }
-            )
-          );
-          description = "configuration to build the crate";
-          example = { };
+        machine-ops = {
+          manifest = ../components/contextapi/machine_ops/Cargo.toml;
+          manifestPath = "contextapi/machine_ops/Cargo.toml";
         };
       };
 
+      # Build one exported Cargo package.
+      mkPackage =
+        packageName:
+        let
+          definition = packageDefinitions.${packageName};
+
+          crateInfo = craneLib.crateNameFromCargoToml { cargoToml = definition.manifest; };
+        in
+        craneLib.buildPackage (
+          commonArgs
+          // {
+            inherit cargoArtifacts;
+
+            pname = packageName;
+            inherit (crateInfo) version;
+
+            # Select exactly one top-level Cargo package while retaining the
+            # complete Cargo workspace as source.
+            cargoExtraArgs = "-p ${packageName}";
+
+            # Tests are done once for the entire workspace through nextest.
+            doCheck = false;
+          }
+        );
+
+      packages = lib.mapAttrs (packageName: _: mkPackage packageName) packageDefinitions;
+
+      # One workspace-wide test/check set.
+      workspaceChecks = {
+        # Docs and doctests
+        docs = craneLib.cargoDoc (
+          commonArgs
+          // {
+            inherit cargoArtifacts;
+
+            cargoExtraArgs = "--workspace";
+          }
+        );
+
+        # Clippy conformity
+        clippy = craneLib.cargoClippy (
+          commonArgs
+          // {
+            inherit cargoArtifacts;
+
+            cargoClippyExtraArgs = "--workspace --all-targets -- --deny warnings";
+          }
+        );
+
+        # NOTE: All formatting is taken care of by `nix fmt`
+
+        # Clippy conformity
+        nextest = craneLib.cargoNextest (
+          commonArgs
+          // {
+            inherit cargoArtifacts;
+
+            cargoNextestExtraArgs = "--workspace";
+
+            partitions = 1;
+            partitionType = "count";
+            cargoNextestPartitionsExtraArgs = "--no-tests=pass";
+          }
+        );
+
+        # Run cargo-deny
+        deny =
+          let
+            denyConfig = ../components/deny.toml;
+          in
+          craneLib.cargoDeny (commonArgs // { cargoDenyExtraArgs = "--config ${denyConfig}"; });
+
+        # Ensure the single workspace-hack remains synchronized with the
+        # complete workspace dependency graph.
+        hakari = craneLib.mkCargoDerivation (
+          commonArgs
+          // {
+            pname = "hwaas-workspace-hakari";
+
+            cargoArtifacts = null;
+            doInstallCargoArtifacts = false;
+
+            nativeBuildInputs = commonArgs.nativeBuildInputs ++ [ pkgs.cargo-hakari ];
+
+            buildPhaseCargoCommand = ''
+              cargo hakari generate --diff  # workspace-hack Cargo.toml is up-to-date
+              cargo hakari manage-deps --dry-run  # all workspace crates depend on workspace-hack
+              cargo hakari verify
+            '';
+          }
+        );
+      };
+
+      # Preserve the existing sbom-<package> outputs.
+      mkSbom =
+        packageName:
+        let
+          definition = packageDefinitions.${packageName};
+        in
+        craneLib.mkCargoDerivation (
+          commonArgs
+          // {
+            pname = "sbom-${packageName}";
+            version = "3.1.0";
+
+            # SBOM generation uses Cargo metadata rather than compiled
+            # artifacts.
+            cargoArtifacts = null;
+            doInstallCargoArtifacts = false;
+            doCheck = false;
+
+            nativeBuildInputs = [
+              pkgs.cargo-cyclonedx
+              pkgs.cyclonedx-cli
+            ];
+
+            buildPhaseCargoCommand = ''
+              cargo-cyclonedx cyclonedx --spec-version 1.5 -f json -v \
+                --manifest-path ${definition.manifestPath}
+
+              cyclonedx merge --output-file merged.cdx.json \
+                --input-files $(find . -name "*.cdx.json") ||
+                echo "WARNING: not merging - no files found"
+            '';
+
+            installPhaseCommand = ''
+              mkdir "$out"
+              find . -name "*.cdx.json" -exec cp -t $out {} +
+            '';
+          }
+        );
+
+      sbomPackages = lib.mapAttrs' (
+        packageName: _: lib.nameValuePair "sbom-${packageName}" (mkSbom packageName)
+      ) packageDefinitions;
+
+      checks = workspaceChecks;
+
+      # One development shell for the entire Rust workspace.
+      devShells.rust = craneLib.devShell {
+        # Inherit inputs from checks.
+        inherit checks;
+
+        # Extra inputs can be added here; cargo and rustc are provided by default.
+        packages = with pkgs; [
+          rust-analyzer
+          cargo-watch
+          cargo-audit
+          cargo-cyclonedx
+          cyclonedx-cli
+          cargo-hakari
+
+          # ContextAPI development.
+          diesel-cli
+          sqlite
+        ];
+      };
+    in
+    {
       config = {
-        hwaas-crates.project = {
-          aruba-switch-mock.sources = [ ../components/aruba-switch-mock ];
+        packages = packages // sbomPackages;
 
-          hunt = {
-            sources = [ ../components/hunt ];
-            hasWorkspaces = false;
-          };
-
-          rpi-status-display = {
-            sources = [ ../components/rpi-status-display ];
-            hasWorkspaces = false;
-          };
-
-          net-ctrl.sources = [
-            ../components/net-ctrl
-            ../components/hunt
-          ];
-
-          ws-gateway = {
-            sources = [
-              ../components/ws-gateway
-              ../components/hunt
-            ];
-            packages = [
-              "ws-gateway"
-              "ws-proxy-client"
-            ];
-          };
-
-          remote-hands = {
-            sources = [
-              ../components/remote-hands
-              ../components/hunt
-            ];
-            packages = [
-              "remote-auxiliary"
-              "remote-power"
-              "remote-serial"
-              "remote-usb"
-            ];
-          };
-
-          contextapi = {
-            sources = [
-              ../components/contextapi
-              ../components/hunt
-              ../components/remote-hands
-            ];
-            unfilteredSources = [
-              ../components/contextapi/db_interaction/migrations
-              ../components/contextapi/context_data_structures/src/network/patch/test_fixtures
-            ];
-            packages = [
-              "contextapi"
-              "machine-ops"
-            ];
-            extraDeps = [ pkgs.sqlite ];
-            extraDepsDevShell = [ pkgs.diesel-cli ];
-          };
-        };
-
-        inherit checks devShells packages;
+        inherit checks devShells;
       };
     };
 }
