@@ -55,7 +55,6 @@ let
     "clippy"
     "deny"
     "docs"
-    "fmt"
     "golden-test-openapi-spec"
     "hakari"
     "nextest"
@@ -91,6 +90,7 @@ let
       [
         "check-pre-commit"
         "check-verify-ci"
+        "check-ungrouped"
       ]
     else
       needs;
@@ -210,7 +210,10 @@ let
         phase = "check";
         group = null;
         items = ungroupedChecks;
-        needs = dependOnMinimalChecksIfEmpty [ ];
+        needs = [
+          "check-pre-commit"
+          "check-verify-ci"
+        ];
       };
 
       buildJob = mkJob {
