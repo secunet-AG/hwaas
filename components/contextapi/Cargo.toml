@@ -68,7 +68,18 @@ diesel_migrations = { version = "2", default-features = false, features = [
 ] }
 futures = "0.3"
 rand = "0.8.5"
-reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest = { version = "0.13", default-features = false, features = [
+  "json",
+  "stream",
+  "rustls",
+] }
+reqwest-middleware = { version = "0.5", features = ["json"] }
+rustls = { version = "0.23", default-features = false, features = [
+  "logging",
+  "aws_lc_rs",
+  "std",
+  "tls12",
+] }
 schemars = { version = "0.8.0", default-features = false, features = [
   "derive",
   "uuid",

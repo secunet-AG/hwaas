@@ -22,6 +22,6 @@ serde_json = "^1.0"
 serde_repr = "^0.1"
 url = "^2.5"
 uuid = { version = "^1.8", features = ["serde", "v4"] }
-reqwest = { version = "^0.12", features = ["json", "multipart"] }
-reqwest-middleware = { version = "^0.4", features = ["json", "multipart"] }
+reqwest = { workspace = true, features = ["json", "multipart"] }
+reqwest-middleware = { workspace = true, features = ["multipart"] }
 contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }

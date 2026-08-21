@@ -53,7 +53,7 @@ tower-http = { version = "0.6", default-features = false, features = [
 ] }
 schemars = { version = "0.8.0", features = ["uuid", "uuid1", "derive"] }
 hunt.workspace = true
-reqwest-middleware = { version = "0.4", features = ["json"] }
+reqwest-middleware.workspace = true
 error-stack = "0.4.1"
 sha2 = "0.10.6"
 hex = "0.4.3"
@@ -75,5 +75,7 @@ env_logger = "0.10"
 wiremock.workspace = true
 tracing-test = "0.2"
 db_interaction = { workspace = true, features = ["test_utils"] }
-reqwest = { workspace = true, features = ["hickory-dns", "rustls-tls"] }
+reqwest = { workspace = true, default-features = false, features = [
+  "hickory-dns",
+] }
 remote-usb = { workspace = true, features = ["usb-serial"] }

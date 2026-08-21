@@ -35,7 +35,7 @@ unsafe_code = "forbid"
 
 [dependencies]
 aide = { version = "0.13.4", features = ["axum", "axum-extra", "macros"] }
-axum = { version = "0.7.5", features = ["multipart", "ws"] }
+axum = { version = "0.7", features = ["multipart", "ws"] }
 clap = { version = "4.2.0", features = ["derive"] }
 connection_handler = { path = "./connection_handler" }
 error-stack = "0.4"
@@ -43,6 +43,7 @@ hunt = { path = "../hunt" }
 inventory = { path = "./inventory" }
 log = "0.4.21"
 network_type_ids = { path = "./network_type_ids", features = ["serde_support"] }
+rustls.workspace = true
 schemars = "0.8"
 sd-notify = "0.4"
 serde = { version = "1.0", features = ["derive"] }
@@ -61,9 +62,15 @@ tokio = { version = "1.24.1", features = [
 tracing = "0.1"
 net-ctrl-workspace-hack = { version = "0.1", path = "net-ctrl-workspace-hack" }
 
+[workspace.dependencies]
+rustls = { version = "0.23", default-features = false, features = [
+  "aws_lc_rs",
+  "std",
+] }
+
 [dev-dependencies]
-axum-test-helper = "0.4"
-env_logger = "0.11.3"                              # required by test-log
+reqwest = { version = "*", default-features = false }
+env_logger = "0.11.3"                                 # required by test-log
 network_type_ids = { path = "./network_type_ids" }
 pretty_assertions = "1.2.1"
 serde_json = "1.0"

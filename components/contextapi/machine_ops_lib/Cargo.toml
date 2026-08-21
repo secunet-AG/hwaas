@@ -18,7 +18,7 @@ db_interaction.workspace = true
 diesel.workspace = true
 error_utils.workspace = true
 futures.workspace = true
-paste = { version = "1" }
+paste = { package = "pastey", version = "0.2" }
 tokio.workspace = true
 schemars.workspace = true
 serde.workspace = true
