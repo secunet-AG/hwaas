@@ -228,7 +228,7 @@ async fn get_usb() {
     let remote_mock_handler = Mock::given(method("GET")).respond_with(|req: &Request| {
         if req.url.as_str().ends_with("usb") {
             ResponseTemplate::new(StatusCode::OK).set_body_json(json!([{
-                "type": "serial",
+                "type": "keyboard",
             }]))
         } else {
             ResponseTemplate::new(404)
@@ -266,7 +266,7 @@ async fn put_usb() {
     let remote_mock_handler = Mock::given(method("PUT")).respond_with(|req: &Request| {
         if req.url.as_str().ends_with("usb") {
             ResponseTemplate::new(StatusCode::OK).set_body_json(json!([{
-                "type": "serial",
+                "type": "keyboard",
             }]))
         } else {
             ResponseTemplate::new(404)
@@ -289,7 +289,7 @@ async fn put_usb() {
     let res = reqwest::Client::new()
         .put(url)
         .json(&json!([{
-            "type": "serial",
+            "type": "keyboard",
         }]))
         .send()
         .await
