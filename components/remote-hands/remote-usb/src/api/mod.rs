@@ -7,6 +7,7 @@ mod usb;
 
 use aide::openapi::OpenApi;
 use axum::{Json, Router};
+#[cfg(feature = "usb-serial")]
 use remote_serial::api::serial_router;
 use serde_json::{Value, json};
 use std::convert::Infallible;
@@ -37,20 +38,22 @@ pub async fn prepare_api_router<S, T: UsbConfigurable>(
     state: T,
 ) -> Result<(Router<S>, OpenApi), Infallible> {
     let usb_router = usb_router();
-    let serial_router = serial_router();
     let hid_router = hid_router();
+
     let (router, api) = remote_axum::api_router(
         "remote-hands usb service",
         env!("CARGO_PKG_VERSION"),
         |router| async {
-            let router = router
-                .merge(usb_router)
-                .merge(serial_router)
-                .merge(hid_router);
+            let router = router.merge(usb_router).merge(hid_router);
+
+            #[cfg(feature = "usb-serial")]
+            let router = router.merge(serial_router());
+
             Ok::<_, Infallible>(router)
         },
     )
     .await?;
+
     let router = router.with_state(state);
     Ok((router, api))
 }
