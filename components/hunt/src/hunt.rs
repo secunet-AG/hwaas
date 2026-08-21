@@ -67,7 +67,7 @@ impl HuntBuilder {
     }
 
     /// A list of target crates to trace.
-    /// The filter for these crates is set to the verbosity level (see [`HuntBuilder::set_verbosity`])
+    /// The filter for these crates is set to the verbosity level (see [`HuntBuilder::verbosity`])
     pub fn append_filters(mut self, mut targets: Vec<&'static str>) -> Self {
         self.0.filter_targets.append(&mut targets);
         self

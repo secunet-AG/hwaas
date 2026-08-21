@@ -15,9 +15,9 @@ use super::connection_handler_error::ConnectionHandlerError;
 
 /// This struct is responsible for caching individual SwitchAPI
 /// sessions for a certain amount of time (TTL).
-/// Obtaining a [`SwitchAPI`] is allowed by providing [`inventory::SwitchModelDetail`].
+/// Obtaining a [`SwitchAPI`] is allowed by providing [`crate::inventory::SwitchModelDetail`].
 /// The cache respects construction of a new switch session and minimizes
-/// multiple constructions for the same [`inventory::SwitchModelDetail`].
+/// multiple constructions for the same [`crate::inventory::SwitchModelDetail`].
 pub struct ConnectionHandler {
     sessions: HashMap<SwitchID, Arc<SwitchBackend>>,
 
@@ -43,7 +43,7 @@ impl ConnectionHandler {
         })
     }
 
-    /// Get a [`switch::SwitchBackend`] from the cache by specifying a [`SwitchID`].
+    /// Get a [`crate::switch::SwitchBackend`] from the cache by specifying a [`SwitchID`].
     /// If it was never requested before or the TTL is over construct a new switch session.
     #[tracing::instrument(skip(self, switch_id), level = "debug")]
     pub fn get_switch_api(

@@ -22,7 +22,7 @@ impl opentelemetry::propagation::Injector for HeaderInjector<'_> {
     }
 }
 
-/// This function uses the [`HeaderInjector`] in conjunction with the [`TraceContextPropagator`]
+/// This function uses the private `HeaderInjector` in conjunction with the [`TraceContextPropagator`]
 /// to inject the currently valid `traceparent` and `tracestate` HTTP headers.
 pub fn inject_headers(hdrs: &mut HeaderMap) {
     let mut injector = HeaderInjector(hdrs);
