@@ -124,13 +124,18 @@ remote_client = { path = "./contextapi/remote_client/" }
 remote-init = { path = "./remote-hands/remote-init/" }
 remote-serial = { path = "./remote-hands/remote-serial/" }
 remote-usb = { path = "./remote-hands/remote-usb/" }
-reqwest = { version = "0.12.4", features = ["multipart", "json", "stream"] }
-reqwest-middleware = { version = "0.4", features = [
+reqwest = { version = "0.13", features = [
+  "multipart",
+  "json",
+  "stream",
+  "cookies",
+] }
+reqwest-middleware = { version = "0.5", features = [
   "json",
   "multipart",
-  "rustls-tls",
+  "rustls",
 ] }
-reqwest_cookie_store = "0.8.0"
+reqwest_cookie_store = "0.10"
 rppal = { version = "0.14.1", features = ["hal"] }
 schemars = { version = "0.8", features = ["derive", "uuid", "uuid1"] }
 sd-notify = "0.4.0"

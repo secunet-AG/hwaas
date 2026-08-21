@@ -18,6 +18,7 @@ workspace = true
 
 [dependencies]
 hunt.workspace = true
+reqwest.workspace = true
 reqwest-middleware.workspace = true
 net_ctrl_client.workspace = true
 db_interaction.workspace = true
