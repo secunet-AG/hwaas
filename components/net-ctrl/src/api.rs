@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use aide::axum::ApiRouter;
 use aide::axum::routing::{get_with, post_with, put_with};
-use aide::openapi::{Info, OpenApi};
+use aide::openapi::{Info, License, OpenApi};
 use axum::Router;
 use axum::http::{Method, StatusCode, Uri};
 use tracing::debug;
@@ -23,6 +23,10 @@ fn get_default_openapi() -> OpenApi {
         info: Info {
             description: Some("HWaaS NetCtrl API".to_string()),
             version: env!("CARGO_PKG_VERSION").to_string(),
+            license: Some(License {
+                name: "Apache-2.0".to_string(),
+                ..Default::default()
+            }),
             ..Info::default()
         },
         ..Default::default()

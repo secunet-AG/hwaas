@@ -3,8 +3,7 @@ name = "net_ctrl_client"
 version = "0.1.0"
 authors = ["OpenAPI Generator team and contributors"]
 description = "HWaaS NetCtrl API"
-# Override this license by providing a License Object in the OpenAPI.
-license = "Unlicense"
+license = "Apache-2.0"
 edition = "2021"
 
 [dependencies]
