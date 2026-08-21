@@ -2915,6 +2915,7 @@
   "info": {
     "description": "The REST-API to access the Hardware as a Service implementation.",
     "license": {
+      "identifier": "Apache-2.0",
       "name": "Apache-2.0"
     },
     "title": "HWaaS Context API",

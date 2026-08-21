@@ -80,6 +80,7 @@ where
             version: env!("CARGO_PKG_VERSION").to_string(),
             license: Some(License {
                 name: "Apache-2.0".to_string(),
+                identifier: Some("Apache-2.0".to_string()),
                 ..Default::default()
             }),
             ..Info::default()

@@ -26,6 +26,7 @@ where
             version: version.to_string(),
             license: Some(License {
                 name: "Apache-2.0".to_string(),
+                identifier: Some("Apache-2.0".to_string()),
                 ..Default::default()
             }),
             ..Info::default()
