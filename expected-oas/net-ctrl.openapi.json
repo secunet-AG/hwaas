@@ -197,6 +197,9 @@
   },
   "info": {
     "description": "HWaaS NetCtrl API",
+    "license": {
+      "name": "Apache-2.0"
+    },
     "title": "",
     "version": "0.1.0"
   },
