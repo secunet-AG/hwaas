@@ -230,7 +230,7 @@ pub(crate) async fn handle_error(
     _uri: Uri,
     err: BoxError,
 ) -> (StatusCode, String) {
-    if err.is::<tower_http::timeout::TimeoutError>() {
+    if err.is::<tower::timeout::error::Elapsed>() {
         (
             StatusCode::REQUEST_TIMEOUT,
             "Request took too long".to_string(),
