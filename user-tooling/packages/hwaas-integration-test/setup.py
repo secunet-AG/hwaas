@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
 #
 # SPDX-License-Identifier: Apache-2.0
-
-from hwaas_driver import Hwaas, get_collector
 import atexit
 import json
 import signal
 import sys
 import traceback
+
+from hwaas_driver import Hwaas, get_collector
 
 
 def junit_exception_hook(exc_type, exc_value, tb):
