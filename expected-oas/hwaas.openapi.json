@@ -2921,26 +2921,6 @@
         "oneOf": [
           {
             "properties": {
-              "serial_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "type": {
-                "enum": [
-                  "serial"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "type": "object"
-          },
-          {
-            "properties": {
               "luns": {
                 "items": {
                   "$ref": "#/components/schemas/StorageLunConfig"
@@ -3012,26 +2992,6 @@
               "type": {
                 "enum": [
                   "mouse"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "type": "object"
-          },
-          {
-            "properties": {
-              "serial_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "type": {
-                "enum": [
-                  "serial"
                 ],
                 "type": "string"
               }

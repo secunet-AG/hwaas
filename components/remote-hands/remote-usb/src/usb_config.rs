@@ -77,10 +77,7 @@ impl UsbFunction {
     #[cfg(feature = "usb-serial")]
     /// Configure the name of a serial interface
     pub fn set_serial_id(&mut self, id: String) {
-        if let UsbFunction::Serial {
-            ref mut serial_id, ..
-        } = self
-        {
+        if let UsbFunction::Serial { serial_id, .. } = self {
             *serial_id = Some(id);
         }
     }

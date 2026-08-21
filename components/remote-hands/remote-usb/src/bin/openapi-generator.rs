@@ -8,7 +8,9 @@ use remote_usb::api;
 use remote_usb::app_state::UsbConfigurable;
 use remote_usb::usb_config::{UsbConfig, UsbFunctionInfo};
 
+#[cfg(feature = "usb-serial")]
 use remote_serial::api::HasSerial;
+#[cfg(feature = "usb-serial")]
 use remote_serial::serial::serial_state::SerialState;
 
 #[derive(Clone)]
@@ -49,6 +51,7 @@ impl UsbConfigurable for DummyState {
     }
 }
 
+#[cfg(feature = "usb-serial")]
 #[async_trait]
 /// Empty implementation of HasSerial functions for DummyState.
 /// Panic so that they don't get used accidentally.

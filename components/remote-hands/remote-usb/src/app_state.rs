@@ -4,10 +4,15 @@
 
 use axum::async_trait;
 use hidg::{Button, Class, Device, Key, Keyboard, Modifiers, Mouse};
+#[cfg(feature = "usb-serial")]
 use remote_serial::api::HasSerial;
+#[cfg(feature = "usb-serial")]
 use remote_serial::serial::serial_state::SerialState;
+#[cfg(feature = "usb-serial")]
 use remote_serial::serial::serial_task::SerialTasks;
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
+#[cfg(feature = "usb-serial")]
+use std::collections::HashMap;
+use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 use tracing::{debug, error, instrument};
 use usb_gadget::{RegGadget, Udc, default_udc, function::hid::Hid};
@@ -19,13 +24,40 @@ pub struct InnerState {
     udc: Udc,
     gadget: Option<RegGadget>,
     functions: Option<Vec<UsbFunction>>,
+    #[cfg(feature = "usb-serial")]
     serials: HashMap<String, SerialTasks>,
 }
 
+#[cfg(feature = "usb-serial")]
 /// This trait is solely needed to define "empty" State for OpenAPI generation
 /// in src/bin/openapi-generator.rs, since `default_udc()` fails there
+/// Uses HasSerial trait since usb-serial feature is enabled.
 #[async_trait]
 pub trait UsbConfigurable: Send + Sync + Clone + HasSerial + 'static {
+    async fn configure(&self, usb_config: UsbConfig) -> Result<(), std::io::Error>;
+    async fn deconfigure(&self) -> Result<(), std::io::Error>;
+    async fn get_function_infos(&self) -> Option<Vec<UsbFunctionInfo>>;
+    async fn use_keyboard(
+        &self,
+        modifier: Option<Modifiers>,
+        keys: Vec<Key>,
+        press: bool,
+        release: bool,
+    ) -> Result<(), std::io::Error>;
+    async fn use_mouse(
+        &self,
+        buttons: Vec<Button>,
+        pointer: (u16, u16),
+        wheel: i8,
+    ) -> Result<(), std::io::Error>;
+}
+
+#[cfg(not(feature = "usb-serial"))]
+/// This trait is solely needed to define "empty" State for OpenAPI generation
+/// in src/bin/openapi-generator.rs, since `default_udc()` fails there
+/// Skips HasSerial trait since usb-serial is disabled.
+#[async_trait]
+pub trait UsbConfigurable: Send + Sync + Clone + 'static {
     async fn configure(&self, usb_config: UsbConfig) -> Result<(), std::io::Error>;
     async fn deconfigure(&self) -> Result<(), std::io::Error>;
     async fn get_function_infos(&self) -> Option<Vec<UsbFunctionInfo>>;
@@ -63,6 +95,7 @@ impl AppState {
                 udc: default_udc().expect("default_udc"),
                 gadget: None,
                 functions: None,
+                #[cfg(feature = "usb-serial")]
                 serials: HashMap::new(),
             })),
         }
@@ -169,12 +202,14 @@ impl UsbConfigurable for AppState {
 
         inner.functions = None;
 
-        // Drop the various serial workers
-        for serial in inner.serials.values() {
-            serial.stop().await;
+        #[cfg(feature = "usb-serial")]
+        {
+            // Drop the various serial workers
+            for serial in inner.serials.values() {
+                serial.stop().await;
+            }
+            inner.serials = HashMap::new();
         }
-
-        inner.serials = HashMap::new();
 
         if let Some(reg) = inner.gadget.take() {
             reg.remove().map_err(|e| {
@@ -234,6 +269,7 @@ impl UsbConfigurable for AppState {
     }
 }
 
+#[cfg(feature = "usb-serial")]
 /// Implementation of the trait functions for `remote-usb`s `AppState`.
 #[async_trait]
 impl HasSerial for AppState {

@@ -26,7 +26,7 @@ path = "src/bin/openapi-generator.rs"
 [features]
 # Optional because deconfiguring USB serial leaves the kernel with
 # hung tasks
-usb-serial = []
+usb-serial = ["dep:remote-serial"]
 # Optional since we still need a design for the incorporation into the test
 # network. Currently only enables network between pi and machine under test.
 usb-ethernet = []
@@ -41,7 +41,7 @@ hidg.workspace = true
 itertools.workspace = true
 remote-axum.workspace = true
 remote-init.workspace = true
-remote-serial.workspace = true
+remote-serial = { workspace = true, optional = true }
 schemars.workspace = true
 serde.workspace = true
 serde_json.workspace = true
