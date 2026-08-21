@@ -4,7 +4,7 @@
 
 use aide::axum::routing::get;
 use aide::axum::{ApiRouter, IntoApiResponse};
-use aide::openapi::{Info, OpenApi};
+use aide::openapi::{Info, License, OpenApi};
 use axum::error_handling::HandleErrorLayer;
 use axum::extract::{FromRef, FromRequestParts};
 use axum::http::{Method, StatusCode, Uri};
@@ -78,6 +78,10 @@ where
                 "The REST-API to access the Hardware as a Service implementation.".to_string(),
             ),
             version: env!("CARGO_PKG_VERSION").to_string(),
+            license: Some(License {
+                name: "Apache-2.0".to_string(),
+                ..Default::default()
+            }),
             ..Info::default()
         },
         openapi: "3.1.0".into(),

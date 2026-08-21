@@ -3028,6 +3028,9 @@
   },
   "info": {
     "description": "The REST-API to access the Hardware as a Service implementation.",
+    "license": {
+      "name": "Apache-2.0"
+    },
     "title": "HWaaS API",
     "version": "5.0.0"
   },
