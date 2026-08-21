@@ -67,7 +67,7 @@ pub struct ImageHandler {
 /// If the ImageAPI is nested into a 'outer' API, the 'outer' state
 /// has to implement this trait.
 /// The outer state could not be known here and hence substate
-/// extraction for [`ImageApiHandler`] via FromRef is not
+/// extraction for [`ImageHandler`] via FromRef is not
 /// implementable. But a generic implementation allows it for
 /// any type implementing this trait.
 pub trait IntoImageHandler {

@@ -535,7 +535,7 @@
         ]
       },
       "KeyboardReport": {
-        "description": "User input for keyboard as a list of Keys. A maximum of 6 keys can be pressed at the same time. The modifier is used for keys like \"shift\" and does not count to the limit. All keys can be pressed and/or released, but one must be given. A short description of report format can be found here: https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard.",
+        "description": "User input for keyboard as a list of Keys. A maximum of 6 keys can be pressed at the same time. The modifier is used for keys like \"shift\" and does not count to the limit. All keys can be pressed and/or released, but one must be given. A short description of report format can be found here: <https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard>.",
         "properties": {
           "keys": {
             "items": {
@@ -5120,7 +5120,7 @@
               }
             }
           },
-          "description": "User input for keyboard as a list of Keys. A maximum of 6 keys can be pressed at the same time. The modifier is used for keys like \"shift\" and does not count to the limit. All keys can be pressed and/or released, but one must be given. A short description of report format can be found here: https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard.",
+          "description": "User input for keyboard as a list of Keys. A maximum of 6 keys can be pressed at the same time. The modifier is used for keys like \"shift\" and does not count to the limit. All keys can be pressed and/or released, but one must be given. A short description of report format can be found here: <https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard>.",
           "required": true
         },
         "responses": {

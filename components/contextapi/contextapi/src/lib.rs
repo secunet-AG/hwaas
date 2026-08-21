@@ -4,7 +4,7 @@
 
 pub mod api;
 mod api_merge_remote;
-mod app_config;
+pub mod app_config;
 mod app_state;
 mod context_manager;
 mod context_reservation;
