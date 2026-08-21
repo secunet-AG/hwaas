@@ -47,6 +47,9 @@
   },
   "info": {
     "description": "remote-hands auxiliary device service",
+    "license": {
+      "name": "Apache-2.0"
+    },
     "title": "",
     "version": "1.0.0"
   },

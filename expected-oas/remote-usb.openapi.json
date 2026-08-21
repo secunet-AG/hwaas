@@ -218,6 +218,9 @@
   },
   "info": {
     "description": "remote-hands usb service",
+    "license": {
+      "name": "Apache-2.0"
+    },
     "title": "",
     "version": "1.0.0"
   },

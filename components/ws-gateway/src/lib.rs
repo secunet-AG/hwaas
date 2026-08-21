@@ -20,7 +20,7 @@ use aide::NoApi;
 use aide::axum::ApiRouter;
 use aide::axum::IntoApiResponse;
 use aide::axum::routing::get_with;
-use aide::openapi::{Info, OpenApi};
+use aide::openapi::{Info, License, OpenApi};
 use axum::Router;
 use axum::extract::ws::WebSocket;
 use axum::extract::{ConnectInfo, Path, State, WebSocketUpgrade};
@@ -49,6 +49,10 @@ pub fn get_router(interface_prefix: String) -> Router<()> {
         info: Info {
             description: Some("HWaaS WebSocket Gateway API".to_string()),
             version: env!("CARGO_PKG_VERSION").to_string(),
+            license: Some(License {
+                name: "Apache-2.0".to_string(),
+                ..Default::default()
+            }),
             ..Info::default()
         },
         ..Default::default()

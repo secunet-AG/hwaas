@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use aide::axum::ApiRouter;
-use aide::openapi::{Info, OpenApi};
+use aide::openapi::{Info, License, OpenApi};
 use axum::Router;
 use axum::http::{Method, StatusCode, Uri};
 use std::future::Future;
@@ -24,6 +24,10 @@ where
         info: Info {
             description: Some(description.to_string()),
             version: version.to_string(),
+            license: Some(License {
+                name: "Apache-2.0".to_string(),
+                ..Default::default()
+            }),
             ..Info::default()
         },
         ..Default::default()
