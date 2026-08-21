@@ -219,6 +219,7 @@
   "info": {
     "description": "remote-hands usb service",
     "license": {
+      "identifier": "Apache-2.0",
       "name": "Apache-2.0"
     },
     "title": "",
