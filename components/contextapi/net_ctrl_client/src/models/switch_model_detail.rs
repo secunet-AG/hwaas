@@ -11,7 +11,7 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// SwitchModelDetail : Container for the information to construct a new SwitchAPI. The [`SwitchModel`] is used for determining the correct SwitchAPI type. The [`SwitchDetails`] contains all information needed by one SwitchAPI.
+/// SwitchModelDetail : Configuration details for a switch. The model identifies the switch implementation; the remaining fields contain the connection and VLAN configuration.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SwitchModelDetail {
     #[serde(rename = "credentials", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
@@ -31,7 +31,7 @@ pub struct SwitchModelDetail {
 }
 
 impl SwitchModelDetail {
-    /// Container for the information to construct a new SwitchAPI. The [`SwitchModel`] is used for determining the correct SwitchAPI type. The [`SwitchDetails`] contains all information needed by one SwitchAPI.
+    /// Configuration details for a switch. The model identifies the switch implementation; the remaining fields contain the connection and VLAN configuration.
     pub fn new(critical_ports: models::CriticalPorts, default_vlan: models::VlanId, ip: String, mgmt_vlan: models::VlanId, model: models::SwitchModel) -> SwitchModelDetail {
         SwitchModelDetail {
             credentials: None,

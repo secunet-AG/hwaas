@@ -12,6 +12,11 @@ use std::collections::HashMap;
 /// The [`SwitchModel`] is used for determining the correct SwitchAPI type.
 /// The [`SwitchDetails`] contains all information needed by one SwitchAPI.
 #[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, Eq, PartialEq)]
+#[schemars(
+    description = "Configuration details for a switch. The model identifies \
+                   the switch implementation; the remaining fields contain \
+                   the connection and VLAN configuration."
+)]
 pub struct SwitchModelDetail {
     pub model: SwitchModel,
 
