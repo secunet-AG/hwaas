@@ -12,7 +12,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
-      - check-ungrouped
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -32,7 +33,10 @@ jobs:
   build-contextapi:
     name: 'Build: contextapi'
     needs:
-      - check-contextapi
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -60,7 +64,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
-      - check-ungrouped
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -80,7 +85,10 @@ jobs:
   build-net-ctrl:
     name: 'Build: net-ctrl'
     needs:
-      - check-net-ctrl
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -106,7 +114,10 @@ jobs:
   build-remote:
     name: 'Build: remote'
     needs:
-      - check-remote
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -140,7 +151,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
-      - check-ungrouped
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -162,7 +174,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
-      - check-ungrouped
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -215,7 +228,10 @@ jobs:
   build-ungrouped:
     name: 'Build: ungrouped'
     needs:
-      - check-ungrouped
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -298,7 +314,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
-      - check-ungrouped
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -315,12 +332,9 @@ jobs:
       - if: always()
         name: build ws-gateway
         run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.ws-gateway'
-  check-contextapi:
-    name: 'Check: contextapi'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-      - check-ungrouped
+  check-cargo:
+    name: 'Check: cargo'
+    needs: []
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -335,14 +349,23 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
       - if: always()
-        name: check contextapi-golden-test-openapi-spec
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-golden-test-openapi-spec'
-  check-net-ctrl:
-    name: 'Check: net-ctrl'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-      - check-ungrouped
+        name: check cargo-clippy
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-clippy'
+      - if: always()
+        name: check cargo-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-deny'
+      - if: always()
+        name: check cargo-docs
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-docs'
+      - if: always()
+        name: check cargo-hakari
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-hakari'
+      - if: always()
+        name: check cargo-nextest
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-nextest'
+  check-openapi-spec:
+    name: 'Check: openapi-spec'
+    needs: []
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -357,8 +380,14 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
       - if: always()
-        name: check net-ctrl-golden-test-openapi-spec
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec'
+        name: check openapi-spec-contextapi-golden-test
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.openapi-spec-contextapi-golden-test'
+      - if: always()
+        name: check openapi-spec-net-ctrl-golden-test
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.openapi-spec-net-ctrl-golden-test'
+      - if: always()
+        name: check openapi-spec-remote-hands-golden-test
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.openapi-spec-remote-hands-golden-test'
   check-pre-commit:
     name: 'Check: pre-commit'
     needs: []
@@ -378,67 +407,13 @@ jobs:
       - if: always()
         name: check pre-commit
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.pre-commit'
-  check-remote:
-    name: 'Check: remote'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-      - check-ungrouped
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Use cache
-        uses: cachix/cachix-action@v17
-        with:
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          name: secunet-ag-hwaas
-      - if: always()
-        name: check remote-hands-golden-test-openapi-spec
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-golden-test-openapi-spec'
-  check-ungrouped:
-    name: 'Check: ungrouped'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Use cache
-        uses: cachix/cachix-action@v17
-        with:
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          name: secunet-ag-hwaas
-      - if: always()
-        name: check clippy
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.clippy'
-      - if: always()
-        name: check deny
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.deny'
-      - if: always()
-        name: check docs
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.docs'
-      - if: always()
-        name: check hakari
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hakari'
-      - if: always()
-        name: check nextest
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.nextest'
   check-user-tooling:
     name: 'Check: user-tooling'
     needs:
       - check-pre-commit
       - check-verify-ci
-      - check-ungrouped
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -479,7 +454,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
-      - check-ungrouped
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

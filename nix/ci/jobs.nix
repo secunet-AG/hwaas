@@ -33,9 +33,11 @@ let
   # Jobs will be grouped with these keywords
   groups = [
     "aruba-switch-mock"
+    "cargo"
     "contextapi"
     "hunt"
     "net-ctrl"
+    "openapi-spec"
     "pre-commit"
     # Can't use remote-hands here, since jobs are called remote-power for example as well
     "remote"
@@ -55,7 +57,7 @@ let
     "clippy"
     "deny"
     "docs"
-    "golden-test-openapi-spec"
+    "golden-test" # this is a check, but the name is quite common so we stuck with it
     "hakari"
     "nextest"
     "pre-commit"
@@ -90,7 +92,8 @@ let
       [
         "check-pre-commit"
         "check-verify-ci"
-        "check-ungrouped"
+        "check-cargo"
+        "check-openapi-spec"
       ]
     else
       needs;
@@ -160,9 +163,9 @@ let
         phase = "check";
         inherit group;
         items = checksForGroup group;
-        needs = lib.optionals (group != "pre-commit" && group != "verify-ci") (
-          dependOnMinimalChecksIfEmpty [ ]
-        );
+        needs = lib.optionals (
+          group != "pre-commit" && group != "verify-ci" && group != "cargo" && group != "openapi-spec"
+        ) (dependOnMinimalChecksIfEmpty [ ]);
       };
 
       buildJob = mkJob {
@@ -210,10 +213,7 @@ let
         phase = "check";
         group = null;
         items = ungroupedChecks;
-        needs = [
-          "check-pre-commit"
-          "check-verify-ci"
-        ];
+        needs = dependOnMinimalChecksIfEmpty [ ];
       };
 
       buildJob = mkJob {
