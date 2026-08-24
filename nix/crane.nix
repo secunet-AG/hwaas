@@ -26,9 +26,6 @@
           # All normal Cargo/Rust sources, including Cargo.toml/Cargo.lock.
           (craneLib.fileset.commonCargoSources workspaceRoot)
 
-          # cargo-hakari configuration used by the hakari check.
-          ../components/.config/hakari.toml
-
           # Non-Rust inputs used by ContextAPI.
           ../components/contextapi/db_interaction/migrations
           ../components/contextapi/context_data_structures/src/network/patch/test_fixtures
