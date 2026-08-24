@@ -9,6 +9,53 @@
         ],
         "type": "string"
       },
+      "Architecture": {
+        "description": "Supported and known architecture names.",
+        "oneOf": [
+          {
+            "description": "x86 (64-bit), also known as \"amd64\"",
+            "enum": [
+              "x86_64"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "x86 (32-bit)",
+            "enum": [
+              "x86_32"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "Aarch64 (64-bit), also known as \"arm64\"",
+            "enum": [
+              "aarch64"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "Aarch32 (32-bit), also known as \"arm32\"",
+            "enum": [
+              "aarch32"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "RISC-V (64-bit)",
+            "enum": [
+              "riscv64"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "RISC-V (32-bit)",
+            "enum": [
+              "riscv32"
+            ],
+            "type": "string"
+          }
+        ]
+      },
       "Components": {
         "additionalProperties": true,
         "description": "Holds a set of reusable objects for different aspects of the OAS. All objects defined within the components object will have no effect on the API unless they are explicitly referenced from properties outside the components object.",
@@ -357,6 +404,17 @@
       "ImageMetadata": {
         "description": "The ImageMetadata that can be requested for each uploaded image",
         "properties": {
+          "architecture": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Architecture"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Compilation target architecture"
+          },
           "created": {
             "$ref": "#/components/schemas/SystemTime",
             "description": "The time when the image was first stored"
@@ -365,17 +423,101 @@
             "description": "The user specified file name of the image",
             "type": "string"
           },
+          "sha256": {
+            "$ref": "#/components/schemas/Sha256Hash",
+            "description": "sha256 checksum of the full user image."
+          },
           "size": {
             "description": "The size of the image in bytes",
             "format": "uint64",
             "minimum": 0.0,
             "type": "integer"
+          },
+          "tags": {
+            "description": "Arbitrary user-defined tags with extra information",
+            "items": {
+              "$ref": "#/components/schemas/ImageTag"
+            },
+            "type": "array"
           }
         },
         "required": [
           "created",
           "file_name",
-          "size"
+          "sha256",
+          "size",
+          "tags"
+        ],
+        "type": "object"
+      },
+      "ImageMetadataToDelete": {
+        "description": "Valid boot image metadata fields for deletion.",
+        "properties": {
+          "remove_tag": {
+            "description": "Remove a tag (by name) from the boot image.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ImageMetadataToModify": {
+        "description": "Valid boot image metadata fields for modification.",
+        "properties": {
+          "add_tag": {
+            "description": "Add a tag (by name) to the boot image.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "architecture": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Architecture"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Modify the architecture of the boot image."
+          },
+          "file_name": {
+            "description": "Modify the user file name of the boot image.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ImageTag": {
+        "description": "A tag attached to a BMR image.",
+        "properties": {
+          "description": {
+            "description": "Human-readable description of a tag.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "description": "Concise name of a tag.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
         ],
         "type": "object"
       },
@@ -517,6 +659,31 @@
             "type": "string"
           }
         ]
+      },
+      "LegacyImageMetadata": {
+        "description": "The ImageMetadata that can be requested for each uploaded image",
+        "properties": {
+          "created": {
+            "$ref": "#/components/schemas/SystemTime",
+            "description": "The time when the image was first stored"
+          },
+          "file_name": {
+            "description": "The user specified file name of the image",
+            "type": "string"
+          },
+          "size": {
+            "description": "The size of the image in bytes",
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "created",
+          "file_name",
+          "size"
+        ],
+        "type": "object"
       },
       "License": {
         "additionalProperties": true,
@@ -3878,15 +4045,13 @@
               "application/json": {
                 "schema": {
                   "additionalProperties": {
-                    "format": "uint64",
-                    "minimum": 0.0,
-                    "type": "integer"
+                    "$ref": "#/components/schemas/LegacyImageMetadata"
                   },
                   "type": "object"
                 }
               }
             },
-            "description": "Return a dictionary containing the image hash and image size in byte"
+            "description": "Return a dictionary containing the image hash and partial metadata including image size in bytes"
           },
           "500": {
             "content": {
@@ -3956,6 +4121,124 @@
         ]
       }
     },
+    "/images/tags": {
+      "delete": {
+        "description": "Delete an existing tag from the database",
+        "parameters": [
+          {
+            "description": "Human-readable description of a tag.",
+            "in": "query",
+            "name": "description",
+            "schema": {
+              "description": "Human-readable description of a tag.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": "form"
+          },
+          {
+            "description": "Concise name of a tag.",
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "description": "Concise name of a tag.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Delete an existing tag",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "get": {
+        "description": "List all tags currently known in the database",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ImageTag"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "List known image tags",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "post": {
+        "description": "Define a new tag for attaching to images",
+        "parameters": [
+          {
+            "description": "Human-readable description of a tag.",
+            "in": "query",
+            "name": "description",
+            "schema": {
+              "description": "Human-readable description of a tag.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": "form"
+          },
+          {
+            "description": "Concise name of a tag.",
+            "in": "query",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "description": "Concise name of a tag.",
+              "type": "string"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Create a new tag",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
     "/images/{image_hash}": {
       "delete": {
         "description": "Mark an image for garbage collection",
@@ -4019,6 +4302,164 @@
           }
         },
         "summary": "Get image metadata",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
+    "/images/{image_hash}/metadata": {
+      "delete": {
+        "description": "Delete metadata from a BMR image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Remove a tag (by name) from the boot image.",
+            "in": "query",
+            "name": "remove_tag",
+            "schema": {
+              "description": "Remove a tag (by name) from the boot image.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Delete image metadata",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "get": {
+        "description": "Query all available metadata for a BMR image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Get image metadata",
+        "tags": [
+          "Image API"
+        ]
+      },
+      "post": {
+        "description": "Modify metadata for a BMR image",
+        "parameters": [
+          {
+            "description": "hash of a boot image (sha256sum)",
+            "in": "path",
+            "name": "image_hash",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256Hash",
+              "description": "hash of a boot image (sha256sum)"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Add a tag (by name) to the boot image.",
+            "in": "query",
+            "name": "add_tag",
+            "schema": {
+              "description": "Add a tag (by name) to the boot image.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": "form"
+          },
+          {
+            "description": "Modify the architecture of the boot image.",
+            "in": "query",
+            "name": "architecture",
+            "schema": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Architecture"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Modify the architecture of the boot image."
+            },
+            "style": "form"
+          },
+          {
+            "description": "Modify the user file name of the boot image.",
+            "in": "query",
+            "name": "file_name",
+            "schema": {
+              "description": "Modify the user file name of the boot image.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "no content"
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "Modify image metadata",
         "tags": [
           "Image API"
         ]

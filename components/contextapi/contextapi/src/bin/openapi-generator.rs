@@ -2,13 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use bytesize::ByteSize;
 use clap::Parser;
 use context_api_lib::api::get_api;
 use context_api_lib::{ContextApiConfig, WsGatewaySettings};
 use error_stack::{Context, Report, Result, ResultExt};
 use hunt::HuntBuilder;
-use image_api::ImageApiSettings;
 use std::fmt;
 use std::fs;
 use std::path::PathBuf;
@@ -62,10 +60,7 @@ fn main() -> Result<(), OpenApiGeneratorError> {
     #[allow(clippy::single_range_in_vec_init)]
     let conf = ContextApiConfig {
         net_ctrl_base_path: "https://localhost/".to_string(),
-        image_api_settings: ImageApiSettings {
-            max_file_size: ByteSize::mib(128),
-            store: "/tmp".parse().unwrap(),
-        },
+        image_api_settings: Default::default(),
         network_gateway: WsGatewaySettings {
             ws_gateway_url: "".to_string(),
         },

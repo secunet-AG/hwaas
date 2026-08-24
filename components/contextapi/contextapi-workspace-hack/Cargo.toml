@@ -21,14 +21,15 @@ aide = { version = "0.13", default-features = false, features = ["axum-headers",
 axum = { version = "0.7", features = ["macros", "multipart", "ws"] }
 axum-extra = { version = "0.9", features = ["typed-header"] }
 bstr = { version = "1" }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 crossbeam-utils = { version = "0.8" }
 deadpool = { version = "0.12", features = ["rt_tokio_1"] }
 either = { version = "1", features = ["use_std"] }
+fastrand = { version = "2" }
 form_urlencoded = { version = "1" }
 futures-channel = { version = "0.3", features = ["sink"] }
 futures-core = { version = "0.3" }
 futures-executor = { version = "0.3" }
-futures-io = { version = "0.3" }
 futures-sink = { version = "0.3" }
 futures-task = { version = "0.3", default-features = false, features = ["std"] }
 futures-util = { version = "0.3", features = ["channel", "io", "sink"] }
@@ -36,11 +37,12 @@ hyper = { version = "1", features = ["full"] }
 hyper-util = { version = "0.1", features = ["client-legacy", "http1", "http2", "server", "service"] }
 indexmap = { version = "2", features = ["serde"] }
 libc = { version = "0.2", features = ["extra_traits"] }
-log = { version = "0.4", default-features = false, features = ["kv_unstable", "std"] }
+log = { version = "0.4", default-features = false, features = ["std"] }
 memchr = { version = "2" }
 num-traits = { version = "0.2" }
 once_cell = { version = "1" }
 percent-encoding = { version = "2" }
+phf_shared = { version = "0.14", default-features = false, features = ["std"] }
 predicates = { version = "3" }
 rand = { version = "0.8", features = ["small_rng"] }
 regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
@@ -48,30 +50,37 @@ regex-syntax = { version = "0.8" }
 remote-usb = { path = "../../remote-hands/remote-usb", default-features = false, features = ["usb-serial"] }
 reqwest = { version = "0.12", features = ["hickory-dns", "json", "multipart", "rustls-tls", "stream"] }
 reqwest-middleware = { version = "0.4", default-features = false, features = ["json", "multipart", "rustls-tls"] }
-schemars = { version = "0.8", features = ["impl_json_schema", "indexmap2", "uuid", "uuid1"] }
+schemars = { version = "0.8", features = ["chrono", "impl_json_schema", "indexmap2", "uuid", "uuid1"] }
 serde_core = { version = "1", features = ["alloc"] }
 serde_json = { version = "1", features = ["raw_value"] }
 slab = { version = "0.4" }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
+strum = { version = "0.27", features = ["derive"] }
 sync_wrapper = { version = "1", default-features = false, features = ["futures"] }
 tempfile = { version = "3" }
+test-log = { version = "0.2", features = ["trace"] }
+thiserror = { version = "2" }
 tokio = { version = "1", features = ["full", "test-util", "tracing"] }
 tokio-stream = { version = "0.1", features = ["fs", "net"] }
 tokio-util = { version = "0.7", features = ["codec", "io"] }
 tower-http = { version = "0.6", default-features = false, features = ["cors", "limit", "request-id", "timeout", "trace"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-core = { version = "0.1" }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 url = { version = "2", features = ["serde"] }
 uuid = { version = "1", features = ["fast-rng", "serde", "v4"] }
 
 [build-dependencies]
+displaydoc = { version = "0.2", default-features = false, features = ["std"] }
 either = { version = "1", features = ["use_std"] }
-log = { version = "0.4", default-features = false, features = ["kv_unstable", "std"] }
-proc-macro2 = { version = "1" }
-quote = { version = "1" }
+fastrand = { version = "2" }
+log = { version = "0.4", default-features = false, features = ["std"] }
+phf_shared = { version = "0.14", default-features = false, features = ["std"] }
 rand = { version = "0.8", features = ["small_rng"] }
 serde_core = { version = "1", features = ["alloc"] }
 syn-7b89eefb6aaa9bf3 = { package = "syn", version = "3", features = ["full", "visit-mut"] }
 syn-f595c2ba2a3f28df = { package = "syn", version = "2", features = ["extra-traits", "fold", "full", "visit", "visit-mut"] }
+test-log-core = { version = "0.2", default-features = false, features = ["log", "trace"] }
+test-log-macros = { version = "0.2", default-features = false, features = ["log", "trace"] }
 
 ### END HAKARI SECTION

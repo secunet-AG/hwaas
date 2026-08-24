@@ -161,7 +161,7 @@ impl App {
         let db_facade = Arc::new(db_facade);
 
         let image_api_settings = config.image_api_settings.clone();
-        let image_handler = ImageHandler::new(image_api_settings.store)
+        let image_handler = ImageHandler::new(image_api_settings.store, db_facade.clone())
             .map_err(|_| AppPreparationError)
             .attach_printable("could not construct image handler")?;
 
