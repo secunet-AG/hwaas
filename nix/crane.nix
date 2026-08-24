@@ -134,7 +134,7 @@
       # One workspace-wide test/check set.
       workspaceChecks = {
         # Docs and doctests
-        docs = craneLib.cargoDoc (
+        cargo-docs = craneLib.cargoDoc (
           commonArgs
           // {
             inherit cargoArtifacts;
@@ -145,7 +145,7 @@
         );
 
         # Clippy linting
-        clippy = craneLib.cargoClippy (
+        cargo-clippy = craneLib.cargoClippy (
           commonArgs
           // {
             inherit cargoArtifacts;
@@ -159,7 +159,7 @@
         # NOTE: All formatting is taken care of by `nix fmt`
 
         # Clippy conformity
-        nextest = craneLib.cargoNextest (
+        cargo-nextest = craneLib.cargoNextest (
           commonArgs
           // {
             inherit cargoArtifacts;
@@ -173,7 +173,7 @@
         );
 
         # Run cargo-deny
-        deny =
+        cargo-deny =
           let
             denyConfig = ../components/deny.toml;
           in
@@ -181,7 +181,7 @@
 
         # Ensure the single workspace-hack remains synchronized with the
         # complete workspace dependency graph.
-        hakari = craneLib.mkCargoDerivation (
+        cargo-hakari = craneLib.mkCargoDerivation (
           commonArgs
           // {
             pname = "hwaas-workspace-hakari";

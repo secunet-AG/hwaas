@@ -12,7 +12,7 @@ in
   {
     checks = {
       remote-hands-check-otel-traces = pkgs.callPackage ./check-otel-traces.nix { inherit modules; };
-      remote-hands-golden-test-openapi-spec = pkgs.callPackage ./golden-test-openapi-spec.nix {
+      openapi-spec-remote-hands-golden-test = pkgs.callPackage ./golden-test-openapi-spec.nix {
         inherit (config.packages) remote-hands-oas;
       };
       remote-hands-remote-auxiliary = pkgs.callPackage ./remote-auxiliary.nix { inherit modules; };
