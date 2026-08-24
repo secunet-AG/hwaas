@@ -71,67 +71,38 @@
       #
       # manifestPath is used only for reading pname/version and generating
       # the per-package SBOM.
-      packageDefinitions = {
-        aruba-switch-mock = {
-          manifest = ../components/aruba-switch-mock/Cargo.toml;
-          manifestPath = "aruba-switch-mock/Cargo.toml";
-        };
-
-        hunt = {
-          manifest = ../components/hunt/Cargo.toml;
-          manifestPath = "hunt/Cargo.toml";
-        };
-
-        rpi-status-display = {
-          manifest = ../components/rpi-status-display/Cargo.toml;
-          manifestPath = "rpi-status-display/Cargo.toml";
-        };
-
-        net-ctrl = {
-          manifest = ../components/net-ctrl/Cargo.toml;
-          manifestPath = "net-ctrl/Cargo.toml";
-        };
-
-        ws-gateway = {
-          manifest = ../components/ws-gateway/Cargo.toml;
-          manifestPath = "ws-gateway/Cargo.toml";
-        };
-
-        ws-proxy-client = {
-          manifest = ../components/ws-proxy-client/Cargo.toml;
-          manifestPath = "ws-proxy-client/Cargo.toml";
-        };
-
-        remote-auxiliary = {
-          manifest = ../components/remote-hands/remote-auxiliary/Cargo.toml;
-          manifestPath = "remote-hands/remote-auxiliary/Cargo.toml";
-        };
-
-        remote-power = {
-          manifest = ../components/remote-hands/remote-power/Cargo.toml;
-          manifestPath = "remote-hands/remote-power/Cargo.toml";
-        };
-
-        remote-serial = {
-          manifest = ../components/remote-hands/remote-serial/Cargo.toml;
-          manifestPath = "remote-hands/remote-serial/Cargo.toml";
-        };
-
-        remote-usb = {
-          manifest = ../components/remote-hands/remote-usb/Cargo.toml;
-          manifestPath = "remote-hands/remote-usb/Cargo.toml";
-        };
-
-        contextapi = {
-          manifest = ../components/contextapi/contextapi/Cargo.toml;
-          manifestPath = "contextapi/contextapi/Cargo.toml";
-        };
-
-        machine-ops = {
-          manifest = ../components/contextapi/machine_ops/Cargo.toml;
-          manifestPath = "contextapi/machine_ops/Cargo.toml";
-        };
-      };
+      packageDefinitions =
+        let
+          packagePaths = [
+            "aruba-switch-mock"
+            "hunt"
+            "rpi-status-display"
+            "net-ctrl"
+            "ws-gateway"
+            "ws-proxy-client"
+            "remote-hands/remote-auxiliary"
+            "remote-hands/remote-power"
+            "remote-hands/remote-serial"
+            "remote-hands/remote-usb"
+            "contextapi/contextapi"
+            "contextapi/machine_ops"
+          ];
+          # Format package paths into manifest attribute sets
+          # Sets will be named like the package path.
+          # For sub-paths, sets will be named like the last part of the path.
+          mkSets =
+            paths:
+            builtins.listToAttrs (
+              map (path: {
+                name = lib.replaceStrings [ "_" ] [ "-" ] (lib.last (lib.splitString "/" path));
+                value = rec {
+                  manifest = ../components + "/${manifestPath}";
+                  manifestPath = "${path}/Cargo.toml";
+                };
+              }) paths
+            );
+        in
+        mkSets packagePaths;
 
       # Build one exported Cargo package.
       mkPackage =
@@ -169,17 +140,19 @@
             inherit cargoArtifacts;
 
             cargoExtraArgs = "--workspace";
+            RUSTDOCFLAGS = "--deny warnings";
           }
         );
 
-        # Clippy conformity
+        # Clippy linting
         clippy = craneLib.cargoClippy (
           commonArgs
           // {
             inherit cargoArtifacts;
-            # Only lint workspace members and not their dependencies
-            # Additionally exclude `net_ctrl_client` since it is completely auto generated
-            cargoClippyExtraArgs = "--workspace --all-targets --exclude net_ctrl_client -- --no-deps";
+            # `--no-deps`: only lint workspace members and not their dependencies
+            # `--exclude`: exclude `net_ctrl_client` since it is completely auto generated
+            # `--deny`: fail on warnings
+            cargoClippyExtraArgs = "--workspace --all-targets --exclude net_ctrl_client -- --no-deps --deny warnings";
           }
         );
 
