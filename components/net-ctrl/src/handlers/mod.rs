@@ -15,7 +15,7 @@ pub(crate) mod setup_switch;
 
 #[derive(Deserialize, Serialize, Debug, JsonSchema)]
 pub struct PathParamsSwitchID {
-    /// Context access token
+    /// ID of a switch
     pub switch_id: SwitchID,
 }
 

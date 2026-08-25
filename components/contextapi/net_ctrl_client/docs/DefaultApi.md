@@ -51,7 +51,7 @@ Get information about a switch
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**switch_id** | **String** | Context access token | [required] |
+**switch_id** | **String** | ID of a switch | [required] |
 
 ### Return type
 
@@ -144,7 +144,7 @@ setup VLANs and trunk ports
 
 Name | Type | Description  | Required | Notes
 ------------- | ------------- | ------------- | ------------- | -------------
-**switch_id** | **String** | Context access token | [required] |
+**switch_id** | **String** | ID of a switch | [required] |
 **setup_data** | [**SetupData**](SetupData.md) | The user provided input for switch setup. Contains a range of u16 representing the allowed VLAN IDs. | [required] |
 
 ### Return type

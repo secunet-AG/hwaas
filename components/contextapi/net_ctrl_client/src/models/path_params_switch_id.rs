@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PathParamsSwitchId {
-    /// Context access token
+    /// ID of a switch
     #[serde(rename = "switch_id")]
     pub switch_id: String,
 }

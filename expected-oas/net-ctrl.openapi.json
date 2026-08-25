@@ -58,7 +58,7 @@
         "properties": {
           "switch_id": {
             "$ref": "#/components/schemas/SwitchID",
-            "description": "Context access token"
+            "description": "ID of a switch"
           }
         },
         "required": [
@@ -253,13 +253,13 @@
         "description": "Get information about a switch",
         "parameters": [
           {
-            "description": "Context access token",
+            "description": "ID of a switch",
             "in": "path",
             "name": "switch_id",
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/SwitchID",
-              "description": "Context access token"
+              "description": "ID of a switch"
             },
             "style": "simple"
           }
@@ -432,13 +432,13 @@
         "description": "setup VLANs and trunk ports",
         "parameters": [
           {
-            "description": "Context access token",
+            "description": "ID of a switch",
             "in": "path",
             "name": "switch_id",
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/SwitchID",
-              "description": "Context access token"
+              "description": "ID of a switch"
             },
             "style": "simple"
           }
