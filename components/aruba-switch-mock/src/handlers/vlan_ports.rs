@@ -24,7 +24,7 @@ pub(crate) async fn vlan_ports(State(state): State<Arc<AppState>>) -> Json<VlanP
         .map(|p| VlanPort {
             vlan_id: 1,
             port_id: p.id.to_string(),
-            port_mode: PortMode::Untagged,
+            port_mode: PortMode::PomUntagged,
         })
         .collect();
 

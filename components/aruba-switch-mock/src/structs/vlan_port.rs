@@ -19,8 +19,12 @@ pub struct VlanPort {
 
 #[derive(Deserialize, Serialize, JsonSchema, Eq, PartialEq, Hash, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[expect(
+    clippy::enum_variant_names,
+    reason = "This code is derived from an Aruba switch API and outside of our control"
+)]
 pub enum PortMode {
-    Untagged,
-    TaggedStatic,
-    Forbidden,
+    PomUntagged,
+    PomTaggedStatic,
+    PomForbidden,
 }
