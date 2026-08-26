@@ -66,7 +66,7 @@ async fn prepare_router<S>(
         ),
     };
 
-    Ok(ApiRouter::new()
+    let router = ApiRouter::new()
         .api_route(
             "/switches",
             get_with(
@@ -82,7 +82,7 @@ async fn prepare_router<S>(
             ),
         )
         .api_route(
-            "/switches/:switch_id/ports/:port_id",
+            "/switches/:switch_id/ports/*port_id",
             put_with(handle_ports::enable_port, handle_ports::api_doc_enable_port).delete_with(
                 handle_ports::disable_port,
                 handle_ports::api_doc_disable_port,
@@ -96,8 +96,29 @@ async fn prepare_router<S>(
             ),
         )
         .fallback(fallback_handler)
-        .finish_api(api)
-        .with_state(app_state))
+        .finish_api(api);
+
+    // Aide represents the Axum wildcard using `{port_id+}`.
+    // Our OpenAPI client generator doesn't understand that syntax,
+    // so expose it as a normal OpenAPI path parameter instead.
+    // OpenAPI rather wants you to escape or percent-encode `/`
+    // inside path-parameters anyway.
+    let wildcard_path = "/switches/{switch_id}/ports/{port_id+}";
+    let openapi_path = "/switches/{switch_id}/ports/{port_id}";
+
+    let paths = api
+        .paths
+        .as_mut()
+        .expect("OpenAPI document should contain paths");
+
+    let path_item = paths
+        .paths
+        .shift_remove(wildcard_path)
+        .expect("Aide should generate the wildcard port path");
+
+    paths.paths.insert(openapi_path.to_string(), path_item);
+
+    Ok(router.with_state(app_state))
 }
 
 async fn fallback_handler(method: Method, uri: Uri) -> (StatusCode, String) {
