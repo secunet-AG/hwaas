@@ -1,8 +1,13 @@
 [package]
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
 name = "net_ctrl_client_wrapper"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
+
 
 [lib]
 name = "net_ctrl_client_wrapper"
@@ -13,7 +18,8 @@ workspace = true
 
 [dependencies]
 hunt.workspace = true
-reqwest-middleware = { version = "0.4", features = ["json", "rustls-tls"] }
+reqwest.workspace = true
+reqwest-middleware.workspace = true
 net_ctrl_client.workspace = true
 db_interaction.workspace = true
-contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }

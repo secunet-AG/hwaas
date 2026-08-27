@@ -2,15 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+use axum::body::Body;
 use axum::http::Request;
 use axum::middleware::Next;
 use axum::response::Response;
 use tracing::debug;
 
-pub(crate) async fn route_tracing<B>(req: Request<B>, next: Next<B>) -> Response
-where
-    B: Send,
-{
+pub(crate) async fn route_tracing(req: Request<Body>, next: Next) -> Response {
     // get URL id
     let url = req.uri().to_string();
     let methode = req.method();

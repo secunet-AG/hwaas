@@ -10,7 +10,10 @@ jobs:
   build-aruba-switch-mock:
     name: 'Build: aruba-switch-mock'
     needs:
-      - check-aruba-switch-mock
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -30,7 +33,10 @@ jobs:
   build-contextapi:
     name: 'Build: contextapi'
     needs:
-      - check-contextapi
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -56,7 +62,10 @@ jobs:
   build-hunt:
     name: 'Build: hunt'
     needs:
-      - check-hunt
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -76,7 +85,10 @@ jobs:
   build-net-ctrl:
     name: 'Build: net-ctrl'
     needs:
-      - check-net-ctrl
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -102,7 +114,10 @@ jobs:
   build-remote:
     name: 'Build: remote'
     needs:
-      - check-remote
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -134,7 +149,10 @@ jobs:
   build-rpi-status-display:
     name: 'Build: rpi-status-display'
     needs:
-      - check-rpi-status-display
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -156,6 +174,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -210,6 +230,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -290,7 +312,10 @@ jobs:
   build-ws-gateway:
     name: 'Build: ws-gateway'
     needs:
-      - check-ws-gateway
+      - check-pre-commit
+      - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -307,11 +332,9 @@ jobs:
       - if: always()
         name: build ws-gateway
         run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.ws-gateway'
-  check-aruba-switch-mock:
-    name: 'Check: aruba-switch-mock'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
+  check-cargo:
+    name: 'Check: cargo'
+    needs: []
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -326,25 +349,23 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
       - if: always()
-        name: check aruba-switch-mock-clippy
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-clippy'
+        name: check cargo-clippy
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-clippy'
       - if: always()
-        name: check aruba-switch-mock-deny
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-deny'
+        name: check cargo-deny
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-deny'
       - if: always()
-        name: check aruba-switch-mock-docs
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-docs'
+        name: check cargo-docs
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-docs'
       - if: always()
-        name: check aruba-switch-mock-hakari
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-hakari'
+        name: check cargo-hakari
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-hakari'
       - if: always()
-        name: check aruba-switch-mock-nextest
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.aruba-switch-mock-nextest'
-  check-contextapi:
-    name: 'Check: contextapi'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
+        name: check cargo-nextest
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.cargo-nextest'
+  check-openapi-spec:
+    name: 'Check: openapi-spec'
+    needs: []
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -359,89 +380,14 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
       - if: always()
-        name: check contextapi-clippy
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-clippy'
+        name: check openapi-spec-contextapi-golden-test
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.openapi-spec-contextapi-golden-test'
       - if: always()
-        name: check contextapi-deny
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-deny'
+        name: check openapi-spec-net-ctrl-golden-test
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.openapi-spec-net-ctrl-golden-test'
       - if: always()
-        name: check contextapi-docs
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-docs'
-      - if: always()
-        name: check contextapi-golden-test-openapi-spec
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-golden-test-openapi-spec'
-      - if: always()
-        name: check contextapi-hakari
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-hakari'
-      - if: always()
-        name: check contextapi-nextest
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.contextapi-nextest'
-  check-hunt:
-    name: 'Check: hunt'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Use cache
-        uses: cachix/cachix-action@v17
-        with:
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          name: secunet-ag-hwaas
-      - if: always()
-        name: check hunt-clippy
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-clippy'
-      - if: always()
-        name: check hunt-deny
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-deny'
-      - if: always()
-        name: check hunt-docs
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-docs'
-      - if: always()
-        name: check hunt-nextest
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.hunt-nextest'
-  check-net-ctrl:
-    name: 'Check: net-ctrl'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Use cache
-        uses: cachix/cachix-action@v17
-        with:
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          name: secunet-ag-hwaas
-      - if: always()
-        name: check net-ctrl-clippy
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-clippy'
-      - if: always()
-        name: check net-ctrl-deny
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-deny'
-      - if: always()
-        name: check net-ctrl-docs
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-docs'
-      - if: always()
-        name: check net-ctrl-golden-test-openapi-spec
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-golden-test-openapi-spec'
-      - if: always()
-        name: check net-ctrl-hakari
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-hakari'
-      - if: always()
-        name: check net-ctrl-nextest
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.net-ctrl-nextest'
+        name: check openapi-spec-remote-hands-golden-test
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.openapi-spec-remote-hands-golden-test'
   check-pre-commit:
     name: 'Check: pre-commit'
     needs: []
@@ -461,77 +407,13 @@ jobs:
       - if: always()
         name: check pre-commit
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.pre-commit'
-  check-remote:
-    name: 'Check: remote'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Use cache
-        uses: cachix/cachix-action@v17
-        with:
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          name: secunet-ag-hwaas
-      - if: always()
-        name: check remote-hands-clippy
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-clippy'
-      - if: always()
-        name: check remote-hands-deny
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-deny'
-      - if: always()
-        name: check remote-hands-docs
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-docs'
-      - if: always()
-        name: check remote-hands-golden-test-openapi-spec
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-golden-test-openapi-spec'
-      - if: always()
-        name: check remote-hands-hakari
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-hakari'
-      - if: always()
-        name: check remote-hands-nextest
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-nextest'
-  check-rpi-status-display:
-    name: 'Check: rpi-status-display'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Use cache
-        uses: cachix/cachix-action@v17
-        with:
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          name: secunet-ag-hwaas
-      - if: always()
-        name: check rpi-status-display-clippy
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-clippy'
-      - if: always()
-        name: check rpi-status-display-deny
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-deny'
-      - if: always()
-        name: check rpi-status-display-docs
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-docs'
-      - if: always()
-        name: check rpi-status-display-nextest
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.rpi-status-display-nextest'
   check-user-tooling:
     name: 'Check: user-tooling'
     needs:
       - check-pre-commit
       - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -572,6 +454,8 @@ jobs:
     needs:
       - check-pre-commit
       - check-verify-ci
+      - check-cargo
+      - check-openapi-spec
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -588,39 +472,6 @@ jobs:
       - if: always()
         name: check vue-client-licenses-check
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.vue-client-licenses-check'
-  check-ws-gateway:
-    name: 'Check: ws-gateway'
-    needs:
-      - check-pre-commit
-      - check-verify-ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Use cache
-        uses: cachix/cachix-action@v17
-        with:
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          name: secunet-ag-hwaas
-      - if: always()
-        name: check ws-gateway-clippy
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-clippy'
-      - if: always()
-        name: check ws-gateway-deny
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-deny'
-      - if: always()
-        name: check ws-gateway-docs
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-docs'
-      - if: always()
-        name: check ws-gateway-hakari
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-hakari'
-      - if: always()
-        name: check ws-gateway-nextest
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.ws-gateway-nextest'
   test-aruba-switch-mock:
     name: 'Test: aruba-switch-mock'
     needs:

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use aruba_structs::login_sessions::RestLoginSessions;
+use crate::structs::login_sessions::RestLoginSessions;
 use axum::Extension;
 use axum::response::Html;
 

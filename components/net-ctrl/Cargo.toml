@@ -1,18 +1,14 @@
 [package]
-edition = "2021"
+authors.workspace = true
+description = "On-demand network configuration"
+edition.workspace = true
+license.workspace = true
 name = "net-ctrl"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "0.1.0"
-license = "Apache-2.0"
 
-[workspace]
-resolver = "3"
-members = [
-  "connection_handler",
-  "inventory",
-  "net-ctrl-workspace-hack",
-  "network_type_ids",
-  "switch",
-]
 
 [lib]
 name = "net_ctrl_lib"
@@ -30,44 +26,34 @@ path = "src/bin/openapi-generator.rs"
 name = "net-ctrl-config-schema-generator"
 path = "src/bin/config-schema-generator.rs"
 
-[lints.rust]
-unsafe_code = "forbid"
+[lints]
+workspace = true
 
 [dependencies]
-aide = { version = "0.13.4", features = ["axum", "axum-extra", "macros"] }
-axum = { version = "0.7.5", features = ["multipart", "ws"] }
-clap = { version = "4.2.0", features = ["derive"] }
-connection_handler = { path = "./connection_handler" }
-error-stack = "0.4"
-hunt = { path = "../hunt" }
-inventory = { path = "./inventory" }
-log = "0.4.21"
-network_type_ids = { path = "./network_type_ids", features = ["serde_support"] }
-schemars = "0.8"
-sd-notify = "0.4"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-switch = { path = "./switch" }
-system_error = "0.2.0"
-tokio = { version = "1.24.1", features = [
-  "io-util",
-  "macros",
-  "net",
-  "rt-multi-thread",
-  "signal",
-  "sync",
-  "tracing",
-] }
-tracing = "0.1"
-net-ctrl-workspace-hack = { version = "0.1", path = "net-ctrl-workspace-hack" }
+aide.workspace = true
+async-trait.workspace = true
+axum.workspace = true
+base64.workspace = true
+clap.workspace = true
+dashmap.workspace = true
+enum_dispatch.workspace = true
+error-stack.workspace = true
+http.workspace = true
+hunt.workspace = true
+libc.workspace = true
+reqwest.workspace = true
+reqwest-middleware.workspace = true
+reqwest_cookie_store.workspace = true
+schemars.workspace = true
+sd-notify.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+system_error.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+url.workspace = true
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
 
 [dev-dependencies]
-axum-test-helper = "0.4"
-env_logger = "0.11.3"                              # required by test-log
-network_type_ids = { path = "./network_type_ids" }
-pretty_assertions = "1.2.1"
-serde_json = "1.0"
-test-log = "0.2"
-
-[package.metadata.cargo-udeps.ignore]
-development = ["pretty_assertions"]
+axum-test-helper.workspace = true
+test-log.workspace = true

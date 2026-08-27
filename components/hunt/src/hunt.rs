@@ -4,7 +4,9 @@
 
 use init_tracing_opentelemetry::resource::DetectResource;
 use init_tracing_opentelemetry::{init_propagator, otlp};
-use opentelemetry_sdk::trace::Tracer;
+use opentelemetry::trace::TracerProvider as _;
+use opentelemetry_sdk::trace::{Tracer, TracerProvider};
+use std::cell::OnceCell;
 use std::fs::File;
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -65,7 +67,7 @@ impl HuntBuilder {
     }
 
     /// A list of target crates to trace.
-    /// The filter for these crates is set to the verbosity level (see [`HuntBuilder::set_verbosity`])
+    /// The filter for these crates is set to the verbosity level (see [`HuntBuilder::verbosity`])
     pub fn append_filters(mut self, mut targets: Vec<&'static str>) -> Self {
         self.0.filter_targets.append(&mut targets);
         self
@@ -118,6 +120,7 @@ pub struct Hunt {
     otel_layer_enable: bool,
     filter_targets: Vec<&'static str>,
     tokio_console_address: Option<SocketAddr>,
+    trace_provider: OnceCell<TracerProvider>,
 }
 
 impl Default for Hunt {
@@ -129,6 +132,7 @@ impl Default for Hunt {
             level: Level::WARN,
             otel_layer_enable: false,
             filter_targets: vec![],
+            trace_provider: OnceCell::new(),
         }
     }
 }
@@ -197,13 +201,18 @@ impl Hunt {
     where
         S: Subscriber + for<'a> LookupSpan<'a>,
     {
-        let otel_rsrc = DetectResource::default()
-            .with_fallback_service_name(self.service_fallback_name)
-            .with_fallback_service_version(self.service_fallback_version)
-            .build();
-        let otel_tracer = otlp::init_tracer(otel_rsrc, otlp::identity)?;
+        let otel_trace_provider = self.trace_provider.get_or_init(|| {
+            let otel_rsrc = DetectResource::default()
+                .with_fallback_service_name(self.service_fallback_name)
+                .with_fallback_service_version(self.service_fallback_version)
+                .build();
+            otlp::init_tracerprovider(otel_rsrc, otlp::identity)
+                .expect("Open Telemetry provider should be initialized")
+        });
+
         init_propagator()?;
-        Ok(tracing_opentelemetry::layer().with_tracer(otel_tracer))
+        Ok(tracing_opentelemetry::layer()
+            .with_tracer(otel_trace_provider.tracer(self.service_fallback_name)))
     }
 }
 

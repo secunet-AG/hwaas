@@ -1,9 +1,15 @@
 [package]
-name = "remote-usb"
-edition = "2021"
+authors.workspace = true
 default-run = "remote-usb"
+description = "Manage USB connections for remote devices under test"
+edition.workspace = true
+license.workspace = true
+name = "remote-usb"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "1.0.0"
-license = "Apache-2.0"
+
 
 [lib]
 name = "remote_usb"
@@ -20,7 +26,7 @@ path = "src/bin/openapi-generator.rs"
 [features]
 # Optional because deconfiguring USB serial leaves the kernel with
 # hung tasks
-usb-serial = []
+usb-serial = ["dep:remote-serial"]
 # Optional since we still need a design for the incorporation into the test
 # network. Currently only enables network between pi and machine under test.
 usb-ethernet = []
@@ -29,31 +35,18 @@ usb-ethernet = []
 workspace = true
 
 [dependencies]
-aide = { version = "0.13", features = [
-  "axum",
-  "axum-extra",
-  "axum-ws",
-  "macros",
-] }
-axum = { version = "0.7", features = ["macros", "ws"] }
-hidg = "0.2.0"
-itertools = "0.13.0"
+aide.workspace = true
+axum.workspace = true
+hidg.workspace = true
+itertools.workspace = true
 remote-axum.workspace = true
 remote-init.workspace = true
-remote-serial = { path = "../remote-serial" }
-schemars = "0.8"
-serde = "1"
-serde_json = "1"
-ssmarshal = "1.0.0"
-tokio = { version = "1", features = [
-  "rt-multi-thread",
-  "macros",
-  "process",
-  "sync",
-  "tracing",
-  "full",
-] }
-tracing = "0.1"
-usb-gadget = "0.7"
-usbd-hid-macros = "0.7.0"
-remote-hands-workspace-hack = { version = "0.1", path = "../remote-hands-workspace-hack" }
+remote-serial = { workspace = true, optional = true }
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+usb-gadget.workspace = true
+usbd-hid-macros.workspace = true
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }

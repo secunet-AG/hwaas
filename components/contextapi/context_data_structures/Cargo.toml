@@ -1,8 +1,12 @@
 [package]
+authors.workspace = true
+description = "Shared data structures for the Context API"
+edition.workspace = true
+license.workspace = true
 name = "context_data_structures"
+publish = false
+repository.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
 
 [lib]
 name = "context_data_structures"
@@ -12,16 +16,9 @@ path = "src/lib.rs"
 workspace = true
 
 [dependencies]
-uuid.workspace = true
-url.workspace = true
+schemars.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-schemars.workspace = true
-contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }
-
-[features]
-machine_properties = ["aliases"]
-network_setup = ["aliases"]
-rsd = ["aliases"]
-aliases = []
-default = ["aliases", "machine_properties", "network_setup", "rsd"]
+url.workspace = true
+uuid.workspace = true
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }

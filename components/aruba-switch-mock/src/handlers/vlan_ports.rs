@@ -4,7 +4,7 @@
 
 use crate::app_state::AppState;
 
-use aruba_structs::vlan_port::{PortMode, VlanPort};
+use crate::structs::vlan_port::{PortMode, VlanPort};
 use axum::Json;
 use axum::extract::State;
 use serde::{Deserialize, Serialize};

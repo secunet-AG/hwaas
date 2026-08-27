@@ -535,7 +535,7 @@
         ]
       },
       "KeyboardReport": {
-        "description": "User input for keyboard as a list of Keys. A maximum of 6 keys can be pressed at the same time. The modifier is used for keys like \"shift\" and does not count to the limit. All keys can be pressed and/or released, but one must be given. A short description of report format can be found here: https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard.",
+        "description": "User input for keyboard as a list of Keys. A maximum of 6 keys can be pressed at the same time. The modifier is used for keys like \"shift\" and does not count to the limit. All keys can be pressed and/or released, but one must be given. A short description of report format can be found here: <https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard>.",
         "properties": {
           "keys": {
             "items": {
@@ -2921,26 +2921,6 @@
         "oneOf": [
           {
             "properties": {
-              "serial_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "type": {
-                "enum": [
-                  "serial"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "type": "object"
-          },
-          {
-            "properties": {
               "luns": {
                 "items": {
                   "$ref": "#/components/schemas/StorageLunConfig"
@@ -3023,26 +3003,6 @@
           },
           {
             "properties": {
-              "serial_id": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "type": {
-                "enum": [
-                  "serial"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "type": "object"
-          },
-          {
-            "properties": {
               "luns": {
                 "items": {
                   "$ref": "#/components/schemas/StorageLunConfig"
@@ -3068,6 +3028,10 @@
   },
   "info": {
     "description": "The REST-API to access the Hardware as a Service implementation.",
+    "license": {
+      "identifier": "Apache-2.0",
+      "name": "Apache-2.0"
+    },
     "title": "HWaaS API",
     "version": "5.0.0"
   },
@@ -5157,7 +5121,7 @@
               }
             }
           },
-          "description": "User input for keyboard as a list of Keys. A maximum of 6 keys can be pressed at the same time. The modifier is used for keys like \"shift\" and does not count to the limit. All keys can be pressed and/or released, but one must be given. A short description of report format can be found here: https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard.",
+          "description": "User input for keyboard as a list of Keys. A maximum of 6 keys can be pressed at the same time. The modifier is used for keys like \"shift\" and does not count to the limit. All keys can be pressed and/or released, but one must be given. A short description of report format can be found here: <https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard>.",
           "required": true
         },
         "responses": {

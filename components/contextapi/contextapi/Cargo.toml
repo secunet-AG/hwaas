@@ -1,8 +1,13 @@
 [package]
+authors.workspace = true
+description = "Manage context reservations for bare metal resources"
+edition.workspace = true
+license.workspace = true
 name = "contextapi"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "5.0.0"
-edition = "2021"
-license = "Apache-2.0"
 
 [lib]
 name = "context_api_lib"
@@ -21,42 +26,36 @@ workspace = true
 
 [dependencies]
 aide.workspace = true
-async-stream = "0.3.5"
-async-trait = { version = "0.1.68" }
+async-stream.workspace = true
+async-trait.workspace = true
 axum.workspace = true
 chrono.workspace = true
 clap.workspace = true
 context_data_structures.workspace = true
 db_interaction.workspace = true
 diesel.workspace = true
-dashmap = { version = "5.5.0", features = ["serde"] }
+dashmap.workspace = true
 error_utils.workspace = true
 futures.workspace = true
-machine_ops_lib = { workspace = true, features = ["cli"] }
+machine_ops_lib.workspace = true
 net_ctrl_client_wrapper.workspace = true
 image_api.workspace = true
 remote_client.workspace = true
-sd-notify = "0.4.0"
-tokio-stream = "0.1"
-tokio-tungstenite = "0.24"
-tokio-util = { version = "0.7.8", default-features = false }
-tower = { version = "0.4" }
+sd-notify.workspace = true
+tokio-stream.workspace = true
+tokio-tungstenite.workspace = true
+tokio-util.workspace = true
+tower.workspace = true
 tracing.workspace = true
 trait-variant.workspace = true
 uuid.workspace = true
-tower-http = { version = "0.6", default-features = false, features = [
-  "trace",
-  "request-id",
-  "limit",
-  "timeout",
-  "cors",
-] }
-schemars = { version = "0.8.0", features = ["uuid", "uuid1", "derive"] }
+tower-http.workspace = true
+schemars.workspace = true
 hunt.workspace = true
-reqwest-middleware = { version = "0.4", features = ["json"] }
-error-stack = "0.4.1"
-sha2 = "0.10.6"
-hex = "0.4.3"
+reqwest-middleware.workspace = true
+error-stack.workspace = true
+sha2.workspace = true
+hex.workspace = true
 rand.workspace = true
 reqwest.workspace = true
 serde.workspace = true
@@ -64,16 +63,15 @@ serde_json.workspace = true
 tokio.workspace = true
 url.workspace = true
 remote-usb.workspace = true
-contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }
-bytesize = { version = "2.0.1", features = ["serde"] }
+bytesize.workspace = true
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }
 
 [dev-dependencies]
 assert_fs.workspace = true
-assert-json-diff = "2"
-test-log = "0.2"
-env_logger = "0.10"
+assert-json-diff.workspace = true
+test-log.workspace = true
 wiremock.workspace = true
-tracing-test = "0.2"
-db_interaction = { workspace = true, features = ["test_utils"] }
-reqwest = { workspace = true, features = ["hickory-dns", "rustls-tls"] }
-remote-usb = { workspace = true, features = ["usb-serial"] }
+tracing-test.workspace = true
+db_interaction.workspace = true
+reqwest.workspace = true
+remote-usb.workspace = true

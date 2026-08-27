@@ -1,8 +1,12 @@
 [package]
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
 name = "error_utils"
+publish = false
+readme = "README.md"
+repository.workspace = true
 version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
 
 [lib]
 name = "error_utils"
@@ -13,4 +17,4 @@ workspace = true
 
 [dependencies]
 tracing.workspace = true
-contextapi-workspace-hack = { version = "0.1", path = "../contextapi-workspace-hack" }
+workspace-hack = { version = "0.1", path = "../../workspace-hack" }

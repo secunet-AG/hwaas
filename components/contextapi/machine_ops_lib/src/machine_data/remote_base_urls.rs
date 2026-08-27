@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //! This module contains types representing base urls for the various peripheral classes that each correspond to a standalone remote-hands service.
-//! These urls are all of the form <url>/<peripheral class> which the types implemented here enforce via JSON schemas and fallible constructors.
+//! These urls are all of the form `<url>/<peripheral class>` which the types implemented here enforce via JSON schemas and fallible constructors.
 
 use super::{Deserialize, InvalidUri, JsonSchema, Serialize, Uri};
 use paste::paste;

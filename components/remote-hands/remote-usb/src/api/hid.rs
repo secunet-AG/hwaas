@@ -56,7 +56,7 @@ pub struct KeyboardText {
 /// The modifier is used for keys like "shift" and does not count to the limit.
 /// All keys can be pressed and/or released, but one must be given.
 /// A short description of report format can be found here:
-/// https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard.
+/// <https://wiki.osdev.org/USB_Human_Interface_Devices#usb_keyboard>.
 pub struct KeyboardReport {
     pub keys: Vec<String>,
     pub modifier: u8,

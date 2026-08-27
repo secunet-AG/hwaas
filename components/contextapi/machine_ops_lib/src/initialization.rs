@@ -117,21 +117,20 @@ impl std::error::Error for InitializationErrors {}
 pub const DEFAULT_MACHINE_RESET_TIMEOUT: u32 = 5 * 60;
 
 /// Options for the [`initialize`](initialize()) function.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "cli", derive(clap::Args))]
+#[derive(Clone, Debug, clap::Args)]
 pub struct InitializationOptions {
     /// Whether to skip initializing machines that are already marked as
     /// free in the database.
-    #[cfg_attr(feature = "cli", arg(long))]
+    #[arg(long)]
     pub skip_free_machines: bool,
     /// If this is set then the initialization will effectively ignore machines
     /// that are in use rather than erroring.
-    #[cfg_attr(feature = "cli", arg(long))]
+    #[arg(long)]
     pub ignore_in_use: bool,
 
     /// If this is set then we give up on a machine reset after the specified
     /// time in seconds has passed, otherwise we give up after the [default](self::DEFAULT_MACHINE_RESET_TIMEOUT).
-    #[cfg_attr(feature = "cli", arg(long, default_value_t = DEFAULT_MACHINE_RESET_TIMEOUT))]
+    #[arg(long, default_value_t = DEFAULT_MACHINE_RESET_TIMEOUT)]
     pub machine_reset_timeout: u32,
 }
 

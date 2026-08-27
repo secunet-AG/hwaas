@@ -4,26 +4,39 @@
 
 use axum::http::StatusCode;
 use axum_test_helper::TestClient;
-use inventory::{InventoryDummyBackend, SwitchMapping, SwitchModelDetail};
+use net_ctrl_lib::network_type_ids::{
+    Credentials, CriticalPorts, PortID, SwitchDetails, SwitchID, VlanID,
+};
+use net_ctrl_lib::switch::SwitchModel;
+use net_ctrl_lib::{InventoryDummyBackend, SwitchMapping, SwitchModelDetail};
 use net_ctrl_lib::{SetupData, get_router};
-use network_type_ids::{Credentials, CriticalPorts, PortID, SwitchDetails, SwitchID, VlanID};
 use std::net::{IpAddr, Ipv4Addr};
 use std::str::FromStr;
 use std::sync::Arc;
-use switch::SwitchModel;
 use test_log::test;
 
-async fn get_test_client() -> (TestClient, Arc<SwitchMapping>) {
+async fn get_test_client_with_ports(
+    mgmt_ports: &[&str],
+    trunk_ports: &[&str],
+) -> (TestClient, Arc<SwitchMapping>) {
+    let critical_ports = CriticalPorts {
+        mgmt_ports: mgmt_ports
+            .iter()
+            .map(|port| PortID::new((*port).to_string()))
+            .collect(),
+        trunk_ports: trunk_ports
+            .iter()
+            .map(|port| PortID::new((*port).to_string()))
+            .collect(),
+    };
+
     let sel123 = SwitchDetails::new(
         IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
         Some(Credentials {
             username: "manager".to_string(),
             password: "123".to_string(),
         }),
-        CriticalPorts {
-            mgmt_ports: vec![PortID::new("0".to_string())],
-            trunk_ports: vec![PortID::new("42".to_string())],
-        },
+        critical_ports.clone(),
         VlanID::new(1).unwrap(),
         VlanID::new(2).unwrap(),
     );
@@ -34,10 +47,7 @@ async fn get_test_client() -> (TestClient, Arc<SwitchMapping>) {
             username: "manager".to_string(),
             password: "123".to_string(),
         }),
-        CriticalPorts {
-            mgmt_ports: vec![PortID::new("0".to_string())],
-            trunk_ports: vec![PortID::new("42".to_string())],
-        },
+        critical_ports.clone(),
         VlanID::new(1).unwrap(),
         VlanID::new(2).unwrap(),
     );
@@ -64,9 +74,13 @@ async fn get_test_client() -> (TestClient, Arc<SwitchMapping>) {
     (TestClient::new(router).await, mapping)
 }
 
+async fn get_default_test_client() -> (TestClient, Arc<SwitchMapping>) {
+    get_test_client_with_ports(&["1/1/1"], &["1/1/2"]).await
+}
+
 #[test(tokio::test(flavor = "multi_thread"))]
 async fn test_get_switches() {
-    let (client, mapping) = get_test_client().await;
+    let (client, mapping) = get_default_test_client().await;
     let res = client.get("/switches").send().await;
     assert_eq!(res.status(), StatusCode::OK);
     assert_eq!(res.json::<SwitchMapping>().await, *mapping);
@@ -80,7 +94,7 @@ async fn test_get_switches() {
 
 #[test(tokio::test(flavor = "multi_thread"))]
 async fn test_setup_switch() {
-    let (client, _) = get_test_client().await;
+    let (client, _) = get_default_test_client().await;
     let res = client
         .post("/switches/456/setup")
         .json(&SetupData {
@@ -118,36 +132,49 @@ async fn test_setup_switch() {
     assert_eq!(res.status(), StatusCode::NOT_FOUND);
 }
 
-#[test(tokio::test(flavor = "multi_thread"))]
-async fn test_handle_ports() {
-    let (client, mapping) = get_test_client().await;
+async fn test_port_type(port: &str, mgmt_ports: &[&str], trunk_ports: &[&str]) {
+    let (client, mapping) = get_test_client_with_ports(mgmt_ports, trunk_ports).await;
+
+    let path = format!("/switches/456/ports/{port}");
 
     // test enable
     let res = client
-        .put("/switches/456/ports/3")
+        .put(&path)
         .json(&VlanID::new(3).unwrap())
         .send()
         .await;
-    assert_eq!(res.status(), StatusCode::OK);
+    assert_eq!(res.status(), StatusCode::OK, "failed to enable port {port}");
 
     // idempotent enable
     let res = client
-        .put("/switches/456/ports/3")
+        .put(&path)
         .json(&VlanID::new(3).unwrap())
         .send()
         .await;
-    assert_eq!(res.status(), StatusCode::OK);
+    assert_eq!(
+        res.status(),
+        StatusCode::OK,
+        "failed idempotent enable for port {port}"
+    );
 
     // test disable
-    let res = client.delete("/switches/456/ports/3").send().await;
-    assert_eq!(res.status(), StatusCode::OK);
+    let res = client.delete(&path).send().await;
+    assert_eq!(
+        res.status(),
+        StatusCode::OK,
+        "failed to disable port {port}"
+    );
 
     // idempotent disable
-    let res = client.delete("/switches/456/ports/3").send().await;
-    assert_eq!(res.status(), StatusCode::OK);
+    let res = client.delete(&path).send().await;
+    assert_eq!(
+        res.status(),
+        StatusCode::OK,
+        "failed idempotent disable for port {port}"
+    );
 
     // test enable critical port
-    let crit_port = mapping
+    let critical_port = mapping
         .get(&SwitchID::new("456".to_string()))
         .unwrap()
         .details
@@ -156,8 +183,27 @@ async fn test_handle_ports() {
         .first()
         .unwrap();
     let res = client
-        .delete(format!("/switches/456/ports/{}", crit_port).as_str())
+        .delete(format!("/switches/456/ports/{critical_port}").as_str())
         .send()
         .await;
-    assert_eq!(res.status(), StatusCode::UNAUTHORIZED);
+    assert_eq!(
+        res.status(),
+        StatusCode::UNAUTHORIZED,
+        "critical port {critical_port} was not protected"
+    );
+}
+
+#[test(tokio::test(flavor = "multi_thread"))]
+async fn test_handle_ports_slash_separated() {
+    test_port_type("1/1/3", &["1/1/1"], &["1/1/2"]).await;
+}
+
+#[test(tokio::test(flavor = "multi_thread"))]
+async fn test_handle_ports_letter_number() {
+    test_port_type("A5", &[], &["A1", "A2", "A3", "A4"]).await;
+}
+
+#[test(tokio::test(flavor = "multi_thread"))]
+async fn test_handle_ports_numeric() {
+    test_port_type("10", &["1", "2"], &["48"]).await;
 }

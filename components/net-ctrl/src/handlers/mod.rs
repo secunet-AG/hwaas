@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use network_type_ids::{PortID, SwitchID};
+use crate::network_type_ids::{PortID, SwitchID};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +15,7 @@ pub(crate) mod setup_switch;
 
 #[derive(Deserialize, Serialize, Debug, JsonSchema)]
 pub struct PathParamsSwitchID {
-    /// Context access token
+    /// ID of a switch
     pub switch_id: SwitchID,
 }
 

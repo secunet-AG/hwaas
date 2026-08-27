@@ -4,7 +4,7 @@
 
 use aide::axum::routing::get;
 use aide::axum::{ApiRouter, IntoApiResponse};
-use aide::openapi::{Info, OpenApi};
+use aide::openapi::{Info, License, OpenApi};
 use axum::error_handling::HandleErrorLayer;
 use axum::extract::{FromRef, FromRequestParts};
 use axum::http::{Method, StatusCode, Uri};
@@ -16,7 +16,6 @@ use std::time::Duration;
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
 use tower_http::BoxError;
-use tower_http::timeout::TimeoutLayer;
 use tracing::{debug, warn};
 
 use crate::api_merge_remote::merge_remote_oas;
@@ -31,6 +30,10 @@ use crate::single_context_api::{
 };
 use crate::{API_VERSION, ContextApiConfig, NetCtrlClient, inventory, single_context_api};
 use image_api::{ImageHandler, IntoImageHandler, get_image_api_router};
+
+const MILLIS_PER_SECOND: u64 = 1000;
+const SECONDS_PER_DAY: u64 = 86400;
+const MILLIS_PER_DAY: u64 = MILLIS_PER_SECOND * SECONDS_PER_DAY;
 
 pub fn get_api(app_conf: ContextApiConfig) -> OpenApi {
     router_with_api(UnImplementedState {}, &app_conf).1
@@ -54,11 +57,9 @@ where
             // `timeout` will produce an error if the handler takes
             // too long, so we must handle those
             .layer(HandleErrorLayer::new(handle_error))
-            .option_layer(
-                option_timeout
-                    .map(Duration::from_millis)
-                    .map(|dur| TimeoutLayer::with_status_code(StatusCode::REQUEST_TIMEOUT, dur)),
-            )
+            .timeout(Duration::from_millis(
+                option_timeout.unwrap_or(MILLIS_PER_DAY),
+            ))
     };
 
     let single_context_router = single_context_api::get_router::single_context_router::<S>(
@@ -77,6 +78,11 @@ where
                 "The REST-API to access the Hardware as a Service implementation.".to_string(),
             ),
             version: env!("CARGO_PKG_VERSION").to_string(),
+            license: Some(License {
+                name: "Apache-2.0".to_string(),
+                identifier: Some("Apache-2.0".to_string()),
+                ..Default::default()
+            }),
             ..Info::default()
         },
         openapi: "3.1.0".into(),
@@ -229,7 +235,7 @@ pub(crate) async fn handle_error(
     _uri: Uri,
     err: BoxError,
 ) -> (StatusCode, String) {
-    if err.is::<tower_http::timeout::TimeoutError>() {
+    if err.is::<tower::timeout::error::Elapsed>() {
         (
             StatusCode::REQUEST_TIMEOUT,
             "Request took too long".to_string(),

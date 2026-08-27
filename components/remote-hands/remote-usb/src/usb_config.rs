@@ -77,10 +77,7 @@ impl UsbFunction {
     #[cfg(feature = "usb-serial")]
     /// Configure the name of a serial interface
     pub fn set_serial_id(&mut self, id: String) {
-        if let UsbFunction::Serial {
-            ref mut serial_id, ..
-        } = self
-        {
+        if let UsbFunction::Serial { serial_id, .. } = self {
             *serial_id = Some(id);
         }
     }
@@ -256,15 +253,15 @@ impl UsbConfig {
         for function in &self.functions {
             if let Some(max) = function.max_supported() {
                 let function_type = function.function_type();
-                if let Some(count) = counts.get(function_type.as_str()) {
-                    if max < *count {
-                        return Err(Error::new(
-                            ErrorKind::InvalidInput,
-                            format!(
-                                "Max amount of '{function_type}' type function is {max}, but {count} were defined."
-                            ),
-                        ));
-                    }
+                if let Some(count) = counts.get(function_type.as_str())
+                    && max < *count
+                {
+                    return Err(Error::new(
+                        ErrorKind::InvalidInput,
+                        format!(
+                            "Max amount of '{function_type}' type function is {max}, but {count} were defined."
+                        ),
+                    ));
                 }
             }
         }

@@ -12,8 +12,8 @@ use sd_notify::NotifyState;
 use tokio::net::TcpListener;
 use tracing::{error, info, warn};
 
-use inventory::{InventoryBackend, PullInventoryFileBackend};
 use net_ctrl_lib::get_router;
+use net_ctrl_lib::{InventoryBackend, PullInventoryFileBackend};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

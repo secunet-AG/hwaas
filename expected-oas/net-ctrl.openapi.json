@@ -58,7 +58,7 @@
         "properties": {
           "switch_id": {
             "$ref": "#/components/schemas/SwitchID",
-            "description": "Context access token"
+            "description": "ID of a switch"
           }
         },
         "required": [
@@ -131,7 +131,7 @@
         "type": "string"
       },
       "SwitchModelDetail": {
-        "description": "Container for the information to construct a new SwitchAPI. The [`SwitchModel`] is used for determining the correct SwitchAPI type. The [`SwitchDetails`] contains all information needed by one SwitchAPI.",
+        "description": "Configuration details for a switch. The model identifies the switch implementation; the remaining fields contain the connection and VLAN configuration.",
         "properties": {
           "credentials": {
             "anyOf": [
@@ -197,6 +197,10 @@
   },
   "info": {
     "description": "HWaaS NetCtrl API",
+    "license": {
+      "identifier": "Apache-2.0",
+      "name": "Apache-2.0"
+    },
     "title": "",
     "version": "0.1.0"
   },
@@ -249,13 +253,13 @@
         "description": "Get information about a switch",
         "parameters": [
           {
-            "description": "Context access token",
+            "description": "ID of a switch",
             "in": "path",
             "name": "switch_id",
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/SwitchID",
-              "description": "Context access token"
+              "description": "ID of a switch"
             },
             "style": "simple"
           }
@@ -428,13 +432,13 @@
         "description": "setup VLANs and trunk ports",
         "parameters": [
           {
-            "description": "Context access token",
+            "description": "ID of a switch",
             "in": "path",
             "name": "switch_id",
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/SwitchID",
-              "description": "Context access token"
+              "description": "ID of a switch"
             },
             "style": "simple"
           }

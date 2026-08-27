@@ -9,6 +9,7 @@ mod main_router;
 mod middleware_auth;
 mod middleware_route_call_stats;
 mod middleware_tracing;
+mod structs;
 
 use crate::main_router::get_router;
 use clap::Parser;
@@ -55,7 +56,10 @@ async fn main() {
 
     // run it
     info!("listening on {}", args.address);
-    axum::Server::bind(&args.address).serve(app).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(args.address)
+        .await
+        .expect("local address should be free for listening");
+    axum::serve(listener, app).await.unwrap();
 }
 
 fn setup_tracing(level: Level, log_file_path: Option<PathBuf>) {

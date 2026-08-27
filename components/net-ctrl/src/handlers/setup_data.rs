@@ -4,7 +4,7 @@
 
 use std::ops::Range;
 
-use network_type_ids::{IDParseError, VlanID};
+use crate::network_type_ids::{IDParseError, VlanID};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -48,7 +48,7 @@ pub struct SetupData {
 
 #[cfg(test)]
 mod test {
-    use network_type_ids::IDParseError;
+    use crate::network_type_ids::IDParseError;
     use serde_json::json;
 
     use super::{SetupData, VlanIDVec};
