@@ -218,7 +218,8 @@ export const useMachinesApi = () => {
       }
     }
 
-    // Serial response is now optional
+    // Serial is optional for some machines. An unavailable serial endpoint
+    // should not prevent the rest of the machine state from being refreshed.
     if (serialResponse.error) {
       console.warn(
         'Unable to fetch serial, perhaps unconfigured for this machine: ',
