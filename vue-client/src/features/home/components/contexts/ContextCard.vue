@@ -36,9 +36,23 @@ const getMachineColor = (item: LocalMachine) => {
   }
 }
 
+const serialTooltipMessage = computed(() => {
+  if (machine.value.powerState !== 'on') {
+    return 'Must Boot Machine First'
+  }
+  if (machine.value.serialPorts.length === 0) {
+    return 'Serial Not Available'
+  }
+  return 'Connect To Serial'
+})
+
+const canOpenSerial = computed(
+  () => machine.value.powerState === 'on' && machine.value.serialPorts.length > 0,
+)
+
 function openSerial(e: MouseEvent) {
   e.preventDefault()
-  if (machine.value.powerState !== 'on') return
+  if (!canOpenSerial.value) return
   emits('onOpenSerial', props.machine.name)
 }
 
@@ -130,13 +144,13 @@ const canToggle = computed(() => machine.value.powerState === 'on' || machine.va
         </Tooltip>
         <Tooltip
           :options="{
-            message: machine.powerState === 'on' ? 'Connect To Serial' : 'Must Boot Machine First',
+            message: serialTooltipMessage,
             yOffsetOverride: 32,
           }"
         >
           <button
             class="transition-opacity disabled:opacity-40"
-            :disabled="machine.powerState !== 'on'"
+            :disabled="!canOpenSerial"
             @click="openSerial"
           >
             <svg
