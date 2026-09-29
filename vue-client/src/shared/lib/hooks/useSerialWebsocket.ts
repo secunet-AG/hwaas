@@ -6,7 +6,7 @@ import { useConfig } from '@/core/plugins/config-plugin'
 
 import { useContextStore } from '@/core/stores/context-store'
 import { storeToRefs } from 'pinia'
-import { computed, onBeforeUnmount, onUnmounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 export function useSerialWebsocket() {
   const { API_URL } = useConfig()

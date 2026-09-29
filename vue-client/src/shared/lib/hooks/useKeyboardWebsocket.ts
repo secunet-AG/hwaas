@@ -33,19 +33,16 @@ export function useKeyboardWebsocket() {
 
   // Lifecycle hooks
 
-  watch(activeBaseUrl, () => buildWebSocket(), { immediate: true }) // Fires at start or on activeBaseUrl change
+  watch(activeBaseUrl, () => buildWebSocket())
 
   onUnmounted(() => unsubscribe())
 
   function buildWebSocket() {
-    console.log('buildWebSocket')
-
     if (wss.value) {
       unsubscribe()
     }
 
     if (!activeBaseUrl.value) {
-      console.error('No active baseUrl set!')
       return
     }
 
@@ -57,9 +54,8 @@ export function useKeyboardWebsocket() {
   }
 
   function sendMessage(msg: KeyboardReport) {
-    console.log('sendMessage', msg)
-    if (!wss.value) {
-      console.error('No existing web socket found')
+    if (!wss.value || wss.value.readyState !== WebSocket.OPEN) {
+      console.warn('No open web socket found')
       return
     }
     wss.value.send(JSON.stringify(msg))
@@ -67,6 +63,7 @@ export function useKeyboardWebsocket() {
 
   function unsubscribe() {
     wss.value?.close()
+    wss.value = null
   }
 
   return {

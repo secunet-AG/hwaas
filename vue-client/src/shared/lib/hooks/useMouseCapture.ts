@@ -40,7 +40,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
     return `${API_URL}/contexts/${activeContextId}/machines/${machineName}/usb/mouse/websocket`
   })
 
-  watch(activeBaseUrl, () => buildWebSocket(), { immediate: true }) // Fires at start or on activeBaseUrl change
+  watch(activeBaseUrl, () => buildWebSocket())
 
   // Cleanup
   onUnmounted(() => {
@@ -51,10 +51,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
   })
 
   function buildWebSocket() {
-    console.log('buildWebSocket', activeBaseUrl.value)
-
     if (!activeBaseUrl.value) {
-      console.error('No active baseUrl set!')
       return
     }
 
@@ -73,8 +70,8 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
     msg.x = Math.round(msg.x)
     msg.y = Math.round(msg.y)
 
-    if (!wss.value) {
-      console.error('No existing web socket found')
+    if (!wss.value || wss.value.readyState !== WebSocket.OPEN) {
+      console.error('No open web socket found')
       return
     }
 
@@ -83,6 +80,7 @@ export default function useMouseCapture(target: Ref<HTMLElement | null>, machine
 
   function teardownWebSocket() {
     wss.value?.close()
+    wss.value = null
   }
 
   // We fire this when we have entered the componenet

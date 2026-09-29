@@ -18,6 +18,9 @@ in
       remote-hands-remote-auxiliary = pkgs.callPackage ./remote-auxiliary.nix { inherit modules; };
       remote-hands-remote-power = pkgs.callPackage ./remote-power.nix { inherit modules; };
       remote-hands-remote-serial-echo = pkgs.callPackage ./remote-serial-echo.nix { inherit modules; };
+      remote-hands-remote-usb-hid-contention = pkgs.callPackage ./remote-usb-hid-contention.nix {
+        inherit modules;
+      };
 
       # TODO: This test needs to run on actual Hardware as it seams
       remote-hands-remote-usb = pkgs.callPackage ./remote-usb.nix {
