@@ -43,7 +43,7 @@ use super::json_error;
 // The LazyLock here gives us initialization on the first access, and the Semaphore lets
 // us limit this to one concurrent connection.
 //
-// TODO: This is global state, if we find ourselves using this pattern a few times,
+// This is global state, if we find ourselves using this pattern a few times,
 // perhaps we should instead move this elsewhere.
 static MOUSE_WRITER: LazyLock<Semaphore> = LazyLock::new(|| Semaphore::new(1));
 static KEYBOARD_WRITER: LazyLock<Semaphore> = LazyLock::new(|| Semaphore::new(1));
@@ -308,9 +308,12 @@ async fn handle_keyboard_report_socket<T: UsbConfigurable>(
 
 async fn keyboard_report_socket<T: UsbConfigurable>(state: T, mut ws: WebSocket) {
     let Ok(_permit) = KEYBOARD_WRITER.try_acquire() else {
+        tracing::warn_span!(
+            "Could not acquire lock on KEYBOARD_WRITER. Perhaps this is already in use?"
+        );
         let _ = ws
             .send(Message::Close(Some(CloseFrame {
-                code: 1008,
+                code: 1008, // Policy Violation
                 reason: "keyboard is already controlled by another connection".into(),
             })))
             .await;
@@ -503,9 +506,12 @@ fn handle_mouse_websocket_doc(op: TransformOperation) -> TransformOperation {
 /// The function responsible for handling and firing off WS mouse events
 async fn mouse_socket<T: UsbConfigurable>(state: T, mut ws: WebSocket) {
     let Ok(_permit) = MOUSE_WRITER.try_acquire() else {
+        tracing::warn_span!(
+            "Could not acquire lock on MOUSE_WRITER. Perhaps this is already in use?"
+        );
         let _ = ws
             .send(Message::Close(Some(CloseFrame {
-                code: 1008,
+                code: 1008, // Policy Violation
                 reason: "mouse is already controlled by another connection".into(),
             })))
             .await;
