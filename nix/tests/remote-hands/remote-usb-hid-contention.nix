@@ -2,10 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Regression test for multiple browser tabs opening concurrent mouse/keyboard
-# WebSocket connections to remote-usb: only one writer per HID function may
-# be active at a time, since the underlying /dev/hidgN device cannot be
-# safely written to from more than one connection at once.
+# This is a regression test to prevent concurrent access of the same
+# socket/HID device for the `remote-usb` service.
 { testers, modules }:
 let
   port = 8080;
@@ -29,8 +27,7 @@ testers.nixosTest {
         websocat
       ];
 
-      # Provide a dummy usb device controller (UDC) for remote-usb, so that
-      # `/dev/hidgN` actually exists without real gadget hardware.
+      # Provide a mock usb device controller for remote-usb
       boot.kernelModules = [ "dummy_hcd" ];
     };
   };
@@ -49,9 +46,7 @@ testers.nixosTest {
     sut.succeed(f"http --check-status PUT {usb_url} <<<'{usb_functions}'")
 
     def open_conn(url, tag):
-      # Connects and then idles: on success remote-usb never sends anything
-      # back, so the connection (and this process) stays alive until either
-      # we kill it or the server closes it on us.
+      # Connects and then the connection stays open
       sut.execute(f"websocat --no-close {url} < /dev/null > /tmp/{tag}.log 2>&1 & echo $! > /tmp/{tag}.pid")
 
     def is_alive(tag):

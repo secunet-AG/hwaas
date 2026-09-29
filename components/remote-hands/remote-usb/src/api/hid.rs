@@ -37,11 +37,14 @@ use crate::{
 
 use super::json_error;
 
-// A browser tab can be closed without ever sending a WebSocket close frame
-// (e.g. a crash or network drop), so only one mouse and one keyboard writer
-// are ever allowed at a time: extra connections are rejected outright rather
-// than queued, since silently sharing the underlying HID device across
-// connections is what produces the write races.
+// Multiple browser tabs, shared instances, etc. should NOT spawn new sockets
+// for controlling instances.
+//
+// The LazyLock here gives us initialization on the first access, and the Semaphore lets
+// us limit this to one concurrent connection.
+//
+// TODO: This is global state, if we find ourselves using this pattern a few times,
+// perhaps we should instead move this elsewhere.
 static MOUSE_WRITER: LazyLock<Semaphore> = LazyLock::new(|| Semaphore::new(1));
 static KEYBOARD_WRITER: LazyLock<Semaphore> = LazyLock::new(|| Semaphore::new(1));
 
@@ -307,7 +310,7 @@ async fn keyboard_report_socket<T: UsbConfigurable>(state: T, mut ws: WebSocket)
     let Ok(_permit) = KEYBOARD_WRITER.try_acquire() else {
         let _ = ws
             .send(Message::Close(Some(CloseFrame {
-                code: 1008, // policy violation
+                code: 1008,
                 reason: "keyboard is already controlled by another connection".into(),
             })))
             .await;
@@ -502,7 +505,7 @@ async fn mouse_socket<T: UsbConfigurable>(state: T, mut ws: WebSocket) {
     let Ok(_permit) = MOUSE_WRITER.try_acquire() else {
         let _ = ws
             .send(Message::Close(Some(CloseFrame {
-                code: 1008, // policy violation
+                code: 1008,
                 reason: "mouse is already controlled by another connection".into(),
             })))
             .await;

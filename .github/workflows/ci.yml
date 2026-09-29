@@ -632,6 +632,9 @@ jobs:
       - if: always()
         name: test remote-hands-remote-usb
         run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-usb'
+      - if: always()
+        name: test remote-hands-remote-usb-hid-contention
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.remote-hands-remote-usb-hid-contention'
   test-ws-gateway:
     name: 'Test: ws-gateway'
     needs:
