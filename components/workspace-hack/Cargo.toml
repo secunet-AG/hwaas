@@ -20,10 +20,10 @@ axum = { version = "0.7", features = ["macros", "multipart", "ws"] }
 axum-core = { version = "0.4", default-features = false, features = ["tracing"] }
 bstr = { version = "1" }
 byteorder = { version = "1" }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 cookie = { version = "0.18", default-features = false, features = ["percent-encode"] }
 crossbeam-utils = { version = "0.8" }
 either = { version = "1", features = ["use_std"] }
-fastrand = { version = "2" }
 form_urlencoded = { version = "1" }
 futures = { version = "0.3" }
 futures-channel = { version = "0.3", features = ["sink"] }
@@ -45,13 +45,15 @@ nom = { version = "8" }
 num-traits = { version = "0.2" }
 once_cell = { version = "1" }
 percent-encoding = { version = "2" }
+phf_shared = { version = "0.11", default-features = false, features = ["std"] }
 rand = { version = "0.8", features = ["small_rng"] }
+rand_core = { version = "0.6", default-features = false, features = ["std"] }
 regex = { version = "1" }
 regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
 regex-syntax = { version = "0.8" }
 reqwest = { version = "0.13", default-features = false, features = ["cookies", "form", "json", "multipart", "native-tls", "query", "rustls", "stream"] }
 reqwest-middleware = { version = "0.5", default-features = false, features = ["form", "json", "multipart", "query", "rustls"] }
-schemars = { version = "0.8", features = ["impl_json_schema", "indexmap2", "uuid", "uuid1"] }
+schemars = { version = "0.8", features = ["chrono", "impl_json_schema", "indexmap2", "uuid", "uuid1"] }
 serde = { version = "1", features = ["derive"] }
 serde_core = { version = "1", features = ["alloc"] }
 serde_json = { version = "1", features = ["raw_value"] }
@@ -80,9 +82,11 @@ anyhow = { version = "1" }
 byteorder = { version = "1" }
 displaydoc = { version = "0.2", default-features = false, features = ["std"] }
 either = { version = "1", features = ["use_std"] }
-fastrand = { version = "2" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 once_cell = { version = "1" }
+phf_shared = { version = "0.11", default-features = false, features = ["std"] }
+rand = { version = "0.8", features = ["small_rng"] }
+rand_core = { version = "0.6", default-features = false, features = ["std"] }
 serde = { version = "1", features = ["derive"] }
 serde_core = { version = "1", features = ["alloc"] }
 serde_derive = { version = "1" }

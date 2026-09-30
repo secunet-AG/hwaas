@@ -27,6 +27,7 @@
           (craneLib.fileset.commonCargoSources workspaceRoot)
 
           # Non-Rust inputs used by ContextAPI.
+          ../components/contextapi/db_interaction/patches
           ../components/contextapi/db_interaction/migrations
           ../components/contextapi/context_data_structures/src/network/patch/test_fixtures
         ];
