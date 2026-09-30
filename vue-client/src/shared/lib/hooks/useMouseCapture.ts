@@ -3,152 +3,87 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useConfig } from '@/core/plugins/config-plugin'
-
 import { useContextStore } from '@/core/stores/context-store'
-import { storeToRefs } from 'pinia'
-import { computed, onUnmounted, ref, watch, type Ref } from 'vue'
+import { computed, shallowRef, watchEffect, type Ref } from 'vue'
 
-export default function useMouseCapture(target: Ref<HTMLElement | null>, machineName: string) {
-  // Target Element Event Hook
-  watch(
-    target,
-    () => {
-      // Here, we setup a basic mouseenter listener, so that we can start listening for other events when the mouse is in our component
-      if (!target.value) {
-        return
-      }
-
-      console.info('Starting mouseenter listener')
-      target.value?.addEventListener('mouseenter', startListening)
-    },
-    { immediate: true },
-  )
-
-  // Build WebSocket for Mouse
-  const { API_URL } = useConfig()
-
-  const contextStore = useContextStore()
-  const contextStoreRefs = storeToRefs(contextStore)
-
-  const wss = ref<WebSocket | null>(null)
-
-  const activeBaseUrl = computed<string | null>(() => {
-    const activeContextId = contextStoreRefs.activeContext.value?.id
-
-    if (!activeContextId || !machineName) return null
-
-    return `${API_URL}/contexts/${activeContextId}/machines/${machineName}/usb/mouse/websocket`
-  })
-
-  watch(activeBaseUrl, () => buildWebSocket())
-
-  // Cleanup
-  onUnmounted(() => {
-    removeScreenListeners()
-    teardownWebSocket()
-    // Finally, remove this event listener for when the mouse enters the component
-    target.value?.removeEventListener('mouseenter', startListening)
-  })
-
-  function buildWebSocket() {
-    if (!activeBaseUrl.value) {
-      return
-    }
-
-    if (wss.value) {
-      teardownWebSocket()
-    }
-
-    wss.value = new WebSocket(activeBaseUrl.value)
-    wss.value.binaryType = 'arraybuffer'
-
-    // We actually only care about error messages here
-    wss.value.addEventListener('error', (e) => console.error(e))
-  }
-
-  function sendMessage(msg: MouseReport) {
-    msg.x = Math.round(msg.x)
-    msg.y = Math.round(msg.y)
-
-    if (!wss.value || wss.value.readyState !== WebSocket.OPEN) {
-      console.error('No open web socket found')
-      return
-    }
-
-    wss.value.send(JSON.stringify(msg))
-  }
-
-  function teardownWebSocket() {
-    wss.value?.close()
-    wss.value = null
-  }
-
-  // We fire this when we have entered the componenet
-  function startListening() {
-    const el = target.value
-    if (!el) throw new Error('Target element for useMouseCapture not found')
-
-    el.addEventListener('mousemove', onMouseMove)
-    el.addEventListener('mousedown', onMouseDown)
-  }
-
-  function onMouseMove(e: MouseEvent) {
-    const el = target.value
-
-    if (!el) {
-      throw new Error('Target element for onMouseMove not found')
-    }
-
-    const { x, y, width, height } = el.getBoundingClientRect()
-
-    const relative_x = e.clientX - x
-    const relative_y = e.clientY - y
-
-    const x_ratio = relative_x / width
-    const y_ratio = relative_y / height
-
-    const HID_MAP_FACTOR = 0x00008000
-
-    const x_final = x_ratio * HID_MAP_FACTOR
-    const y_final = y_ratio * HID_MAP_FACTOR
-
-    sendMessage({ buttons: [], wheel: 0, x: x_final, y: y_final } satisfies MouseReport)
-  }
-
-  function onMouseDown(e: MouseEvent) {
-    const el = target.value
-
-    if (!el) {
-      throw new Error('Target element for onMouseMove not found')
-    }
-
-    const { x, y, width, height } = el.getBoundingClientRect()
-
-    const relative_x = e.clientX - x
-    const relative_y = e.clientY - y
-
-    const x_ratio = relative_x / width
-    const y_ratio = relative_y / height
-
-    const HID_MAP_FACTOR = 0x00008000
-
-    const x_final = x_ratio * HID_MAP_FACTOR
-    const y_final = y_ratio * HID_MAP_FACTOR
-
-    sendMessage({ buttons: [1], wheel: 0, x: x_final, y: y_final } satisfies MouseReport)
-  }
-
-  function removeScreenListeners() {
-    const el = target.value
-
-    el?.removeEventListener('mousemove', onMouseMove)
-  }
-}
-
-// This matches the same interface definition in our ContextAPI Service
+// Mirrors the MouseReport in the ContextAPI service
 export interface MouseReport {
   buttons: number[]
   x: number
   y: number
   wheel: number
+}
+
+type Rect = Pick<DOMRectReadOnly, 'x' | 'y' | 'width' | 'height'>
+
+const HID_MAX = 0x7fff
+const MOUSE_EVENTS = ['mousemove', 'mousedown', 'mouseup', 'mouseleave'] as const
+
+const scale = (pos: number, origin: number, size: number) =>
+  Math.round(Math.min(Math.max((pos - origin) / size, 0), 1) * HID_MAX)
+
+// DOM bitmask (bit0 = primary) -> 1-based HID button numbers
+const pressedButtons = (mask: number) =>
+  [0, 1, 2, 3, 4].filter((bit) => mask & (1 << bit)).map((bit) => bit + 1)
+
+export function toMouseReport(e: MouseEvent, rect: Rect): MouseReport {
+  return {
+    buttons: e.type === 'mouseleave' ? [] : pressedButtons(e.buttons),
+    wheel: 0,
+    x: scale(e.clientX, rect.x, rect.width),
+    y: scale(e.clientY, rect.y, rect.height),
+  }
+}
+
+export default function useMouseCapture(target: Ref<HTMLElement | null>, machineName: string) {
+  const { API_URL } = useConfig()
+  const contextStore = useContextStore()
+  const socket = shallowRef<WebSocket | null>(null)
+  // Set when the server closes the connection for a reason other than us
+  // tearing it down ourselves (e.g. another tab already controls the mouse).
+  const closeReason = shallowRef<string | null>(null)
+
+  const url = computed(() => {
+    const contextId = contextStore.activeContext?.id
+    if (!contextId || !machineName) return null
+    return `${API_URL}/contexts/${contextId}/machines/${machineName}/usb/mouse/websocket`
+  })
+
+  watchEffect((onCleanup) => {
+    if (!url.value) return
+
+    const ws = new WebSocket(url.value)
+    ws.addEventListener('error', console.error)
+    ws.addEventListener('close', (e) => {
+      // Ignore events from a socket we've already superseded or torn down.
+      if (socket.value !== ws) return
+      socket.value = null
+      if (e.code !== 1000) {
+        closeReason.value = e.reason || `mouse websocket closed unexpectedly (code ${e.code})`
+        console.error(closeReason.value)
+      }
+    })
+    socket.value = ws
+
+    onCleanup(() => {
+      ws.close()
+      socket.value = null
+    })
+  })
+
+  watchEffect((onCleanup) => {
+    const el = target.value
+    if (!el) return
+
+    const send = (e: MouseEvent) => {
+      const ws = socket.value
+      if (ws?.readyState !== WebSocket.OPEN) return
+      ws.send(JSON.stringify(toMouseReport(e, el.getBoundingClientRect())))
+    }
+
+    MOUSE_EVENTS.forEach((type) => el.addEventListener(type, send))
+    onCleanup(() => MOUSE_EVENTS.forEach((type) => el.removeEventListener(type, send)))
+  })
+
+  return { closeReason }
 }

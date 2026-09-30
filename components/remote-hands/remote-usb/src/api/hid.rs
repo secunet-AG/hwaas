@@ -308,7 +308,7 @@ async fn handle_keyboard_report_socket<T: UsbConfigurable>(
 
 async fn keyboard_report_socket<T: UsbConfigurable>(state: T, mut ws: WebSocket) {
     let Ok(_permit) = KEYBOARD_WRITER.try_acquire() else {
-        tracing::warn_span!(
+        tracing::warn!(
             "Could not acquire lock on KEYBOARD_WRITER. Perhaps this is already in use?"
         );
         let _ = ws
@@ -506,9 +506,7 @@ fn handle_mouse_websocket_doc(op: TransformOperation) -> TransformOperation {
 /// The function responsible for handling and firing off WS mouse events
 async fn mouse_socket<T: UsbConfigurable>(state: T, mut ws: WebSocket) {
     let Ok(_permit) = MOUSE_WRITER.try_acquire() else {
-        tracing::warn_span!(
-            "Could not acquire lock on MOUSE_WRITER. Perhaps this is already in use?"
-        );
+        tracing::warn!("Could not acquire lock on MOUSE_WRITER. Perhaps this is already in use?");
         let _ = ws
             .send(Message::Close(Some(CloseFrame {
                 code: 1008, // Policy Violation
