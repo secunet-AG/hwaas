@@ -28,6 +28,7 @@ testers.nixosTest {
       ];
 
       # Provide a mock usb device controller for remote-usb
+      # `/dev/hidN` will then "exist" without real gadget hardware
       boot.kernelModules = [ "dummy_hcd" ];
     };
   };
@@ -45,9 +46,24 @@ testers.nixosTest {
     usb_functions = '[{"type":"mouse"},{"type":"keyboard"}]'
     sut.succeed(f"http --check-status PUT {usb_url} <<<'{usb_functions}'")
 
+    # Connects, leaving the connection open and tagging it
     def open_conn(url, tag):
-      # Connects and then the connection stays open
-      sut.execute(f"websocat --no-close {url} < /dev/null > /tmp/{tag}.log 2>&1 & echo $! > /tmp/{tag}.pid")
+      sut.execute(f"""
+        set -euo pipefail
+
+        pidfile="/tmp/{tag}.pid"
+
+        # Abort if connection for tag already present
+        if [[ -f "/tmp/$pidfile" ]]; then
+          echo "a connection for tag '{tag}' already exists" 1>&2
+          exit 1
+        fi
+
+        websocat --no-close {url} < /dev/null &> /tmp/{tag}.log &
+        pid="$!"
+        disown -h "$pid"
+        echo "$pid" > "$pidfile"
+      """)
 
     def is_alive(tag):
       status, _ = sut.execute(f"kill -0 $(cat /tmp/{tag}.pid) 2>/dev/null")
