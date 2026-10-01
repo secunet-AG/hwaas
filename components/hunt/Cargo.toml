@@ -36,7 +36,6 @@ opentelemetry.workspace = true
 opentelemetry_sdk.workspace = true
 reqwest-middleware = { workspace = true, optional = true }
 reqwest = { workspace = true, optional = true }
-task-local-extensions.workspace = true
 tower-http.workspace = true
 tower.workspace = true
 tracing-journald.workspace = true
