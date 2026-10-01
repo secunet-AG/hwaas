@@ -101,7 +101,7 @@ hidg = "0.2.0"
 http = "1.1.0"
 hunt = { path = "./hunt" }
 image_api = { path = "./contextapi/image_api/" }
-init-tracing-opentelemetry = { version = "0.24.2", features = [
+init-tracing-opentelemetry = { version = "0.41.1", features = [
   "tracing_subscriber_ext",
   "otlp",
 ] }
