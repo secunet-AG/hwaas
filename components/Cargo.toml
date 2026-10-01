@@ -60,7 +60,7 @@ async-trait = "0.1.53"
 axum = { version = "0.7", features = ["ws", "macros", "json", "multipart"] }
 axum-extra = { version = "0.9.6", features = ["typed-routing", "typed-header"] }
 axum-test = { version = "16.4.1", features = ["ws"] }
-axum-tracing-opentelemetry = "0.24.0"
+axum-tracing-opentelemetry = "0.39.1"
 base64 = "0.22.1"
 bytes = "1.11.1"
 bytesize = { version = "2.0.1", features = ["serde"] }

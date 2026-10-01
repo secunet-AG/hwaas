@@ -47,7 +47,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5678d2978845ddb4bd736a026f467dd652d831e9e6254b0e41b07f7ee7523309"
 dependencies = [
  "aide-macros",
- "axum",
+ "axum 0.7.9",
  "axum-extra",
  "bytes",
  "cfg-if",
@@ -150,7 +150,7 @@ checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
 name = "aruba-switch-mock"
 version = "0.1.0"
 dependencies = [
- "axum",
+ "axum 0.7.9",
  "clap",
  "dashmap",
  "schemars 0.8.22",
@@ -296,7 +296,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edca88bc138befd0323b20752846e6587272d3b03b0343c8ea28a6f819e6e71f"
 dependencies = [
  "async-trait",
- "axum-core",
+ "axum-core 0.4.5",
  "axum-macros",
  "base64 0.22.1",
  "bytes",
@@ -307,7 +307,7 @@ dependencies = [
  "hyper",
  "hyper-util",
  "itoa",
- "matchit",
+ "matchit 0.7.3",
  "memchr",
  "mime",
  "multer",
@@ -326,6 +326,33 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
+]
+
+[[package]]
+name = "axum"
+version = "0.8.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31b698c5f9a010f6573133b09e0de5408834d0c82f8d7475a89fc1867a71cd90"
+dependencies = [
+ "axum-core 0.5.6",
+ "bytes",
+ "futures-util",
+ "http 1.5.0",
+ "http-body",
+ "http-body-util",
+ "hyper-util",
+ "itoa",
+ "matchit 0.8.4",
+ "memchr",
+ "mime",
+ "percent-encoding",
+ "pin-project-lite",
+ "serde_core",
+ "sync_wrapper",
+ "tokio",
+ "tower 0.5.3",
+ "tower-layer",
+ "tower-service",
 ]
 
 [[package]]
@@ -350,13 +377,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "axum-core"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08c78f31d7b1291f7ee735c1c6780ccde7785daae9a9206026862dab7d8792d1"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "http 1.5.0",
+ "http-body",
+ "http-body-util",
+ "mime",
+ "pin-project-lite",
+ "sync_wrapper",
+ "tower-layer",
+ "tower-service",
+]
+
+[[package]]
 name = "axum-extra"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c794b30c904f0a1c2fb7740f7df7f7972dfaa14ef6f57cb6178dc63e5dca2f04"
 dependencies = [
- "axum",
- "axum-core",
+ "axum 0.7.9",
+ "axum-core 0.4.5",
  "axum-macros",
  "bytes",
  "fastrand 2.5.0",
@@ -397,7 +442,7 @@ dependencies = [
  "anyhow",
  "assert-json-diff",
  "auto-future",
- "axum",
+ "axum 0.7.9",
  "base64 0.22.1",
  "bytes",
  "bytesize 1.3.3",
@@ -424,20 +469,21 @@ dependencies = [
 
 [[package]]
 name = "axum-tracing-opentelemetry"
-version = "0.24.2"
+version = "0.39.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a1a6cb5828e0b3dfca8454e2763faa0889f83809f68c69036fa2e57d3e7b0c2"
+checksum = "fabc5593bb3e47953228a64103b76ba58464d793b81eaef985444bf37e2d0bf3"
 dependencies = [
- "axum",
+ "axum 0.8.9",
  "futures-core",
  "futures-util",
  "http 1.5.0",
- "opentelemetry",
+ "opentelemetry 0.32.0",
+ "opentelemetry-semantic-conventions 0.32.1",
  "pin-project-lite",
  "tower 0.5.3",
  "tracing",
- "tracing-opentelemetry",
- "tracing-opentelemetry-instrumentation-sdk",
+ "tracing-opentelemetry 0.33.0",
+ "tracing-opentelemetry-instrumentation-sdk 0.38.3",
 ]
 
 [[package]]
@@ -733,7 +779,7 @@ dependencies = [
  "assert_fs",
  "async-stream",
  "async-trait",
- "axum",
+ "axum 0.7.9",
  "bytesize 2.7.0",
  "chrono",
  "clap",
@@ -1872,12 +1918,12 @@ checksum = "15cdd26707701c53297e2fa6afb323d55fbc1d0810c3aec078ae3ef0424c3c15"
 name = "hunt"
 version = "0.1.0"
 dependencies = [
- "axum",
+ "axum 0.7.9",
  "axum-tracing-opentelemetry",
  "console-subscriber",
  "futures",
  "init-tracing-opentelemetry",
- "opentelemetry",
+ "opentelemetry 0.27.1",
  "opentelemetry_sdk",
  "reqwest 0.13.4",
  "reqwest-middleware",
@@ -1886,8 +1932,8 @@ dependencies = [
  "tower-http 0.5.2",
  "tracing",
  "tracing-journald",
- "tracing-opentelemetry",
- "tracing-opentelemetry-instrumentation-sdk",
+ "tracing-opentelemetry 0.28.0",
+ "tracing-opentelemetry-instrumentation-sdk 0.24.2",
  "tracing-subscriber",
  "workspace-hack",
 ]
@@ -2140,7 +2186,7 @@ version = "0.1.0"
 dependencies = [
  "aide",
  "async-compression",
- "axum",
+ "axum 0.7.9",
  "bytes",
  "bytesize 2.7.0",
  "context_data_structures",
@@ -2188,13 +2234,13 @@ version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a61fb895b8667619afb927e475330c299f5aab44a79a87d9a875c4875f4b91c"
 dependencies = [
- "opentelemetry",
+ "opentelemetry 0.27.1",
  "opentelemetry-otlp",
- "opentelemetry-semantic-conventions",
+ "opentelemetry-semantic-conventions 0.27.0",
  "opentelemetry_sdk",
  "thiserror 1.0.69",
  "tracing",
- "tracing-opentelemetry",
+ "tracing-opentelemetry 0.28.0",
  "tracing-subscriber",
 ]
 
@@ -2464,7 +2510,7 @@ dependencies = [
 name = "machine_ops_lib"
 version = "0.1.0"
 dependencies = [
- "axum",
+ "axum 0.7.9",
  "chrono",
  "clap",
  "db_interaction",
@@ -2501,6 +2547,12 @@ name = "matchit"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e7465ac9959cc2b1404e8e2367b43684a6d13790fe23056cc8c6c5a6b7bcb94"
+
+[[package]]
+name = "matchit"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "47e1ffaa40ddd1f3ed91f717a33c8c0ee23fff369e3aa8772b9605cc1d22f4c3"
 
 [[package]]
 name = "memchr"
@@ -2627,7 +2679,7 @@ version = "0.1.0"
 dependencies = [
  "aide",
  "async-trait",
- "axum",
+ "axum 0.7.9",
  "base64 0.22.1",
  "clap",
  "dashmap",
@@ -2820,6 +2872,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "opentelemetry"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0142c63252a9e054e68a4c61a5778f7b14f576274d593f8ce883d191a099682"
+dependencies = [
+ "futures-core",
+ "futures-sink",
+ "js-sys",
+ "pin-project-lite",
+ "thiserror 2.0.20",
+]
+
+[[package]]
 name = "opentelemetry-http"
 version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2828,7 +2893,7 @@ dependencies = [
  "async-trait",
  "bytes",
  "http 1.5.0",
- "opentelemetry",
+ "opentelemetry 0.27.1",
  "reqwest 0.12.28",
 ]
 
@@ -2841,7 +2906,7 @@ dependencies = [
  "async-trait",
  "futures-core",
  "http 1.5.0",
- "opentelemetry",
+ "opentelemetry 0.27.1",
  "opentelemetry-http",
  "opentelemetry-proto",
  "opentelemetry_sdk",
@@ -2858,7 +2923,7 @@ version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6e05acbfada5ec79023c85368af14abd0b307c015e9064d249b2a950ef459a6"
 dependencies = [
- "opentelemetry",
+ "opentelemetry 0.27.1",
  "opentelemetry_sdk",
  "prost",
  "tonic",
@@ -2871,6 +2936,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc1b6902ff63b32ef6c489e8048c5e253e2e4a803ea3ea7e783914536eb15c52"
 
 [[package]]
+name = "opentelemetry-semantic-conventions"
+version = "0.32.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c913ac17a6c451661ee255f4625d143e51647ae78ebd969b75e41c4442f4fe47"
+
+[[package]]
 name = "opentelemetry_sdk"
 version = "0.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2881,7 +2952,7 @@ dependencies = [
  "futures-executor",
  "futures-util",
  "glob",
- "opentelemetry",
+ "opentelemetry 0.27.1",
  "percent-encoding",
  "rand 0.8.7",
  "serde_json",
@@ -3357,7 +3428,7 @@ name = "remote-auxiliary"
 version = "1.0.0"
 dependencies = [
  "aide",
- "axum",
+ "axum 0.7.9",
  "enum_dispatch",
  "remote-axum",
  "remote-init",
@@ -3376,7 +3447,7 @@ name = "remote-axum"
 version = "1.0.0"
 dependencies = [
  "aide",
- "axum",
+ "axum 0.7.9",
  "hunt",
  "remote-init",
  "sd-notify",
@@ -3405,7 +3476,7 @@ name = "remote-power"
 version = "1.0.0"
 dependencies = [
  "aide",
- "axum",
+ "axum 0.7.9",
  "enum_dispatch",
  "remote-axum",
  "remote-init",
@@ -3422,7 +3493,7 @@ name = "remote-serial"
 version = "1.0.0"
 dependencies = [
  "aide",
- "axum",
+ "axum 0.7.9",
  "axum-test",
  "bytes",
  "dashmap",
@@ -3447,7 +3518,7 @@ name = "remote-usb"
 version = "1.0.0"
 dependencies = [
  "aide",
- "axum",
+ "axum 0.7.9",
  "hidg",
  "itertools 0.13.0",
  "remote-axum",
@@ -3467,7 +3538,7 @@ dependencies = [
 name = "remote_client"
 version = "0.1.0"
 dependencies = [
- "axum",
+ "axum 0.7.9",
  "db_interaction",
  "reqwest 0.13.4",
  "tracing",
@@ -3981,7 +4052,7 @@ version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd34f36fe4c5ba9654417139a9b3a20d2e1de6012ee678ad14d240c22c78d8d6"
 dependencies = [
- "axum",
+ "axum 0.7.9",
  "futures",
  "percent-encoding",
  "serde",
@@ -4682,7 +4753,7 @@ checksum = "877c5b330756d856ffcc4553ab34a5684481ade925ecc54bcd1bf02b1d0d4d52"
 dependencies = [
  "async-stream",
  "async-trait",
- "axum",
+ "axum 0.7.9",
  "base64 0.22.1",
  "bytes",
  "h2",
@@ -4747,7 +4818,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fd0118512cf0b3768f7fcccf0bef1ae41d68f2b45edc1e77432b36c97c56c6d"
 dependencies = [
  "async-trait",
- "axum-core",
+ "axum-core 0.4.5",
  "cookie",
  "futures-util",
  "http 1.5.0",
@@ -4869,8 +4940,24 @@ checksum = "97a971f6058498b5c0f1affa23e7ea202057a7301dbff68e968b2d578bcbd053"
 dependencies = [
  "js-sys",
  "once_cell",
- "opentelemetry",
+ "opentelemetry 0.27.1",
  "opentelemetry_sdk",
+ "smallvec",
+ "tracing",
+ "tracing-core",
+ "tracing-log",
+ "tracing-subscriber",
+ "web-time",
+]
+
+[[package]]
+name = "tracing-opentelemetry"
+version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "adbc64cba7137545b8044cb1fe9814f7aacf3c6b5f9b45be8bb5db538befdb26"
+dependencies = [
+ "js-sys",
+ "opentelemetry 0.32.0",
  "smallvec",
  "tracing",
  "tracing-core",
@@ -4885,10 +4972,22 @@ version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1cf359b8862d097418bc1a3edd0ab8a1700dc155258557195b29d96fde14c5a8"
 dependencies = [
- "http 1.5.0",
- "opentelemetry",
+ "opentelemetry 0.27.1",
  "tracing",
- "tracing-opentelemetry",
+ "tracing-opentelemetry 0.28.0",
+]
+
+[[package]]
+name = "tracing-opentelemetry-instrumentation-sdk"
+version = "0.38.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8884891560864c229e82653b02641a808711111fc34ce8555c0c47fec947b549"
+dependencies = [
+ "http 1.5.0",
+ "opentelemetry 0.32.0",
+ "opentelemetry-semantic-conventions 0.32.1",
+ "tracing",
+ "tracing-opentelemetry 0.33.0",
 ]
 
 [[package]]
@@ -5463,7 +5562,7 @@ name = "workspace-hack"
 version = "0.1.0"
 dependencies = [
  "aho-corasick",
- "axum",
+ "axum 0.7.9",
  "axum-extra",
  "bstr",
  "byteorder",
@@ -5534,7 +5633,7 @@ version = "0.1.0"
 dependencies = [
  "afpacket",
  "aide",
- "axum",
+ "axum 0.7.9",
  "axum-extra",
  "clap",
  "dashmap",
