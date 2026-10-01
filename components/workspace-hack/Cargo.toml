@@ -21,7 +21,7 @@ bstr = { version = "1" }
 byteorder = { version = "1" }
 cookie = { version = "0.18", default-features = false, features = ["percent-encode"] }
 crossbeam-utils = { version = "0.8" }
-deadpool = { version = "0.12", features = ["rt_tokio_1"] }
+deadpool = { version = "0.13", features = ["rt_tokio_1"] }
 either = { version = "1", features = ["use_std"] }
 form_urlencoded = { version = "1" }
 futures-channel = { version = "0.3", features = ["sink"] }

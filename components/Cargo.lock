@@ -1050,9 +1050,19 @@ version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0be2b1d1d6ec8d846f05e137292d0b89133caf95ef33695424c09568bdd39b1b"
 dependencies = [
- "deadpool-runtime",
+ "deadpool-runtime 0.1.4",
  "lazy_static",
  "num_cpus",
+ "tokio",
+]
+
+[[package]]
+name = "deadpool"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e98a7e119cd347f4201e1159b19831029e203e2d8b790547708e8157b4acf1e"
+dependencies = [
+ "deadpool-runtime 0.3.1",
  "tokio",
 ]
 
@@ -1062,7 +1072,7 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "590573e9e29c5190a5ff782136f871e6e652e35d598a349888e028693601adf1"
 dependencies = [
- "deadpool",
+ "deadpool 0.12.3",
  "deadpool-sync",
  "diesel",
 ]
@@ -1077,12 +1087,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "deadpool-runtime"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2657f61fb1dd8bf37a8d51093cc7cee4e77125b22f7753f49b289f831bec2bae"
+dependencies = [
+ "tokio",
+]
+
+[[package]]
 name = "deadpool-sync"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "524bc3df0d57e98ecd022e21ba31166c2625e7d3e5bcc4510efaeeab4abcab04"
 dependencies = [
- "deadpool-runtime",
+ "deadpool-runtime 0.1.4",
 ]
 
 [[package]]
@@ -5458,7 +5477,7 @@ checksum = "08db1edfb05d9b3c1542e521aea074442088292f00b5f28e435c714a98f85031"
 dependencies = [
  "assert-json-diff",
  "base64 0.22.1",
- "deadpool",
+ "deadpool 0.12.3",
  "futures",
  "http 1.5.0",
  "http-body-util",
@@ -5484,7 +5503,7 @@ dependencies = [
  "byteorder",
  "cookie",
  "crossbeam-utils",
- "deadpool",
+ "deadpool 0.13.1",
  "either",
  "form_urlencoded",
  "futures-channel",
