@@ -5,22 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.4]
+
+### Changed
+
+- Update Rust and nix dependencies
+
+### Fixed
+
+- Web UI: fixed missing support for optional serial connection per machine
+- remote-usb: improved USB connection handling to prevent conflicts when multiple connections use the same device
+
 ## [5.2.3]
 
-#### Added
+### Added
 
 - vue-client: keyboard overlay for sending common combinations and keys that cannot be captured by the browser
 
 ## [5.2.2]
 
-#### Fixed
+### Fixed
 
 - remote-hands: deterministic gadget function order
 - Web UI: Fixed a bug preventing the "add machine from existing content" feature to correctly add machines to a context
 
 ## [5.2.1]
 
-#### Fixed
+### Fixed
 
 - Serial: Fixed WebSocket streaming reliability issues under certain timing conditions
 - Serial: Fixed incorrect handling of slow WebSocket clients (lag is now detected explicitly)
