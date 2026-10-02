@@ -27,6 +27,7 @@
           (craneLib.fileset.commonCargoSources workspaceRoot)
 
           # Non-Rust inputs used by ContextAPI.
+          ../components/contextapi/db_interaction/patches
           ../components/contextapi/db_interaction/migrations
           ../components/contextapi/context_data_structures/src/network/patch/test_fixtures
         ];
@@ -60,7 +61,11 @@
           pkgs.darwin.apple_sdk.frameworks.Security
         ];
 
-        nativeBuildInputs = [ pkgs.pkg-config ];
+        nativeBuildInputs = [
+          pkgs.pkg-config
+          # Used by contextapi for generate schemas
+          pkgs.diesel-cli
+        ];
       };
 
       # Build the dependency graph exactly once and allow all later
