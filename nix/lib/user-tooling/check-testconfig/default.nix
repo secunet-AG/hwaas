@@ -2,9 +2,24 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Checks whether a given attribute set satisfies certain conditions, e.g. it
-# has some necessary attributes and no conflicting values.
 { lib }:
+
+/**
+  Validate a HWaaS test configuration attribute set.
+
+  Asserts that required attributes are present and don't conflict each other.
+
+  # Inputs
+
+  `testConfig`
+  : The HWaaS test configuration to validate.
+
+  # Type
+
+  ```
+  AttrSet -> AttrSet
+  ```
+*/
 testConfig:
 # lib.deepSeq makes sure that all attributes are checked.
 lib.deepSeq
