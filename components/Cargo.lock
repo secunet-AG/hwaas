@@ -160,7 +160,7 @@ dependencies = [
  "tower-cookies",
  "tracing",
  "tracing-subscriber",
- "uuid 1.24.1",
+ "uuid 1.26.1",
  "workspace-hack",
 ]
 
@@ -419,7 +419,7 @@ dependencies = [
  "tokio-tungstenite",
  "tower 0.5.3",
  "url",
- "uuid 1.24.1",
+ "uuid 1.26.1",
 ]
 
 [[package]]
@@ -735,7 +735,7 @@ dependencies = [
  "serde",
  "serde_json",
  "url",
- "uuid 1.24.1",
+ "uuid 1.26.1",
  "workspace-hack",
 ]
 
@@ -785,7 +785,7 @@ dependencies = [
  "tracing-test",
  "trait-variant",
  "url",
- "uuid 1.24.1",
+ "uuid 1.26.1",
  "wiremock",
  "workspace-hack",
 ]
@@ -1065,7 +1065,7 @@ dependencies = [
  "serde",
  "strum_macros 0.26.4",
  "tokio",
- "uuid 1.24.1",
+ "uuid 1.26.1",
  "workspace-hack",
 ]
 
@@ -1420,7 +1420,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2020,7 +2020,7 @@ dependencies = [
  "libc",
  "percent-encoding",
  "pin-project-lite",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "system-configuration",
  "tokio",
  "tower-service",
@@ -2200,7 +2200,7 @@ dependencies = [
  "tokio-util",
  "tower-http 0.5.2",
  "tracing",
- "uuid 1.24.1",
+ "uuid 1.26.1",
  "workspace-hack",
 ]
 
@@ -2527,7 +2527,7 @@ dependencies = [
  "tracing",
  "tracing-test",
  "url",
- "uuid 1.24.1",
+ "uuid 1.26.1",
  "wiremock",
  "workspace-hack",
 ]
@@ -3224,7 +3224,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash",
  "rustls",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "thiserror 2.0.21",
  "tokio",
  "tracing",
@@ -3263,9 +3263,9 @@ dependencies = [
  "cfg_aliases",
  "libc",
  "once_cell",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "tracing",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3738,7 +3738,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3796,7 +3796,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3859,7 +3859,7 @@ dependencies = [
  "serde",
  "serde_json",
  "uuid 0.8.2",
- "uuid 1.24.1",
+ "uuid 1.26.1",
 ]
 
 [[package]]
@@ -4436,7 +4436,7 @@ dependencies = [
  "getrandom 0.4.3",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4818,7 +4818,7 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
- "uuid 1.24.1",
+ "uuid 1.26.1",
 ]
 
 [[package]]
@@ -5081,7 +5081,7 @@ dependencies = [
  "nix 0.30.1",
  "proc-mounts",
  "strum",
- "uuid 1.24.1",
+ "uuid 1.26.1",
 ]
 
 [[package]]
@@ -5135,9 +5135,9 @@ checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 
 [[package]]
 name = "uuid"
-version = "1.24.1"
+version = "1.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cefc03fd367c0c6d4305de1b312cf00248c4114f4a0418ce6a6af769e3b0bd9"
+checksum = "2ef6dac1e96601b4fb3acccccff2139741fcb757cb9a36089bf5be91cfb285ce"
 dependencies = [
  "getrandom 0.4.3",
  "js-sys",
@@ -5313,7 +5313,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -5565,7 +5565,7 @@ dependencies = [
  "tracing-core",
  "typenum",
  "url",
- "uuid 1.24.1",
+ "uuid 1.26.1",
 ]
 
 [[package]]
