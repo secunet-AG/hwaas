@@ -122,11 +122,10 @@ helpers
 
       testScript' =
         if isFunction testScript then
-          (testScriptArgs != null)
-          ||
-            builtins.warn "ignoring empty 'testScriptArgs' for test script function in HWaaS test '${name}'"
-              testScript
-              testScriptArgs
+          testScript (
+            testScriptArgs
+            || (builtins.warn "ignoring empty 'testScriptArgs' for test script function in HWaaS test '${name}'" null)
+          )
         else
           (builtins.warn "ignoring input 'testScriptArgs' for non-function test script in HWaaS test '${name}'" testScript);
     in
@@ -144,7 +143,12 @@ helpers
     pkgs.testers.runNixOSTest {
       imports = [
         "${../../../nix/modules/user-tooling/hwaas-test-options/default.nix}"
-        ((mkTestConfig hwaasTestConfig) // { testScript = lib.mkForce (mkTestScript hwaasTestConfig); })
+        (
+          (mkTestConfig hwaasTestConfig)
+          // {
+            testScript = lib.mkForce (lib.traceVal (mkTestScript hwaasTestConfig));
+          }
+        )
         ({ lib, ... }: { config.hostPkgs = lib.mkDefault pkgs; })
       ];
     };

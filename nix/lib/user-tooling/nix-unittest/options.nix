@@ -57,6 +57,7 @@ in
           message,
         }:
         {
+          # NOTE: To debug failures here, try `lib.traceValSeq` instead of `tryEval`
           result = (builtins.tryEval check).success == expected;
           inherit message;
         }
