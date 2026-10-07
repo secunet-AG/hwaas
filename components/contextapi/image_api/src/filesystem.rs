@@ -91,7 +91,7 @@ where
     // returns a string with a lower case hash
     // `{:X}` would result in upper case.
     // because comparing it to a URL parameter it should be lower-case (REST design rule)
-    Ok(format!("{:x}", hasher.finalize()))
+    Ok(hex::encode(hasher.finalize()))
 }
 
 #[cfg(test)]
