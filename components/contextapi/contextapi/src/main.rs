@@ -134,7 +134,7 @@ async fn main() -> Result<(), error_stack::Report<ApplicationError>> {
     let router = router.layer(cors);
 
     // If spawning the app via systemd, report that the server is now starting
-    let _ = sd_notify::notify(true, &[NotifyState::Ready])
+    let _ = sd_notify::notify(&[NotifyState::Ready])
         .map_err(|e| error!(error.dbg = ?e, error.msg = %e, "could not use sd_notify:"));
 
     let service = hunt_axum_router(router);

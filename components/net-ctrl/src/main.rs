@@ -63,7 +63,7 @@ async fn main() -> Result<(), ()> {
     info!("Listen for connections at {}", args.address);
 
     // If spawning the app via systemd, report that the server is now starting
-    let _ = sd_notify::notify(true, &[NotifyState::Ready])
+    let _ = sd_notify::notify(&[NotifyState::Ready])
         .map_err(|e| warn!("Could not use sd_notify: {:?}", e));
 
     let service = hunt_axum_router(get_router(inventory_data).await.unwrap());
