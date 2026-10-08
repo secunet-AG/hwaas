@@ -165,7 +165,7 @@ tokio = { version = "1.23", features = [
 ] }
 tokio-stream = { version = "0.1.11", features = ["fs"] }
 tokio-test = "0.4.5"
-tokio-tun = "0.7.0"
+tokio-tun = "0.15.2"
 tokio-tungstenite = { version = "0.24.0", features = ["stream"] }
 tokio-util = { version = "0.7.18", features = ["io"] }
 tower = "0.5.0"
