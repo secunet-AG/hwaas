@@ -2,6 +2,31 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+/**
+  Validate the HWaaS test configuration.
+
+  Note that a (semantically) valid HWaaS test configuration does not mean the tests are guaranteed
+  to succeed.
+
+  # Inputs
+
+  `lib`
+  : The nixpkgs `lib` with auxiliary functions.
+
+  `config`:
+  : The (partial) HWaaS test configuration. In particular, this is expected to have the following
+    fields (see also ./default.nix): `machines`
+
+  # Output
+
+  None. If this module evaluates without errors, the HWaaS test configuration is valid.
+
+  # Type
+
+  ```text
+  :: AttrSet -> _
+  ```
+*/
 { lib, config, ... }:
 let
   inherit (builtins) filter map;

@@ -21,9 +21,6 @@ let
         networkInterfaces = [ "LAN1" ];
       }
     ];
-    testScript = { ... }: ''
-      execute_tests()
-    '';
   };
 
   machineConfig = { lib, ... }: { stateVersion = lib.trivial.release; };
@@ -83,10 +80,6 @@ nixUnittest {
     (testFailure {
       config = lib.filterAttrs (n: _: n == "networks" goodConfig);
       message = "Config needs networks";
-    })
-    (testFailure {
-      config = lib.filterAttrs (n: _: n == "testScript" goodConfig);
-      message = "Config needs a testScript";
     })
     (testFailure {
       config = lib.filterAttrs (n: _: n == "apiUrl" goodConfig);

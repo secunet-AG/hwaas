@@ -10,12 +10,7 @@
 
 { pkgs }:
 let
-  inherit (builtins)
-    isFunction
-    readFile
-    removeAttrs
-    toJSON
-    ;
+  inherit (builtins) isFunction readFile toJSON;
   inherit (pkgs) lib;
 
   helpers = import ./helpers.nix { inherit lib; };
@@ -26,20 +21,23 @@ helpers
 // {
   inherit checkTestconfig;
 
-  filterTestConfig =
-    hwaasTestConfig:
-    let
-      # Attributes we need to filter before passing the test configuration to
-      # the nixosTest function. Otherwise, we would get an error about
-      # unexpected parameters.
-      hwaasConfigOnlyAttributes = [
-        "machines"
-        "networks"
-        "apiUrl"
-      ];
-    in
-    removeAttrs hwaasTestConfig hwaasConfigOnlyAttributes;
+  /**
+    Inject runtime dependencies for HWaaS user tooling into a HWaaS test.
 
+    The runtime dependencies are required on the control VM node to execute the underlying HWaaS
+    code that extends the builtin Python test driver.
+
+    # Inputs
+
+    `hwaasTestConfig`
+    : The full configuration for a HWaaS test.
+
+    # Type
+
+    ```text
+    mkTestConfig :: AttrSet -> AttrSet
+    ```
+  */
   mkTestConfig =
     {
       extraPythonPackages ? _: [ ],
@@ -60,6 +58,31 @@ helpers
         ++ extraPythonPackages pyPkgs;
     };
 
+  /**
+    Generate the test script for a HWaaS test based on a test configuration.
+
+    Extends the user-provided test script for the NixOS VM test with a custom prelude that
+    prearranges various HWaaS conveniences (such as remote machine objects etc.). The test script
+    (expected in the `testScript` attribute of the input argument) may be a function taking
+    the exact same argument as for a regular NixOS VM test. Please refer to upstream documentation
+    for additional information.
+
+    # Inputs
+
+    `...`
+    : The full configuration for a HWaaS test. This must include at least the following attributes:
+      `name`, `testScript`, `apiUrl`.
+
+    # Output
+
+    A custom, HWaaS-specific test script, that wraps the initial user-provided test script.
+
+    # Type
+
+    ```text
+    mkTestScript :: AttrSet -> AttrSet -> String
+    ```
+  */
   mkTestScript =
     {
       name,
@@ -78,10 +101,9 @@ helpers
           config = checkTestconfig {
             # Attributes required and checked by our HWaaS test configuration checker.
             inherit
-              machines
               name
+              machines
               networks
-              testScript
               apiUrl
               ;
           };
@@ -93,7 +115,14 @@ helpers
         in
         "'''${toJSON config'}'''";
 
-      testScript' = if isFunction testScript then testScript testScriptArgs else testScript;
+      testScript' =
+        if isFunction testScript then
+          testScript (
+            testScriptArgs
+            || (builtins.warn "ignoring empty 'testScriptArgs' for test script function in HWaaS test '${name}'" null)
+          )
+        else
+          (builtins.warn "ignoring input 'testScriptArgs' for non-function test script in HWaaS test '${name}'" testScript);
     in
     ''
       HWAAS_CONFIG = ${hwaasConfig}
@@ -103,31 +132,19 @@ helpers
       ${testScript'}
     '';
 
-  mkTest =
-    let
-      standardNixosTestConfig = { lib, ... }: { config.nixpkgs.pkgs = lib.mkDefault pkgs; };
-    in
-    (import "${pkgs.path}/nixos/lib/testing-python.nix" {
-      inherit (pkgs.stdenv.hostPlatform) system;
-      inherit pkgs;
-      extraConfigurations = [ standardNixosTestConfig ];
-    }).simpleTest;
-
   __functor =
-    {
-      filterTestConfig,
-      mkTest,
-      mkTestConfig,
-      mkTestScript,
-      ...
-    }:
+    { mkTestConfig, mkTestScript, ... }:
     hwaasTestConfig:
-    let
-      testConfig = mkTestConfig (filterTestConfig hwaasTestConfig) // {
-        testScript = mkTestScript hwaasTestConfig;
-      };
-
-      test = mkTest testConfig;
-    in
-    lib.recursiveUpdate test { meta.tag = "nix-integration-test"; };
+    pkgs.testers.runNixOSTest {
+      imports = [
+        "${../../../nix/modules/user-tooling/hwaas-test-options/default.nix}"
+        (
+          (mkTestConfig hwaasTestConfig)
+          // {
+            testScript = lib.mkForce (lib.traceVal (mkTestScript hwaasTestConfig));
+          }
+        )
+        ({ lib, ... }: { config.hostPkgs = lib.mkDefault pkgs; })
+      ];
+    };
 }

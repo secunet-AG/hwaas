@@ -2,6 +2,62 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+/**
+  NixOS modules to enable inter-machine networking in HWaaS tests.
+
+  Thi modules defines the `hwaas.testVm` attribute which, if set, manages network connections
+  between bare-metal resources using ethernet and websockets. The module must be imported in the
+  VM controlling the respective NixOS integration test.
+
+  # Examples
+
+  :::{.example
+  ## Usage Example
+
+  ```nix
+  pkgs.hwaasTest {
+    name = "Test HWaaS Connector";
+    # ...
+    # This VM controls the integration test
+    nodes.controlVM = { ... }: {
+      imports = with hwaasTestModules; [ user-tooling-hwaasTestVm ];
+
+      hwaas.testVm = {
+        enable = true;
+        networks = {
+          # Can be any name you like
+          my_network_name = {
+            # Can be any IP address you like
+            ipv4Address = { address = "192.168.44.1"; prefixLength = 24; };
+            dhcp = true;
+          };
+        };
+      };
+    };
+
+    machines = {
+      legacy-box = {
+        # ...
+      };
+    };
+
+    networks = {
+      # NOTE: Choose one of the networks defined in `hwaas.testVm.networks`
+      my_network_name= [
+        {
+          machine = "legacy-box";
+          networkInterfaces = [ "LAN1" ];
+        }
+      ];
+    };
+
+    testScript = ''
+      # ...
+    '';
+  }
+  ```
+  :::
+*/
 wsProxyClient:
 { config, lib, ... }:
 let
