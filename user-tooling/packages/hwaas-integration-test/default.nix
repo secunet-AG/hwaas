@@ -13,7 +13,6 @@ let
   inherit (builtins)
     isFunction
     readFile
-    removeAttrs
     toJSON
     ;
   inherit (pkgs) lib;
