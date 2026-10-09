@@ -41,7 +41,15 @@ pub(crate) async fn handle_create_drive(
     })?;
 
     // check if drives directory exist. If not create it.
-    let store_path: PathBuf = cfg.store_path.join(DRIVE_STORE);
+    let store_path: PathBuf = cfg
+        .get_subdir_in_image_store(DRIVE_STORE)
+        .map_err(|error| {
+            error!(
+                ?error,
+                "could not determine valid drive store path location"
+            );
+            CreateDriveError::StoreNotAccessible
+        })?;
     if !store_path.is_dir() {
         fs::create_dir_all(store_path.as_path())
             .await
@@ -53,7 +61,9 @@ pub(crate) async fn handle_create_drive(
 
     // Initialize the drive if file exists
 
-    let src = cfg.store_path.join(image_hash);
+    let src = cfg
+        .resolve_image_path_from_hash(image_hash)
+        .map_err(|_| CreateDriveError::ImageNotFound)?;
     let dst = store_path.join(drive_hash.clone());
     if !src.is_file() {
         return Err(CreateDriveError::ImageNotFound);
@@ -87,7 +97,16 @@ pub(crate) async fn handle_delete_drive(
     cfg: ImageHandler,
     drive_hash: &DriveHash,
 ) -> Result<(), DeleteDriveError> {
-    let drive = cfg.store_path.join(DRIVE_STORE).join(drive_hash);
+    let drive = cfg
+        .get_subdir_in_image_store(DRIVE_STORE)
+        .map_err(|error| {
+            error!(
+                ?error,
+                "could not determine valid drive store path location"
+            );
+            DeleteDriveError::DeletionFailed
+        })?
+        .join(drive_hash);
 
     if !drive.is_file() {
         return Err(DeleteDriveError::DriveNotFound);
