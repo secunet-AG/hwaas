@@ -10,11 +10,7 @@
 
 { pkgs }:
 let
-  inherit (builtins)
-    isFunction
-    readFile
-    toJSON
-    ;
+  inherit (builtins) isFunction readFile toJSON;
   inherit (pkgs) lib;
 
   helpers = import ./helpers.nix { inherit lib; };
