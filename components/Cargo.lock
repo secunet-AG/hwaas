@@ -767,7 +767,7 @@ dependencies = [
  "rand 0.8.7",
  "remote-usb",
  "remote_client",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "reqwest-middleware",
  "schemars 0.8.22",
  "sd-notify",
@@ -1914,7 +1914,7 @@ dependencies = [
  "init-tracing-opentelemetry",
  "opentelemetry",
  "opentelemetry_sdk",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "reqwest-middleware",
  "task-local-extensions",
  "tower 0.5.3",
@@ -2493,7 +2493,7 @@ dependencies = [
  "net_ctrl_client_wrapper",
  "predicates",
  "remote_client",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "schemars 0.8.22",
  "serde",
  "serde_json",
@@ -2519,7 +2519,7 @@ dependencies = [
  "net_ctrl_client_wrapper",
  "pastey",
  "remote_client",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "schemars 0.8.22",
  "serde",
  "serde_json",
@@ -2681,7 +2681,7 @@ dependencies = [
  "http 1.5.0",
  "hunt",
  "libc",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "reqwest-middleware",
  "reqwest_cookie_store",
  "schemars 0.8.22",
@@ -2700,7 +2700,7 @@ dependencies = [
 name = "net_ctrl_client"
 version = "0.1.0"
 dependencies = [
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "reqwest-middleware",
  "serde",
  "serde_json",
@@ -2717,7 +2717,7 @@ dependencies = [
  "db_interaction",
  "hunt",
  "net_ctrl_client",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "reqwest-middleware",
  "workspace-hack",
 ]
@@ -3406,7 +3406,7 @@ dependencies = [
  "enum_dispatch",
  "remote-axum",
  "remote-init",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "schemars 0.8.22",
  "serde",
  "serde_json",
@@ -3514,7 +3514,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "db_interaction",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "tracing",
  "workspace-hack",
 ]
@@ -3561,11 +3561,11 @@ dependencies = [
 
 [[package]]
 name = "reqwest"
-version = "0.13.4"
+version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "219c5811de6525e5416c7d5d53bb656d3afdbc6c5af816e0802bcfa42dbdc1c3"
+checksum = "16a1cfa75cc186dd73d5818e510e042e40927bccc9c236b061cea97e1eb08029"
 dependencies = [
- "base64 0.22.1",
+ "base64 0.23.1",
  "bytes",
  "cookie",
  "cookie_store",
@@ -3618,7 +3618,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "http 1.5.0",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "serde",
  "thiserror 2.0.21",
  "tower-service",
@@ -3632,7 +3632,7 @@ checksum = "beb98c4d52ae6ceed18a0dff0564717623dd75fae08619ae0927332f0a81abbc"
 dependencies = [
  "bytes",
  "cookie_store",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "url",
 ]
 
@@ -5543,7 +5543,7 @@ dependencies = [
  "rand_core 0.6.4",
  "regex-automata",
  "regex-syntax",
- "reqwest 0.13.4",
+ "reqwest 0.13.5",
  "reqwest-middleware",
  "schemars 0.8.22",
  "serde",
