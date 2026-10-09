@@ -5,22 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [5.3.0]
+
+### Added
+
+- Remote USB sockets are now guarded by a semaphore of one, preventing concurrent read/write access.
+- Machine serial functionality is only shown in the Web UI when the machine under test supports it.
+- New CI job groups for `cargo` and `openapi-spec` for stronger build checks.
+
+### Changed
+
+- Collapsed various `components` and one-off executables into a single shared Cargo workspace.
+- Renamed Aruba switch mock port states for consistency.
+- Bumped numerous dependencies tree-wide, including `cargo` crates, `nix` flake inputs, and `pnpm` dependencies.
+- Builds now depend on shared workspace jobs instead of per-components checks.
+
+### Fixed
+
+- Various breaking changes, clippy lints/warnings, and dependency issues from old dependencies and Rust 2024 edition.
+- OpenAPI generation issues, license headers on the OAS spec and `net_ctrl_client`.
+
+### Removed
+
+- Duplicated component specific `Cargo.lock` files and workspace-hack crates.
+- `net_ctrl_client` excluded from clippy, as it is generated.
+
 ## [5.2.3]
 
-#### Added
+### Added
 
 - vue-client: keyboard overlay for sending common combinations and keys that cannot be captured by the browser
 
 ## [5.2.2]
 
-#### Fixed
+### Fixed
 
 - remote-hands: deterministic gadget function order
 - Web UI: Fixed a bug preventing the "add machine from existing content" feature to correctly add machines to a context
 
 ## [5.2.1]
 
-#### Fixed
+### Fixed
 
 - Serial: Fixed WebSocket streaming reliability issues under certain timing conditions
 - Serial: Fixed incorrect handling of slow WebSocket clients (lag is now detected explicitly)
