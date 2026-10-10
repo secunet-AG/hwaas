@@ -180,7 +180,7 @@ tower-http = { version = "0.5.2", default-features = false, features = [
 tracing = "0.1"
 tracing-journald = "0.3.0"
 tracing-opentelemetry = "0.28.0"
-tracing-opentelemetry-instrumentation-sdk = "0.24.2"
+tracing-opentelemetry-instrumentation-sdk = "0.42.1"
 tracing-subscriber = { version = "0.3", features = [
   "ansi",
   "env-filter",
