@@ -134,7 +134,7 @@ reqwest-middleware = { version = "0.5", features = [
   "rustls",
 ] }
 reqwest_cookie_store = "0.10"
-rppal = { version = "0.14.1", features = ["hal"] }
+rppal = { version = "0.15.0", features = ["hal"] }
 schemars = { version = "0.8", features = ["derive", "uuid", "uuid1"] }
 sd-notify = "0.5.0"
 serde = { version = "1.0", features = ["derive"] }
