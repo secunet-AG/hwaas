@@ -170,7 +170,7 @@ tokio-tungstenite = { version = "0.24.0", features = ["stream"] }
 tokio-util = { version = "0.7.18", features = ["io"] }
 tower = "0.5.0"
 tower-cookies = "0.10.0"
-tower-http = { version = "0.5.2", default-features = false, features = [
+tower-http = { version = "0.6.11", default-features = false, features = [
   "cors",
   "trace",
   "request-id",
