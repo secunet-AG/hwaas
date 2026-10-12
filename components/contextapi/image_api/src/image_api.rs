@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+#![allow(clippy::result_large_err)]
 
 use std::collections::HashMap;
 use std::pin::Pin;
@@ -130,7 +131,6 @@ pub type ListImagesResponse = HashMap<String, LegacyImageMetadata>;
 /// The Ok value contains a HashMap with filenames and -sizes
 /// On error a corresponding status code and message is returned.
 #[instrument]
-#[axum::debug_handler]
 async fn list_images(
     State(image_handler): State<ImageHandler>,
 ) -> Result<Json<ListImagesResponse>, (StatusCode, String)> {
@@ -172,7 +172,7 @@ async fn delete_image(
 async fn status_image(
     State(image_handler): State<ImageHandler>,
     Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-) -> Result<impl IntoApiResponse, Response<axum::body::Body>> {
+) -> ApiResult<impl IntoApiResponse> {
     let meta_data = image_handler
         .get_image_metadata_by_hash(&image_hash)
         .await
@@ -254,7 +254,7 @@ async fn post_image(
     State(image_handler): State<ImageHandler>,
     Query(mut metadata): Query<ExtraImageStoreData>,
     mut multipart: Multipart,
-) -> Result<impl IntoApiResponse, Response<axum::body::Body>> {
+) -> ApiResult<impl IntoApiResponse> {
     let (stream, user_specified_image_name) =
         multipart_to_stream(&mut multipart, &metadata.compression)
             .await

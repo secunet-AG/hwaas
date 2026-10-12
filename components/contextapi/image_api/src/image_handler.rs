@@ -172,13 +172,13 @@ impl ImageHandler {
     /// Run maintenance tasks in the image handler.
     ///
     /// If any maintenance task fails, the operation is aborted immediately i.e. any other requested
-    /// maintenance tasks are skipped. The order in which maintenace tasks run is dictated by
+    /// maintenance tasks are skipped. The order in which maintenance tasks run is dictated by
     /// implementation details and may change without notice.
     ///
     /// To see available maintenance operations, refer to [MaintenanceOperations].
     pub async fn maintenance(&self, operations: Vec<MaintenanceOperations>) -> anyhow::Result<()> {
         let shared_error = Err(anyhow::anyhow!(
-            "a maintenace tasks exited with an error, aborting maintenace job..."
+            "a maintenance tasks exited with an error, aborting maintenance job..."
         ));
         if operations.contains(&MaintenanceOperations::PruneUnusedFiles) {
             match self.maintenance_prune_unused_files().await {
