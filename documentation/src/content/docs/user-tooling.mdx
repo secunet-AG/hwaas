@@ -1,0 +1,41 @@
+# User Tooling Guide
+
+## How to set up user tooling for your HWaaS instance
+
+> [!important] Before We Begin
+> To follow this guide, you need the following things:
+> - A working HWaaS instance
+> - A machine with `nix` installed
+
+The HWaaS User Tooling is fundamentally built around NixOS VM tests.
+Hence, using it requires that you have a `nix` project to apply it with.
+In this example, we assume that a HWaaS instance is accessible under the following URL:
+
+```text
+https://api.hwaas.my-corp.example/v5/
+```
+
+As a first step, we set up a `nix` project to run our test from.
+Run the following commands:
+
+```bash
+nix flake new my-first-hwaas-test -t 'github:secunet-AG/hwaas#simple'
+cd my-first-hwaas-test
+```
+
+Next, we must review and modify a few settings to connect the test with our HWaaS instance.
+Open the file `default.nix` in your favorite `$EDITOR`, then:
+
+1. Enter the correct URL in `apiUrl`:
+   ```nix
+   apiUrl = "https://api.hwaas.my-corp.example/v5/";
+   ```
+
+The remainder of the file is already set up in a way that a single HWaaS test is imported from the `hwaas-test.nix` file in the same folder.
+You can look at the rest of the `default.nix` file if you like.
+If the file contents don't make sense to you, you may want to refer to the following resources depending on your prior experience with `nix`:
+
+- TODO(hartan): Link to basic `nix`
+- TODO(hartan): Link to nix flakes
+
+
