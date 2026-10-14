@@ -84,7 +84,7 @@ clap = { version = "4.3.4", default-features = false, features = [
   "usage",
   "std",
 ] }
-console-subscriber = { version = "0.4.1", default-features = false }
+console-subscriber = { version = "0.5.0", default-features = false }
 context_data_structures = { path = "./contextapi/context_data_structures/" }
 contextapi = { path = "./contextapi/contextapi/" }
 dashmap = { version = "6.2", default-features = false, features = ["serde"] }
