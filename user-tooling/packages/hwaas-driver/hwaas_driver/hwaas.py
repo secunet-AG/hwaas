@@ -528,8 +528,8 @@ class Hwaas:
 
         # do some polling, till a machine is free for us
         while response.status_code != 200:
-            logger.info("Could not get context: %s.", response.text)
-            logger.info("Trying again later.")
+            logger.warning("Could not get context: %s.", response.text)
+            logger.warning("Trying again later.")
             time.sleep(60)
             response = self.hwaas_connector.post("contexts", json=resource_descriptor)
 
