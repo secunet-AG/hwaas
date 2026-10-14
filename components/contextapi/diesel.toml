@@ -4,6 +4,15 @@
 [print_schema]
 file = "db_interaction/src/schema.rs"
 custom_type_derives = ["diesel::query_builder::QueryId"]
+# NOTE(hartan): In my experience, letting the database itself "handle"
+# datetimes and timezones reliably leads to unexpected results at some point.
+# Diesel actually has a way to encode datetime objects with timezones in the
+# database using a "Text" field as backing storage. All the parsing and
+# conversion magic takes place in the Rust library deserializing the query
+# results. This does require modifications to the generated schema, though, as
+# this is not a native component of SQLite. See:
+# <https://github.com/diesel-rs/diesel/discussions/4192>
+patch_file = "db_interaction/patches/bmr_image_metadata_timestamptz.patch"
 
 [migrations_directory]
 dir = "db_interaction/migrations"

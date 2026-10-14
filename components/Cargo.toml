@@ -101,6 +101,7 @@ diesel = { version = "2", default-features = false, features = [
 diesel_migrations = { version = "2", default-features = false, features = [
   "sqlite",
 ] }
+displaydoc = { version = "0.2", default-features = false, features = ["std"] }
 either = { version = "1", default-features = false, features = ["use_std"] }
 embedded-graphics = { version = "0.8.0", default-features = false }
 embedded-hal = { version = "1.0.0-alpha.9", default-features = false }
@@ -147,6 +148,10 @@ opentelemetry_sdk = { version = "0.27.1", default-features = false, features = [
   "trace",
 ] }
 pastey = { version = "0.2", default-features = false }
+phf = { version = "0.11", default-features = false, features = [
+  "std",
+  "macros",
+] }
 predicates = { version = "3", default-features = false }
 rand = { version = "0.8.5", default-features = false, features = ["std"] }
 regex = { version = "1.7.0", default-features = false }
@@ -172,6 +177,7 @@ schemars = { version = "0.8", default-features = false, features = [
   "derive",
   "uuid",
   "uuid1",
+  "chrono",
 ] }
 sd-notify = { version = "0.5.0", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
@@ -188,6 +194,7 @@ sh1106 = { version = "0.5.0", default-features = false, features = [
 ssd1306 = { version = "0.8.0", default-features = false, features = [
   "graphics",
 ] }
+static_assertions = { version = "1.1.0", default-features = false }
 strum_macros = { version = "0.26", default-features = false }
 system_error = { version = "0.2.0", default-features = false }
 tempfile = { version = "3.3.0", default-features = false }
