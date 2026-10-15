@@ -1,14 +1,18 @@
 # This attribute set defines a HWaaS test. It may contain all the following options/attributes:
 #
 # - NixOS test attributes, see <https://nixos.org/manual/nixos/unstable/#sec-test-options-reference>
-{ user-tooling-hwaasTestVm, user-tooling-machines-legacyBox, pkgs }:
+{
+  user-tooling-hwaasTestVm,
+  user-tooling-machines-legacyBox,
+  pkgs,
+}:
 let
-  machine_image = (pkgs.nixos (
-    { ... }: {
-      # TODO(hartan): This is very unfortunate naming. Can we use a different name?
-      imports = [ user-tooling-machines-legacyBox ];
-    }
-  )).isoImage;
+  machine_image =
+    (pkgs.nixos (
+      { ... }: {
+        imports = [ user-tooling-machines-legacyBox ];
+      }
+    )).isoImage;
 in
 {
   name = "My first HWaaS Test";
