@@ -116,3 +116,70 @@ The most common causes for this are:
 If none of the above helps, the issue is probably outside of your HWaaS test.
 
 
+### My test shows no output
+
+In this case your test is probably stalled/frozen waiting for some event to happen.
+You can get some amount of extra debug output by calling `nixos-test-driver` with extra arguments, like so:
+
+```bash
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+LOGLEVEL="debug" ./result/bin/nixos-test-driver
+```
+
+If this doesn't help diagnose your problem, you can try to summon an interactive debugger in your test script.
+To achieve this, inject a fault at the desired location of your tests `testScript` and set `enableDebugHook`, like so:
+
+```nix
+{
+  # ...
+  enableDebugHook = true;
+  testScript = ''
+  raise Exception("forced error")
+  # ...remainder of your test script...
+  '';
+}
+```
+
+Then execute the test driver with an extra argument like so:
+
+```bash
+./result/bin/nixos-test-driver --debug-hook-attach "echo"
+```
+
+And wait for the following output to appear:
+
+```text
+!!! Breakpoint reached, run ...
+RemotePdb session open at 127.0.0.1:4444, waiting for connection ...
+```
+
+> [!hint]
+> Do not run the command advertised in the output above. It's just a stub to get the interactive
+> debugger to kick in.
+<!--
+Maintainer note: Using the real `attach` command from the `breakpointHook` here will not work, since
+that attempts to enter the test namespace. HWaaS tests run outside of a sandbox, so the `attach`
+script will fail.
+-->
+
+Now, in a separate shell, run the following command:
+
+```bash
+nix-shell -p socat --command 'socat readline tcp:127.0.0.1:4444'
+```
+
+Due to how the debugger works, you cannot see the actual test script in the debugger.
+However, the fully assembled test script is available under `./result/test-script`, like so:
+
+```bash
+less ./result/test-script
+```
+
+Here are a few useful commands for use in the interactive Debugger to get you going:
+
+```python3
+# Get the names of all variables/functions defined in the test
+print(symbols.keys())
+# Print the `controlVM` test variable
+print(symbols["controlVM"])
+```
