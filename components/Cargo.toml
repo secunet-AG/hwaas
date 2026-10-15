@@ -134,7 +134,7 @@ machine_ops_lib = { path = "./contextapi/machine_ops_lib" }
 net_ctrl_client = { path = "./contextapi/net_ctrl_client" }
 net_ctrl_client_wrapper = { path = "./contextapi/net_ctrl_client_wrapper" }
 nom = { version = "8.0.0", default-features = false, features = ["std"] }
-opentelemetry = { version = "0.27.1", default-features = false, features = [
+opentelemetry = { version = "0.33.0", default-features = false, features = [
   "trace",
   "logs",
   "metrics",
