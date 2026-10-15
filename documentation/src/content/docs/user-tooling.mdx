@@ -1,12 +1,13 @@
 # User Tooling Guide
 
+import Callout from '../../components/Callout.astro'
+
 ## How to set up user tooling for your HWaaS instance
 
-> [!important] Before We Begin
-> To follow this guide, you need the following things:
->
-> - A working HWaaS instance
-> - A machine with `nix` installed
+To follow this guide, you need the following things:
+
+- A working HWaaS instance
+- A machine with `nix` installed
 
 In this example, we assume that a HWaaS instance is accessible under the following URL:
 
@@ -21,9 +22,11 @@ identifier:
 test-machine-x86_64
 ```
 
-> [!hint] Obtaining the Platform Identifier
-> If you're not sure what platform identifiers your HWaaS instance offers, run the following
-> command: `curl -L "$HWAAS_API_URL" | jq 'map(.properties.platform)'`
+<Callout type="note">
+**Obtaining the Platform Identifier**:
+If you're not sure what platform identifiers your HWaaS instance offers, run the following
+command: `curl -L "$HWAAS_API_URL" | jq 'map(.properties.platform)'`
+</Callout>
 
 The HWaaS User Tooling is fundamentally built around NixOS VM tests.
 Hence, using it requires that you have a `nix` project to apply it with.
@@ -73,6 +76,9 @@ The test communicates with your HWaaS instance and performs roughly the followin
 
 And that's it!
 If the test exits with a status code of 0, you have successfully run your first test on a HWaaS instance.
+Of course, this test didn't do anything useful yet.
+We only powered the machine under test on and off again.
+
 
 ## Troubleshooting
 
@@ -152,15 +158,16 @@ And wait for the following output to appear:
 RemotePdb session open at 127.0.0.1:4444, waiting for connection ...
 ```
 
-> [!hint]
-> Do not run the command advertised in the output above. It's just a stub to get the interactive
-> debugger to kick in.
+<Callout type="note">
+    Do not run the command advertised in the output above. It's just a stub to get the interactive
+    debugger to kick in.
+</Callout>
 
-<!--
+{/*
 Maintainer note: Using the real `attach` command from the `breakpointHook` here will not work, since
 that attempts to enter the test namespace. HWaaS tests run outside of a sandbox, so the `attach`
 script will fail.
--->
+*/}
 
 Now, in a separate shell, run the following command:
 
