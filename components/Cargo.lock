@@ -116,7 +116,7 @@ dependencies = [
  "tower-cookies",
  "tracing",
  "tracing-subscriber",
- "uuid 1.26.1",
+ "uuid 1.27.0",
  "workspace-hack",
 ]
 
@@ -370,7 +370,7 @@ dependencies = [
  "tokio-tungstenite",
  "tower 0.5.3",
  "url",
- "uuid 1.26.1",
+ "uuid 1.27.0",
 ]
 
 [[package]]
@@ -672,7 +672,7 @@ dependencies = [
  "serde",
  "serde_json",
  "url",
- "uuid 1.26.1",
+ "uuid 1.27.0",
  "workspace-hack",
 ]
 
@@ -722,7 +722,7 @@ dependencies = [
  "tracing-test",
  "trait-variant",
  "url",
- "uuid 1.26.1",
+ "uuid 1.27.0",
  "wiremock",
  "workspace-hack",
 ]
@@ -992,7 +992,7 @@ dependencies = [
  "serde",
  "strum_macros 0.26.4",
  "tokio",
- "uuid 1.26.1",
+ "uuid 1.27.0",
  "workspace-hack",
 ]
 
@@ -2084,7 +2084,7 @@ dependencies = [
  "tokio-util",
  "tower-http",
  "tracing",
- "uuid 1.26.1",
+ "uuid 1.27.0",
  "workspace-hack",
 ]
 
@@ -2396,7 +2396,7 @@ dependencies = [
  "tracing",
  "tracing-test",
  "url",
- "uuid 1.26.1",
+ "uuid 1.27.0",
  "wiremock",
  "workspace-hack",
 ]
@@ -3652,7 +3652,7 @@ dependencies = [
  "serde",
  "serde_json",
  "uuid 0.8.2",
- "uuid 1.26.1",
+ "uuid 1.27.0",
 ]
 
 [[package]]
@@ -4563,7 +4563,7 @@ dependencies = [
  "tower-service",
  "tracing",
  "url",
- "uuid 1.26.1",
+ "uuid 1.27.0",
 ]
 
 [[package]]
@@ -4808,7 +4808,7 @@ dependencies = [
  "nix 0.30.1",
  "proc-mounts",
  "strum",
- "uuid 1.26.1",
+ "uuid 1.27.0",
 ]
 
 [[package]]
@@ -4856,9 +4856,9 @@ checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 
 [[package]]
 name = "uuid"
-version = "1.26.1"
+version = "1.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ef6dac1e96601b4fb3acccccff2139741fcb757cb9a36089bf5be91cfb285ce"
+checksum = "97277d36b9c3ace13e58fa6e753f8b0bbbf302a18dd193240d70f9e29681059a"
 dependencies = [
  "getrandom 0.4.3",
  "js-sys",
@@ -5280,7 +5280,7 @@ dependencies = [
  "tungstenite",
  "typenum",
  "url",
- "uuid 1.26.1",
+ "uuid 1.27.0",
 ]
 
 [[package]]
