@@ -1002,19 +1002,29 @@ version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0be2b1d1d6ec8d846f05e137292d0b89133caf95ef33695424c09568bdd39b1b"
 dependencies = [
- "deadpool-runtime",
+ "deadpool-runtime 0.1.4",
  "lazy_static",
  "num_cpus",
  "tokio",
 ]
 
 [[package]]
-name = "deadpool-diesel"
-version = "0.6.1"
+name = "deadpool"
+version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "590573e9e29c5190a5ff782136f871e6e652e35d598a349888e028693601adf1"
+checksum = "3e98a7e119cd347f4201e1159b19831029e203e2d8b790547708e8157b4acf1e"
 dependencies = [
- "deadpool",
+ "deadpool-runtime 0.3.1",
+ "tokio",
+]
+
+[[package]]
+name = "deadpool-diesel"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45e7c3f9553075e58f55c0cf2a1a03373c36e03ebc21053f59f73125e566bfe4"
+dependencies = [
+ "deadpool 0.13.1",
  "deadpool-sync",
  "diesel",
 ]
@@ -1029,12 +1039,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "deadpool-sync"
-version = "0.1.4"
+name = "deadpool-runtime"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "524bc3df0d57e98ecd022e21ba31166c2625e7d3e5bcc4510efaeeab4abcab04"
+checksum = "2657f61fb1dd8bf37a8d51093cc7cee4e77125b22f7753f49b289f831bec2bae"
 dependencies = [
- "deadpool-runtime",
+ "tokio",
+]
+
+[[package]]
+name = "deadpool-sync"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e385cc95d3d582c328b36d1ff90feac061102b001894b555e6b465a2e0eaabbf"
+dependencies = [
+ "deadpool-runtime 0.3.1",
 ]
 
 [[package]]
@@ -5198,7 +5217,7 @@ checksum = "08db1edfb05d9b3c1542e521aea074442088292f00b5f28e435c714a98f85031"
 dependencies = [
  "assert-json-diff",
  "base64 0.22.1",
- "deadpool",
+ "deadpool 0.12.3",
  "futures",
  "http 1.5.0",
  "http-body-util",
@@ -5224,7 +5243,7 @@ dependencies = [
  "byteorder",
  "cookie",
  "crossbeam-utils",
- "deadpool",
+ "deadpool 0.12.3",
  "either",
  "form_urlencoded",
  "futures",
