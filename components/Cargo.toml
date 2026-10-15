@@ -89,7 +89,7 @@ context_data_structures = { path = "./contextapi/context_data_structures/" }
 contextapi = { path = "./contextapi/contextapi/" }
 dashmap = { version = "6.2", default-features = false, features = ["serde"] }
 db_interaction = { path = "./contextapi/db_interaction/" }
-deadpool-diesel = { version = "0.6", default-features = false, features = [
+deadpool-diesel = { version = "0.7", default-features = false, features = [
   "sqlite",
   "rt_tokio_1",
 ] }
