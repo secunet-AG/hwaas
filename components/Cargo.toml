@@ -126,7 +126,7 @@ init-tracing-opentelemetry = { version = "0.24.2", default-features = false, fea
   "tracing_subscriber_ext",
   "otlp",
 ] }
-itertools = { version = "0.14.0", default-features = false, features = [
+itertools = { version = "0.15.0", default-features = false, features = [
   "use_std",
 ] }
 libc = { version = "0.2.132", default-features = false }
