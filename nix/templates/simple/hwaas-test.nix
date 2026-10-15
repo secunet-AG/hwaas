@@ -25,6 +25,8 @@ in
       image = "${machine_image}/iso/hwaas.iso";
     };
   };
+  networks = { "undefined" = []; };
+
   nodes.controlVM = { ... }: {
     imports = [ user-tooling-hwaasTestVm ];
 
@@ -35,7 +37,10 @@ in
   testScript = ''
     controlVM.start()
     controlVM.wait_for_unit("default.target")
-    import sys
-    sys.exit(1)
+
+    hwaas.machines["dummy1"].power_on()
+    print("Machine powered on!")
+    hwaas.machines["dummy1"].power_off()
+    print("Machine powered off!")
   '';
 }
