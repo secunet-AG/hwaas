@@ -29,6 +29,8 @@ in
   # === END OF SPECIAL HWAAS TEST ATTRIBUTES ===
 
   testScript = ''
+    controlVM.start()
+    controlVM.wait_for_unit("default.target")
     import sys
     sys.exit(1)
   '';

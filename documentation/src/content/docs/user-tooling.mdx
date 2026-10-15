@@ -7,14 +7,25 @@
 > - A working HWaaS instance
 > - A machine with `nix` installed
 
-The HWaaS User Tooling is fundamentally built around NixOS VM tests.
-Hence, using it requires that you have a `nix` project to apply it with.
 In this example, we assume that a HWaaS instance is accessible under the following URL:
 
 ```text
 https://api.hwaas.my-corp.example/v5/
 ```
 
+Furthermore, we assume that it has at least one machine available with the following platform
+identifier:
+
+```text
+test-machine-x86_64
+```
+
+> [!hint] Obtaining the Platform Identifier
+> If you're not sure what platform identifiers your HWaaS instance offers, run the following
+> command: `curl -L "$HWAAS_API_URL" | jq 'map(.properties.platform)'`
+
+The HWaaS User Tooling is fundamentally built around NixOS VM tests.
+Hence, using it requires that you have a `nix` project to apply it with.
 As a first step, we set up a `nix` project to run our test from.
 Run the following commands:
 
@@ -24,18 +35,44 @@ cd my-first-hwaas-test
 ```
 
 Next, we must review and modify a few settings to connect the test with our HWaaS instance.
-Open the file `default.nix` in your favorite `$EDITOR`, then:
+Open the file `hwaas-test.nix` in your favorite `$EDITOR`, then:
 
 1. Enter the correct URL in `apiUrl`:
    ```nix
    apiUrl = "https://api.hwaas.my-corp.example/v5/";
    ```
+2. Enter the correct platform identifier in `platform`:
+   ```nix
+   dummy1 = {
+     platform = "test-machine-x86_64";
+     # ...
+   };
+   ```
 
-The remainder of the file is already set up in a way that a single HWaaS test is imported from the `hwaas-test.nix` file in the same folder.
-You can look at the rest of the `default.nix` file if you like.
-If the file contents don't make sense to you, you may want to refer to the following resources depending on your prior experience with `nix`:
+The remainder of the project is already set up in a way that imports the test defined in `hwaas-test.nix` into `flake.nix` and exposes it there.
+Next we build the test to produce a `result/` output:
 
-- TODO(hartan): Link to basic `nix`
-- TODO(hartan): Link to nix flakes
+```bash
+# NOTE: The '.driver' at the end is important!
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+```
+
+Finally we run the actual test:
+
+```bash
+./result/bin/nixos-test-driver
+```
+
+The test communicates with your HWaaS instance and performs roughly the following tasks:
+
+- Reserve a Context with a machine matching the platform identifier
+- Upload the respective OS images to each reserved machine
+- Run the actual test script
+- Tear down the Context and release all reserved machines back to HWaaS
+
+And that's it!
+If the test exits with a status code of 0, you have successfully run your first test on a HWaaS instance.
+
+
 
 
