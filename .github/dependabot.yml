@@ -18,6 +18,8 @@ updates:
     groups:
       nix-minor-patch:
         applies-to: version-updates
+        patterns:
+          - "*"
         update-types:
           - "minor"
           - "patch"
@@ -37,6 +39,8 @@ updates:
     groups:
       cargo-minor-patch:
         applies-to: version-updates
+        patterns:
+          - "*"
         update-types:
           - "minor"
           - "patch"
@@ -52,6 +56,8 @@ updates:
     groups:
       github-actions-minor-patch:
         applies-to: version-updates
+        patterns:
+          - "*"
         update-types:
           - "minor"
           - "patch"
