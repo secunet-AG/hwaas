@@ -255,7 +255,6 @@ async fn get_usb() {
 
 /// Test sending an HTTP PUT request to configure the remote-usb
 /// endpoint.
-#[tracing_test::traced_test]
 #[test(tokio::test(flavor = "multi_thread"))]
 async fn put_usb() {
     let (test_setup_output, ctx_id) = TestServerSetup::default()
@@ -305,8 +304,7 @@ async fn put_usb() {
     assert_eq!(status, StatusCode::OK);
 }
 
-#[tracing_test::traced_test]
-#[tokio::test(flavor = "multi_thread")]
+#[test(tokio::test(flavor = "multi_thread"))]
 async fn put_power_interface() {
     let (test_setup_output, ctx_id) = TestServerSetup::default().start_reserved().await;
     let device_id = String::from("power1");
