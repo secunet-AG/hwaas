@@ -59,7 +59,7 @@ serde_core = { version = "1", features = ["alloc"] }
 serde_json = { version = "1", features = ["raw_value"] }
 slab = { version = "0.4" }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
-strum = { version = "0.27", features = ["derive"] }
+strum = { version = "0.28", features = ["derive"] }
 sync_wrapper = { version = "1", default-features = false, features = ["futures"] }
 thiserror = { version = "2" }
 time = { version = "0.3", features = ["formatting", "macros", "parsing"] }
