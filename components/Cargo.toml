@@ -148,7 +148,7 @@ opentelemetry_sdk = { version = "0.27.1", default-features = false, features = [
   "trace",
 ] }
 pastey = { version = "0.2", default-features = false }
-phf = { version = "0.11", default-features = false, features = [
+phf = { version = "0.14", default-features = false, features = [
   "std",
   "macros",
 ] }
