@@ -68,7 +68,7 @@ axum = { version = "0.7", default-features = false, features = [
 axum-extra = { version = "0.9.6", default-features = false, features = [
   "typed-header",
 ] }
-axum-test = { version = "16.4.1", default-features = false, features = ["ws"] }
+axum-test = { version = "21.1.0", default-features = false, features = ["ws"] }
 axum-tracing-opentelemetry = { version = "0.24.0", default-features = false }
 base64 = { version = "0.23.1", default-features = false }
 bytes = { version = "1.11.1", default-features = false }
