@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Image API: Manage extra user-modifiable metadata on BMR images
+
 ## [5.3.0]
 
 ### Added

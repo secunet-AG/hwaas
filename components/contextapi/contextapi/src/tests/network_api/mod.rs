@@ -105,7 +105,6 @@ async fn simple_network_lifecycle() {
 }
 
 #[test(tokio::test(flavor = "multi_thread"))]
-#[traced_test]
 async fn interface_reuse_with_put() {
     let (
         TestServerOutputs {
