@@ -16,7 +16,7 @@ license = "Apache-2.0"
 [dependencies]
 aho-corasick = { version = "1" }
 anyhow = { version = "1" }
-axum = { version = "0.7", features = ["macros", "multipart", "ws"] }
+axum = { version = "0.8", features = ["macros", "multipart", "ws"] }
 axum-core = { version = "0.4", default-features = false, features = ["tracing"] }
 bstr = { version = "1" }
 byteorder = { version = "1" }
