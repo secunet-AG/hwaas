@@ -46,7 +46,7 @@ type Collection = {
 
 const collections: Collection[] = [
   { label: 'Getting Started', icon: icons.rocket, doc: 'getting-started' },
-  { label: 'Users', icon: icons.user, docs: ['core-concepts', 'users'] },
+  { label: 'Users', icon: icons.user, docs: ['core-concepts', 'users', 'user-tooling'] },
   { label: 'Maintainers', icon: icons.maintainer, docs: ['managing-an-instance', 'hardware-requirements', 'secrets-and-ssh', 'deployment', 'configuration', 'monitoring-and-security'] },
   { label: 'API Reference', icon: icons.api, href: `${base}api` },
 ]
@@ -181,7 +181,7 @@ const isCurrent = (href: string) => currentPath === href.replace(/\/$/, '').spli
       </div>
       <div class="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <!-- Styled Prose Pages, i.e CMS/Docs content -->
-        {prose ? 
+        {prose ?
         (
           <main class="flex w-full justify-center px-12 py-10">
             <div class="sm:mix-w-lg lg:min-w-2xl max-w-3xl 3xl:max-w-4xl w-full">
@@ -200,7 +200,7 @@ const isCurrent = (href: string) => currentPath === href.replace(/\/$/, '').spli
               </article>
             </div>
           </main>
-        )     
+        )
         : (
           <main class="flex-1 min-w-0">
             <slot />
