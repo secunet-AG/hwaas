@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useImageApi } from '@/shared/lib/api/images/images.api'
+import { useImageApi, type ImageCompression } from '@/shared/lib/api/images/images.api'
 import type { LocalImage } from '@/shared/types/images.model'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -15,14 +15,16 @@ export const useImagesStore = defineStore('images', () => {
   const images = ref<LocalImage[]>(initializeImages())
 
   async function addImage(
-    imageHash: string,
+    imageHash: string | null,
     image: File,
+    compression: ImageCompression,
     onProgressChange: (n: number) => void,
     checkForCancellationCallback: () => boolean,
   ) {
     const { data, error } = await checkForExistingImageAndCreate(
       imageHash,
       image,
+      compression,
       onProgressChange,
       checkForCancellationCallback,
     )
@@ -32,7 +34,7 @@ export const useImagesStore = defineStore('images', () => {
     }
 
     if (data) {
-      if (images.value.find((x) => x.image_hash === imageHash)) {
+      if (images.value.find((x) => x.image_hash === data.image_hash)) {
         console.warn('Image already exists. Skipping upload.')
         // If the image already exists, don't add it again
         return
