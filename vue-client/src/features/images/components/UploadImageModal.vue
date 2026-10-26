@@ -12,6 +12,7 @@ import { fileToSHA256HashHex } from '@/shared/lib/etc/hash-image'
 import { useImagesStore } from '@/core/stores/images-store'
 import Progress from '@/shared/ui/loading/Progress.vue'
 import type { FileUploadState } from '@/shared/ui/fileupload/file-upload.model'
+import { detectImageCompression } from '@/shared/lib/api/images/images.api'
 
 const imageStore = useImagesStore()
 
@@ -41,29 +42,47 @@ function openModal() {
   isOpen.value = true
 }
 
+// Luke: We early on had a design decision given to us to hash and check images *first* on the UI.
+//
+// I'm not entirely sure how I feel about this. Now that we have `zstd`, this adds
+// another path: do we really want to decompress just to check if the hash is correct?
+//
+// This is a lot of work on the client. For the time being, if the image is compressed, I won't
+// check. I would argue that checking for a duplicate on the client doesn't really make sense anyways,
+// we should instead consider sampling blocks or so of the image on the API, or find a better solution.
 async function onFileUpload(e: File) {
   try {
     fileRef.value = e
-    uploadState.value = 'hashing'
+    const compression = detectImageCompression(e)
 
-    const hash = await fileToSHA256HashHex(e, {
-      updatePercentageCallback: (x) => {
-        progressPercentage.value = x
-      },
-      checkForCancelationCallback: () => hasCancelled.value,
-    })
+    let hash: string | null = null
 
-    if (!hash) {
-      console.warn('Null hash, perhaps the user cancelled hashing')
-      uploadState.value = 'ready'
-      hasCancelled.value = false
-      return
+    // The no compression path, we will check the SHA256 hash to see if present, see above note.
+    //
+    // We default to the previously uploaded image if it is present in our store
+    if (compression === 'none') {
+      uploadState.value = 'hashing'
+
+      hash = await fileToSHA256HashHex(e, {
+        updatePercentageCallback: (x) => {
+          progressPercentage.value = x
+        },
+        checkForCancelationCallback: () => hasCancelled.value,
+      })
+
+      if (!hash) {
+        console.warn('Null hash, perhaps the user cancelled hashing')
+        uploadState.value = 'ready'
+        hasCancelled.value = false
+        return
+      }
     }
 
     uploadState.value = 'uploading'
     await imageStore.addImage(
       hash,
       e,
+      compression,
       (x) => {
         progressPercentage.value = x
       },
@@ -124,7 +143,7 @@ async function onFileUpload(e: File) {
                 v-if="uploadState === 'ready'"
                 @file-upload-event="onFileUpload"
                 :title="'Upload Image'"
-                :file-type-warning="'Must be a valid .img file'"
+                :file-type-warning="'Must be a valid .img or .img.zst file'"
                 :maximumSizeWarning="'Maximum Size 8GB'"
                 :is-disabled="false"
                 v-model="uploadState"

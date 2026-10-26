@@ -8,6 +8,17 @@ import { useConfig } from '@/core/plugins/config-plugin'
 import { safeFetch, type FetchResult } from '../safeFetch'
 import { GetAllImagesSchema, ImageSchema } from '@/shared/schemas/images.schema'
 
+/** Compression for uploaded images, matching the `compression` query parameter of the API. */
+export type ImageCompression = 'none' | 'zstd'
+
+/**
+ * We are simply checking to see if we have a `zst` or `zstd` extension,
+ * the API will validate if this can actually be decompressed or not.
+ */
+export function detectImageCompression(file: File): ImageCompression {
+  return /\.zstd?$/i.test(file.name) ? 'zstd' : 'none'
+}
+
 export const useImageApi = () => {
   const { API_URL } = useConfig()
 
@@ -39,6 +50,7 @@ export const useImageApi = () => {
 
   function postNewImage(
     image: File,
+    compression: ImageCompression,
     onProgressChange: (progress: number) => void,
     checkForCancellationCallback: () => boolean,
   ): Promise<FetchResult<string>> {
@@ -46,8 +58,11 @@ export const useImageApi = () => {
       const formData = new FormData()
       formData.append('image', image)
 
+      const params = new URLSearchParams({ compression })
+
       const xhr = new XMLHttpRequest()
-      xhr.open('POST', `${API_URL}/images`)
+
+      xhr.open('POST', `${API_URL}/images?${params}`)
 
       xhr.upload.onprogress = (event) => {
         if (checkForCancellationCallback()) {
@@ -75,17 +90,18 @@ export const useImageApi = () => {
   }
 
   async function checkForExistingImageAndCreate(
-    imageHash: string,
+    imageHash: string | null,
     image: File,
+    compression: ImageCompression,
     onProgressChange: (n: number) => void,
     checkForCancellationCallback: () => boolean,
   ): Promise<FetchResult<LocalImage>> {
-    const { data } = await getImage(imageHash)
+    const { data } = imageHash ? await getImage(imageHash) : { data: null }
 
     let final
 
     // If we have an image already in existence. just use this
-    if (data) {
+    if (data && imageHash) {
       return {
         data: {
           size: data.size,
@@ -100,12 +116,32 @@ export const useImageApi = () => {
       }
     }
     // Otherwise, we post the new image. We also pass in a callback for progress and cancellation.
-    const { error } = await postNewImage(image, onProgressChange, checkForCancellationCallback)
+    const { data: uploadedHash, error } = await postNewImage(
+      image,
+      compression,
+      onProgressChange,
+      checkForCancellationCallback,
+    )
 
-    if (error) {
+    if (error || !uploadedHash) {
       return {
         data: null,
-        error: error,
+        error: error ?? 'Upload did not return an image hash',
+      }
+    }
+
+    if (compression !== 'none') {
+      // The local file size and hash refer to the compressed file, so ask the server for the
+      // metadata of the decompressed image it actually stored.
+      const { data: stored, error: metadataError } = await getImage(uploadedHash)
+
+      if (metadataError) {
+        return { data: null, error: metadataError }
+      }
+
+      return {
+        data: { ...stored, image_hash: uploadedHash } as LocalImage,
+        error: null,
       }
     }
 
@@ -116,7 +152,7 @@ export const useImageApi = () => {
         nanos_since_epoch: 0,
       },
       file_name: image.name,
-      image_hash: imageHash,
+      image_hash: imageHash ?? uploadedHash,
     } as LocalImage
 
     return {
