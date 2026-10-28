@@ -119,3 +119,96 @@ async fn can_remove_tags_from_image() -> anyhow::Result<()> {
     })
     .await
 }
+
+#[test_log::test(tokio::test)]
+async fn list_images_with_files_left_joins_files_with_metadata() -> anyhow::Result<()> {
+    common::wrap(async |handler, store_path| {
+        let tagged = add_image(&handler, "tagged", "bytes for tagged image").await?;
+        let untagged = add_image(&handler, "untagged", "bytes for untagged image").await?;
+        let missing = add_image(&handler, "missing", "bytes for missing image").await?;
+
+        // Add two tags to the DB
+        add_tag(&handler, "tag_a", "sample tag A").await?;
+        add_tag(&handler, "tag_b", "sample tag B").await?;
+
+        // Connect these tags to an image
+        handler
+            .add_tags_to_image(["tag_a".to_string(), "tag_b".to_string()], &tagged.sha256)
+            .await?;
+
+        // Connect these tags to an image that we will shortly delete
+        handler
+            .add_tags_to_image(["tag_a".to_string()], &missing.sha256)
+            .await?;
+
+        // We now drop the "missing" image, this is because we want to make sure
+        // we aren't pulling in metadata in our list for images that are not present
+        // in the filesystem
+        tokio::fs::remove_file(store_path.join(&missing.sha256.0)).await?;
+
+        // A file on disk without metadata
+        let unknown_hash = "a".repeat(64);
+        tokio::fs::write(store_path.join(&unknown_hash), "unknown image").await?;
+
+        // Just a junk file, but we will still expect this to be present, as
+        // we are "joining" on the filesystem.
+        tokio::fs::write(store_path.join("not-an-image.txt"), "junk").await?;
+
+        let images = handler
+            .list_images_with_files()
+            .await
+            .context("images should be listable")?;
+
+        let mut hashes = images
+            .iter()
+            .map(|(hash, _)| hash.0.as_str())
+            .collect::<Vec<_>>();
+
+        hashes.sort();
+
+        // We expect to see both the tagged and untagged image, as well as the junk hash.
+        //
+        // We do not want to see the missing image, as we only are "joining" on images that
+        // are present in the filesystem.
+        //
+        // We need to sort to assert equality, could also be a set.
+        let mut expected = [
+            tagged.sha256.0.as_str(),
+            untagged.sha256.0.as_str(),
+            unknown_hash.as_str(),
+        ];
+        expected.sort();
+
+        assert_eq!(hashes, expected);
+
+        // A quick function to test if an image is present
+        let find = |hash: &str| {
+            images
+                .iter()
+                .find(|(h, _)| h.0 == hash)
+                .map(|(_, meta)| meta.as_ref())
+                .expect("image should be listed")
+        };
+
+        // Our tagged image will have metadata
+        let meta = find(&tagged.sha256.0).context("tagged image should have metadata")?;
+        let mut names = meta
+            .tags
+            .iter()
+            .map(|t| t.name.as_str())
+            .collect::<Vec<_>>();
+
+        names.sort();
+
+        // The two tags we added earlier
+        assert_eq!(names, ["tag_a", "tag_b"]);
+
+        let meta = find(&untagged.sha256.0).context("untagged image should have metadata")?;
+        assert!(meta.tags.is_empty());
+
+        assert!(find(&unknown_hash).is_none());
+
+        Ok(())
+    })
+    .await
+}

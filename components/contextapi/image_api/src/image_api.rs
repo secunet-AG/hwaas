@@ -54,6 +54,14 @@ where
             api_doc_image_api,
         )
         .api_route_with(
+            "/metadata",
+            get_with(
+                list_images_with_metadata,
+                api_method_doc_list_images_with_metadata,
+            ),
+            api_doc_image_api,
+        )
+        .api_route_with(
             "/:image_hash",
             get_with(status_image, api_method_doc_get_meta)
                 .delete_with(delete_image, api_method_doc_delete),
@@ -154,6 +162,42 @@ async fn list_images(
         )
     }));
     Ok(Json::from(response))
+}
+
+/// A single entry of the [`list_images_with_metadata`] endpoint.
+#[derive(Serialize, JsonSchema)]
+pub struct ImageListEntry {
+    /// Hash of the image file in the image store
+    sha256: Sha256Hash,
+    /// All metadata known about the image, if any
+    metadata: Option<ImageMetadata>,
+}
+
+/// List all images with their complete metadata, including tags.
+#[instrument]
+async fn list_images_with_metadata(
+    State(image_handler): State<ImageHandler>,
+) -> ApiResult<Json<Vec<ImageListEntry>>> {
+    let images = image_handler
+        .list_images_with_files()
+        .await
+        .map_err(|error| error.into_response())?;
+    Ok(Json::from(
+        images
+            .into_iter()
+            .map(|(sha256, metadata)| ImageListEntry { sha256, metadata })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn api_method_doc_list_images_with_metadata(op: TransformOperation) -> TransformOperation {
+    op.description(
+        "Returns a list of all image files in the image store with their full metadata, \
+         including tags. Metadata is null for files the database doesn't know about",
+    )
+    .summary("List images with metadata")
+    .response_with::<200, Json<Vec<ImageListEntry>>, _>(|op| op)
+    .response_with::<500, String, _>(|op| op.description("Internal error reason"))
 }
 
 /// This stub behaves like designed - it always returns 202 Accepted.

@@ -14,6 +14,7 @@ use crate::schema::{bmr_image_metadatas, bmr_image_tag_map, bmr_image_tags};
     Debug,
     Clone,
     PartialEq,
+    Eq,
     diesel::Queryable,
     diesel::Selectable,
     diesel::Identifiable,

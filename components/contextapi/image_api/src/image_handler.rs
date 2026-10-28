@@ -21,6 +21,7 @@ use db_interaction::models::bmr_image_metadata::{
 };
 use db_interaction::schema::{bmr_image_metadatas, bmr_image_tag_map, bmr_image_tags};
 use diesel::RunQueryDsl;
+use std::collections::HashMap;
 use std::{
     fs::create_dir_all,
     path::{Path, PathBuf},
@@ -314,40 +315,29 @@ impl ImageHandler {
     }
 
     /// List all images that are currently in the store
+    ///
+    /// All metadata including tags is fetched in a single query. Images are returned ordered by
+    /// their database ID, i.e. roughly in order of their first upload.
     #[tracing::instrument(skip(self))]
     pub async fn list_image_metadatas(&self) -> Result<Vec<ImageMetadata>, ImageHandlerError> {
-        let (images, tags, mapping) = self
+        let rows = self
             .db_connection
             .execute_on_current_thread(|con| {
                 use diesel::prelude::*;
 
-                let raw_images = bmr_image_metadatas::table
-                    .select(ModelImageMetadata::as_select())
-                    .load(con)?;
-                let raw_tags = bmr_image_tags::table
-                    .select(ModelImageTag::as_select())
-                    .load(con)?;
-                let raw_image_tag_mapping = bmr_image_tag_map::table
-                    .select(ModelImageTagMap::as_select())
-                    .load(con)?;
-                Ok((raw_images, raw_tags, raw_image_tag_mapping))
-
-                //let tags = ModelImageTagMap::belonging_to(&raw_images)
-                //    .inner_join(bmr_image_tags::table)
-                //    // FIXME(hartan): This doesn't work as tuples (like used here) are represented
-                //    // as `Record` in diesel, which is currently only implemented for the
-                //    // `postgres_backend` feature. This could (maybe?) be worked around using
-                //    // another custom type which fuses the image tag map and image tag into one, but
-                //    // I have no idea whether that'll actually work. Also it means duplicating the
-                //    // tag data structure, so we'd have to keep changes in sync in two places.
-                //    .select((ModelImageTagMap::as_select(), ModelImageTag::as_select()))
-                //    .load(con)?;
-                //let tags_per_image = tags
-                //    .grouped_by(&raw_images)
-                //    .into_iter()
-                //    .zip(raw_images)
-                //    .map(|tags, image| ImageMetadata {})
-                //    .collect::<Vec<_>>();
+                // NOTE(Luke): The tag map and tags are inner joined *before* being left joined onto the
+                // images.
+                //
+                // That way images without tags still show up, and the join table entry can
+                // won't give us a half-baked tag.
+                bmr_image_metadatas::table
+                    .left_join(bmr_image_tag_map::table.inner_join(bmr_image_tags::table))
+                    .select((
+                        ModelImageMetadata::as_select(),
+                        Option::<ModelImageTag>::as_select(),
+                    ))
+                    .order_by(bmr_image_metadatas::id)
+                    .load::<(ModelImageMetadata, Option<ModelImageTag>)>(con)
             })
             .await
             .map_err(|error| {
@@ -355,31 +345,82 @@ impl ImageHandler {
                 ImageHandlerError::MetadataError
             })?;
 
-        let mut result = Vec::with_capacity(images.len());
-        for image in images {
-            let tags_by_id = mapping
-                .iter()
-                .filter_map(|map| {
-                    if map.metadata_id() == image.id() {
-                        Some(map.tag_id())
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<_>>();
-            let image_tags = tags
-                .iter()
-                .filter(|tag| tags_by_id.contains(&tag.id()))
-                .cloned()
-                .collect::<Vec<_>>();
+        // Here we have a more API friendly type, since we have already sorted by ID
+        // We can iterate through our rows, and collapse the tags for the same ID
+        // into one vector.
 
-            result.push(
-                ImageMetadata::try_merge_from_db(image, image_tags).map_err(|error| {
+        let mut grouped: Vec<(ModelImageMetadata, Vec<ModelImageTag>)> = Vec::new();
+        for (image, tag) in rows {
+            match grouped.last_mut() {
+                Some((last, tags)) if last.id() == image.id() => tags.extend(tag),
+                _ => grouped.push((image, tag.into_iter().collect())),
+            }
+        }
+
+        grouped
+            .into_iter()
+            .map(|(image, tags)| {
+                ImageMetadata::try_merge_from_db(image, tags).map_err(|error| {
                     error!(%error, "failed to convert database response into valid image metadata");
                     ImageHandlerError::MetadataError
-                })?,
-            )
+                })
+            })
+            .collect()
+    }
+
+    /// List all image files in the image store, left joined with their metadata.
+    ///
+    /// This issues a single database query and a single directory listing of the image store, which
+    /// are then joined in memory by the images sha256 hash.
+    ///
+    /// We are doing this because we currently store the images on the gateway filesystem and can't
+    /// do this join in say SQLite
+    #[tracing::instrument(skip(self))]
+    pub async fn list_images_with_files(
+        &self,
+    ) -> Result<Vec<(Sha256Hash, Option<ImageMetadata>)>, ImageHandlerError> {
+        let mut metadata_by_hash = self
+            .list_image_metadatas()
+            .await?
+            .into_iter()
+            .map(|metadata| (metadata.sha256.0.clone(), metadata))
+            .collect::<HashMap<_, _>>();
+
+        let mut result = Vec::new();
+        let mut entries = tokio::fs::read_dir(&self.store_path)
+            .await
+            .map_err(to_storage_error("failed to read image store directory"))?;
+
+        while let Some(entry) = entries.next_entry().await.map_err(to_storage_error(
+            "failed to read image store directory entry",
+        ))? {
+            let is_file = entry
+                .file_type()
+                .await
+                .map_err(to_storage_error("failed to read image store entry type"))?
+                .is_file();
+
+            if !is_file {
+                continue;
+            }
+
+            // Images are stored under their hash, anything else isn't an image.
+            let Some(hash) = entry
+                .file_name()
+                .into_string()
+                .ok()
+                .and_then(|name| Sha256Hash::new(name).ok())
+            else {
+                debug!(entry = ?entry.path(), "skipping non-image file in image store");
+                continue;
+            };
+
+            let metadata = metadata_by_hash.remove(&hash.0);
+            result.push((hash, metadata));
         }
+
+        // Directory listing order is arbitrary, keep the output stable.
+        result.sort_by(|(lhs, _), (rhs, _)| lhs.0.cmp(&rhs.0));
 
         Ok(result)
     }
@@ -767,10 +808,12 @@ impl ImageHandler {
                     .filter(bmr_image_metadatas::sha256.eq(&image_hash.0))
                     .select(ModelImageMetadata::as_select())
                     .get_result(con)?;
+
                 let stored_tags = ModelImageTagMap::belonging_to(&metadata)
                     .inner_join(bmr_image_tags::table)
                     .select(ModelImageTag::as_select())
                     .load::<ModelImageTag>(con)?;
+
                 Ok((metadata, stored_tags))
             })
             .await
