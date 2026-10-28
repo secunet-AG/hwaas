@@ -212,3 +212,38 @@ async fn list_images_with_files_left_joins_files_with_metadata() -> anyhow::Resu
     })
     .await
 }
+
+/// Regression test as we were picking up files containing the hash + .txt, they files
+/// had the same inode backing so there was not any duplication, but it caused a lot of
+/// noise when trying to make a nice API for viewing available images.
+#[test_log::test(tokio::test)]
+async fn list_images_with_files_ignores_files_merely_containing_a_hash() -> anyhow::Result<()> {
+    common::wrap(async |handler, store_path| {
+        let image = add_image(&handler, "image", "bytes for image").await?;
+
+        // Hard links of the image whose names contain, but aren't exactly, the hash
+        let image_path = store_path.join(&image.sha256.0);
+        for name in [
+            format!("{}.txt", image.sha256.0),
+            format!("prefix-{}", image.sha256.0),
+        ] {
+            tokio::fs::hard_link(&image_path, store_path.join(name)).await?;
+        }
+
+        let images = handler
+            .list_images_with_files()
+            .await
+            .context("images should be listable")?;
+
+        let hashes = images
+            .iter()
+            .map(|(hash, _)| hash.0.as_str())
+            .collect::<Vec<_>>();
+
+        // We should not see the other hard links to this image
+        assert_eq!(hashes, [image.sha256.0.as_str()]);
+
+        Ok(())
+    })
+    .await
+}

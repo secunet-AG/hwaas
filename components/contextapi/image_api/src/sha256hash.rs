@@ -21,7 +21,7 @@ impl Sha256Hash {
     pub fn new(value: String) -> Result<Self, String> {
         // Use a static OnceLock to avoid recomputing the regex on every call.
         static HASH_REGEX: OnceLock<Regex> = OnceLock::new();
-        let hash_regex = HASH_REGEX.get_or_init(|| Regex::new("[A-Fa-f0-9]{64}").unwrap());
+        let hash_regex = HASH_REGEX.get_or_init(|| Regex::new("^[A-Fa-f0-9]{64}$").unwrap());
         if hash_regex.is_match(&value) {
             return Ok(Self(value));
         }
@@ -62,5 +62,57 @@ impl FromStr for Sha256Hash {
 impl IntoResponse for Sha256Hash {
     fn into_response(self) -> axum::response::Response {
         self.0.into_response()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const VALID: &str = "d4ae8ff73338d564f46cba747f090aa9bd636647914abe6d3af873147b5f7ff6";
+
+    #[test]
+    fn accepts_exact_hash() {
+        assert!(Sha256Hash::new(VALID.to_string()).is_ok());
+        assert!(Sha256Hash::new(VALID.to_uppercase()).is_ok());
+    }
+
+    /// This is a regression test to prevent allowing files that simply contain
+    /// the hash to be constructed as the Sha256 new-type.
+    #[test]
+    fn rejects_strings_merely_containing_a_hash() {
+        for value in [
+            format!("{VALID}.txt"),
+            format!("prefix-{VALID}"),
+            format!("../{VALID}"),
+            format!("{VALID}\n"),
+            format!(" {VALID}"),
+            format!("{VALID}{VALID}"),
+            format!("{VALID}0"),
+        ] {
+            assert!(
+                Sha256Hash::new(value.clone()).is_err(),
+                "{value:?} should be rejected"
+            );
+            assert!(
+                value.parse::<Sha256Hash>().is_err(),
+                "{value:?} should be rejected"
+            );
+            assert!(
+                serde_json::from_value::<Sha256Hash>(serde_json::Value::String(value.clone()))
+                    .is_err(),
+                "{value:?} should be rejected"
+            );
+        }
+    }
+
+    #[test]
+    fn rejects_wrong_length_or_non_hex() {
+        for value in [String::new(), VALID[..63].to_string(), "g".repeat(64)] {
+            assert!(
+                Sha256Hash::new(value.clone()).is_err(),
+                "{value:?} should be rejected"
+            );
+        }
     }
 }
