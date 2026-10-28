@@ -401,6 +401,30 @@
         ],
         "type": "string"
       },
+      "ImageListEntry": {
+        "description": "A single entry of the [`list_images_with_metadata`] endpoint.",
+        "properties": {
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImageMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "All metadata known about the image, if any"
+          },
+          "sha256": {
+            "$ref": "#/components/schemas/Sha256Hash",
+            "description": "Hash of the image file in the image store"
+          }
+        },
+        "required": [
+          "sha256"
+        ],
+        "type": "object"
+      },
       "ImageMetadata": {
         "description": "The ImageMetadata that can be requested for each uploaded image",
         "properties": {
@@ -4080,6 +4104,36 @@
           }
         },
         "summary": "Upload image",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
+    "/images/metadata": {
+      "get": {
+        "description": "Returns a list of all image files in the image store with their full metadata, including tags. Metadata is null for files the database doesn't know about",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ImageListEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "List images with metadata",
         "tags": [
           "Image API"
         ]
