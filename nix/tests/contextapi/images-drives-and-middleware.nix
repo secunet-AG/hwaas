@@ -156,21 +156,32 @@ testers.runNixOSTest {
       assert metadata["architecture"] is None, f"response had unexpected architecture: {response}"
       assert len(metadata["tags"]) == 0, f"response had unexpected tags: {response}"
 
-    with subtest("Modify image file name"):
-      gateway.succeed(f"curl --fail-with-body -X POST --silent \
-        --url-query 'file_name=mod_{imgName}' {base_url}/images/{sha_sum}/metadata")
-      response = gateway.succeed(f"curl --fail-with-body --silent \
+    def patch_metadata(body):
+      response = gateway.succeed(f"curl --fail-with-body -X PATCH --silent \
+        -H 'Content-Type: application/json' --data '{json.dumps(body)}' \
         {base_url}/images/{sha_sum}/metadata")
-      metadata = json.loads(response)
-      assert metadata["file_name"] == "mod_" + imgName, f"response had unexpected file name: {response}"
+      return json.loads(response)
+
+    def get_metadata():
+      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}/metadata")
+      return json.loads(response)
+
+    def tag_names(metadata):
+      return sorted(tag["name"] for tag in metadata["tags"])
+
+    with subtest("Modify image file name"):
+      metadata = patch_metadata({"file_name": "mod_" + imgName})
+      assert metadata["file_name"] == "mod_" + imgName, f"response had unexpected file name: {metadata}"
+      assert get_metadata() == metadata, "stored metadata differs from PATCH response"
 
     with subtest("Modify image architecture"):
-      gateway.succeed(f"curl --fail-with-body -X POST --silent \
-        --url-query 'architecture=aarch64' {base_url}/images/{sha_sum}/metadata")
-      response = gateway.succeed(f"curl --fail-with-body --silent \
-        {base_url}/images/{sha_sum}/metadata")
-      metadata = json.loads(response)
-      assert metadata["architecture"] == "aarch64", f"response had unexpected architecture: {response}"
+      metadata = patch_metadata({"architecture": "aarch64"})
+      assert metadata["architecture"] == "aarch64", f"response had unexpected architecture: {metadata}"
+      assert metadata["file_name"] == "mod_" + imgName, f"omitted field was changed: {metadata}"
+
+    with subtest("Clear image architecture"):
+      metadata = patch_metadata({"architecture": None})
+      assert metadata["architecture"] is None, f"response had unexpected architecture: {metadata}"
 
     with subtest("Create new tags"):
       gateway.succeed(f"curl --fail-with-body -X POST --silent \
@@ -181,19 +192,25 @@ testers.runNixOSTest {
       tags = json.loads(response)
       assert len(tags) == 2, f"response had unexpected number of tags: {response}"
 
-    with subtest("Add tag to image"):
-      gateway.succeed(f"curl --fail-with-body -X POST --silent \
-        --url-query 'add_tag=tag a' {base_url}/images/{sha_sum}/metadata")
-      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}/metadata")
-      metadata = json.loads(response)
-      assert metadata["tags"][0]["name"] == "tag a", f"response had unexpected tags: {response}"
+    with subtest("Set image tags"):
+      # Unknown tags are created on the fly
+      metadata = patch_metadata({"tags": ["tag a", "tag new"]})
+      assert tag_names(metadata) == ["tag a", "tag new"], f"response had unexpected tags: {metadata}"
+      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/tags")
+      assert len(json.loads(response)) == 3, f"unknown tag was not created: {response}"
+      # A new list replaces the old one
+      metadata = patch_metadata({"tags": ["tag b"]})
+      assert tag_names(metadata) == ["tag b"], f"response had unexpected tags: {metadata}"
 
     with subtest("Remove tag from image"):
       gateway.succeed(f"curl --fail-with-body -X DELETE --silent \
-        --url-query 'remove_tag=tag a' {base_url}/images/{sha_sum}/metadata")
-      response = gateway.succeed(f"curl --fail-with-body --silent {base_url}/images/{sha_sum}/metadata")
-      metadata = json.loads(response)
-      assert len(metadata["tags"]) == 0, f"response had unexpected tags: {response}"
+        --url-query 'remove_tag=tag b' {base_url}/images/{sha_sum}/metadata")
+      assert len(get_metadata()["tags"]) == 0, "tag was not removed from image"
+
+    with subtest("Reject unknown metadata fields"):
+      gateway.fail(f"curl --fail-with-body -X PATCH --silent \
+        -H 'Content-Type: application/json' --data '{{\"add_tag\": \"tag a\"}}' \
+        {base_url}/images/{sha_sum}/metadata")
 
     # Test if 'get_images' returns the right amount of images and sizes
     with subtest("Get images"):

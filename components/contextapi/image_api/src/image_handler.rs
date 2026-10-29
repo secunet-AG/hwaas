@@ -62,6 +62,18 @@ pub enum ImageHandlerError {
     MetadataError,
 }
 
+/// Metadata fields to change on an existing BMR image, see
+/// [`ImageHandler::update_image_metadata`]. `None` leaves the respective field unchanged.
+#[derive(Debug, Default, Clone)]
+pub struct ImageMetadataUpdate {
+    /// New user file name.
+    pub file_name: Option<String>,
+    /// New architecture, where `Some(None)` clears it.
+    pub architecture: Option<Option<Architecture>>,
+    /// Complete set of tag names the image should carry afterwards.
+    pub tags: Option<Vec<TagName>>,
+}
+
 impl axum::response::IntoResponse for ImageHandlerError {
     fn into_response(self) -> axum::response::Response {
         use axum::http::StatusCode;
@@ -792,6 +804,96 @@ impl ImageHandler {
                 error!(%error, ?image, "failed to add tags to BMR image");
                 ImageHandlerError::MetadataError
             })
+    }
+
+    /// Update several metadata fields of an existing BMR image within a single transaction.
+    ///
+    /// Fields set to `None` in `update` are left unchanged. A given tag list replaces all tags
+    /// currently attached to the image; tag names without a backing tag are created on the fly
+    /// (without a description). Either all changes are applied or none.
+    ///
+    /// Returns the image metadata as stored after the update.
+    #[tracing::instrument(skip(self))]
+    pub async fn update_image_metadata(
+        &self,
+        image: &Sha256Hash,
+        update: ImageMetadataUpdate,
+    ) -> Result<ImageMetadata, ImageHandlerError> {
+        use diesel::prelude::*;
+
+        let image_found = self
+            .db_connection
+            .execute_on_current_thread(|con| {
+                con.transaction(|con| {
+                    let Some(image_id) = bmr_image_metadatas::table
+                        .filter(bmr_image_metadatas::sha256.eq(&image.0))
+                        .select(bmr_image_metadatas::id)
+                        .get_result::<i32>(con)
+                        .optional()?
+                    else {
+                        return Ok(false);
+                    };
+                    let image_row = bmr_image_metadatas::table.find(image_id);
+
+                    if let Some(new_file_name) = &update.file_name {
+                        diesel::update(image_row)
+                            .set(bmr_image_metadatas::file_name.eq(new_file_name))
+                            .execute(con)?;
+                    }
+                    if let Some(new_architecture) = &update.architecture {
+                        diesel::update(image_row)
+                            .set(
+                                bmr_image_metadatas::architecture
+                                    .eq(new_architecture.map(|a| a.to_string())),
+                            )
+                            .execute(con)?;
+                    }
+                    if let Some(tag_names) = &update.tags {
+                        diesel::delete(
+                            bmr_image_tag_map::table
+                                .filter(bmr_image_tag_map::bmr_image_metadata_id.eq(image_id)),
+                        )
+                        .execute(con)?;
+
+                        if !tag_names.is_empty() {
+                            let new_tags = tag_names
+                                .iter()
+                                .map(|n| bmr_image_tags::name.eq(n))
+                                .collect::<Vec<_>>();
+                            diesel::insert_or_ignore_into(bmr_image_tags::table)
+                                .values(new_tags)
+                                .execute(con)?;
+
+                            let mappings = bmr_image_tags::table
+                                .filter(bmr_image_tags::name.eq_any(tag_names))
+                                .select(bmr_image_tags::id)
+                                .load::<i32>(con)?
+                                .into_iter()
+                                .map(|tag_id| {
+                                    (
+                                        bmr_image_tag_map::bmr_image_metadata_id.eq(image_id),
+                                        bmr_image_tag_map::bmr_image_tag_id.eq(tag_id),
+                                    )
+                                })
+                                .collect::<Vec<_>>();
+                            diesel::insert_into(bmr_image_tag_map::table)
+                                .values(mappings)
+                                .execute(con)?;
+                        }
+                    }
+                    Ok(true)
+                })
+            })
+            .await
+            .map_err(|error| {
+                error!(%error, ?image, "failed to update BMR image metadata");
+                ImageHandlerError::MetadataError
+            })?;
+
+        if !image_found {
+            return Err(ImageHandlerError::NotFound("BMR image"));
+        }
+        self.get_image_metadata_by_hash(image).await
     }
 
     /// Get the metadata for the image that matches the given hash
