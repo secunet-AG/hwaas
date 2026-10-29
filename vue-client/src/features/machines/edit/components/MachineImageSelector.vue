@@ -42,7 +42,7 @@ function matchesQuery(meta: ImageMeta, q: string) {
   return (
     meta.sha256.includes(q) ||
     meta.file_name.toLowerCase().includes(q) ||
-    (meta.tags ?? []).some((t) => t.toLowerCase().includes(q))
+    meta.tags.some((t) => t.name.toLowerCase().includes(q))
   )
 }
 

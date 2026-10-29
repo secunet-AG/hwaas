@@ -13,20 +13,28 @@ export const ImageSchema = z.object({
   }),
 })
 
+export const ImageTagSchema = z.object({
+  name: z.string(),
+  description: z.nullable(z.string()),
+})
+
+export const GetAllTagsSchema = z.array(ImageTagSchema)
+
+export const ImageMetaSchema = z.object({
+  sha256: z.string(),
+  file_name: z.string(),
+  size: z.number().positive(),
+  created: z.object({
+    secs_since_epoch: z.number(),
+    nanos_since_epoch: z.number(),
+  }),
+  architecture: z.nullable(z.string()),
+  tags: z.array(ImageTagSchema),
+})
 
 export const ImageWithMetaSchema = z.object({
   sha256: z.string(),
-  metadata:  z.nullable(z.object({
-    sha256: z.string(),
-    file_name: z.string(),
-    size: z.number().positive(),
-    created: z.object({
-      secs_since_epoch: z.number(),
-      nanos_since_epoch: z.number(),
-    }),
-    architecture: z.nullable(z.string()),
-    tags: z.nullable(z.array(z.string()))
-  }))
+  metadata: z.nullable(ImageMetaSchema),
 })
 
 export const GetAllImagesWithMetaSchema = z.array(ImageWithMetaSchema)

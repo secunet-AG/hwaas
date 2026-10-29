@@ -31,7 +31,7 @@ const filtered = computed(() => {
     (x) =>
       x.sha256.includes(query) ||
       (x.metadata?.file_name ?? '').toLowerCase().includes(query) ||
-      (x.metadata?.tags ?? []).some((t) => t.toLowerCase().includes(query)),
+      (x.metadata?.tags ?? []).some((t) => t.name.toLowerCase().includes(query)),
   )
 })
 
@@ -39,8 +39,7 @@ const filtered = computed(() => {
 function usageLabel(hash: string) {
   const u = usage.value[hash]
   if (!u) return null
-  if (u.lastUsedAt)
-    return `last used ${new Date(u.lastUsedAt).toLocaleDateString('de-DE')}`
+  if (u.lastUsedAt) return `last used ${new Date(u.lastUsedAt).toLocaleDateString('de-DE')}`
   if (u.uploadedAt) return 'Uploaded by you'
   return null
 }
@@ -71,22 +70,21 @@ function formatSize(meta: ImageMeta | null) {
     <FadeInOut>
       <div v-if="filtered.length" class="mt-6 flex h-full flex-col gap-3 overflow-y-auto">
         <div
-          class="app-card flex w-full items-center justify-between overflow-clip"
+          class="app-card flex w-full items-center justify-between"
           v-for="item of filtered"
           :key="item.sha256"
         >
-          <div class="flex w-full flex-col gap-1">
+          <div class="flex w-full min-w-0 flex-col gap-1">
             <div
-              class="border-(--app-secondary-border) flex w-full items-center gap-3 border-b pb-3"
+              class="border-(--app-secondary-border) flex w-full min-w-0 overflow-hidden items-center gap-3 border-b pb-3"
             >
-              <div class="flex flex-nowrap items-center gap-1 text-ellipsis">
+              <div class="min-w-0 flex flex-nowrap items-center gap-1 text-ellipsis">
                 <h6 class="text-ellipsis text-nowrap text-lg">
                   {{ item.metadata?.file_name ?? 'Unknown image' }} -
                 </h6>
-                <span
-                  class="text-(--app-secondary-text) text-ellipsis text-nowrap pt-0.75 text-sm"
-                  >{{ item.sha256 }}</span
-                >
+                <span class="text-(--app-secondary-text) truncate text-nowrap pt-0.75 text-sm">{{
+                  item.sha256
+                }}</span>
 
                 <button
                   class="flex cursor-pointer items-center gap-1 transition duration-300 hover:-translate-y-0.5 hover:brightness-200"
@@ -143,42 +141,62 @@ function formatSize(meta: ImageMeta | null) {
                 class="ml-auto"
               /> -->
             </div>
-            <div
-              class="grid w-[256px] grid-cols-[24px_1fr_24px_1fr] items-center gap-1 pt-1 opacity-70"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.0"
-                stroke="currentColor"
-                class="text-(--app-secondary-text) size-5"
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1">
+              <div
+                class="grid w-[256px] grid-cols-[24px_1fr_24px_1fr] items-center gap-1 opacity-70"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z"
-                /></svg
-              ><span class="text-(--app-secondary-text) text-sm">{{
-                formatCreated(item.metadata)
-              }}</span
-              ><svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="text-(--app-secondary-text) size-5"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.0"
+                  stroke="currentColor"
+                  class="text-(--app-secondary-text) size-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z"
+                  /></svg
+                ><span class="text-(--app-secondary-text) text-sm">{{
+                  formatCreated(item.metadata)
+                }}</span
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="text-(--app-secondary-text) size-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 9.75v6.75m0 0-3-3m3 3 3-3m-8.25 6a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"
+                  />
+                </svg>
+                <span class="text-(--app-secondary-text) text-sm">{{
+                  formatSize(item.metadata)
+                }}</span>
+              </div>
+              <div
+                v-if="item.metadata?.architecture || item.metadata?.tags?.length"
+                class="flex flex-wrap items-center gap-3"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 9.75v6.75m0 0-3-3m3 3 3-3m-8.25 6a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"
-                />
-              </svg>
-              <span class="text-(--app-secondary-text) text-sm">{{
-                formatSize(item.metadata)
-              }}</span>
+                <span
+                  v-if="item.metadata?.architecture"
+                  class="border-(--app-secondary-border) text-(--app-primary-text) -pb-1 align-bottom rounded border px-2 py-1 font-mono text-xs"
+                  title="Architecture"
+                  >{{ item.metadata.architecture }}</span
+                >
+                <span
+                  v-for="tag in item.metadata?.tags ?? []"
+                  :key="tag.name"
+                  :title="tag.description ?? undefined"
+                  class="bg-(--app-secondary-border)/30 border-(--app-secondary-border) border text-(--app-secondary-text) align-middle rounded px-2 py-1 text-xs"
+                  >{{ tag.name }}</span
+                >
+              </div>
             </div>
           </div>
         </div>
