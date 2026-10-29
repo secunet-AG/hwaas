@@ -6,7 +6,9 @@ mod common;
 
 use anyhow::Context as _;
 use common::TestStream;
-use image_api::{ImageHandler, ImageMetadata, ImageTag};
+use image_api::architectures::Architecture;
+use image_api::sha256hash::Sha256Hash;
+use image_api::{ImageHandler, ImageHandlerError, ImageMetadata, ImageMetadataUpdate, ImageTag};
 
 async fn add_image(
     handler: &ImageHandler,
@@ -242,6 +244,123 @@ async fn list_images_with_files_ignores_files_merely_containing_a_hash() -> anyh
 
         // We should not see the other hard links to this image
         assert_eq!(hashes, [image.sha256.0.as_str()]);
+
+        Ok(())
+    })
+    .await
+}
+
+fn tag_names(metadata: &ImageMetadata) -> Vec<String> {
+    let mut names = metadata
+        .tags
+        .iter()
+        .map(|t| t.name.clone())
+        .collect::<Vec<_>>();
+    names.sort();
+    names
+}
+
+#[test_log::test(tokio::test)]
+async fn update_replaces_tags_and_creates_unknown_ones() -> anyhow::Result<()> {
+    common::wrap(async |handler, _| {
+        let image = add_image(&handler, "one", "bytes for image one").await?;
+        let tag_a = add_tag(&handler, "tag_a", "sample tag A").await?;
+        add_tag(&handler, "tag_b", "sample tag B").await?;
+        handler
+            .add_tags_to_image(["tag_b".to_string()], &image.sha256)
+            .await?;
+
+        let update = ImageMetadataUpdate {
+            tags: Some(vec!["tag_a".into(), "tag_new".into(), "tag_new".into()]),
+            ..Default::default()
+        };
+        let updated = handler
+            .update_image_metadata(&image.sha256, update)
+            .await
+            .context("metadata update should succeed")?;
+
+        assert_eq!(tag_names(&updated), ["tag_a", "tag_new"]);
+        // Existing tags keep their description, new ones get none.
+        assert!(updated.tags.contains(&tag_a));
+        assert!(
+            updated
+                .tags
+                .contains(&ImageTag::new("tag_new", None::<String>))
+        );
+        // Detached tags still exist globally.
+        assert_eq!(handler.list_tags().await?.len(), 3);
+
+        Ok(())
+    })
+    .await
+}
+
+#[test_log::test(tokio::test)]
+async fn update_with_empty_tag_list_clears_tags() -> anyhow::Result<()> {
+    common::wrap(async |handler, _| {
+        let image = add_image(&handler, "one", "bytes for image one").await?;
+        add_tag(&handler, "tag_a", "sample tag A").await?;
+        handler
+            .add_tags_to_image(["tag_a".to_string()], &image.sha256)
+            .await?;
+
+        let update = ImageMetadataUpdate {
+            tags: Some(vec![]),
+            ..Default::default()
+        };
+        let updated = handler.update_image_metadata(&image.sha256, update).await?;
+        assert!(updated.tags.is_empty());
+
+        Ok(())
+    })
+    .await
+}
+
+#[test_log::test(tokio::test)]
+async fn update_only_touches_given_fields() -> anyhow::Result<()> {
+    common::wrap(async |handler, _| {
+        let image = add_image(&handler, "one", "bytes for image one").await?;
+        add_tag(&handler, "tag_a", "sample tag A").await?;
+        handler
+            .add_tags_to_image(["tag_a".to_string()], &image.sha256)
+            .await?;
+
+        let update = ImageMetadataUpdate {
+            architecture: Some(Some(Architecture::Riscv64)),
+            ..Default::default()
+        };
+        let updated = handler.update_image_metadata(&image.sha256, update).await?;
+        assert_eq!(updated.architecture, Some(Architecture::Riscv64));
+        assert_eq!(updated.file_name, "one");
+        assert_eq!(tag_names(&updated), ["tag_a"]);
+
+        let update = ImageMetadataUpdate {
+            file_name: Some("renamed".into()),
+            architecture: Some(None),
+            ..Default::default()
+        };
+        let updated = handler.update_image_metadata(&image.sha256, update).await?;
+        assert_eq!(updated.architecture, None);
+        assert_eq!(updated.file_name, "renamed");
+        assert_eq!(tag_names(&updated), ["tag_a"]);
+
+        Ok(())
+    })
+    .await
+}
+
+#[test_log::test(tokio::test)]
+async fn update_of_unknown_image_is_not_found() -> anyhow::Result<()> {
+    common::wrap(async |handler, _| {
+        let unknown = Sha256Hash::new("0".repeat(64)).expect("valid hash");
+        let update = ImageMetadataUpdate {
+            tags: Some(vec!["tag_a".into()]),
+            ..Default::default()
+        };
+        let result = handler.update_image_metadata(&unknown, update).await;
+        assert!(matches!(result, Err(ImageHandlerError::NotFound(_))));
+        // The transaction must not leave a created tag behind.
+        assert!(handler.list_tags().await?.is_empty());
 
         Ok(())
     })
