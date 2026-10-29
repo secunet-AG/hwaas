@@ -17,29 +17,35 @@ export async function safeFetch<T>(
   let res: Response
   try {
     res = await fetch(input, init)
-  } catch (err: any) {
+  } catch (err) {
     return { data: null, error: `Error occured when fetching: ${err}` }
   }
 
   let body: unknown
   const contentType = res.headers.get('content-type') ?? ''
 
+  // Binary or non-json/text case
+  if (!contentType.includes('application/json') && !contentType.includes('text/')) {
+    if (!res.ok) return { data: null, error: `HTTP ${res.status}` }
+    return { data: (await res.arrayBuffer()) as T, error: null } //TODO: Evaluate this case for non-json/text payloads
+  }
+
+  // Read the body once as text so it is still available as a fallback if JSON parsing fails.
+  let text: string
   try {
-    if (contentType.includes('application/json')) {
-      body = await res.json()
-    } else if (contentType.includes('text/')) {
-      body = await res.text()
-    } else {
-      return { data: (await res.arrayBuffer()) as T, error: null } //TODO: Evaluate this case for non-json/text payloads
-    }
-  } catch {
+    text = await res.text()
+  } catch (err) {
+    return { data: null, error: `Failed to read response body with error: ${err}` }
+  }
+
+  if (contentType.includes('application/json')) {
     try {
-      // Fallback to parsing as text
-      body = await res.text()
-      return { data: null, error: `Request failed with message: ${body}` }
-    } catch (err: any) {
-      return { data: null, error: `Failed to parse response body with error: ${err}` }
+      body = JSON.parse(text)
+    } catch {
+      return { data: null, error: `Request failed with message: ${text}` }
     }
+  } else {
+    body = text
   }
 
   if (!res.ok) {
