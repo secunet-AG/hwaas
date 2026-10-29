@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useImageApi } from '@/shared/lib/api/images/images.api'
-import type { ImageUsage, ImageWithMeta } from '@/shared/types/images.model'
+import type { ImageMetadataInput, ImageUsage, ImageWithMeta } from '@/shared/types/images.model'
 import { useAsyncState, useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, watch } from 'vue'
@@ -15,7 +15,8 @@ const IMAGE_USAGE_LOCALSTORE_KEY = 'image_usage_local_key'
 const STALE_USAGE_MS = 1000 * 3600 * 24 * 30
 
 export const useImagesStore = defineStore('images', () => {
-  const { checkForExistingImageAndCreate, getAllImages } = useImageApi()
+  const { checkForExistingImageAndCreate, getAllImages, getAllTags, patchImageMetadata } =
+    useImageApi()
 
   const {
     state: images,
@@ -32,8 +33,17 @@ export const useImagesStore = defineStore('images', () => {
     { immediate: true, resetOnExecute: false },
   )
 
-  // Per-browser history of how the user interacts with images. The server owns the image
-  // list; this only influences ordering and highlighting.
+  const { state: tags, execute: refreshTags } = useAsyncState(
+    async () => {
+      const res = await getAllTags()
+      if (res.error || !res.data) throw res.error ?? new Error('No tag data')
+      return res.data
+    },
+    [],
+    { immediate: true, resetOnExecute: false },
+  )
+
+  // Local history usage not stored on the server, used for ranking various images when searching
   const usage = useLocalStorage<Record<string, ImageUsage>>(IMAGE_USAGE_LOCALSTORE_KEY, {})
 
   function touchUsage(sha256: string, patch: Partial<ImageUsage>) {
@@ -107,14 +117,33 @@ export const useImagesStore = defineStore('images', () => {
     await refreshImages()
   }
 
+  // Sets the architecture and adds tags to an image in a single request. The server replaces the
+  // whole tag set, so tags already on the image are sent along to keep them.
+  async function applyImageMetadata(imageHash: string, input: ImageMetadataInput) {
+    const existingTags =
+      images.value.find((x) => x.sha256 === imageHash)?.metadata?.tags.map((x) => x.name) ?? []
+
+    const { error } = await patchImageMetadata(imageHash, {
+      ...(input.architecture && { architecture: input.architecture }),
+      tags: [...new Set([...existingTags, ...input.tags])],
+    })
+
+    await Promise.all([refreshImages(), refreshTags()])
+
+    if (error) throw new Error(`${error}`)
+  }
+
   return {
     images,
     sortedImages,
+    tags,
     usage,
     isLoading,
     error,
     addImage,
     refreshImages,
+    refreshTags,
+    applyImageMetadata,
     recordSelection,
     togglePinned,
     forgetUsage,
