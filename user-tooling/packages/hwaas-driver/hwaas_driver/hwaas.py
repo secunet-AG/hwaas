@@ -261,9 +261,19 @@ class HwaasMachine:
         Uploads the image provided and creates a drive entry from the given image path.
         """
         logger.info("Attach drive %s", image_path)
-        image_hash = self.__sha256(f"{image_path}")
-        r = self.hwaas_connector.get(f"images/{image_hash}")
-        if r.status_code != 200:
+
+        # The API validates if this can be decompressed, we just look for the extension
+        is_zstd = os.path.splitext(image_path)[1] in (".zst", ".zstd")
+
+        found_hash = None
+        if not is_zstd:
+            # See if we already have the hash present
+            expected_hash = self.__sha256(f"{image_path}")
+            if self.hwaas_connector.get(f"images/{expected_hash}").status_code == 200:
+                found_hash = expected_hash
+
+        # Only upload if image hash not found
+        if found_hash is None:
             with open(image_path, "rb") as image:
                 with tqdm(
                     desc="Image upload",
@@ -283,16 +293,19 @@ class HwaasMachine:
                         MultipartEncoder(fields=files),
                         lambda mon: bar.update(mon.bytes_read - bar.n),
                     )
-                    self.hwaas_connector.post(
+                    response = self.hwaas_connector.post(
                         "images",
+                        params={"compression": "zstd"} if is_zstd else None,
                         data=monitor,
                         headers={"Content-Type": monitor.content_type},
-                    ).raise_for_status()
+                    )
+                    response.raise_for_status()
+                    found_hash = response.text.strip()
 
         drive = str(uuid.uuid4())
 
         self.hwaas_connector.put(
-            f"contexts/{self.context}/drives/{drive}?image_hash={image_hash}"
+            f"contexts/{self.context}/drives/{drive}?image_hash={found_hash}"
         ).raise_for_status()
 
         self.drives.append(drive)
