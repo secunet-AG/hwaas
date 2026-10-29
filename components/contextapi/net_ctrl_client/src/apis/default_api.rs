@@ -113,8 +113,8 @@ pub async fn switches_get(configuration: &configuration::Configuration, ) -> Res
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::collections::HashMap&lt;String, models::SwitchModelDetail&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `std::collections::HashMap&lt;String, models::SwitchModelDetail&gt;`")))),
+            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::collections::HashMap&lt;String, models::SwitchModelDetail&gt;`"))),
+            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `std::collections::HashMap&lt;String, models::SwitchModelDetail&gt;`")))),
         }
     } else {
         let content = resp.text().await?;
@@ -128,7 +128,7 @@ pub async fn switches_switch_id_get(configuration: &configuration::Configuration
     // add a prefix to parameters to efficiently prevent name collisions
     let p_path_switch_id = switch_id;
 
-    let uri_str = format!("{}/switches/{switch_id}", configuration.base_path, switch_id=p_path_switch_id.to_string());
+    let uri_str = format!("{}/switches/{switch_id}", configuration.base_path, switch_id=p_path_switch_id);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -150,8 +150,8 @@ pub async fn switches_switch_id_get(configuration: &configuration::Configuration
         let content = resp.text().await?;
         match content_type {
             ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::PortRepresentation&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::PortRepresentation&gt;`")))),
+            ContentType::Text => Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::PortRepresentation&gt;`"))),
+            ContentType::Unsupported(unknown_type) => Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::PortRepresentation&gt;`")))),
         }
     } else {
         let content = resp.text().await?;
@@ -166,7 +166,7 @@ pub async fn switches_switch_id_ports_port_id_delete(configuration: &configurati
     let p_path_port_id = port_id;
     let p_path_switch_id = switch_id;
 
-    let uri_str = format!("{}/switches/{switch_id}/ports/{port_id}", configuration.base_path, port_id=p_path_port_id.to_string(), switch_id=p_path_switch_id.to_string());
+    let uri_str = format!("{}/switches/{switch_id}/ports/{port_id}", configuration.base_path, port_id=p_path_port_id, switch_id=p_path_switch_id);
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -194,7 +194,7 @@ pub async fn switches_switch_id_ports_port_id_put(configuration: &configuration:
     let p_path_switch_id = switch_id;
     let p_body_vlan_id = vlan_id;
 
-    let uri_str = format!("{}/switches/{switch_id}/ports/{port_id}", configuration.base_path, port_id=p_path_port_id.to_string(), switch_id=p_path_switch_id.to_string());
+    let uri_str = format!("{}/switches/{switch_id}/ports/{port_id}", configuration.base_path, port_id=p_path_port_id, switch_id=p_path_switch_id);
     let mut req_builder = configuration.client.request(reqwest::Method::PUT, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -222,7 +222,7 @@ pub async fn switches_switch_id_setup_post(configuration: &configuration::Config
     let p_path_switch_id = switch_id;
     let p_body_setup_data = setup_data;
 
-    let uri_str = format!("{}/switches/{switch_id}/setup", configuration.base_path, switch_id=p_path_switch_id.to_string());
+    let uri_str = format!("{}/switches/{switch_id}/setup", configuration.base_path, switch_id=p_path_switch_id);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

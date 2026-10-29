@@ -401,6 +401,30 @@
         ],
         "type": "string"
       },
+      "ImageListEntry": {
+        "description": "A single entry of the [`list_images_with_metadata`] endpoint.",
+        "properties": {
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImageMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "All metadata known about the image, if any"
+          },
+          "sha256": {
+            "$ref": "#/components/schemas/Sha256Hash",
+            "description": "Hash of the image file in the image store"
+          }
+        },
+        "required": [
+          "sha256"
+        ],
+        "type": "object"
+      },
       "ImageMetadata": {
         "description": "The ImageMetadata that can be requested for each uploaded image",
         "properties": {
@@ -450,29 +474,10 @@
         ],
         "type": "object"
       },
-      "ImageMetadataToDelete": {
-        "description": "Valid boot image metadata fields for deletion.",
+      "ImageMetadataPatch": {
+        "additionalProperties": false,
+        "description": "Metadata fields to update on a boot image in one request. Omitted fields stay unchanged.",
         "properties": {
-          "remove_tag": {
-            "description": "Remove a tag (by name) from the boot image.",
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "ImageMetadataToModify": {
-        "description": "Valid boot image metadata fields for modification.",
-        "properties": {
-          "add_tag": {
-            "description": "Add a tag (by name) to the boot image.",
-            "type": [
-              "string",
-              "null"
-            ]
-          },
           "architecture": {
             "anyOf": [
               {
@@ -489,10 +494,36 @@
                 "type": "null"
               }
             ],
-            "description": "Modify the architecture of the boot image."
+            "default": null,
+            "description": "New architecture of the boot image; `null` clears it."
           },
           "file_name": {
-            "description": "Modify the user file name of the boot image.",
+            "default": null,
+            "description": "New user file name of the boot image.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tags": {
+            "default": null,
+            "description": "Complete list of tag names the boot image should carry afterwards, replacing all current tags. Tags that don't exist yet are created without a description.",
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ImageMetadataToDelete": {
+        "description": "Valid boot image metadata fields for deletion.",
+        "properties": {
+          "remove_tag": {
+            "description": "Remove a tag (by name) from the boot image.",
             "type": [
               "string",
               "null"
@@ -4085,6 +4116,36 @@
         ]
       }
     },
+    "/images/metadata": {
+      "get": {
+        "description": "Returns a list of all image files in the image store with their full metadata, including tags. Metadata is null for files the database doesn't know about",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ImageListEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Internal error reason"
+          }
+        },
+        "summary": "List images with metadata",
+        "tags": [
+          "Image API"
+        ]
+      }
+    },
     "/images/tags": {
       "delete": {
         "description": "Delete an existing tag from the database",
@@ -4347,8 +4408,8 @@
           "Image API"
         ]
       },
-      "post": {
-        "description": "Modify metadata for a BMR image",
+      "patch": {
+        "description": "Update several metadata fields of a BMR image at once. Omitted fields are left unchanged, a given tag list replaces all current tags (creating unknown tags), and all changes are applied atomically",
         "parameters": [
           {
             "description": "hash of a boot image (sha256sum)",
@@ -4360,61 +4421,41 @@
               "description": "hash of a boot image (sha256sum)"
             },
             "style": "simple"
-          },
-          {
-            "description": "Add a tag (by name) to the boot image.",
-            "in": "query",
-            "name": "add_tag",
-            "schema": {
-              "description": "Add a tag (by name) to the boot image.",
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "style": "form"
-          },
-          {
-            "description": "Modify the architecture of the boot image.",
-            "in": "query",
-            "name": "architecture",
-            "schema": {
-              "anyOf": [
-                {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/Architecture"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Modify the architecture of the boot image."
-            },
-            "style": "form"
-          },
-          {
-            "description": "Modify the user file name of the boot image.",
-            "in": "query",
-            "name": "file_name",
-            "schema": {
-              "description": "Modify the user file name of the boot image.",
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "style": "form"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageMetadataPatch"
+              }
+            }
+          },
+          "description": "Metadata fields to update on a boot image in one request. Omitted fields stay unchanged.",
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "no content"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageMetadata"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Invalid tag name"
+          },
+          "404": {
+            "content": {
+              "text/plain; charset=utf-8": {}
+            },
+            "description": "Image not found"
           },
           "500": {
             "content": {
@@ -4423,7 +4464,7 @@
             "description": "Internal error reason"
           }
         },
-        "summary": "Modify image metadata",
+        "summary": "Update image metadata",
         "tags": [
           "Image API"
         ]

@@ -24,7 +24,7 @@ use tracing::{debug, instrument};
 use crate::ImageTag;
 use crate::architectures::Architecture;
 use crate::db::ImageMetadata;
-use crate::image_handler::ImageHandler;
+use crate::image_handler::{ImageHandler, ImageMetadataUpdate};
 use crate::sha256hash::Sha256Hash;
 
 /// Generic result type for API responses.
@@ -54,6 +54,14 @@ where
             api_doc_image_api,
         )
         .api_route_with(
+            "/metadata",
+            get_with(
+                list_images_with_metadata,
+                api_method_doc_list_images_with_metadata,
+            ),
+            api_doc_image_api,
+        )
+        .api_route_with(
             "/:image_hash",
             get_with(status_image, api_method_doc_get_meta)
                 .delete_with(delete_image, api_method_doc_delete),
@@ -62,7 +70,7 @@ where
         .api_route_with(
             "/:image_hash/metadata",
             get_with(get_image_metadata, api_method_doc_get_image_metadata)
-                .post_with(post_image_metadata, api_method_doc_post_image_metadata)
+                .patch_with(patch_image_metadata, api_method_doc_patch_image_metadata)
                 .delete_with(delete_image_metadata, api_method_doc_delete_image_metadata),
             api_doc_image_api,
         )
@@ -154,6 +162,42 @@ async fn list_images(
         )
     }));
     Ok(Json::from(response))
+}
+
+/// A single entry of the [`list_images_with_metadata`] endpoint.
+#[derive(Serialize, JsonSchema)]
+pub struct ImageListEntry {
+    /// Hash of the image file in the image store
+    sha256: Sha256Hash,
+    /// All metadata known about the image, if any
+    metadata: Option<ImageMetadata>,
+}
+
+/// List all images with their complete metadata, including tags.
+#[instrument]
+async fn list_images_with_metadata(
+    State(image_handler): State<ImageHandler>,
+) -> ApiResult<Json<Vec<ImageListEntry>>> {
+    let images = image_handler
+        .list_images_with_files()
+        .await
+        .map_err(|error| error.into_response())?;
+    Ok(Json::from(
+        images
+            .into_iter()
+            .map(|(sha256, metadata)| ImageListEntry { sha256, metadata })
+            .collect::<Vec<_>>(),
+    ))
+}
+
+fn api_method_doc_list_images_with_metadata(op: TransformOperation) -> TransformOperation {
+    op.description(
+        "Returns a list of all image files in the image store with their full metadata, \
+         including tags. Metadata is null for files the database doesn't know about",
+    )
+    .summary("List images with metadata")
+    .response_with::<200, Json<Vec<ImageListEntry>>, _>(|op| op)
+    .response_with::<500, String, _>(|op| op.description("Internal error reason"))
 }
 
 /// This stub behaves like designed - it always returns 202 Accepted.
@@ -348,65 +392,76 @@ fn api_method_doc_get_image_metadata(op: TransformOperation) -> TransformOperati
         .response_with::<500, String, _>(|op| op.description("Internal error reason"))
 }
 
-/// Valid boot image metadata fields for modification.
+/// Metadata fields to update on a boot image in one request. Omitted fields stay unchanged.
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
-pub struct ImageMetadataToModify {
-    /// Modify the user file name of the boot image.
+#[serde(deny_unknown_fields)]
+pub struct ImageMetadataPatch {
+    /// New user file name of the boot image.
+    #[serde(default)]
     file_name: Option<String>,
-    /// Modify the architecture of the boot image.
+    /// New architecture of the boot image; `null` clears it.
+    #[serde(default, deserialize_with = "deserialize_present")]
     architecture: Option<Option<Architecture>>,
-    /// Add a tag (by name) to the boot image.
-    add_tag: Option<crate::db::TagName>,
+    /// Complete list of tag names the boot image should carry afterwards, replacing all current
+    /// tags. Tags that don't exist yet are created without a description.
+    #[serde(default)]
+    tags: Option<Vec<crate::db::TagName>>,
+}
+
+/// Distinguishes an explicit `null` (`Some(None)`) from an omitted field (`None`, via
+/// `#[serde(default)]`), which plain `Option<Option<T>>` deserialization cannot.
+fn deserialize_present<'de, T, D>(deserializer: D) -> Result<Option<Option<T>>, D::Error>
+where
+    T: Deserialize<'de>,
+    D: serde::Deserializer<'de>,
+{
+    Option::<T>::deserialize(deserializer).map(Some)
 }
 
 #[instrument]
-async fn post_image_metadata(
+async fn patch_image_metadata(
     State(image_handler): State<ImageHandler>,
     Path(PathParamsImageHash { image_hash }): Path<PathParamsImageHash>,
-    Query(metadata): Query<ImageMetadataToModify>,
+    Json(patch): Json<ImageMetadataPatch>,
 ) -> ApiResult<impl IntoApiResponse> {
-    let mut errors: Vec<String> = Vec::with_capacity(3);
+    let tags = patch
+        .tags
+        .map(|tags| {
+            let tags = tags
+                .into_iter()
+                .map(|t| t.trim().to_string())
+                .collect::<Vec<_>>();
+            if tags.iter().any(String::is_empty) {
+                Err((StatusCode::BAD_REQUEST, "tag names must not be empty").into_response())
+            } else {
+                Ok(tags)
+            }
+        })
+        .transpose()?;
 
-    if let Some(tag_to_add) = metadata.add_tag {
-        match image_handler
-            .add_tags_to_image([tag_to_add], &image_hash)
-            .await
-        {
-            Ok(_) => (),
-            Err(err) => errors.push(format!("failed to add tag metadata: {err}")),
-        }
-    }
-    if let Some(architecture_to_set) = metadata.architecture {
-        match image_handler
-            .modify_image_architecture(&image_hash, architecture_to_set)
-            .await
-        {
-            Ok(_) => (),
-            Err(err) => errors.push(format!("failed to set architecture metadata: {err}")),
-        }
-    }
-    if let Some(file_name_to_set) = metadata.file_name {
-        match image_handler
-            .modify_image_file_name(&image_hash, file_name_to_set)
-            .await
-        {
-            Ok(_) => (),
-            Err(err) => errors.push(format!("failed to set file name metadata: {err}")),
-        }
-    }
-
-    if errors.is_empty() {
-        Ok(())
-    } else {
-        Err((StatusCode::INTERNAL_SERVER_ERROR, Json::from(errors)).into_response())
-    }
+    let update = ImageMetadataUpdate {
+        file_name: patch.file_name,
+        architecture: patch.architecture,
+        tags,
+    };
+    let metadata = image_handler
+        .update_image_metadata(&image_hash, update)
+        .await
+        .map_err(|error| error.into_response())?;
+    Ok(Json::from(metadata))
 }
 
-fn api_method_doc_post_image_metadata(op: TransformOperation) -> TransformOperation {
-    op.description("Modify metadata for a BMR image")
-        .summary("Modify image metadata")
-        .response_with::<200, (), _>(|op| op)
-        .response_with::<500, String, _>(|op| op.description("Internal error reason"))
+fn api_method_doc_patch_image_metadata(op: TransformOperation) -> TransformOperation {
+    op.description(
+        "Update several metadata fields of a BMR image at once. Omitted fields are left \
+         unchanged, a given tag list replaces all current tags (creating unknown tags), and all \
+         changes are applied atomically",
+    )
+    .summary("Update image metadata")
+    .response_with::<200, Json<ImageMetadata>, _>(|op| op)
+    .response_with::<400, String, _>(|op| op.description("Invalid tag name"))
+    .response_with::<404, String, _>(|op| op.description("Image not found"))
+    .response_with::<500, String, _>(|op| op.description("Internal error reason"))
 }
 
 /// Valid boot image metadata fields for deletion.
@@ -446,4 +501,29 @@ fn api_method_doc_delete_image_metadata(op: TransformOperation) -> TransformOper
         .summary("Delete image metadata")
         .response_with::<200, (), _>(|op| op)
         .response_with::<500, String, _>(|op| op.description("Internal error reason"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn metadata_patch_distinguishes_null_from_omitted() {
+        let omitted: ImageMetadataPatch = serde_json::from_str("{}").unwrap();
+        assert!(omitted.architecture.is_none());
+        assert!(omitted.tags.is_none());
+
+        let cleared: ImageMetadataPatch = serde_json::from_str(r#"{"architecture":null}"#).unwrap();
+        assert_eq!(cleared.architecture, Some(None));
+
+        let set: ImageMetadataPatch =
+            serde_json::from_str(r#"{"architecture":"aarch64","tags":["a","b"]}"#).unwrap();
+        assert_eq!(set.architecture, Some(Some(Architecture::Aarch64)));
+        assert_eq!(set.tags, Some(vec!["a".to_string(), "b".to_string()]));
+    }
+
+    #[test]
+    fn metadata_patch_rejects_unknown_fields() {
+        assert!(serde_json::from_str::<ImageMetadataPatch>(r#"{"add_tag":"a"}"#).is_err());
+    }
 }
