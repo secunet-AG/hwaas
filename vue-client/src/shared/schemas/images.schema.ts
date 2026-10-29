@@ -13,4 +13,20 @@ export const ImageSchema = z.object({
   }),
 })
 
-export const GetAllImagesSchema = z.record(z.string(), ImageSchema)
+
+export const ImageWithMetaSchema = z.object({
+  sha256: z.string(),
+  metadata:  z.nullable(z.object({
+    sha256: z.string(),
+    file_name: z.string(),
+    size: z.number().positive(),
+    created: z.object({
+      secs_since_epoch: z.number(),
+      nanos_since_epoch: z.number(),
+    }),
+    architecture: z.nullable(z.string()),
+    tags: z.nullable(z.array(z.string()))
+  }))
+})
+
+export const GetAllImagesWithMetaSchema = z.array(ImageWithMetaSchema)
