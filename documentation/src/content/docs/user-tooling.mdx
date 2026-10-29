@@ -1,0 +1,192 @@
+# User Tooling Guide
+
+import Callout from '../../components/Callout.astro'
+
+## How to set up user tooling for your HWaaS instance
+
+To follow this guide, you need the following things:
+
+- A working HWaaS instance
+- A machine with `nix` installed
+
+In this example, we assume that a HWaaS instance is accessible under the following URL:
+
+```text
+https://api.hwaas.my-corp.example/v5/
+```
+
+Furthermore, we assume that it has at least one machine available with the following platform
+identifier:
+
+```text
+test-machine-x86_64
+```
+
+<Callout type="note">
+**Obtaining the Platform Identifier**:
+If you're not sure what platform identifiers your HWaaS instance offers, run the following
+command: `curl -L "$HWAAS_API_URL" | jq 'map(.properties.platform)'`
+</Callout>
+
+The HWaaS User Tooling is fundamentally built around NixOS VM tests.
+Hence, using it requires that you have a `nix` project to apply it with.
+As a first step, we set up a `nix` project to run our test from.
+Run the following commands:
+
+```bash
+nix flake new my-first-hwaas-test -t 'github:secunet-AG/hwaas#simple'
+cd my-first-hwaas-test
+```
+
+Next, we must review and modify a few settings to connect the test with our HWaaS instance.
+Open the file `hwaas-test.nix` in your favorite `$EDITOR`, then:
+
+1. Enter the correct URL in `apiUrl`:
+    ```nix
+    apiUrl = "https://api.hwaas.my-corp.example/v5/";
+    ```
+2. Enter the correct platform identifier in `platform`:
+    ```nix
+    dummy1 = {
+      platform = "test-machine-x86_64";
+      # ...
+    };
+    ```
+
+The remainder of the project is already set up in a way that imports the test defined in `hwaas-test.nix` into `flake.nix` and exposes it there.
+Next we build the test to produce a `result/` output:
+
+```bash
+# NOTE: The '.driver' at the end is important!
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+```
+
+Finally we run the actual test:
+
+```bash
+./result/bin/nixos-test-driver
+```
+
+The test communicates with your HWaaS instance and performs roughly the following tasks:
+
+- Reserve a Context with a machine matching the platform identifier
+- Upload the respective OS images to each reserved machine
+- Run the actual test script
+- Tear down the Context and release all reserved machines back to HWaaS
+
+And that's it!
+If the test exits with a status code of 0, you have successfully run your first test on a HWaaS instance.
+Of course, this test didn't do anything useful yet.
+We only powered the machine under test on and off again.
+
+
+## Troubleshooting
+
+### Name resolution fails
+
+If you see any of these messages:
+
+- `Temporary failure in name resolution`
+- `Failed to resolve '...'`
+- `Max retries exceeded with url: /v5/contexts`
+
+It means that the HWaaS setup code running inside the Test VM cannot resolve the hostname of your HWaaS instance.
+The most common causes for this are:
+
+- **Running a HWaaS test as top-level `check`/`package` attribute**:
+    - _Diagnosis_: You're running your test like:
+        ```bash
+        nix build .#checks.x86_64-linux.my-first-hwaas-test
+        ```
+        instead of:
+        ```bash
+        nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+        ./result/bin/nixos-test-driver
+        ```
+    - _Solution_: Instead of building the test installable itself, build the `driver` attribute and
+      run the resulting test script like this:
+        ```bash
+        nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+        ./result/bin/nixos-test-driver
+        ```
+- **Invalid `apiUrl` value**:
+    - _Diagnosis_: You forgot to edit the `apiUrl` parameter after creating a test from a template.
+      Or you mistyped the `apiUrl` parameter while editing it.
+    - _Solution_: Double-check the value of the `apiUrl` parameter in the failing test.
+      You can run the following command (with your value for `apiUrl`) to ensure the HWaaS API URL
+      is valid:
+        ```bash
+        curl -L "${YOUR_API_URL}/inventory"
+        ```
+
+If none of the above helps, the issue is probably outside of your HWaaS test.
+
+### My test shows no output
+
+In this case your test is probably stalled/frozen waiting for some event to happen.
+You can get some amount of extra debug output by calling `nixos-test-driver` with extra arguments, like so:
+
+```bash
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+LOGLEVEL="debug" ./result/bin/nixos-test-driver
+```
+
+If this doesn't help diagnose your problem, you can try to summon an interactive debugger in your test script.
+To achieve this, inject a fault at the desired location of your tests `testScript` and set `enableDebugHook`, like so:
+
+```nix
+{
+  # ...
+  enableDebugHook = true;
+  testScript = ''
+  raise Exception("forced error")
+  # ...remainder of your test script...
+  '';
+}
+```
+
+Then execute the test driver with an extra argument like so:
+
+```bash
+./result/bin/nixos-test-driver --debug-hook-attach "echo"
+```
+
+And wait for the following output to appear:
+
+```text
+!!! Breakpoint reached, run ...
+RemotePdb session open at 127.0.0.1:4444, waiting for connection ...
+```
+
+<Callout type="note">
+    Do not run the command advertised in the output above. It's just a stub to get the interactive
+    debugger to kick in.
+</Callout>
+
+{/*
+Maintainer note: Using the real `attach` command from the `breakpointHook` here will not work, since
+that attempts to enter the test namespace. HWaaS tests run outside of a sandbox, so the `attach`
+script will fail.
+*/}
+
+Now, in a separate shell, run the following command:
+
+```bash
+nix-shell -p socat --command 'socat readline tcp:127.0.0.1:4444'
+```
+
+Due to how the debugger works, you cannot see the actual test script in the debugger.
+However, the fully assembled test script is available under `./result/test-script`, like so:
+
+```bash
+less ./result/test-script
+```
+
+Here are a few useful commands for use in the interactive Debugger to get you going:
+
+```python3
+# Get the names of all variables/functions defined in the test
+print(symbols.keys())
+# Print the `controlVM` test variable
+print(symbols["controlVM"])
+```
