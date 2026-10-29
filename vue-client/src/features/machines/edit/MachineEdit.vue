@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 import { useRoute, useRouter } from 'vue-router'
 import { watch, computed, ref } from 'vue'
 import { useContextStore } from '@/core/stores/context-store'
+import { useImagesStore } from '@/core/stores/images-store'
 import MachineImageSelector from './components/MachineImageSelector.vue'
 import { useDrivesApi } from '@/shared/lib/api/drives/drives.api'
 import { useMachinesApi } from '@/shared/lib/api/machines/machines.api'
@@ -41,6 +42,7 @@ const isDirty = computed(() => {
 })
 
 const contextStore = useContextStore()
+const imageStore = useImagesStore()
 
 const selectedImage = ref<LocalImage | null>(null)
 
@@ -73,6 +75,8 @@ async function onSave() {
     console.error(enableUsbRes.error)
     return
   }
+
+  imageStore.recordSelection(selectedImage.value.image_hash)
 
   const updatedMachine = {
     ...machine.value,

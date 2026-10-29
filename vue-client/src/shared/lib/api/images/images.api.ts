@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Images, ImageItem, LocalImage } from '@/shared/types/images.model'
+import type { ImageItem, LocalImage, ImageWithMeta } from '@/shared/types/images.model'
 import { useConfig } from '@/core/plugins/config-plugin'
 
 import { safeFetch, type FetchResult } from '../safeFetch'
-import { GetAllImagesSchema, ImageSchema } from '@/shared/schemas/images.schema'
+import { GetAllImagesWithMetaSchema, ImageSchema } from '@/shared/schemas/images.schema'
 
 /** Compression for uploaded images, matching the `compression` query parameter of the API. */
 export type ImageCompression = 'none' | 'zstd'
@@ -22,15 +22,15 @@ export function detectImageCompression(file: File): ImageCompression {
 export const useImageApi = () => {
   const { API_URL } = useConfig()
 
-  async function getAllImages(): Promise<FetchResult<Images>> {
+  async function getAllImages(): Promise<FetchResult<ImageWithMeta[]>> {
     const res = await safeFetch(
-      `${API_URL}/images`,
+      `${API_URL}/images/metadata`,
       {
         headers: {
           Accept: 'application/json',
         },
       },
-      GetAllImagesSchema,
+      GetAllImagesWithMetaSchema,
     )
     return res
   }
@@ -98,7 +98,7 @@ export const useImageApi = () => {
   ): Promise<FetchResult<LocalImage>> {
     const { data } = imageHash ? await getImage(imageHash) : { data: null }
 
-    let final
+    let final = null
 
     // If we have an image already in existence. just use this
     if (data && imageHash) {
