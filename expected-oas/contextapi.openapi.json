@@ -481,21 +481,13 @@
           "architecture": {
             "anyOf": [
               {
-                "anyOf": [
-                  {
-                    "$ref": "#/components/schemas/Architecture"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "$ref": "#/components/schemas/Architecture"
               },
               {
                 "type": "null"
               }
             ],
-            "default": null,
-            "description": "New architecture of the boot image; `null` clears it."
+            "description": "New architecture of the boot image; an explicit `null` clears it."
           },
           "file_name": {
             "default": null,

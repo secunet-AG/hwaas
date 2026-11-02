@@ -399,23 +399,18 @@ pub struct ImageMetadataPatch {
     /// New user file name of the boot image.
     #[serde(default)]
     file_name: Option<String>,
-    /// New architecture of the boot image; `null` clears it.
-    #[serde(default, deserialize_with = "deserialize_present")]
+    /// New architecture of the boot image; an explicit `null` clears it.
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        with = "::serde_with::rust::double_option"
+    )]
+    #[schemars(with = "Option<Architecture>")]
     architecture: Option<Option<Architecture>>,
     /// Complete list of tag names the boot image should carry afterwards, replacing all current
     /// tags. Tags that don't exist yet are created without a description.
     #[serde(default)]
     tags: Option<Vec<crate::db::TagName>>,
-}
-
-/// Distinguishes an explicit `null` (`Some(None)`) from an omitted field (`None`, via
-/// `#[serde(default)]`), which plain `Option<Option<T>>` deserialization cannot.
-fn deserialize_present<'de, T, D>(deserializer: D) -> Result<Option<Option<T>>, D::Error>
-where
-    T: Deserialize<'de>,
-    D: serde::Deserializer<'de>,
-{
-    Option::<T>::deserialize(deserializer).map(Some)
 }
 
 #[instrument]
