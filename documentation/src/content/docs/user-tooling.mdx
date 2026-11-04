@@ -90,6 +90,17 @@ If the test exits with a status code of 0, you have successfully run your first 
 [a1]: https://nix.dev/tutorials/nixos/integration-testing-using-virtual-machines
 
 
+## Reference
+
+### Platform Identifiers
+
+The Platform Identifier identifies Bare Metal Resources from the inventory of a HWaaS instance.
+Platform Identifiers can, but need not be unique strings.
+This allows HWaaS instances to dynamically scale the amount of Bare Metal Resources available under a given Platform Identifier.
+A HWaaS test requiring a Bare Metal Resource with a given Platform Identifier will wait until any matching resource becomes available.
+In contrast to assigning tests to a fixed, pre-determined Bare Metal Resource, using Platform Identifiers improves device utilization and makes device maintenance easier.
+
+
 ## Troubleshooting
 
 ### Name resolution fails
