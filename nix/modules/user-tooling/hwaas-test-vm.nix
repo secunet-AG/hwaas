@@ -5,7 +5,7 @@
 /**
   NixOS modules to enable inter-machine networking in HWaaS tests.
 
-  Thi modules defines the `hwaas.testVm` attribute which, if set, manages network connections
+  This modules defines the `hwaas.testVm` attribute which, if set, manages network connections
   between bare-metal resources using ethernet and websockets. The module must be imported in the
   VM controlling the respective NixOS integration test.
 
