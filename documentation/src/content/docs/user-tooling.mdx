@@ -2,82 +2,92 @@
 
 import Callout from '../../components/Callout.astro'
 
-## How to set up user tooling for your HWaaS instance
+## Tutorial: Running your first test with HWaaS
 
-To follow this guide, you need the following things:
+In this tutorial, we will create and run a test with HWaaS through the HWaaS User Tooling.
+To follow this tutorial, we need:
 
 - A working HWaaS instance
-- A machine with `nix` installed
+- A machine with [the `nix` package manager][a0] installed
 
-In this example, we assume that a HWaaS instance is accessible under the following URL:
+The HWaaS User Tooling is fundamentally built around [NixOS VM tests][a1].
+Hence, using it requires that we have a `nix` project to apply it with.
+As a first step, we set up a `nix` project to run our test from.
+Run the following commands:
+
+```bash
+nix --extra-experimental-features "flakes nix-command" flake new \
+    my-first-hwaas-test -t 'github:secunet-AG/hwaas#simple'
+cd my-first-hwaas-test
+```
+
+Next, we must review and modify settings to connect the test with our HWaaS instance.
+This requires knowledge of two things: The HWaaS API URL and a valid _Platform Identifier_.
+In this tutorial, we assume that the HWaaS API URL is:
 
 ```text
 https://api.hwaas.my-corp.example/v5/
 ```
 
-Furthermore, we assume that it has at least one machine available with the following platform
-identifier:
+In practice, we would ask the administrator of our HWaaS instance for the configured API URL.
+We open the file `hwaas-test.nix` with our `$EDITOR` and replace the quoted string after `apiUrl =` with the URL shown above.
+The end result can look like this:
 
-```text
-test-machine-x86_64
+```nix
+apiUrl = "https://api.hwaas.my-corp.example/v5/";
 ```
 
-<Callout type="note">
-**Obtaining the Platform Identifier**:
-If you're not sure what platform identifiers your HWaaS instance offers, run the following
-command: `curl -L "$HWAAS_API_URL" | jq 'map(.properties.platform)'`
-</Callout>
-
-The HWaaS User Tooling is fundamentally built around NixOS VM tests.
-Hence, using it requires that you have a `nix` project to apply it with.
-As a first step, we set up a `nix` project to run our test from.
-Run the following commands:
+Next, we determine a suitable Platform Identifier.
+Every HWaaS test must be executed on a dedicated machine.
+The machines in a HWaaS instance are managed in the inventory and distinguished by their Platform Identifier.
+We can get a list of valid Platform Identifiers from a HWaaS instance with the following command:
 
 ```bash
-nix flake new my-first-hwaas-test -t 'github:secunet-AG/hwaas#simple'
-cd my-first-hwaas-test
+nix-shell --pure -p curl jq cacert --run \
+    "curl -L https://api.hwaas.my-corp.example/v5/inventory | jq 'map(.properties.platform)'"
 ```
 
-Next, we must review and modify a few settings to connect the test with our HWaaS instance.
-Open the file `hwaas-test.nix` in your favorite `$EDITOR`, then:
+We obtain the correct URL for the query by appending `inventory` to the HWaaS API URL we determined earlier.
+On success, we should get output similar to this:
 
-1. Enter the correct URL in `apiUrl`:
-    ```nix
-    apiUrl = "https://api.hwaas.my-corp.example/v5/";
-    ```
-2. Enter the correct platform identifier in `platform`:
-    ```nix
-    dummy1 = {
-      platform = "test-machine-x86_64";
-      # ...
-    };
-    ```
+```text
+[
+  "amd64_test-machine",
+  "aarch64_test-machine",
+  "riscv_test-machine"
+]
+```
 
-The remainder of the project is already set up in a way that imports the test defined in `hwaas-test.nix` into `flake.nix` and exposes it there.
-Next we build the test to produce a `result/` output:
+For the purpose of this tutorial, we can pick any of the platform identifiers.
+In practice, we probably want to [choose a specific platform depending on our needs][a2].
+We open `hwaas-test.nix` with our `$EDITOR` once more and replace the quoted string after `platform =` with the Platform Identifier chosen previously.
+The end result can look like this:
+
+```nix
+dummy1 = {
+  platform = "amd64_test-machine";
+  # ...
+};
+```
+
+Next, we build the test to produce a `result/` output:
 
 ```bash
 # NOTE: The '.driver' at the end is important!
 nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
 ```
 
-Finally we run the actual test:
+Finally, we run the actual test:
 
 ```bash
 ./result/bin/nixos-test-driver
 ```
 
-The test communicates with your HWaaS instance and performs roughly the following tasks:
-
-- Reserve a Context with a machine matching the platform identifier
-- Upload the respective OS images to each reserved machine
-- Run the actual test script
-- Tear down the Context and release all reserved machines back to HWaaS
-
 And that's it!
 If the test exits with a status code of 0, you have successfully run your first test on a HWaaS instance.
-Of course, this test didn't do anything useful yet.
-We only powered the machine under test on and off again.
+
+[a0]: https://nixos.org/
+[a1]: https://nix.dev/tutorials/nixos/integration-testing-using-virtual-machines
 
 
 ## Troubleshooting
