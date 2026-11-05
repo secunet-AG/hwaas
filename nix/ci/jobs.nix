@@ -61,7 +61,8 @@ let
     "hakari"
     "nextest"
     "pre-commit"
-    "verify-ci"
+    "ci-generation"
+    "ci-zizmor"
   ];
 
   # A target belongs to a group when it's either exactly the group name or begins with it
