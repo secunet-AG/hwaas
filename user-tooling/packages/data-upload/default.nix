@@ -28,14 +28,20 @@ let
   generallyAllowedLicenses = [
     "MIT"
     "MIT License"
+    "MIT-0"
     "Apache-2.0"
+    "Apache License 2.0"
     "Apache Software License"
     "BSD-2-Clause"
     "BSD-3-Clause"
     "BSD License"
     "Apache-2.0 OR BSD-2-Clause"
+    "Apache-2.0 OR BSD-3-Clause"
+    "Apache-2.0 AND MIT"
     "Apache Software License; BSD License"
+    "Apache Software License; MIT License"
     "PSF-2.0"
+    "Python Software Foundation License"
   ];
   generallyAllowedLicensesString = builtins.concatStringsSep ";" generallyAllowedLicenses;
 
