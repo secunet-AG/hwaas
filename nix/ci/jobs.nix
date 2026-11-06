@@ -14,20 +14,6 @@ let
   excludeJobs = [
     # Is already part of pre-commit check, does not need to be executed twice.
     ".#checks.${system}.treefmt"
-    # Do not add the `-debug` packages that are only for local debugging of the same tests.
-    ".#packages.${system}.contextapi-cors-test-debug"
-    ".#packages.${system}.contextapi-images-drives-and-middleware-debug"
-    ".#packages.${system}.contextapi-net-api-test-debug"
-    ".#packages.${system}.contextapi-remote-hands-aux-device-test-debug"
-    ".#packages.${system}.contextapi-remote-hands-routing-test-debug"
-    ".#packages.${system}.contextapi-remote-serial-test-debug"
-    ".#packages.${system}.contextapi-startup-test-debug"
-    ".#packages.${system}.contextapi-test-open-telemetry-debug"
-    ".#packages.${system}.contextapi-ws-network-routing-test-debug"
-    ".#packages.${system}.ws-gateway-test-clients-and-suts-scenario-debug"
-    ".#packages.${system}.ws-gateway-test-connect-debug"
-    ".#packages.${system}.ws-gateway-test-many-clients-scenario-debug"
-    ".#packages.${system}.ws-gateway-test-many-vlans-ping-debug"
   ];
 
   # Jobs will be grouped with these keywords
@@ -73,8 +59,13 @@ let
   isRegularCheck =
     target: lib.any (checkType: target == checkType || lib.hasSuffix "-${checkType}" target) checkTypes;
 
+  # Packages ending in `-debug` are interactive VM test drivers that are only for
+  # local debugging of the same tests, so they never run in CI and aren't needed
+  # for local checks. Without this, it was using ~8GB of memory for evaluation.
+  isDebugPackage = item: lib.hasPrefix ".#packages." item.target && lib.hasSuffix "-debug" item.name;
+
   # Check whether a target is meant to be excluded.
-  isExcluded = item: builtins.elem item.target excludeJobs;
+  isExcluded = item: builtins.elem item.target excludeJobs || isDebugPackage item;
 
   # We generally want to keep the order of "minimal checks" -> "checks" -> "builds" -> "tests".
   # Minimal checks should be as fast as possible and guarantee the sanity of the CI.
