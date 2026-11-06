@@ -10,7 +10,7 @@ import multiprocessing
 import threading
 import time
 from collections.abc import Callable
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from functools import partial
 from typing import Any
 
@@ -85,7 +85,7 @@ class Timer:
                     worker.timeout_expired = True
                 else:
                     logger.debug("No timeout expired.")
-                    worker.end = datetime.now(tz=timezone.utc)
+                    worker.end = datetime.now(tz=UTC)
 
             except BaseException as error:
                 worker.error = error
@@ -189,7 +189,7 @@ class Timer:
             ValueError: If no function has been set using `set_wait`,
                 `set_wait_until_success` or `set_wait_until_failure`.
         """
-        self.__start = datetime.now(tz=timezone.utc)
+        self.__start = datetime.now(tz=UTC)
         if error := self.__worker.start():
             logging.error(error)
             raise ValueError(error)

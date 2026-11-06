@@ -9,7 +9,7 @@ import os
 import re
 import socket
 import urllib.parse
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import reduce
 from typing import Any
 
@@ -262,9 +262,7 @@ def upload_data() -> None:
             logger.warning(
                 "Found a document without a timestamp. Adding current timestamp."
             )
-            document["timestamp"] = datetime.now(timezone.utc).isoformat(
-                timespec="milliseconds"
-            )
+            document["timestamp"] = datetime.now(UTC).isoformat(timespec="milliseconds")
 
     if args.url:
         token = (
