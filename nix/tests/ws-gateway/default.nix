@@ -35,8 +35,9 @@ in
         inherit modules;
       };
     };
-    packages = {
-      # Same tests as above but enabled for interactive debugging
+    # Same tests as above but enabled for interactive debugging.
+    # Exposed via legacyPackages so `nix flake check` and CI don't evaluate them.
+    legacyPackages = {
       ws-gateway-test-connect-debug =
         (config.checks.ws-gateway-test-connect.override { debugging = true; }).driverInteractive;
       ws-gateway-test-many-vlans-ping-debug =

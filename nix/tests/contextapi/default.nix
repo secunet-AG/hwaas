@@ -45,8 +45,9 @@ in
         };
       };
 
-      packages = {
-        # Same tests as above but enabled for interactive debugging
+      # Same tests as above but enabled for interactive debugging.
+      # Exposed via legacyPackages so `nix flake check` and CI don't evaluate them.
+      legacyPackages = {
         contextapi-startup-test-debug = config.checks.contextapi-startup-test.driverInteractive;
         contextapi-images-drives-and-middleware-debug =
           (config.checks.contextapi-images-drives-and-middleware.override { debugging = true; })
