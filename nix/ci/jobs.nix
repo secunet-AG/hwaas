@@ -14,20 +14,6 @@ let
   excludeJobs = [
     # Is already part of pre-commit check, does not need to be executed twice.
     ".#checks.${system}.treefmt"
-    # Do not add the `-debug` packages that are only for local debugging of the same tests.
-    ".#packages.${system}.contextapi-cors-test-debug"
-    ".#packages.${system}.contextapi-images-drives-and-middleware-debug"
-    ".#packages.${system}.contextapi-net-api-test-debug"
-    ".#packages.${system}.contextapi-remote-hands-aux-device-test-debug"
-    ".#packages.${system}.contextapi-remote-hands-routing-test-debug"
-    ".#packages.${system}.contextapi-remote-serial-test-debug"
-    ".#packages.${system}.contextapi-startup-test-debug"
-    ".#packages.${system}.contextapi-test-open-telemetry-debug"
-    ".#packages.${system}.contextapi-ws-network-routing-test-debug"
-    ".#packages.${system}.ws-gateway-test-clients-and-suts-scenario-debug"
-    ".#packages.${system}.ws-gateway-test-connect-debug"
-    ".#packages.${system}.ws-gateway-test-many-clients-scenario-debug"
-    ".#packages.${system}.ws-gateway-test-many-vlans-ping-debug"
   ];
 
   # Jobs will be grouped with these keywords
