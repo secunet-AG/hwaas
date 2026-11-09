@@ -10,5 +10,6 @@ _: {
     ./serve-docs.nix
     ./add-SPDX-license-header.nix
     ./lint-SPDX-license-header.nix
+    ./fix-dependabot-pr.nix
   ];
 }
