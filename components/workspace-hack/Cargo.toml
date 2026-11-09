@@ -18,6 +18,7 @@ aho-corasick = { version = "1" }
 anyhow = { version = "1" }
 axum = { version = "0.7", features = ["macros", "multipart", "ws"] }
 axum-core = { version = "0.4", default-features = false, features = ["tracing"] }
+bitflags = { version = "2", default-features = false, features = ["std"] }
 bstr = { version = "1" }
 byteorder = { version = "1" }
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
