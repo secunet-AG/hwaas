@@ -58,6 +58,7 @@ schemars = { version = "0.8", features = ["chrono", "impl_json_schema", "indexma
 serde = { version = "1", features = ["derive"] }
 serde_core = { version = "1", features = ["alloc"] }
 serde_json = { version = "1", features = ["raw_value"] }
+serde_with = { version = "3", default-features = false, features = ["base64", "macros", "std"] }
 slab = { version = "0.4" }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
 strum = { version = "0.28", features = ["derive"] }
