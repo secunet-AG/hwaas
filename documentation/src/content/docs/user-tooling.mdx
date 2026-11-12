@@ -2,16 +2,16 @@
 
 import Callout from '../../components/Callout.astro'
 
-## Tutorial: Running your first test with HWaaS
+## Tutorials
+
+### Running your first test with HWaaS
 
 In this tutorial, we will create and run a test with HWaaS through the HWaaS User Tooling.
 To follow this tutorial, we need:
 
-- A working HWaaS instance
+- A working HWaaS instance with at least one configured BMR
 - A machine with [the `nix` package manager][a0] installed
 
-The HWaaS User Tooling is fundamentally built around [NixOS VM tests][a1].
-Hence, using it requires that we have a `nix` project to apply it with.
 As a first step, we set up a `nix` project to run our test from.
 Run the following commands:
 
@@ -38,28 +38,8 @@ apiUrl = "https://api.hwaas.my-corp.example/v5/";
 ```
 
 Next, we determine a suitable Platform Identifier.
-Every HWaaS test must be executed on a dedicated machine.
-The machines in a HWaaS instance are managed in the inventory and distinguished by their Platform Identifier.
-We can get a list of valid Platform Identifiers from a HWaaS instance with the following command:
-
-```bash
-nix-shell --pure -p curl jq cacert --run \
-    "curl -L https://api.hwaas.my-corp.example/v5/inventory | jq 'map(.properties.platform)'"
-```
-
-We obtain the correct URL for the query by appending `inventory` to the HWaaS API URL we determined earlier.
-On success, we should get output similar to this:
-
-```text
-[
-  "amd64_test-machine",
-  "aarch64_test-machine",
-  "riscv_test-machine"
-]
-```
-
-For the purpose of this tutorial, we can pick any of the platform identifiers.
-In practice, we probably want to [choose a specific platform depending on our needs][a2].
+For this tutorial we assume that somebody told us the platform identifier is `amd64_test-machine`.
+If you do not know what platform identifier to choose, [refer to our HowTo-Guide on the topic][a2].
 We open `hwaas-test.nix` with our `$EDITOR` once more and replace the quoted string after `platform =` with the Platform Identifier chosen previously.
 The end result can look like this:
 
@@ -88,6 +68,29 @@ If the test exits with a status code of 0, you have successfully run your first 
 
 [a0]: https://nixos.org/
 [a1]: https://nix.dev/tutorials/nixos/integration-testing-using-virtual-machines
+
+
+## How-To Guides
+
+### How to Determine a Suitable Platform Identifier for a HWaaS Test
+
+In this How-To Guide, we will choose a suitable Platform Identifier for a HWaaS test.
+We assume that the HWaaS API URL is:
+
+```text
+https://api.hwaas.my-corp.example/v5/
+```
+
+To get a list of all valid Platform Identifiers in your HWaaS instance, run the following command:
+
+```bash
+curl -sS https://api.hwaas.my-corp.example/v5/inventory | \
+    jq -er 'map(.properties.platform) | sort | .[]'
+```
+
+If the list of platform identifiers doesn't help you choose the correct platform, ask a colleague or your HWaaS administrator for help.
+At the moment, it's not possible to obtain additional information about test machines beyond their platform identifiers.
+Progress on enabling HWaaS to provide additional information about test platforms is tracked on GitHub: <https://github.com/secunet-AG/hwaas/issues/203>.
 
 
 ## Reference
