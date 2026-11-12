@@ -13,10 +13,8 @@ use serde::{Deserialize, Serialize};
 
 /// 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-#[derive(Default)]
 pub enum SwitchModel {
     #[serde(rename = "aruba")]
-    #[default]
     Aruba,
     #[serde(rename = "aruba2540")]
     Aruba2540,
@@ -50,4 +48,9 @@ impl std::fmt::Display for SwitchModel {
     }
 }
 
+impl Default for SwitchModel {
+    fn default() -> SwitchModel {
+        Self::Aruba
+    }
+}
 
