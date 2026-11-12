@@ -104,6 +104,24 @@ A HWaaS test requiring a Bare Metal Resource with a given Platform Identifier wi
 In contrast to assigning tests to a fixed, pre-determined Bare Metal Resource, using Platform Identifiers improves device utilization and makes device maintenance easier.
 
 
+## Explanation
+
+### About NixOS Test Integration
+
+The HWaaS User Tooling was born out of the desire to integrate HWaaS in an environment previously using NixOS tests.
+As NixOS tests use Python to define the test script and helper methods already, implementing HWaaS User Tooling as Python module was an obvious choice.
+This allowed the code interacting with HWaaS to integrate seamlessly into preexisting test scripts.
+
+In addition, the HWaaS User Tooling was never meant to be a standalone tool for interacting with HWaaS.
+It doesn't have a standalone CLI and standalone installation isn't possible either.
+While this could be changed, previous applications of HWaaS User Tooling haven't required it.
+
+Among the benefits of having HWaaS User Tooling integrate with NixOS Tests are:
+
+- _Reproducible tests from start to finish_:
+  All code to ensure a reproducible test result (down to individual source files) is contained in a single NixOS test.
+
+
 ## Troubleshooting
 
 ### Name resolution fails
