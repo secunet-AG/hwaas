@@ -122,6 +122,34 @@ Among the benefits of having HWaaS User Tooling integrate with NixOS Tests are:
   All code to ensure a reproducible test result (down to individual source files) is contained in a single NixOS test.
 
 
+### The necessity of `nodes.controlVM`/`nodes.testVM`
+
+Even though the HWaaS User Tooling aims at running tests on hardware devices (BMRs), NixOS Tests still define a regular VM under `nodes`.
+In HWaaS documentation this VM is customarily called `controlVM` or `testVM`, although the name is arbitrary.
+This `controlVM` serves a single, central purpose:
+Providing network connectivity to and between the BMRs.
+
+Even if the test running on your BMR does not require network connectivity, this is essential.
+Neither HWaaS nor the HWaaS User Tooling has a direct way of running code on BMRs.
+Instead, tests that need to run commands on BMRs usually do so through `ssh` or similar means.
+Networking here is only used as a bridge to enable communication with BMRs.
+
+The below snippet illustrates what the `controlVM` usually looks like:
+
+```nix
+nodes.controlVM = { ... }: {
+  imports = with hwaasTestModules; [ user-tooling-hwaasTestVm ];
+
+  hwaas.testVm = {
+    enable = true;
+    networks = {
+      # Arbitrary networking configuration
+    };
+  };
+};
+```
+
+
 ## Troubleshooting
 
 ### Name resolution fails
