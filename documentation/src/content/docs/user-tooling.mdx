@@ -28,7 +28,7 @@ This requires knowledge of two things: The HWaaS API URL and a valid [_Platform 
 In this tutorial, we assume that the HWaaS API URL is:
 
 ```text
-https://api.hwaas.my-corp.example/v5/
+https://api.hwaas.my-corp.example/v5
 ```
 
 In practice, we would ask the administrator of our HWaaS instance for the configured API URL.
@@ -36,7 +36,7 @@ We open the file `hwaas-test.nix` with our `$EDITOR` and replace the quoted stri
 The end result can look like this:
 
 ```nix
-apiUrl = "https://api.hwaas.my-corp.example/v5/";
+apiUrl = "https://api.hwaas.my-corp.example/v5";
 ```
 
 Next, we [determine a suitable Platform Identifier][ba0].
@@ -89,7 +89,7 @@ In this How-To Guide, we will choose a suitable Platform Identifier for a HWaaS 
 We assume that the HWaaS API URL is:
 
 ```text
-https://api.hwaas.my-corp.example/v5/
+https://api.hwaas.my-corp.example/v5
 ```
 
 To get a list of all valid Platform Identifiers in your HWaaS instance, run the following command:
