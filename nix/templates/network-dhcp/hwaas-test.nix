@@ -56,8 +56,8 @@ in
         address = user-config.gateway-address;
         prefixLength = user-config.gateway-address-prefix;
       };
+      dhcp = true;
     };
-    hwaas.testVm.networks."${user-config.gateway-network-name}".dhcp = true;
   };
   networks."${user-config.gateway-network-name}" = [
     {

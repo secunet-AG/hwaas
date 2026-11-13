@@ -54,7 +54,7 @@ let
             matchConfig.Name = "virbr0";
             addresses = [
               {
-                addressConfig.Address = "${user-config.bmr-address}/${user-config.gateway-address-prefix}";
+                addressConfig.Address = "${user-config.bmr-address}/${builtins.toString user-config.gateway-address-prefix}";
               }
             ];
           };
