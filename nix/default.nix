@@ -17,5 +17,6 @@ _: {
     ./examples
     ./lib/user-tooling
     ./checks
+    ./templates
   ];
 }
