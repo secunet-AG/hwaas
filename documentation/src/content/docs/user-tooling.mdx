@@ -3,14 +3,16 @@
 import Callout from '../../components/Callout.astro'
 
 ## Tutorials
+[a0]: #tutorials
 
 ### Running your first test with HWaaS
+[aa0]: #running-your-first-test-with-hwaas
 
 In this tutorial, we will create and run a test with HWaaS through the HWaaS User Tooling.
 To follow this tutorial, we need:
 
 - A working HWaaS instance with at least one configured BMR
-- A machine with [the `nix` package manager][a0] installed
+- A machine with [the `nix` package manager][aa1] installed
 
 As a first step, we set up a `nix` project to run our test from.
 Run the following commands:
@@ -22,7 +24,7 @@ cd my-first-hwaas-test
 ```
 
 Next, we must review and modify settings to connect the test with our HWaaS instance.
-This requires knowledge of two things: The HWaaS API URL and a valid _Platform Identifier_.
+This requires knowledge of two things: The HWaaS API URL and a valid [_Platform Identifier_][ca0].
 In this tutorial, we assume that the HWaaS API URL is:
 
 ```text
@@ -37,9 +39,9 @@ The end result can look like this:
 apiUrl = "https://api.hwaas.my-corp.example/v5/";
 ```
 
-Next, we determine a suitable Platform Identifier.
+Next, we [determine a suitable Platform Identifier][ba0].
 For this tutorial we assume that somebody told us the platform identifier is `amd64_test-machine`.
-If you do not know what platform identifier to choose, [refer to our HowTo-Guide on the topic][a2].
+If you do not know what platform identifier to choose, [refer to our HowTo-Guide on the topic][ba0].
 We open `hwaas-test.nix` with our `$EDITOR` once more and replace the quoted string after `platform =` with the Platform Identifier chosen previously.
 The end result can look like this:
 
@@ -65,14 +67,23 @@ Finally, we run the actual test:
 
 And that's it!
 If the test exits with a status code of 0, you have successfully run your first test on a HWaaS instance.
+If something goes wrong, please consult the [Troubleshooting section][e0].
 
-[a0]: https://nixos.org/
-[a1]: https://nix.dev/tutorials/nixos/integration-testing-using-virtual-machines
+From here, you may want to extend your test towards more realistic testing scenarios:
+
+- Read our How-To Guide on [enabling local networking on a BMR][bb0]
+
+If you feel you need more explanation on what just happened, head to our [Explanation section][d0].
+
+[aa1]: https://nixos.org/
+[aa2]: https://nix.dev/tutorials/nixos/integration-testing-using-virtual-machines
 
 
 ## How-To Guides
+[b0]: #how-to-guides
 
 ### How to Determine a Suitable Platform Identifier for a HWaaS Test
+[ba0]: #how-to-determine-a-suitable-platform-identifier-for-a-hwaas-test
 
 In this How-To Guide, we will choose a suitable Platform Identifier for a HWaaS test.
 We assume that the HWaaS API URL is:
@@ -90,19 +101,20 @@ curl -sS https://api.hwaas.my-corp.example/v5/inventory | \
 
 If the list of platform identifiers doesn't help you choose the correct platform, ask a colleague or your HWaaS administrator for help.
 At the moment, it's not possible to obtain additional information about test machines beyond their platform identifiers.
-Progress on enabling HWaaS to provide additional information about test platforms is tracked on GitHub: <https://github.com/secunet-AG/hwaas/issues/203>.
+Progress on enabling HWaaS to provide additional information about test platforms is [tracked on GitHub](https://github.com/secunet-AG/hwaas/issues/203).
 
 
 ### How to Enable Local Networking on a BMR
+[bb0]: #how-to-enable-local-networking-on-a-bmr
 
 In this How-To Guide, we enable local networking for a BMR inside a HWaaS test.
 This will allow the test script to perform network communication with the BMR e.g. to ping the device.
 To follow this guide, you need:
 
 - A working HWaaS instance with at least one configured BMR
-- A machine with [the `nix` package manager][a0] installed
+- A machine with [the `nix` package manager][aa1] installed
 
-This guide assumes you start from the "Simple" Template after completing the "Running your first test with HWaaS" tutorial.
+This guide assumes you start from the "Simple" Template after completing the ["Running your first test with HWaaS" tutorial][aa0].
 First, identify the so-called `controlVM` under `nodes.controlVM`.
 Second, enable networking inside the `controlVM` through the `hwaas.testVm.networks` attribute:
 
@@ -144,19 +156,20 @@ The `networkInterfaces` value must be a valid interface name for this `machine`.
 
 <Callout type="important">
     At present, there is no trivial way to obtain the list of valid network interfaces for a platform.
-    This is tracked on GitHub: https://github.com/secunet-AG/hwaas/issues/203
+    This is [tracked on GitHub](https://github.com/secunet-AG/hwaas/issues/203).
 </Callout>
 
 Next, you must **configure networking for the BMR**.
 Fundamentally, there are two ways to do this:
 
-1. Boot the BMR with a disk image that obtains a dynamic network configuration via DHCP.
-2. Boot the BMR with a disk image that uses a static network configuration.
+1. Boot the BMR with a disk image that obtains a [dynamic network configuration via DHCP][bba0].
+2. Boot the BMR with a disk image that uses a [static network configuration][bbb0].
 
 We will demonstrate both of these approaches below.
 
 
 #### Local Networking via DHCP
+[bba0]: #local-networking-via-dhcp
 
 To use DHCP, the `controlVM` must provide a DHCP server.
 This is enabled with the `hwaas.testVm.networks.<name>.dhcp` attribute in the `controlVM`:
@@ -174,6 +187,7 @@ With the example chosen above, the IP address is `192.168.100.2`.
 
 
 #### Local Networking via Static Network Configuration
+[bbb0]: #local-networking-via-static-network-configuration
 
 In this scenario, the BMR must boot with a disk image that has a network configuration matching the `controlVM` test network.
 The following snippet illustrates how to build such an image using `NixOS`:
@@ -223,8 +237,14 @@ machine_image =
 
 
 ## Reference
+[c0]: #reference
 
 ### Platform Identifiers
+[ca0]: #platform-identifiers
+
+<Callout type="note">
+    If you need help choosing a platform identifier, [refer to our How-To Guide on the topic][ba0].
+</Callout>
 
 The Platform Identifier identifies Bare Metal Resources from the inventory of a HWaaS instance.
 Platform Identifiers can, but need not be unique strings.
@@ -234,8 +254,10 @@ In contrast to assigning tests to a fixed, pre-determined Bare Metal Resource, u
 
 
 ## Explanation
+[d0]: #explanation
 
 ### About NixOS Test Integration
+[da0]: #about-nixos-test-integration
 
 The HWaaS User Tooling was born out of the desire to integrate HWaaS in an environment previously using NixOS tests.
 As NixOS tests use Python to define the test script and helper methods already, implementing HWaaS User Tooling as Python module was an obvious choice.
@@ -252,6 +274,7 @@ Among the benefits of having HWaaS User Tooling integrate with NixOS Tests are:
 
 
 ### The necessity of `nodes.controlVM`/`nodes.testVM`
+[db0]: #the-necessity-of-nodes-controlvm-nodes-testvm
 
 Even though the HWaaS User Tooling aims at running tests on hardware devices (BMRs), NixOS Tests still define a regular VM under `nodes`.
 In HWaaS documentation this VM is customarily called `controlVM` or `testVM`, although the name is arbitrary.
@@ -280,8 +303,10 @@ nodes.controlVM = { ... }: {
 
 
 ## Troubleshooting
+[e0]: #troubleshooting
 
 ### Name resolution fails
+[da0]: #name-resolution-fails
 
 If you see any of these messages:
 
@@ -321,6 +346,7 @@ The most common causes for this are:
 If none of the above helps, the issue is probably outside of your HWaaS test.
 
 ### My test shows no output
+[db0]: #my-test-shows-no-output
 
 In this case your test is probably stalled/frozen waiting for some event to happen.
 You can get some amount of extra debug output by calling `nixos-test-driver` with extra arguments, like so:
