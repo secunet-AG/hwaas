@@ -1,0 +1,81 @@
+# This attribute set defines a HWaaS test. It may contain all the following options/attributes:
+#
+# - NixOS test attributes, see <https://nixos.org/manual/nixos/unstable/#sec-test-options-reference>
+#
+# The `testScript` can use the following Python APIs:
+#
+# - NixOS Python methods, see <https://nixos.org/manual/nixos/unstable/#ssec-machine-objects>
+{
+  user-tooling-hwaasTestVm,
+  user-tooling-machines-legacyBox,
+  pkgs,
+}:
+let
+  # === START OF USER CONFIGURATION ===
+  user-config = {
+    api-url = "https://api.hwaas.changeme.example/v5";
+    bmr-address = "192.168.100.2";
+    bmr-interface-name = "LAN1";
+    bmr-name = "dummy1";
+    bmr-platform = "test-machine-x86_64";
+    gateway-address = "192.168.100.1";
+    gateway-address-prefix = 24;
+    gateway-network-name = "myTestNetwork";
+  };
+  # === END OF USER CONFIGURATION ===
+
+  # Disk image booted on the BMR
+  disk_image =
+    (pkgs.nixos (
+      { ... }: {
+        imports = [ user-tooling-machines-legacyBox ];
+      }
+    )).isoImage;
+in
+{
+  name = "HWaaS test with dynamic local networking for a single BMR";
+
+  # === START OF SPECIAL HWAAS TEST ATTRIBUTES ===
+  apiUrl = user-config.api-url;
+  machines = {
+    "${user-config.bmr-name}" = {
+      platform = user-config.bmr-platform;
+      image = "${disk_image}/iso/hwaas.iso";
+    };
+  };
+  networks = { "undefined" = []; };
+
+  nodes.controlVM = { ... }: {
+    imports = [ user-tooling-hwaasTestVm ];
+
+    hwaas.testVm.enable = true;
+    hwaas.testVm.networks."${user-config.gateway-network-name}" = {
+      ipv4Address = {
+        address = user-config.gateway-address;
+        prefixLength = user-config.gateway-address-prefix;
+      };
+    };
+    hwaas.testVm.networks."${user-config.gateway-network-name}".dhcp = true;
+  };
+  networks."${user-config.gateway-network-name}" = [
+    {
+      machine = user-config.bmr-name;
+      networkInterfaces = [ user-config.bmr-interface-name ];
+    }
+  ];
+  # === END OF SPECIAL HWAAS TEST ATTRIBUTES ===
+
+  testScript = ''
+    controlVM.start()
+    controlVM.wait_for_unit("multi-user.target")
+
+    hwaas.machines["${user-config.bmr-name}"].power_on()
+    print("Machine powered on!")
+
+    controlVM.wait_until_succeeds("ping -c 1 ${user-config.bmr-address}", timeout=900)
+    print("Machine responds to ping!")
+
+    hwaas.machines["${user-config.bmr-name}"].power_off()
+    print("Machine powered off!")
+  '';
+}

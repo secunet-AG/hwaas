@@ -32,24 +32,21 @@ https://api.hwaas.my-corp.example/v5
 ```
 
 In practice, we would ask the administrator of our HWaaS instance for the configured API URL.
-We open the file `hwaas-test.nix` with our `$EDITOR` and replace the quoted string after `apiUrl =` with the URL shown above.
+We open the file `hwaas-test.nix` with our `$EDITOR` and replace the quoted string after `api-url =` with the URL shown above.
 The end result can look like this:
 
 ```nix
-apiUrl = "https://api.hwaas.my-corp.example/v5";
+api-url = "https://api.hwaas.my-corp.example/v5";
 ```
 
 Next, we [determine a suitable Platform Identifier][ba0].
 For this tutorial we assume that somebody told us the platform identifier is `amd64_test-machine`.
 If you do not know what platform identifier to choose, [refer to our HowTo-Guide on the topic][ba0].
-We open `hwaas-test.nix` with our `$EDITOR` once more and replace the quoted string after `platform =` with the Platform Identifier chosen previously.
+We open `hwaas-test.nix` with our `$EDITOR` once more and replace the quoted string after `bmr-platform =` with the Platform Identifier chosen previously.
 The end result can look like this:
 
 ```nix
-dummy1 = {
-  platform = "amd64_test-machine";
-  # ...
-};
+bmr-platform = "amd64_test-machine";
 ```
 
 Next, we build the test to produce a `result/` output:
@@ -184,6 +181,26 @@ nodes.controlVM = { ... }: {
 Provided your BMR image has DHCP enabled, the machine should come up and request an IP address via DHCP.
 By default, the next free address in the network of the `controlVM` is assigned.
 With the example chosen above, the IP address is `192.168.100.2`.
+
+To demonstrate this works, we modify the `testScript` to execute the following lines _after_ powering on the BMR and _before_ powering it off:
+
+```python
+# BMR powered on here
+controlVM.wait_until_succeeds("ping -c 1 192.168.100.2", timeout=900)
+print("Machine responds to ping!")
+# BMR powered off here
+```
+
+Then run the test like this:
+
+```bash
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver &&
+    ./result/bin/nixos-test-driver
+```
+
+<Callout type="note">
+    A full template with this configuration is available from the HWaaS flake under the `templates.network-dhcp` attribute.
+</Callout>
 
 
 #### Local Networking via Static Network Configuration

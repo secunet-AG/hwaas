@@ -1,13 +1,26 @@
 # This attribute set defines a HWaaS test. It may contain all the following options/attributes:
 #
 # - NixOS test attributes, see <https://nixos.org/manual/nixos/unstable/#sec-test-options-reference>
+#
+# The `testScript` can use the following Python APIs:
+#
+# - NixOS Python methods, see <https://nixos.org/manual/nixos/unstable/#ssec-machine-objects>
 {
   user-tooling-hwaasTestVm,
   user-tooling-machines-legacyBox,
   pkgs,
 }:
 let
-  machine_image =
+  # === START OF USER CONFIGURATION ===
+  user-config = {
+    api-url = "https://api.hwaas.changeme.example/v5";
+    bmr-name = "dummy1";
+    bmr-platform = "test-machine-x86_64";
+  };
+  # === END OF USER CONFIGURATION ===
+
+  # Disk image booted on the BMR
+  disk_image =
     (pkgs.nixos (
       { ... }: {
         imports = [ user-tooling-machines-legacyBox ];
@@ -15,14 +28,14 @@ let
     )).isoImage;
 in
 {
-  name = "My first HWaaS Test";
+  name = "My first test with HWaaS";
 
   # === START OF SPECIAL HWAAS TEST ATTRIBUTES ===
-  apiUrl = "https://api.hwaas.changeme.example/v5/";
+  apiUrl = user-config.api-url;
   machines = {
-    dummy1 = {
-      platform = "test-machine-x86_64";
-      image = "${machine_image}/iso/hwaas.iso";
+    "${user-config.bmr-name}" = {
+      platform = user-config.bmr-platform;
+      image = "${disk_image}/iso/hwaas.iso";
     };
   };
   networks = { "undefined" = []; };
@@ -36,11 +49,11 @@ in
 
   testScript = ''
     controlVM.start()
-    controlVM.wait_for_unit("default.target")
+    controlVM.wait_for_unit("multi-user.target")
 
-    hwaas.machines["dummy1"].power_on()
+    hwaas.machines["${user-config.bmr-name}"].power_on()
     print("Machine powered on!")
-    hwaas.machines["dummy1"].power_off()
+    hwaas.machines["${user-config.bmr-name}"].power_off()
     print("Machine powered off!")
   '';
 }
