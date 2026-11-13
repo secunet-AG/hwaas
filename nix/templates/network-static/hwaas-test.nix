@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+# SPDX-License-Identifier: MIT-0
+
 # This attribute set defines a HWaaS test. It may contain all the following options/attributes:
 #
 # - NixOS test attributes, see <https://nixos.org/manual/nixos/unstable/#sec-test-options-reference>
@@ -5,11 +8,7 @@
 # The `testScript` can use the following Python APIs:
 #
 # - NixOS Python methods, see <https://nixos.org/manual/nixos/unstable/#ssec-machine-objects>
-{
-  user-tooling-hwaasTestVm,
-  user-tooling-machines-legacyBox,
-  pkgs,
-}:
+{ user-tooling-hwaasTestVm, pkgs }:
 let
   # === START OF USER CONFIGURATION ===
   user-config = {
@@ -30,9 +29,7 @@ let
   disk_image =
     (pkgs.nixos (
       { modulesPath, lib, ... }: {
-        imports = [
-          "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
-        ];
+        imports = [ "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix" ];
 
         image.baseName = lib.mkForce "hwaas";
         networking = {
@@ -80,9 +77,11 @@ in
       image = "${disk_image}/iso/hwaas.iso";
     };
   };
-  networks = { "undefined" = []; };
+  networks = {
+    "undefined" = [ ];
+  };
 
-  nodes.controlVM = { ... }: {
+  nodes.controlVM = _: {
     imports = [ user-tooling-hwaasTestVm ];
 
     hwaas.testVm.enable = true;

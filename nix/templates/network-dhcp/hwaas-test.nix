@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+# SPDX-License-Identifier: MIT-0
+
 # This attribute set defines a HWaaS test. It may contain all the following options/attributes:
 #
 # - NixOS test attributes, see <https://nixos.org/manual/nixos/unstable/#sec-test-options-reference>
@@ -28,11 +31,9 @@ let
 
   # Disk image booted on the BMR
   disk_image =
-    (pkgs.nixos (
-      { ... }: {
-        imports = [ user-tooling-machines-legacyBox ];
-      }
-    )).isoImage;
+    (pkgs.nixos (_: {
+      imports = [ user-tooling-machines-legacyBox ];
+    })).isoImage;
 in
 {
   name = "HWaaS test with dynamic local networking for a single BMR";
@@ -45,9 +46,11 @@ in
       image = "${disk_image}/iso/hwaas.iso";
     };
   };
-  networks = { "undefined" = []; };
+  networks = {
+    "undefined" = [ ];
+  };
 
-  nodes.controlVM = { ... }: {
+  nodes.controlVM = _: {
     imports = [ user-tooling-hwaasTestVm ];
 
     hwaas.testVm.enable = true;

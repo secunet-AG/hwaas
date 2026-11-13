@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+# SPDX-License-Identifier: MIT-0
+
 {
   description = "My first test with HWaaS";
 
@@ -10,13 +13,11 @@
     lib = hwaas;
     checks.x86_64-linux =
       let
-        pkgs = (
-          import nixpkgs {
-            system = "x86_64-linux";
-            config = { };
-            overlays = [ ];
-          }
-        );
+        pkgs = import nixpkgs {
+          system = "x86_64-linux";
+          config = { };
+          overlays = [ ];
+        };
         /**
           Import a HWaaS test from a separate file.
 

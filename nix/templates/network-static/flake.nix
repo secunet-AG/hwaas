@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright 2026 secunet Security Networks AG <https://www.secunet.com>
+# SPDX-License-Identifier: MIT-0
+
 {
   description = "HWaaS test with static local networking for a single BMR";
 
@@ -10,13 +13,11 @@
     lib = hwaas;
     checks.x86_64-linux =
       let
-        pkgs = (
-          import nixpkgs {
-            system = "x86_64-linux";
-            config = { };
-            overlays = [ ];
-          }
-        );
+        pkgs = import nixpkgs {
+          system = "x86_64-linux";
+          config = { };
+          overlays = [ ];
+        };
         /**
           Import a HWaaS test from a separate file.
 
@@ -29,7 +30,7 @@
           test-path:
           hwaas.lib.hwaasTest pkgs (
             import test-path {
-              inherit (hwaas.nixosModules) user-tooling-hwaasTestVm user-tooling-machines-legacyBox;
+              inherit (hwaas.nixosModules) user-tooling-hwaasTestVm;
               inherit pkgs;
             }
           );

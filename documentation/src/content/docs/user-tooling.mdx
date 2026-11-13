@@ -3,9 +3,11 @@
 import Callout from '../../components/Callout.astro'
 
 ## Tutorials
+
 [a0]: #tutorials
 
 ### Running your first test with HWaaS
+
 [aa0]: #running-your-first-test-with-hwaas
 
 In this tutorial, we will create and run a test with HWaaS through the HWaaS User Tooling.
@@ -75,11 +77,12 @@ If you feel you need more explanation on what just happened, head to our [Explan
 [aa1]: https://nixos.org/
 [aa2]: https://nix.dev/tutorials/nixos/integration-testing-using-virtual-machines
 
-
 ## How-To Guides
+
 [b0]: #how-to-guides
 
 ### How to Determine a Suitable Platform Identifier for a HWaaS Test
+
 [ba0]: #how-to-determine-a-suitable-platform-identifier-for-a-hwaas-test
 
 In this How-To Guide, we will choose a suitable Platform Identifier for a HWaaS test.
@@ -100,8 +103,8 @@ If the list of platform identifiers doesn't help you choose the correct platform
 At the moment, it's not possible to obtain additional information about test machines beyond their platform identifiers.
 Progress on enabling HWaaS to provide additional information about test platforms is [tracked on GitHub](https://github.com/secunet-AG/hwaas/issues/203).
 
-
 ### How to Enable Local Networking on a BMR
+
 [bb0]: #how-to-enable-local-networking-on-a-bmr
 
 In this How-To Guide, we enable local networking for a BMR inside a HWaaS test.
@@ -152,8 +155,8 @@ The `machine` value must be an attribute name from the top-level `machines` attr
 The `networkInterfaces` value must be a valid interface name for this `machine`.
 
 <Callout type="important">
-    At present, there is no trivial way to obtain the list of valid network interfaces for a platform.
-    This is [tracked on GitHub](https://github.com/secunet-AG/hwaas/issues/203).
+    At present, there is no trivial way to obtain the list of valid network interfaces for a
+    platform. This is [tracked on GitHub](https://github.com/secunet-AG/hwaas/issues/203).
 </Callout>
 
 Next, you must **configure networking for the BMR**.
@@ -164,8 +167,8 @@ Fundamentally, there are two ways to do this:
 
 We will demonstrate both of these approaches below.
 
-
 #### Local Networking via DHCP
+
 [bba0]: #local-networking-via-dhcp
 
 To use DHCP, the `controlVM` must provide a DHCP server.
@@ -199,11 +202,12 @@ nix build .#checks.x86_64-linux.my-first-hwaas-test.driver &&
 ```
 
 <Callout type="note">
-    A full template with this configuration is available from the HWaaS flake under the `templates.network-dhcp` attribute.
+    A full template with this configuration is available from the HWaaS flake under the
+    `templates.network-dhcp` attribute.
 </Callout>
 
-
 #### Local Networking via Static Network Configuration
+
 [bbb0]: #local-networking-via-static-network-configuration
 
 In this scenario, the BMR must boot with a disk image that has a network configuration matching the `controlVM` test network.
@@ -270,14 +274,16 @@ nix build .#checks.x86_64-linux.my-first-hwaas-test.driver &&
 ```
 
 <Callout type="note">
-    A full template with this configuration is available from the HWaaS flake under the `templates.network-static` attribute.
+    A full template with this configuration is available from the HWaaS flake under the
+    `templates.network-static` attribute.
 </Callout>
 
-
 ## Reference
+
 [c0]: #reference
 
 ### Platform Identifiers
+
 [ca0]: #platform-identifiers
 
 <Callout type="note">
@@ -290,11 +296,12 @@ This allows HWaaS instances to dynamically scale the amount of Bare Metal Resour
 A HWaaS test requiring a Bare Metal Resource with a given Platform Identifier will wait until any matching resource becomes available.
 In contrast to assigning tests to a fixed, pre-determined Bare Metal Resource, using Platform Identifiers improves device utilization and makes device maintenance easier.
 
-
 ## Explanation
+
 [d0]: #explanation
 
 ### About NixOS Test Integration
+
 [da0]: #about-nixos-test-integration
 
 The HWaaS User Tooling was born out of the desire to integrate HWaaS in an environment previously using NixOS tests.
@@ -310,8 +317,8 @@ Among the benefits of having HWaaS User Tooling integrate with NixOS Tests are:
 - _Reproducible tests from start to finish_:
   All code to ensure a reproducible test result (down to individual source files) is contained in a single NixOS test.
 
-
 ### The necessity of `nodes.controlVM`/`nodes.testVM`
+
 [db0]: #the-necessity-of-nodes-controlvm-nodes-testvm
 
 Even though the HWaaS User Tooling aims at running tests on hardware devices (BMRs), NixOS Tests still define a regular VM under `nodes`.
@@ -339,11 +346,12 @@ nodes.controlVM = { ... }: {
 };
 ```
 
-
 ## Troubleshooting
+
 [e0]: #troubleshooting
 
 ### Name resolution fails
+
 [da0]: #name-resolution-fails
 
 If you see any of these messages:
@@ -384,6 +392,7 @@ The most common causes for this are:
 If none of the above helps, the issue is probably outside of your HWaaS test.
 
 ### My test shows no output
+
 [db0]: #my-test-shows-no-output
 
 In this case your test is probably stalled/frozen waiting for some event to happen.
@@ -426,11 +435,11 @@ RemotePdb session open at 127.0.0.1:4444, waiting for connection ...
     debugger to kick in.
 </Callout>
 
-{/*
+{/_
 Maintainer note: Using the real `attach` command from the `breakpointHook` here will not work, since
 that attempts to enter the test namespace. HWaaS tests run outside of a sandbox, so the `attach`
 script will fail.
-*/}
+_/}
 
 Now, in a separate shell, run the following command:
 
