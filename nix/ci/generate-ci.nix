@@ -10,9 +10,12 @@
   workflowName ? "CI",
   mainBranch ? "main",
   runner ? "ubuntu-latest",
-  checkoutAction ? "actions/checkout@v7",
-  installNixAction ? "cachix/install-nix-action@v31",
-  cacheAction ? "cachix/cachix-action@v17",
+  # Pinning these actions to hashes instead of movable tags.
+  # Update them by running `git ls-remote https://github.com/cachix/cachix-action.git refs/tags/v17`
+  # for example to figure out the newest hash. Commenting the current version behind for readability.
+  checkoutAction ? "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1", # v7
+  installNixAction ? "cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7", # v31
+  cacheAction ? "cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866", # v17
 }:
 
 let
@@ -34,6 +37,9 @@ let
     {
       name = "Check out repository";
       uses = checkoutAction;
+      "with" = {
+        persist-credentials = false;
+      };
     }
     {
       name = "Install Nix";
