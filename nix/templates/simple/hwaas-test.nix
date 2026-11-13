@@ -13,9 +13,11 @@
 let
   # === START OF USER CONFIGURATION ===
   user-config = {
+    # NOTE: You MUST adapt these settings to your HWaaS environment
     api-url = "https://api.hwaas.changeme.example/v5";
-    bmr-name = "dummy1";
     bmr-platform = "test-machine-x86_64";
+    # NOTE: You MAY change these settings to whatever you wish
+    bmr-name = "dummy1";
   };
   # === END OF USER CONFIGURATION ===
 

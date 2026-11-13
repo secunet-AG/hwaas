@@ -13,11 +13,13 @@
 let
   # === START OF USER CONFIGURATION ===
   user-config = {
+    # NOTE: You MUST adapt these settings to your HWaaS environment
     api-url = "https://api.hwaas.changeme.example/v5";
-    bmr-address = "192.168.100.2";
     bmr-interface-name = "LAN1";
-    bmr-name = "dummy1";
     bmr-platform = "test-machine-x86_64";
+    # NOTE: You MAY change these settings to whatever you wish
+    bmr-address = "192.168.100.2";
+    bmr-name = "dummy1";
     gateway-address = "192.168.100.1";
     gateway-address-prefix = 24;
     gateway-network-name = "myTestNetwork";
