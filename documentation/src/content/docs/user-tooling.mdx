@@ -1,0 +1,464 @@
+# User Tooling Guide
+
+import Callout from '../../components/Callout.astro'
+
+## Tutorials
+
+[a0]: #tutorials
+
+### Running your first test with HWaaS
+
+[aa0]: #running-your-first-test-with-hwaas
+
+In this tutorial, we will create and run a test with HWaaS through the HWaaS User Tooling.
+To follow this tutorial, we need:
+
+- A working HWaaS instance with at least one configured BMR
+- A machine with [the `nix` package manager][aa1] installed
+
+As a first step, we set up a `nix` project to run our test from.
+Run the following commands:
+
+```bash
+nix --extra-experimental-features "flakes nix-command" flake new \
+    my-first-hwaas-test -t 'github:secunet-AG/hwaas#simple'
+cd my-first-hwaas-test
+```
+
+Next, we must review and modify settings to connect the test with our HWaaS instance.
+This requires knowledge of two things: The HWaaS API URL and a valid [_Platform Identifier_][ca0].
+In this tutorial, we assume that the HWaaS API URL is:
+
+```text
+https://api.hwaas.my-corp.example/v5
+```
+
+In practice, we would ask the administrator of our HWaaS instance for the configured API URL.
+We open the file `hwaas-test.nix` with our `$EDITOR` and replace the quoted string after `api-url =` with the URL shown above.
+The end result can look like this:
+
+```nix
+api-url = "https://api.hwaas.my-corp.example/v5";
+```
+
+Next, we [determine a suitable Platform Identifier][ba0].
+For this tutorial we assume that somebody told us the platform identifier is `amd64_test-machine`.
+If you do not know what platform identifier to choose, [refer to our HowTo-Guide on the topic][ba0].
+We open `hwaas-test.nix` with our `$EDITOR` once more and replace the quoted string after `bmr-platform =` with the Platform Identifier chosen previously.
+The end result can look like this:
+
+```nix
+bmr-platform = "amd64_test-machine";
+```
+
+Next, we build the test to produce a `result/` output:
+
+```bash
+# NOTE: The '.driver' at the end is important!
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+```
+
+Finally, we run the actual test:
+
+```bash
+./result/bin/nixos-test-driver
+```
+
+And that's it!
+If the test exits with a status code of 0, you have successfully run your first test on a HWaaS instance.
+If something goes wrong, please consult the [Troubleshooting section][e0].
+
+From here, you may want to extend your test towards more realistic testing scenarios:
+
+- Read our How-To Guide on [enabling local networking on a BMR][bb0]
+
+If you feel you need more explanation on what just happened, head to our [Explanation section][d0].
+
+[aa1]: https://nixos.org/
+[aa2]: https://nix.dev/tutorials/nixos/integration-testing-using-virtual-machines
+
+## How-To Guides
+
+[b0]: #how-to-guides
+
+### How to Determine a Suitable Platform Identifier for a HWaaS Test
+
+[ba0]: #how-to-determine-a-suitable-platform-identifier-for-a-hwaas-test
+
+In this How-To Guide, we will choose a suitable Platform Identifier for a HWaaS test.
+We assume that the HWaaS API URL is:
+
+```text
+https://api.hwaas.my-corp.example/v5
+```
+
+To get a list of all valid Platform Identifiers in your HWaaS instance, run the following command:
+
+```bash
+curl -sS https://api.hwaas.my-corp.example/v5/inventory | \
+    jq -er 'map(.properties.platform) | sort | .[]'
+```
+
+If the list of platform identifiers doesn't help you choose the correct platform, ask a colleague or your HWaaS administrator for help.
+At the moment, it's not possible to obtain additional information about test machines beyond their platform identifiers.
+Progress on enabling HWaaS to provide additional information about test platforms is [tracked on GitHub](https://github.com/secunet-AG/hwaas/issues/203).
+
+### How to Enable Local Networking on a BMR
+
+[bb0]: #how-to-enable-local-networking-on-a-bmr
+
+In this How-To Guide, we enable local networking for a BMR inside a HWaaS test.
+This will allow the test script to perform network communication with the BMR e.g. to ping the device.
+To follow this guide, you need:
+
+- A working HWaaS instance with at least one configured BMR
+- A machine with [the `nix` package manager][aa1] installed
+
+This guide assumes you start from the "Simple" Template after completing the ["Running your first test with HWaaS" tutorial][aa0].
+First, identify the so-called `controlVM` under `nodes.controlVM`.
+Second, enable networking inside the `controlVM` through the `hwaas.testVm.networks` attribute:
+
+```nix
+nodes.controlVM = { ... }: {
+  imports = [ user-tooling-hwaas-TestVm ];
+
+  hwaas.testVm.enable = true;
+  hwaas.testVm.networks.myTestNetwork = {
+    ipv4Address = {
+      address = "192.168.100.1";
+      prefixLength = 24;
+    };
+  };
+};
+```
+
+You can assign the network name (`myTestNetwork` above) and address/prefix length (`192.168.100.1`/`24` above) at will.
+
+Next, you must **assign the BMR to the network** connected to the `controlVM`.
+This is done in a top-level `networks` attribute, which sits next to `nodes.controlVM`.
+Here, insert the exact same network name you used when configuring the `controlVM`.
+Assign BMRs and interfaces to the network like this:
+
+```nix
+{
+  nodes.controlVM = { ... }: { /* ... */ };
+  networks.myTestNetwork = [
+    {
+      machine = "dummy1";
+      networkInterfaces = [ "LAN1" ];
+    }
+  ];
+}
+```
+
+The `machine` value must be an attribute name from the top-level `machines` attribute set.
+The `networkInterfaces` value must be a valid interface name for this `machine`.
+
+<Callout type="important">
+    At present, there is no trivial way to obtain the list of valid network interfaces for a
+    platform. This is [tracked on GitHub](https://github.com/secunet-AG/hwaas/issues/203).
+</Callout>
+
+Next, you must **configure networking for the BMR**.
+Fundamentally, there are two ways to do this:
+
+1. Boot the BMR with a disk image that obtains a [dynamic network configuration via DHCP][bba0].
+2. Boot the BMR with a disk image that uses a [static network configuration][bbb0].
+
+We will demonstrate both of these approaches below.
+
+#### Local Networking via DHCP
+
+[bba0]: #local-networking-via-dhcp
+
+To use DHCP, the `controlVM` must provide a DHCP server.
+This is enabled with the `hwaas.testVm.networks.<name>.dhcp` attribute in the `controlVM`:
+
+```nix
+nodes.controlVM = { ... }: {
+  # ...
+  hwaas.testVm.networks.myTestNetwork.dhcp = true;
+};
+```
+
+Provided your BMR image has DHCP enabled, the machine should come up and request an IP address via DHCP.
+By default, the next free address in the network of the `controlVM` is assigned.
+With the example chosen above, the IP address is `192.168.100.2`.
+
+To demonstrate this works, we modify the `testScript` to execute the following lines _after_ powering on the BMR and _before_ powering it off:
+
+```python
+# BMR powered on here
+controlVM.wait_until_succeeds("ping -c 1 192.168.100.2", timeout=900)
+print("Machine responds to ping!")
+# BMR powered off here
+```
+
+Then run the test like this:
+
+```bash
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver &&
+    ./result/bin/nixos-test-driver
+```
+
+<Callout type="note">
+    A full template with this configuration is available from the HWaaS flake under the
+    `templates.network-dhcp` attribute.
+</Callout>
+
+#### Local Networking via Static Network Configuration
+
+[bbb0]: #local-networking-via-static-network-configuration
+
+In this scenario, the BMR must boot with a disk image that has a network configuration matching the `controlVM` test network.
+The following snippet illustrates how to build such an image using `NixOS`:
+
+```nix
+  disk_image =
+    (pkgs.nixos (
+      { modulesPath, lib, ... }: {
+        imports = [
+          "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
+        ];
+
+        image.baseName = lib.mkForce "hwaas";
+        networking = {
+          useDHCP = lib.mkForce false;
+          networkmanager.enable = lib.mkForce false;
+          useNetworkd = lib.mkForce true;
+          firewall.enable = lib.mkForce false;
+          wireless.enable = lib.mkForce false;
+          enableIPv6 = false;
+        };
+
+        systemd.network = {
+          enable = true;
+          netdevs.virbr0.netdevConfig = {
+            Kind = "bridge";
+            Name = "virbr0";
+          };
+          networks."30-virbr0" = {
+            matchConfig.Name = "virbr0";
+            addresses = [
+              {
+                addressConfig.Address = "192.168.100.2/24";
+              }
+            ];
+          };
+          # Instead of hard-coding matching network interface names that are
+          # different per machine we match with a generic ether type networkd rule
+          networks."20-lan-ports" = {
+            matchConfig.Type = "ether";
+            networkConfig.Bridge = "virbr0";
+            linkConfig.RequiredForOnline = "enslaved";
+          };
+        };
+      }
+    )).isoImage;
+```
+
+To demonstrate this works, we modify the `testScript` to execute the following lines _after_ powering on the BMR and _before_ powering it off:
+
+```python
+# BMR powered on here
+controlVM.wait_until_succeeds("ping -c 1 192.168.100.2", timeout=900)
+print("Machine responds to ping!")
+# BMR powered off here
+```
+
+Then run the test like this:
+
+```bash
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver &&
+    ./result/bin/nixos-test-driver
+```
+
+<Callout type="note">
+    A full template with this configuration is available from the HWaaS flake under the
+    `templates.network-static` attribute.
+</Callout>
+
+## Reference
+
+[c0]: #reference
+
+### Platform Identifiers
+
+[ca0]: #platform-identifiers
+
+<Callout type="note">
+    If you need help choosing a platform identifier, [refer to our How-To Guide on the topic][ba0].
+</Callout>
+
+The Platform Identifier identifies Bare Metal Resources from the inventory of a HWaaS instance.
+Platform Identifiers can, but need not be unique strings.
+This allows HWaaS instances to dynamically scale the amount of Bare Metal Resources available under a given Platform Identifier.
+A HWaaS test requiring a Bare Metal Resource with a given Platform Identifier will wait until any matching resource becomes available.
+In contrast to assigning tests to a fixed, pre-determined Bare Metal Resource, using Platform Identifiers improves device utilization and makes device maintenance easier.
+
+## Explanation
+
+[d0]: #explanation
+
+### About NixOS Test Integration
+
+[da0]: #about-nixos-test-integration
+
+The HWaaS User Tooling was born out of the desire to integrate HWaaS in an environment previously using NixOS tests.
+As NixOS tests use Python to define the test script and helper methods already, implementing HWaaS User Tooling as Python module was an obvious choice.
+This allowed the code interacting with HWaaS to integrate seamlessly into preexisting test scripts.
+
+In addition, the HWaaS User Tooling was never meant to be a standalone tool for interacting with HWaaS.
+It doesn't have a standalone CLI and standalone installation isn't possible either.
+While this could be changed, previous applications of HWaaS User Tooling haven't required it.
+
+Among the benefits of having HWaaS User Tooling integrate with NixOS Tests are:
+
+- _Reproducible tests from start to finish_:
+  All code to ensure a reproducible test result (down to individual source files) is contained in a single NixOS test.
+
+### The necessity of `nodes.controlVM`/`nodes.testVM`
+
+[db0]: #the-necessity-of-nodes-controlvm-nodes-testvm
+
+Even though the HWaaS User Tooling aims at running tests on hardware devices (BMRs), NixOS Tests still define a regular VM under `nodes`.
+In HWaaS documentation this VM is customarily called `controlVM` or `testVM`, although the name is arbitrary.
+This `controlVM` serves a single, central purpose:
+Providing network connectivity to and between the BMRs.
+
+Even if the test running on your BMR does not require network connectivity, this is essential.
+Neither HWaaS nor the HWaaS User Tooling has a direct way of running code on BMRs.
+Instead, tests that need to run commands on BMRs usually do so through `ssh` or similar means.
+Networking here is only used as a bridge to enable communication with BMRs.
+
+The below snippet illustrates what the `controlVM` usually looks like:
+
+```nix
+nodes.controlVM = { ... }: {
+  imports = with hwaasTestModules; [ user-tooling-hwaasTestVm ];
+
+  hwaas.testVm = {
+    enable = true;
+    networks = {
+      # Arbitrary networking configuration
+    };
+  };
+};
+```
+
+## Troubleshooting
+
+[e0]: #troubleshooting
+
+### Name resolution fails
+
+[da0]: #name-resolution-fails
+
+If you see any of these messages:
+
+- `Temporary failure in name resolution`
+- `Failed to resolve '...'`
+- `Max retries exceeded with url: /v5/contexts`
+
+It means that the HWaaS setup code running inside the Test VM cannot resolve the hostname of your HWaaS instance.
+The most common causes for this are:
+
+- **Running a HWaaS test as top-level `check`/`package` attribute**:
+    - _Diagnosis_: You're running your test like:
+        ```bash
+        nix build .#checks.x86_64-linux.my-first-hwaas-test
+        ```
+        instead of:
+        ```bash
+        nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+        ./result/bin/nixos-test-driver
+        ```
+    - _Solution_: Instead of building the test installable itself, build the `driver` attribute and
+      run the resulting test script like this:
+        ```bash
+        nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+        ./result/bin/nixos-test-driver
+        ```
+- **Invalid `apiUrl` value**:
+    - _Diagnosis_: You forgot to edit the `apiUrl` parameter after creating a test from a template.
+      Or you mistyped the `apiUrl` parameter while editing it.
+    - _Solution_: Double-check the value of the `apiUrl` parameter in the failing test.
+      You can run the following command (with your value for `apiUrl`) to ensure the HWaaS API URL
+      is valid:
+        ```bash
+        curl -L "${YOUR_API_URL}/inventory"
+        ```
+
+If none of the above helps, the issue is probably outside of your HWaaS test.
+
+### My test shows no output
+
+[db0]: #my-test-shows-no-output
+
+In this case your test is probably stalled/frozen waiting for some event to happen.
+You can get some amount of extra debug output by calling `nixos-test-driver` with extra arguments, like so:
+
+```bash
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver
+LOGLEVEL="debug" ./result/bin/nixos-test-driver
+```
+
+If this doesn't help diagnose your problem, you can try to summon an interactive debugger in your test script.
+To achieve this, inject a fault at the desired location of your tests `testScript` and set `enableDebugHook`, like so:
+
+```nix
+{
+  # ...
+  enableDebugHook = true;
+  testScript = ''
+  raise Exception("forced error")
+  # ...remainder of your test script...
+  '';
+}
+```
+
+Then execute the test driver with an extra argument like so:
+
+```bash
+./result/bin/nixos-test-driver --debug-hook-attach "echo"
+```
+
+And wait for the following output to appear:
+
+```text
+!!! Breakpoint reached, run ...
+RemotePdb session open at 127.0.0.1:4444, waiting for connection ...
+```
+
+<Callout type="note">
+    Do not run the command advertised in the output above. It's just a stub to get the interactive
+    debugger to kick in.
+</Callout>
+
+{/_
+Maintainer note: Using the real `attach` command from the `breakpointHook` here will not work, since
+that attempts to enter the test namespace. HWaaS tests run outside of a sandbox, so the `attach`
+script will fail.
+_/}
+
+Now, in a separate shell, run the following command:
+
+```bash
+nix-shell -p socat --command 'socat readline tcp:127.0.0.1:4444'
+```
+
+Due to how the debugger works, you cannot see the actual test script in the debugger.
+However, the fully assembled test script is available under `./result/test-script`, like so:
+
+```bash
+less ./result/test-script
+```
+
+Here are a few useful commands for use in the interactive Debugger to get you going:
+
+```python3
+# Get the names of all variables/functions defined in the test
+print(symbols.keys())
+# Print the `controlVM` test variable
+print(symbols["controlVM"])
+```

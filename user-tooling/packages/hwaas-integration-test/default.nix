@@ -127,7 +127,9 @@ helpers
     ''
       HWAAS_CONFIG = ${hwaasConfig}
 
+      # SPDX-SnippetBegin
       ${readFile ./setup.py}
+      # SPDX-SnippetEnd
 
       ${testScript'}
     '';
