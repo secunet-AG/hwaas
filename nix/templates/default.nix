@@ -8,5 +8,9 @@
       path = ./network-dhcp;
       description = "An advanced template for a HWaaS test with local networking via DHCP";
     };
+    network-static = {
+      path = ./network-static;
+      description = "An advanced template for a HWaaS test with local networking via static configuration";
+    };
   };
 }

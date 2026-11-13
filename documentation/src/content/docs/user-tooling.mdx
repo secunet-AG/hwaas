@@ -210,47 +210,68 @@ In this scenario, the BMR must boot with a disk image that has a network configu
 The following snippet illustrates how to build such an image using `NixOS`:
 
 ```nix
-machine_image =
-  (pkgs.nixos (
-    { modulesPath, pkgs, lib, ... }: {
-      imports = [
-        "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
-      ];
+  disk_image =
+    (pkgs.nixos (
+      { modulesPath, lib, ... }: {
+        imports = [
+          "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
+        ];
 
-      networking = {
-        useDHCP = pkgs.lib.mkForce false;
-        networkmanager.enable = pkgs.lib.mkForce false;
-        useNetworkd = pkgs.lib.mkForce true;
-        firewall.enable = pkgs.lib.mkForce false;
-        wireless.enable = lib.mkForce false;
-        enableIPv6 = false;
-      };
+        image.baseName = lib.mkForce "hwaas";
+        networking = {
+          useDHCP = lib.mkForce false;
+          networkmanager.enable = lib.mkForce false;
+          useNetworkd = lib.mkForce true;
+          firewall.enable = lib.mkForce false;
+          wireless.enable = lib.mkForce false;
+          enableIPv6 = false;
+        };
 
-      systemd.network = {
-        enable = true;
-        netdevs.virbr0.netdevConfig = {
-          Kind = "bridge";
-          Name = "virbr0";
+        systemd.network = {
+          enable = true;
+          netdevs.virbr0.netdevConfig = {
+            Kind = "bridge";
+            Name = "virbr0";
+          };
+          networks."30-virbr0" = {
+            matchConfig.Name = "virbr0";
+            addresses = [
+              {
+                addressConfig.Address = "192.168.100.2/24";
+              }
+            ];
+          };
+          # Instead of hard-coding matching network interface names that are
+          # different per machine we match with a generic ether type networkd rule
+          networks."20-lan-ports" = {
+            matchConfig.Type = "ether";
+            networkConfig.Bridge = "virbr0";
+            linkConfig.RequiredForOnline = "enslaved";
+          };
         };
-        networks."30-virbr0" = {
-          matchConfig.Name = "virbr0";
-          addresses = [
-            {
-              addressConfig.Address = "192.168.100.2/24";
-            }
-          ];
-        };
-        # Instead of hard-coding matching network interface names that are
-        # different per machine we match with a generic ether type networkd rule
-        networks."20-lan-ports" = {
-          matchConfig.Type = "ether";
-          networkConfig.Bridge = "virbr0";
-          linkConfig.RequiredForOnline = "enslaved";
-        };
-      };
-    }
-  )).isoImage;
+      }
+    )).isoImage;
 ```
+
+To demonstrate this works, we modify the `testScript` to execute the following lines _after_ powering on the BMR and _before_ powering it off:
+
+```python
+# BMR powered on here
+controlVM.wait_until_succeeds("ping -c 1 192.168.100.2", timeout=900)
+print("Machine responds to ping!")
+# BMR powered off here
+```
+
+Then run the test like this:
+
+```bash
+nix build .#checks.x86_64-linux.my-first-hwaas-test.driver &&
+    ./result/bin/nixos-test-driver
+```
+
+<Callout type="note">
+    A full template with this configuration is available from the HWaaS flake under the `templates.network-static` attribute.
+</Callout>
 
 
 ## Reference
