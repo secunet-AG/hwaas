@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel } from '@headlessui/vue'
 import FileUpload from '@/shared/ui/fileupload/FileUpload.vue'
 import { fileToSHA256HashHex } from '@/shared/lib/etc/hash-image'
@@ -13,6 +13,8 @@ import { useImagesStore } from '@/core/stores/images-store'
 import Progress from '@/shared/ui/loading/Progress.vue'
 import type { FileUploadState } from '@/shared/ui/fileupload/file-upload.model'
 import { detectImageCompression } from '@/shared/lib/api/images/images.api'
+import type { Architecture } from '@/shared/types/images.model'
+import ImageMetadataForm from './ImageMetadataForm.vue'
 
 const imageStore = useImagesStore()
 
@@ -25,6 +27,12 @@ const progressPercentage = ref(0)
 
 const hasCancelled = ref(false)
 
+const architecture = ref<Architecture | null>(null)
+const tags = ref<string[]>([])
+const errorMessage = ref<string | null>(null)
+
+const knownTags = computed(() => imageStore.tags.map((x) => x.name))
+
 onMounted(() => {
   progressPercentage.value = 0
   hasCancelled.value = false
@@ -36,13 +44,23 @@ function closeModal() {
   progressPercentage.value = 0
   isOpen.value = false
   uploadState.value = 'ready'
+  fileRef.value = null
+  architecture.value = null
+  tags.value = []
+  errorMessage.value = null
 }
 
 function openModal() {
   isOpen.value = true
 }
 
-// Upload an image, checking the hash if the image is not compressed.
+// Selecting a file only stages it; the upload starts once metadata has been filled in.
+function onFileSelected(e: File) {
+  fileRef.value = e
+  errorMessage.value = null
+}
+
+// Upload the staged image, checking the hash if the image is not compressed, then apply metadata.
 //
 // After the hash is checked (or not), we upload the image. The addImage call is a bit gross, for
 // more context, in addition to the image, hash, and compression state, we pass in two callbacks that
@@ -57,16 +75,19 @@ function openModal() {
 // This is a lot of work on the client. For the time being, if the image is compressed, I won't
 // check. I would argue that checking for a duplicate on the client doesn't really make sense anyways,
 // we should instead consider sampling blocks or so of the image on the API, or find a better solution.
-async function onFileUpload(e: File) {
+async function startUpload() {
+  const e = fileRef.value
+  if (!e) return
+  hasCancelled.value = false
+  errorMessage.value = null
+  // For compressed uploads this is only known once the server has decompressed and stored the image.
+  let storedHash: string
   try {
-    fileRef.value = e
     const compression = detectImageCompression(e)
 
     let hash: string | null = null
 
     // The no compression path, we will check the SHA256 hash to see if present, see above note.
-    //
-    // We default to the previously uploaded image if it is present in our store
     if (compression === 'none') {
       uploadState.value = 'hashing'
 
@@ -86,7 +107,7 @@ async function onFileUpload(e: File) {
     }
 
     uploadState.value = 'uploading'
-    await imageStore.addImage(
+    storedHash = await imageStore.addImage(
       hash,
       e,
       compression,
@@ -95,13 +116,29 @@ async function onFileUpload(e: File) {
       },
       () => hasCancelled.value,
     )
-    uploadState.value = 'success'
-
-    closeModal()
   } catch (e) {
     console.error(e)
-    uploadState.value = 'failed'
+    // Return to the staged file so the user can retry without re-entering metadata.
+    uploadState.value = 'ready'
+    errorMessage.value = `Upload failed: ${e instanceof Error ? e.message : e}`
+    return
   }
+
+  try {
+    await imageStore.applyImageMetadata(storedHash, {
+      architecture: architecture.value,
+      tags: tags.value,
+    })
+  } catch (e) {
+    console.error(e)
+    // The image itself is stored, so there is nothing to retry from this dialog.
+    uploadState.value = 'failed'
+    errorMessage.value = `Image uploaded, but some metadata could not be saved: ${e instanceof Error ? e.message : e}`
+    return
+  }
+
+  uploadState.value = 'success'
+  closeModal()
 }
 </script>
 
@@ -146,9 +183,42 @@ async function onFileUpload(e: File) {
               :open="isOpen"
               class="border-(--app-secondary-border) bg-(--app-bg) w-full max-w-md transform overflow-hidden rounded-2xl border-[1px] p-6 text-left align-middle shadow-xl transition-all"
             >
+              <div v-if="uploadState === 'ready' && fileRef" class="flex flex-col gap-4">
+                <h3 class="text-lg">Upload Image</h3>
+                <div
+                  class="border-(--app-secondary-border) flex items-center justify-between gap-3 rounded-md border p-3"
+                >
+                  <span
+                    class="min-w-0 overflow-hidden text-(--app-primary-text) text-ellipsis text-nowrap"
+                    >{{ fileRef.name }}</span
+                  >
+                  <button
+                    type="button"
+                    class="text-(--app-secondary-text) hover:text-(--app-primary-text) shrink-0 cursor-pointer text-sm underline"
+                    @click="fileRef = null"
+                  >
+                    Change file
+                  </button>
+                </div>
+                <ImageMetadataForm
+                  v-model:architecture="architecture"
+                  v-model:tags="tags"
+                  :known-tags="knownTags"
+                />
+                <p v-if="errorMessage" class="text-(--app-danger) text-sm">{{ errorMessage }}</p>
+                <button type="button" class="app-btn-primary w-full" @click="startUpload">
+                  Upload
+                </button>
+              </div>
+
+              <div v-else-if="uploadState === 'failed'" class="flex flex-col gap-3">
+                <h3 class="text-lg">Upload Image</h3>
+                <p class="text-(--app-danger) text-sm">{{ errorMessage }}</p>
+              </div>
+
               <FileUpload
-                v-if="uploadState === 'ready'"
-                @file-upload-event="onFileUpload"
+                v-else-if="uploadState === 'ready'"
+                @file-upload-event="onFileSelected"
                 :title="'Upload Image'"
                 :file-type-warning="'Must be a valid .img or .img.zst file'"
                 :maximumSizeWarning="'Maximum Size 8GB'"
@@ -173,7 +243,7 @@ async function onFileUpload(e: File) {
 
               <div class="mt-4 w-full">
                 <button @click="closeModal" type="button" class="app-btn-secondary w-full">
-                  Cancel
+                  {{ uploadState === 'failed' ? 'Close' : 'Cancel' }}
                 </button>
               </div>
             </DialogPanel>

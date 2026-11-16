@@ -34,6 +34,7 @@ phf.workspace = true
 regex.workspace = true
 schemars.workspace = true
 serde.workspace = true
+serde_with.workspace = true
 sha2.workspace = true
 static_assertions.workspace = true
 thiserror.workspace = true

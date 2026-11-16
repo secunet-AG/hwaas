@@ -4,13 +4,25 @@
 
 _: {
   perSystem =
-    { config, pkgs, ... }:
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
     let
+      # Every '*-oas' package is copied to 'expected-oas/<name>.openapi.json',
+      # mirroring the 'openapi-spec-*' golden tests in 'nix/tests/default.nix'.
+      copy-commands = lib.pipe config.packages [
+        (lib.filterAttrs (n: _v: (lib.match "^.*-oas$" n) != null))
+        (lib.mapAttrsToList (
+          name: drv: "cp ${drv} expected-oas/${lib.removeSuffix "-oas" name}.openapi.json"
+        ))
+        (lib.concatStringsSep "\n")
+      ];
       script = pkgs.writeShellScriptBin "regen-expected-oas" ''
-        cp ${config.packages.contextapi-oas} expected-oas/contextapi.openapi.json
-        cp ${config.packages.net-ctrl-oas} expected-oas/net-ctrl.openapi.json
-        cp -f ${config.packages.remote-hands-oas}/* expected-oas/
-        cp ${config.packages.hwaas-oas} expected-oas/hwaas.openapi.json
+        set -euo pipefail
+        ${copy-commands}
       '';
     in
     {
