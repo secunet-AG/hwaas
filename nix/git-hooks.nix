@@ -63,6 +63,11 @@ in
           enable = true;
           files = "^user-tooling/.*\\.py$";
         };
+        zizmor = {
+          enable = true;
+          entry = "${pkgs.lib.getExe pkgs.zizmor} --fix .";
+          pass_filenames = false;
+        };
       };
     };
   };

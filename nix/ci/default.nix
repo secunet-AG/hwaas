@@ -16,8 +16,6 @@ _: {
         inherit pkgs jobs;
         inherit (pkgs) lib;
       };
-      # Verify staged/committed ci.yml is equal to a freshly build one with the generator
-      verificator = import ./verify-ci.nix { inherit pkgs generatedWorkflow; };
       inherit (generator) generatedWorkflow;
     in
     {
@@ -29,7 +27,10 @@ _: {
         };
       };
       checks = {
-        verify-ci = verificator;
+        # Verify staged/committed ci.yml is equal to a freshly build one with the generator
+        verify-ci-generation = pkgs.callPackage ./verify-ci.nix { inherit generatedWorkflow; };
+        # Static analysis of all GitHub CI .yml files
+        verify-ci-zizmor = pkgs.callPackage ./zizmor.nix { };
       };
     };
 }

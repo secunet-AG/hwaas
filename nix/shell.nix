@@ -43,6 +43,7 @@ _: {
           ssh-to-age
           sops
           man-db
+          zizmor
         ];
       };
     };

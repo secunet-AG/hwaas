@@ -17,13 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -40,13 +42,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -69,13 +73,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -92,13 +98,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -121,13 +129,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -165,13 +175,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -188,13 +200,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -244,13 +258,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -276,13 +292,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -308,13 +326,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -331,13 +351,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -350,13 +372,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -381,13 +405,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -418,13 +444,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -441,13 +469,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -460,19 +490,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
       - if: always()
-        name: check verify-ci
-        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.verify-ci'
+        name: check verify-ci-generation
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.verify-ci-generation'
+      - if: always()
+        name: check verify-ci-zizmor
+        run: nix build --accept-flake-config -L --show-trace '.#checks.x86_64-linux.verify-ci-zizmor'
   check-vue-client:
     name: 'Check: vue-client'
     needs:
@@ -483,13 +518,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -503,13 +540,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -532,13 +571,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -579,13 +620,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -599,13 +642,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -625,13 +670,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas
@@ -686,13 +733,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - name: Install Nix
-        uses: cachix/install-nix-action@v31
+        uses: cachix/install-nix-action@b85815f71a6de0ddee80b8a80a98d43f4bcc66c7
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Use cache
-        uses: cachix/cachix-action@v17
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: secunet-ag-hwaas

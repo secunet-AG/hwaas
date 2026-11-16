@@ -8,7 +8,7 @@
   workflowPath ? ../../.github/workflows/ci.yml,
 }:
 
-pkgs.runCommand "verify-ci"
+pkgs.runCommand "verify-ci-generation"
   {
     nativeBuildInputs = [
       pkgs.coreutils
