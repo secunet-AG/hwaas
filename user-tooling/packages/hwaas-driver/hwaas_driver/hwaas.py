@@ -85,7 +85,7 @@ class HwaasConnector:
         uri = f"/{uri}" if uri else ""
         url: str = f"{self.hwaas_url}{uri}"
         logger.debug("%s", url)
-        return requests.post(url, **kwargs)
+        return requests.post(url, timeout=60, **kwargs)
 
     def put(self, uri: str, **kwargs) -> requests.Response:  # type: ignore
         """
@@ -107,7 +107,7 @@ class HwaasConnector:
         uri = f"/{uri}" if uri else ""
         url = f"{self.hwaas_url}{uri}"
         logger.debug("%s", url)
-        return requests.put(url, **kwargs)
+        return requests.put(url, timeout=60, **kwargs)
 
     def get(self, uri: str, **kwargs) -> requests.Response:  # type: ignore
         """
@@ -129,7 +129,7 @@ class HwaasConnector:
         uri = f"/{uri}" if uri else ""
         url = f"{self.hwaas_url}{uri}"
         logger.debug("%s", url)
-        return requests.get(url, **kwargs)
+        return requests.get(url, timeout=60, **kwargs)
 
     def delete(self, uri: str, **kwargs) -> requests.Response:  # type: ignore
         """
@@ -151,7 +151,7 @@ class HwaasConnector:
         uri = f"/{uri}" if uri else ""
         url = f"{self.hwaas_url}{uri}"
         logger.debug("%s", url)
-        return requests.delete(url, **kwargs)
+        return requests.delete(url, timeout=60, **kwargs)
 
 
 class HwaasMachine:
