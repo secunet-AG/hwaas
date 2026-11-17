@@ -33,7 +33,6 @@ futures-core = { version = "0.3" }
 futures-executor = { version = "0.3" }
 futures-io = { version = "0.3" }
 futures-sink = { version = "0.3" }
-futures-task = { version = "0.3", default-features = false, features = ["std"] }
 futures-util = { version = "0.3", features = ["channel", "io", "sink"] }
 hyper = { version = "1", features = ["full"] }
 hyper-util = { version = "0.1", features = ["client-legacy", "server-auto", "service"] }
@@ -52,13 +51,11 @@ rand = { version = "0.8", features = ["small_rng"] }
 regex = { version = "1" }
 regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
 regex-syntax = { version = "0.8" }
-reqwest = { version = "0.13", default-features = false, features = ["cookies", "form", "json", "multipart", "native-tls", "query", "rustls", "stream"] }
-reqwest-middleware = { version = "0.5", default-features = false, features = ["form", "json", "multipart", "query", "rustls"] }
+reqwest = { version = "0.13", default-features = false, features = ["cookies", "form", "json", "multipart", "query", "rustls", "stream"] }
 schemars = { version = "0.8", features = ["chrono", "impl_json_schema", "indexmap2", "uuid", "uuid1"] }
 serde = { version = "1", features = ["derive"] }
 serde_core = { version = "1", features = ["alloc"] }
 serde_json = { version = "1", features = ["raw_value"] }
-serde_with = { version = "3", default-features = false, features = ["base64", "macros", "std"] }
 slab = { version = "0.4" }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
 strum = { version = "0.28", features = ["derive"] }

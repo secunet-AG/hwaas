@@ -9,7 +9,6 @@ members = [
   "contextapi/image_api",
   "contextapi/machine_ops",
   "contextapi/machine_ops_lib",
-  "contextapi/net_ctrl_client",
   "contextapi/net_ctrl_client_wrapper",
   "contextapi/remote_client",
   "hunt",
@@ -132,7 +131,6 @@ itertools = { version = "0.15.0", default-features = false, features = [
 ] }
 libc = { version = "0.2.132", default-features = false }
 machine_ops_lib = { path = "./contextapi/machine_ops_lib" }
-net_ctrl_client = { path = "./contextapi/net_ctrl_client" }
 net_ctrl_client_wrapper = { path = "./contextapi/net_ctrl_client_wrapper" }
 nom = { version = "8.0.0", default-features = false, features = ["std"] }
 opentelemetry = { version = "0.27.1", default-features = false, features = [
@@ -165,9 +163,12 @@ reqwest = { version = "0.13", default-features = false, features = [
   "json",
   "stream",
   "cookies",
+  "rustls",
 ] }
 reqwest-middleware = { version = "0.5", default-features = false, features = [
   "json",
+  "query",
+  "form",
   "multipart",
   "rustls",
 ] }

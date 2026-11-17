@@ -47,7 +47,6 @@
         global.excludes = [
           "^.cargo/.+$"
           "components/aruba-switch-mock/reference_schemars/**"
-          "components/contextapi/net_ctrl_client/**"
           "**/*workspace-hack/Cargo.toml"
           "expected-oas/**"
           "vue-client/pnpm-lock.yaml"
