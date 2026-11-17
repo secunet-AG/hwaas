@@ -33,21 +33,22 @@ https://api.hwaas.my-corp.example/v5
 ```
 
 In practice, we would ask the administrator of our HWaaS instance for the configured API URL.
-We open the file `hwaas-test.nix` with our `$EDITOR` and replace the quoted string after `api-url =` with the URL shown above.
-The end result can look like this:
-
-```nix
-api-url = "https://api.hwaas.my-corp.example/v5";
-```
+The API URL must be entered after `api-url =` in the file `hwaas-test.nix`.
 
 Next, we [determine a suitable Platform Identifier][ba0].
 For this tutorial we assume that somebody told us the platform identifier is `amd64_test-machine`.
-If you do not know what platform identifier to choose, [refer to our HowTo-Guide on the topic][ba0].
-We open `hwaas-test.nix` with our `$EDITOR` once more and replace the quoted string after `bmr-platform =` with the Platform Identifier chosen previously.
+If you do not know what platform identifier to choose, [refer to our How-To Guide on the topic][ba0].
+The Platform Identifier must be entered after `bmr-platform =` in the file `hwaas-test.nix`.
+
 The end result can look like this:
 
 ```nix
-bmr-platform = "amd64_test-machine";
+user-config = {
+  # API URL: Ask your administrator for help
+  api-url = "https://api.hwaas.my-corp.example/v5";
+  # Platform Identifier: Refer to our How-To Guide
+  bmr-platform = "amd64_test-machine";
+};
 ```
 
 Next, we build the test to produce a `result/` output:
