@@ -29,7 +29,6 @@ tower = []
 [dependencies]
 axum-tracing-opentelemetry.workspace = true
 axum.workspace = true
-console-subscriber.workspace = true
 futures.workspace = true
 init-tracing-opentelemetry.workspace = true
 opentelemetry.workspace = true
