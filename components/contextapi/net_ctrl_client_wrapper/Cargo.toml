@@ -20,6 +20,8 @@ workspace = true
 hunt.workspace = true
 reqwest.workspace = true
 reqwest-middleware.workspace = true
-net_ctrl_client.workspace = true
 db_interaction.workspace = true
+serde.workspace = true
+displaydoc.workspace = true
+tracing.workspace = true
 workspace-hack = { version = "0.1", path = "../../workspace-hack" }
