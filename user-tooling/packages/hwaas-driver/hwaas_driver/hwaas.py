@@ -63,7 +63,7 @@ class HwaasConnector:
     hwaas_url: str
 
     def __init__(self, hwaas_url: str) -> None:
-        self.hwaas_url = hwaas_url
+        self.hwaas_url = hwaas_url.removesuffix("/")
 
     def post(self, uri: str, **kwargs) -> requests.Response:  # type: ignore
         """
