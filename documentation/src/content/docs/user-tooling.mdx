@@ -14,14 +14,13 @@ In this tutorial, we will create and run a test with HWaaS through the HWaaS Use
 To follow this tutorial, we need:
 
 - A working HWaaS instance with at least one configured BMR
-- A machine with [the `nix` package manager][aa1] installed
+- A machine with [the `nix` package manager][aa1] installed and the `flakes` feature enabled
 
 As a first step, we set up a `nix` project to run our test from.
 Run the following commands:
 
 ```bash
-nix --extra-experimental-features "flakes nix-command" flake new \
-    my-first-hwaas-test -t 'github:secunet-AG/hwaas#simple'
+nix flake new my-first-hwaas-test -t 'github:secunet-AG/hwaas#simple'
 cd my-first-hwaas-test
 ```
 
