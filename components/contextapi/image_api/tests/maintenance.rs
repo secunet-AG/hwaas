@@ -52,7 +52,7 @@ fn image_meta(name: &'static str) -> ExtraImageStoreData {
 #[test_log::test(tokio::test)]
 async fn gc_image_by_age() -> anyhow::Result<()> {
     common::wrap(async |handler, _| {
-        let _ = handler
+        let older_image = handler
             .add_image(
                 TestStream::new(["content".as_bytes()]),
                 image_meta("my cool image.bmrimg"),
@@ -83,7 +83,9 @@ async fn gc_image_by_age() -> anyhow::Result<()> {
 
         let result = handler
             .maintenance(vec![MaintenanceOperations::GarbageCollectImages(
-                GarbagePolicy::OlderThan(std::time::Duration::from_secs(3)),
+                GarbagePolicy::OlderThan(chrono::DateTime::<chrono::Utc>::from(
+                    older_image.created + std::time::Duration::from_secs(1),
+                )),
             )])
             .await;
         assert!(result.is_ok());

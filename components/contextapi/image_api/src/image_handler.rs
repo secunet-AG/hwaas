@@ -22,7 +22,6 @@ use db_interaction::models::bmr_image_metadata::{
 use db_interaction::schema::{bmr_image_metadatas, bmr_image_tag_map, bmr_image_tags};
 use diesel::RunQueryDsl;
 use std::collections::HashMap;
-use std::time::Duration;
 use std::{
     fs::create_dir_all,
     path::{Path, PathBuf},
@@ -149,8 +148,8 @@ where
 /// Retention policy for [MaintenanceOperations::GarbageCollectImages].
 #[derive(Debug, PartialEq)]
 pub enum GarbagePolicy {
-    /// Remove all images older than this age.
-    OlderThan(Duration),
+    /// Remove all images older than this point in time.
+    OlderThan(chrono::DateTime<chrono::Utc>),
     /// Remove all images larger than this many bytes.
     LargerThanBytes(usize),
 }
@@ -317,14 +316,7 @@ impl ImageHandler {
             .context("failed to query known BMR images")?;
         let is_garbage: Box<dyn Fn(&ImageMetadata) -> bool> = match policy {
             GarbagePolicy::OlderThan(max_age) => Box::new(move |image: &ImageMetadata| -> bool {
-                std::time::SystemTime::now()
-                    .duration_since(image.created)
-                    .map(|age| age > max_age)
-                    // If we cannot confidently say that an image is old, we don't touch it.
-                    .unwrap_or_else(|error| {
-                        error!(?error, metadata = ?image, "cannot determine current age of image");
-                        false
-                    })
+                chrono::DateTime::<chrono::Utc>::from(image.created) < max_age
             }),
             GarbagePolicy::LargerThanBytes(size_bytes) => {
                 Box::new(move |image: &ImageMetadata| -> bool { image.size > (size_bytes as u64) })
