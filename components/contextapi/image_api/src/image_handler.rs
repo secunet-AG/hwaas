@@ -22,6 +22,7 @@ use db_interaction::models::bmr_image_metadata::{
 use db_interaction::schema::{bmr_image_metadatas, bmr_image_tag_map, bmr_image_tags};
 use diesel::RunQueryDsl;
 use std::collections::HashMap;
+use std::time::Duration;
 use std::{
     fs::create_dir_all,
     path::{Path, PathBuf},
@@ -145,6 +146,15 @@ where
     }
 }
 
+/// Retention policy for [MaintenanceOperations::GarbageCollectImages].
+#[derive(Debug, PartialEq)]
+pub enum GarbagePolicy {
+    /// Remove all images older than this age.
+    OlderThan(Duration),
+    /// Remove all images larger than this many bytes.
+    LargerThanBytes(usize),
+}
+
 /// Supported operations for the [`ImageHandler::maintenance`] function.
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
@@ -153,12 +163,11 @@ pub enum MaintenanceOperations {
     ///
     /// Subdirectories are ignored by this operation.
     PruneUnusedFiles,
-}
 
-impl MaintenanceOperations {
-    pub fn all() -> Vec<Self> {
-        vec![Self::PruneUnusedFiles]
-    }
+    /// Run garbage collection on valid stored images.
+    ///
+    /// Invalid files and images are not touched by this operation.
+    GarbageCollectImages(GarbagePolicy),
 }
 
 impl ImageHandler {
@@ -193,19 +202,35 @@ impl ImageHandler {
         let shared_error = Err(anyhow::anyhow!(
             "a maintenance tasks exited with an error, aborting maintenance job..."
         ));
-        if operations.contains(&MaintenanceOperations::PruneUnusedFiles) {
-            match self.maintenance_prune_unused_files().await {
-                Ok(files) => {
-                    info!(
-                        ?files,
-                        "{} unused files were pruned from the image store directory",
-                        files.len()
-                    );
-                }
-                Err(error) => {
-                    let message = "failed to prune unused files from image store directory";
-                    error!(?error, "{message}");
-                    return shared_error.with_context(|| format!("{message}: {error}"));
+        for operation in operations {
+            use MaintenanceOperations::*;
+
+            match operation {
+                PruneUnusedFiles => match self.maintenance_prune_unused_files().await {
+                    Ok(files) => {
+                        info!(
+                            ?files,
+                            "{} unused files were pruned from the image store directory",
+                            files.len()
+                        );
+                    }
+                    Err(error) => {
+                        let message = "failed to prune unused files from image store directory";
+                        error!(?error, "{message}");
+                        return shared_error.with_context(|| format!("{message}: {error}"));
+                    }
+                },
+                GarbageCollectImages(policy) => {
+                    match self.maintenance_garbage_collect_images(policy).await {
+                        Ok(images) => {
+                            info!(?images, "{} images were garbage collected", images.len());
+                        }
+                        Err(error) => {
+                            let message = "failed to garbage collect image";
+                            error!(?error, "{message}");
+                            return shared_error.with_context(|| format!("{message}: {error}"));
+                        }
+                    }
                 }
             }
         }
@@ -275,6 +300,49 @@ impl ImageHandler {
         }
 
         Ok(removed_files)
+    }
+
+    /// Prune images fulfilling the garbage criteria from the database and image store.
+    ///
+    /// On success, a list of delete image metadatas is returned. On failure, no such list is
+    /// returned i.e. it's not possible to tell whether something has been deleted.
+    async fn maintenance_garbage_collect_images(
+        &self,
+        policy: GarbagePolicy,
+    ) -> anyhow::Result<Vec<ImageMetadata>> {
+        let mut gc_images = Vec::with_capacity(50);
+        let images_in_db = self
+            .list_image_metadatas()
+            .await
+            .context("failed to query known BMR images")?;
+        let is_garbage: Box<dyn Fn(&ImageMetadata) -> bool> = match policy {
+            GarbagePolicy::OlderThan(max_age) => Box::new(move |image: &ImageMetadata| -> bool {
+                std::time::SystemTime::now()
+                    .duration_since(image.created)
+                    .map(|age| age > max_age)
+                    // If we cannot confidently say that an image is old, we don't touch it.
+                    .unwrap_or_else(|error| {
+                        error!(?error, metadata = ?image, "cannot determine current age of image");
+                        false
+                    })
+            }),
+            GarbagePolicy::LargerThanBytes(size_bytes) => {
+                Box::new(move |image: &ImageMetadata| -> bool { image.size > (size_bytes as u64) })
+            }
+        };
+
+        for image in images_in_db {
+            if is_garbage(&image) {
+                match self.remove_image(&image.sha256).await {
+                    Ok(_) => gc_images.push(image),
+                    Err(error) => {
+                        error!(?error, metadata = ?image, "failed to remove image during garbage collection");
+                    }
+                };
+            }
+        }
+
+        Ok(gc_images)
     }
 
     /// Resolve an image hash to an absolute image store location, if possible.
