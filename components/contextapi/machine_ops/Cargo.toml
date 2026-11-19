@@ -17,10 +17,14 @@ workspace = true
 
 [dependencies]
 anyhow.workspace = true
+bytesize.workspace = true
+chrono.workspace = true
 clap.workspace = true
 contextapi.workspace = true
 db_interaction.workspace = true
 diesel.workspace = true
+image_api.workspace = true
+jiff.workspace = true
 machine_ops_lib.workspace = true
 net_ctrl_client_wrapper.workspace = true
 remote_client.workspace = true
