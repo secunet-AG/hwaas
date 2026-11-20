@@ -43,8 +43,6 @@ libc = { version = "0.2", features = ["extra_traits"] }
 log = { version = "0.4", default-features = false, features = ["std"] }
 memchr = { version = "2" }
 mime_guess = { version = "2" }
-nom = { version = "8" }
-num-traits = { version = "0.2" }
 once_cell = { version = "1" }
 percent-encoding = { version = "2" }
 phf_shared = { version = "0.14", default-features = false, features = ["std"] }

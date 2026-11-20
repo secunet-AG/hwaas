@@ -4,7 +4,6 @@
 
 use etherparse::PacketHeaders;
 use futures_util::{Sink, SinkExt, StreamExt};
-use nom::HexDisplay;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, ReadHalf, WriteHalf};
 use tokio::select;
 use tokio_tun::{Tun, TunBuilder, result::Result};
@@ -91,7 +90,7 @@ impl TapDev {
                 warn!("Could not send: {:?}", e);
                 return;
             }
-            trace!("send over websocket: \n{}", buf[..read].to_hex(12));
+            trace!("send over websocket: \n{}", hex::encode(&buf[..read]));
         }
     }
 

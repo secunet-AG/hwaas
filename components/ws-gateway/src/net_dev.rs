@@ -4,7 +4,6 @@
 
 use afpacket::tokio::RawPacketStream;
 use axum::extract::ws::Message;
-use nom::HexDisplay;
 use std::fmt::{Debug, Formatter};
 use std::io::Result as IResult;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -71,7 +70,7 @@ impl AfNetDev {
                 warn!("Could not send: {:?}", e);
                 return;
             }
-            trace!("send over websocket: \n{}", buf[..read].to_hex(12));
+            trace!("send over websocket: \n{}", hex::encode(&buf[..read]));
         }
     }
 

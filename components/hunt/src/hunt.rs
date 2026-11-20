@@ -10,7 +10,6 @@ use std::cell::OnceCell;
 use std::fs::File;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use std::time::Duration;
 use tower::BoxError;
 use tracing::{Level, Subscriber, info};
 use tracing_opentelemetry::OpenTelemetryLayer;
@@ -169,18 +168,8 @@ impl Hunt {
             None
         };
 
-        // spawn the console server in the background,
-        // returning a `Layer` but only if an address was provided
-        let console_layer = self.tokio_console_address.map(|a| {
-            console_subscriber::ConsoleLayer::builder()
-                .retention(Duration::from_secs(20))
-                .server_addr(a)
-                .spawn()
-        });
-
         tracing_subscriber::registry()
             .with(otel)
-            .with(console_layer)
             .with(tracing_subscriber::fmt::layer())
             .with(debug_log)
             .with(filter)
