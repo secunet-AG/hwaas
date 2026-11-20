@@ -54,6 +54,7 @@
         buildInputs = [
           pkgs.openssl
           pkgs.sqlite
+          pkgs.cacert
         ]
         ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
           # Additional darwin specific inputs can be set here
@@ -155,9 +156,8 @@
           // {
             inherit cargoArtifacts;
             # `--no-deps`: only lint workspace members and not their dependencies
-            # `--exclude`: exclude `net_ctrl_client` since it is completely auto generated
             # `--deny`: fail on warnings
-            cargoClippyExtraArgs = "--workspace --all-targets --exclude net_ctrl_client -- --no-deps --deny warnings";
+            cargoClippyExtraArgs = "--workspace --all-targets -- --no-deps --deny warnings";
           }
         );
 

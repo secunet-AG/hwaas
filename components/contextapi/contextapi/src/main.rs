@@ -64,7 +64,6 @@ async fn main() -> Result<(), error_stack::Report<ApplicationError>> {
             "contextapi",
             "context_api_lib",
             "ws_proxy_gateway_lib",
-            "net_ctrl_client",
             "image_api",
             "network_id_store",
             "machine_ops_lib",
