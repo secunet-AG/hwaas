@@ -22,6 +22,12 @@ impl VlanId {
     }
 }
 
+/// Wrapper type to identify a switch in a HWaaS setup
+#[derive(Debug, Clone)]
+pub struct SwitchId {
+    inner: String,
+}
+
 /// A high-level wrapper for the auto generated net_ctrl client.
 #[derive(Clone)]
 pub struct NetCtrlClient {
@@ -46,6 +52,23 @@ pub struct DisablePortError {
 }
 
 impl std::error::Error for DisablePortError {}
+
+/// failed to setup vlan ids {vlan_ids}: {reason}
+#[derive(Debug, displaydoc::Display)]
+pub struct SetupVlanError {
+    vlan_ids: String,
+    reason: String,
+}
+
+impl std::error::Error for SetupVlanError {}
+
+/// failed to get list of switch IDs: {reason}
+#[derive(Debug, displaydoc::Display)]
+pub struct GetSwitchError {
+    reason: String,
+}
+
+impl std::error::Error for GetSwitchError {}
 
 impl NetCtrlClient {
     /// Construct a new net ctrl client with the given base path.
@@ -104,7 +127,7 @@ impl NetCtrlClient {
         Ok(())
     }
 
-    /// Disconnect the switch port.
+    /// Disconnect the switch port from all networks.
     pub async fn disable_port(
         &self,
         switch_port: &db_interaction::models::machines::SwitchPort,
@@ -144,5 +167,97 @@ impl NetCtrlClient {
         })?;
         tracing::debug!(?status, "NetCtrl API request successful");
         Ok(())
+    }
+
+    /// Configure valid VLAN networks on a test network switch.
+    ///
+    /// The VLAN range given to this function is made available on the named test network switch for
+    /// use in subsequent networking setups. This function will only ever add VLANs not previously
+    /// configured, it cannot remove them.
+    pub async fn setup_vlan(
+        &self,
+        switch_id: SwitchId,
+        vlans: Vec<VlanId>,
+    ) -> Result<(), SetupVlanError> {
+        let user_error = |reason: &'static str| SetupVlanError {
+            vlan_ids: itertools::join(vlans.iter().map(|v| v.vlan_id.to_string()), ", "),
+            reason: reason.to_string(),
+        };
+
+        let uri_str = format!(
+            "{}/switches/{switch_id}/setup",
+            self.base_path,
+            switch_id = switch_id.inner
+        );
+
+        let req = self
+            .client
+            .request(reqwest::Method::POST, &uri_str)
+            .build()
+            .map_err(|error| {
+                error!(?error, ?switch_id, ?vlans, "failed to assemble API request");
+                user_error("failed to communicate with NetCtrl API")
+            })?;
+        let resp = self.client.execute(req).await.map_err(|error| {
+            error!(
+                ?error,
+                ?switch_id,
+                ?vlans,
+                "failed to send API request to NetCtrl"
+            );
+            user_error("failed to communicate with NetCtrl API")
+        })?;
+
+        let status = resp.error_for_status().map_err(|error| {
+            error!(
+                ?error,
+                ?switch_id,
+                ?vlans,
+                "received error response from NetCtrl"
+            );
+            user_error(format!("{:#?}", error).leak())
+        })?;
+        tracing::debug!(?status, "NetCtrl API request successful");
+        Ok(())
+    }
+
+    /// Get the IDs of all available switches.
+    pub async fn get_switches(&self) -> Result<Vec<SwitchId>, GetSwitchError> {
+        let user_error = |reason: &'static str| GetSwitchError {
+            reason: reason.to_string(),
+        };
+
+        let uri_str = format!("{}/switches", self.base_path);
+
+        let req = self
+            .client
+            .request(reqwest::Method::GET, &uri_str)
+            .build()
+            .map_err(|error| {
+                error!(?error, "failed to assemble API request");
+                user_error("failed to communicate with NetCtrl API")
+            })?;
+        let resp = self.client.execute(req).await.map_err(|error| {
+            error!(?error, "failed to send API request to NetCtrl");
+            user_error("failed to communicate with NetCtrl API")
+        })?;
+
+        let status = resp.error_for_status().map_err(|error| {
+            error!(?error, "received error response from NetCtrl");
+            user_error("received invalid API response")
+        })?;
+        tracing::debug!(?status, "NetCtrl API request successful");
+
+        let id_map = status
+            .json::<serde_json::value::Map<String, serde_json::Value>>()
+            .await
+            .unwrap();
+        let ids = id_map
+            .keys()
+            .map(|k| SwitchId {
+                inner: k.to_string(),
+            })
+            .collect::<Vec<_>>();
+        Ok(ids)
     }
 }

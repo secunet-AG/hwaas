@@ -2565,9 +2565,11 @@ dependencies = [
  "db_interaction",
  "displaydoc",
  "hunt",
+ "itertools 0.15.0",
  "reqwest 0.13.5",
  "reqwest-middleware",
  "serde",
+ "serde_json",
  "tracing",
  "workspace-hack",
 ]
