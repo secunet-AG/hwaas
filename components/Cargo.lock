@@ -2568,6 +2568,7 @@ dependencies = [
  "reqwest 0.13.5",
  "reqwest-middleware",
  "serde",
+ "thiserror 2.0.21",
  "tracing",
  "workspace-hack",
 ]
