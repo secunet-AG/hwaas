@@ -34,7 +34,7 @@ let
       --ignore-in-use && \
       ${maintainerCliCfg.package}/bin/machine-ops insert-network-ids run \
         --network-ids-file ${configFileNetworks} \
-        --database ${maintainerCliCfg.db_file_path}
+        --context-api-config ${contextApiConfigFile}
   '';
 
   maintainer-cli-config-schema-init-machines = pkgs.runCommand "generate-config-schema" { } ''

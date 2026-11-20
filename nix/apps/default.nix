@@ -6,7 +6,6 @@ _: {
   imports = [
     ./ws-proxy-client.nix
     ./regen-expected-oas.nix
-    ./generate-net-ctrl-client.nix
     ./serve-docs.nix
     ./add-SPDX-license-header.nix
     ./lint-SPDX-license-header.nix

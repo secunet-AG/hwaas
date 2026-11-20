@@ -114,9 +114,6 @@ jobs:
         name: build net-ctrl
         run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.net-ctrl'
       - if: always()
-        name: build net-ctrl-client
-        run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.net-ctrl-client'
-      - if: always()
         name: build net-ctrl-oas
         run: nix build --accept-flake-config -L --show-trace '.#packages.x86_64-linux.net-ctrl-oas'
   build-remote:

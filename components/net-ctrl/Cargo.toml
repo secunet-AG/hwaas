@@ -57,3 +57,5 @@ workspace-hack = { version = "0.1", path = "../workspace-hack" }
 [dev-dependencies]
 test-log.workspace = true
 reqwest.workspace = true
+net_ctrl_client_wrapper.workspace = true
+db_interaction.workspace = true
