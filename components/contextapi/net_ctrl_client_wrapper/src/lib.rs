@@ -22,30 +22,23 @@ impl VlanId {
     }
 }
 
+/// Errors from sending requests to the NetCtrl API
+#[derive(Debug, displaydoc::Display, thiserror::Error)]
+#[non_exhaustive]
+pub enum RequestError {
+    /// failed to send request to NetCtrl
+    InvalidRequest,
+
+    /// failed to obtain valid response from NetCtrl
+    InvalidResponse,
+}
+
 /// A high-level wrapper for the auto generated net_ctrl client.
 #[derive(Clone)]
 pub struct NetCtrlClient {
     base_path: String,
     client: reqwest_middleware::ClientWithMiddleware,
 }
-
-/// failed to enable switch port {port_id}: {reason}
-#[derive(Debug, displaydoc::Display)]
-pub struct EnablePortError {
-    port_id: String,
-    reason: String,
-}
-
-impl std::error::Error for EnablePortError {}
-
-/// failed to disable switch port {port_id}: {reason}
-#[derive(Debug, displaydoc::Display)]
-pub struct DisablePortError {
-    port_id: String,
-    reason: String,
-}
-
-impl std::error::Error for DisablePortError {}
 
 impl NetCtrlClient {
     /// Construct a new net ctrl client with the given base path.
@@ -58,17 +51,52 @@ impl NetCtrlClient {
         }
     }
 
+    /// Generically perform a web request to the NetCtrl API.
+    ///
+    /// On success, the response body is returned as raw bytes.
+    #[tracing::instrument(skip(self))]
+    async fn handle_request<J>(
+        &self,
+        uri: String,
+        method: reqwest::Method,
+        payload: Option<J>,
+    ) -> Result<bytes::Bytes, RequestError>
+    where
+        J: serde::Serialize + std::fmt::Debug,
+    {
+        let mut builder = self.client.request(method, &uri);
+        if let Some(ref inner) = payload {
+            builder = builder.json(inner);
+        }
+
+        let req = builder.build().map_err(|error| {
+            error!(?error, "failed to assemble valid API request");
+            RequestError::InvalidRequest
+        })?;
+        let resp = self.client.execute(req).await.map_err(|error| {
+            error!(?error, "failed to perform API request");
+            RequestError::InvalidRequest
+        })?;
+        let resp = resp.error_for_status().map_err(|error| {
+            error!(?error, "got invalid response from NetCtrl API");
+            RequestError::InvalidResponse
+        })?;
+        tracing::debug!(?resp, "NetCtrl API request successful");
+
+        let value = resp.bytes().await.map_err(|error| {
+            error!(?error, "failed to serialize NetCtrl response to user type");
+            RequestError::InvalidResponse
+        })?;
+
+        Ok(value)
+    }
+
     /// Connect the switch port to the network identified by `net_id`.
     pub async fn enable_port(
         &self,
         switch_port: &db_interaction::models::machines::SwitchPort,
         net_id: db_interaction::models::aliases::NetworkId,
-    ) -> Result<(), EnablePortError> {
-        let user_error = |reason: &'static str| EnablePortError {
-            port_id: switch_port.port.clone(),
-            reason: reason.to_string(),
-        };
-
+    ) -> Result<(), RequestError> {
         let uri_str = format!(
             "{}/switches/{switch_id}/ports/{port_id}",
             self.base_path,
@@ -77,43 +105,16 @@ impl NetCtrlClient {
         );
         let vlan_id: VlanId = VlanId::new(net_id.into());
 
-        let req = self
-            .client
-            .request(reqwest::Method::PUT, &uri_str)
-            .json(&vlan_id)
-            .build()
-            .map_err(|error| {
-                error!(?error, ?switch_port, "failed to assemble API request");
-                user_error("failed to communicate with NetCtrl API")
-            })?;
-        let resp = self.client.execute(req).await.map_err(|error| {
-            error!(
-                ?error,
-                ?switch_port,
-                "failed to send API request to NetCtrl"
-            );
-            user_error("failed to communicate with NetCtrl API")
-        })?;
-
-        let status = resp.error_for_status().map_err(|error| {
-            error!(?error, ?switch_port, "received error response from NetCtrl");
-            user_error("received invalid API response")
-        })?;
-        tracing::debug!(?status, "NetCtrl API request successful");
-
-        Ok(())
+        self.handle_request(uri_str, reqwest::Method::PUT, Some(vlan_id))
+            .await
+            .map(|_| ())
     }
 
     /// Disconnect the switch port.
     pub async fn disable_port(
         &self,
         switch_port: &db_interaction::models::machines::SwitchPort,
-    ) -> Result<(), DisablePortError> {
-        let user_error = |reason: &'static str| DisablePortError {
-            port_id: switch_port.port.clone(),
-            reason: reason.to_string(),
-        };
-
+    ) -> Result<(), RequestError> {
         let uri_str = format!(
             "{}/switches/{switch_id}/ports/{port_id}",
             self.base_path,
@@ -121,28 +122,8 @@ impl NetCtrlClient {
             switch_id = switch_port.switch
         );
 
-        let req = self
-            .client
-            .request(reqwest::Method::DELETE, &uri_str)
-            .build()
-            .map_err(|error| {
-                error!(?error, ?switch_port, "failed to assemble API request");
-                user_error("failed to communicate with NetCtrl API")
-            })?;
-        let resp = self.client.execute(req).await.map_err(|error| {
-            error!(
-                ?error,
-                ?switch_port,
-                "failed to send API request to NetCtrl"
-            );
-            user_error("failed to communicate with NetCtrl API")
-        })?;
-
-        let status = resp.error_for_status().map_err(|error| {
-            error!(?error, ?switch_port, "received error response from NetCtrl");
-            user_error("received invalid API response")
-        })?;
-        tracing::debug!(?status, "NetCtrl API request successful");
-        Ok(())
+        self.handle_request(uri_str, reqwest::Method::DELETE, None::<()>)
+            .await
+            .map(|_| ())
     }
 }

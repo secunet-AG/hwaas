@@ -2440,12 +2440,14 @@ dependencies = [
 name = "net_ctrl_client_wrapper"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "db_interaction",
  "displaydoc",
  "hunt",
  "reqwest 0.13.5",
  "reqwest-middleware",
  "serde",
+ "thiserror 2.0.21",
  "tracing",
  "workspace-hack",
 ]
