@@ -11,7 +11,7 @@ use db_interaction::connection::{DbFacade, ProvisionalDbConnection};
 use diesel::SqliteConnection;
 use initialization_cli_args::MachineInitializationArgs;
 use machine_ops_lib::{machine_data::MachineData, network_identifiers::upsert_network_ids};
-use net_ctrl_client_wrapper::NetCtrlClient;
+use net_ctrl_client_wrapper::{NetCtrlClient, VlanId};
 use network_ids_cli_args::InsertNetworkIdsArgs;
 use remote_client::RemoteClient;
 use schemars::{JsonSchema, schema_for};
@@ -80,7 +80,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     match commands {
         Commands::InitializeMachines(cmd) => handle_machine_init_command(cmd.command).await,
-        Commands::InsertNetworkIds(cmd) => handle_insert_network_ids_command(cmd.command),
+        Commands::InsertNetworkIds(cmd) => handle_insert_network_ids_command(cmd.command).await,
     }
 }
 
@@ -205,14 +205,28 @@ async fn handle_machine_init_command(command: MachineInitializationCommand) -> a
     }
 }
 
-fn handle_insert_network_ids_command(command: NetworkIdInsertionCommand) -> anyhow::Result<()> {
+async fn handle_insert_network_ids_command(
+    command: NetworkIdInsertionCommand,
+) -> anyhow::Result<()> {
     match command {
         NetworkIdInsertionCommand::PrintSchema => print_schema::<ParsedNetworkIdsFile>(),
         NetworkIdInsertionCommand::Run(InsertNetworkIdsArgs {
             network_ids_file,
-            database,
+            context_api_config,
         }) => {
-            let mut conn = establish_db_connection(database)?;
+            let ctx_api_config: ContextApiConfig = serde_json::from_reader(
+                File::open(context_api_config)
+                    .with_context(|| "Could not open context api config file")?,
+            )
+            .with_context(|| "Invalid context api config")?;
+
+            let ContextApiConfig {
+                db_file_path,
+                net_ctrl_base_path,
+                ..
+            } = ctx_api_config;
+
+            let mut conn = establish_db_connection(db_file_path)?;
 
             let network_id_file_contents = std::fs::read_to_string(network_ids_file.as_path())
                 .with_context(|| format!("Failed to read: {:?} to string", network_ids_file))?;
@@ -222,7 +236,30 @@ fn handle_insert_network_ids_command(command: NetworkIdInsertionCommand) -> anyh
                     error!(error.dbg = ?e, file = ?network_ids_file, "unable to deserialize network ids from file")
                 }).with_context(|| format!("Failed to parse the network-ids-file {}", network_ids_file.to_str().unwrap_or("")))?;
 
-            upsert_network_ids(&network_ids, &mut conn).map_err(Into::into)
+            upsert_network_ids(&network_ids, &mut conn)
+                .context("failed to register VLAN IDs with database")?;
+            println!("VLANs registered with database");
+
+            let net_ctrl_client = NetCtrlClient::new(net_ctrl_base_path);
+            let switch_ids = net_ctrl_client
+                .get_switches()
+                .await
+                .context("failed to obtain configured switches from NetCtrl")?;
+            let vlan_ids = network_ids
+                .iter()
+                .map(|n| VlanId {
+                    vlan_id: (*n as i32),
+                })
+                .collect::<Vec<_>>();
+            for switch_id in switch_ids {
+                net_ctrl_client
+                    .setup_vlan(switch_id.clone(), vlan_ids.clone())
+                    .await
+                    .with_context(|| format!("failed to set up VLAN IDs on switch {switch_id:?}"))
+                    .context("setup incomplete, please investigate and try again")?;
+            }
+
+            Ok(())
         }
     }
 }

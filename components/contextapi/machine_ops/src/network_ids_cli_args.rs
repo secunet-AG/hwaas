@@ -11,7 +11,7 @@ pub(crate) struct InsertNetworkIdsArgs {
     #[arg(short, long)]
     pub(crate) network_ids_file: PathBuf,
 
-    /// The path to the sqlite database file.
+    /// path to the context api configuration file
     #[arg(short, long)]
-    pub(crate) database: String,
+    pub(crate) context_api_config: PathBuf,
 }
