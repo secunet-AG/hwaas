@@ -113,6 +113,13 @@ in
           }
         ];
         configNetworks = lib.lists.range 3 cfg.networkIdsEnd;
+        maintenance = {
+          enable = true;
+          schedule = "Mon,Tue *-*-1..7 12:34:56";
+          pruneUnused = true;
+          gc.olderThan = "14 d";
+          gc.largerThan = "1 G";
+        };
       };
 
       contextApi.config = {

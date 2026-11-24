@@ -12,6 +12,7 @@ perSystem@{ config }:
 }:
 let
   maintainerCliCfg = config.services.maintainerCli;
+  maintenanceCfg = maintainerCliCfg.maintenance;
   contextApiConfig = config.services.contextApi.config;
   username = "contextApi";
 
@@ -36,6 +37,16 @@ let
         --network-ids-file ${configFileNetworks} \
         --database ${maintainerCliCfg.db_file_path}
   '';
+  maintenanceTaskScript = pkgs.writeShellApplication {
+    name = "run-bmr-image-gc";
+    text = ''
+      ${lib.getExe' maintainerCliCfg.package "machine-ops"} maintenance \
+        ${lib.optionalString maintenanceCfg.pruneUnused "--prune-unused"} \
+        ${lib.concatMapStrings (value: "--gc-older-than ${value}") [ maintenanceCfg.gc.olderThan ]} \
+        ${lib.concatMapStrings (value: "--gc-larger-than ${value}") [ maintenanceCfg.gc.largerThan ]} \
+        -c "${contextApiConfigFile}"
+    '';
+  };
 
   maintainer-cli-config-schema-init-machines = pkgs.runCommand "generate-config-schema" { } ''
     ${maintainerCliCfg.package}/bin/machine-ops initialize-machines print-schema > $out
@@ -80,21 +91,78 @@ in
       type = lib.types.str;
       default = "/run/context-api/db.sqlite";
     };
+
+    maintenance = {
+      enable = lib.mkEnableOption "Garbage Collection for BMR images";
+      schedule = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = "Sun *-*-01..07 22:00:00";
+        defaultText = "Every first Sunday of a month at 22:00 o'clock (system time)";
+        description = ''
+          When and how often to run the garbage collection as raw systemd time string.
+          See `systemd.time(7)` for details, input must be a valid Calendar Event.
+        '';
+      };
+      pruneUnused = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          Whether to prune unused data, including:
+          - Orphaned files in the image store
+          - Orphaned metadata in the image metadata database
+        '';
+      };
+      gc = {
+        olderThan = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = "60 days";
+          description = ''
+            If not null, remove stored BMR images older than this time span.
+            Valid formats: <https://docs.rs/jiff/latest/jiff/fmt/friendly/index.html>
+          '';
+        };
+
+        largerThan = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "1 G";
+          description = ''
+            If not null, remove stored BMR images larger than this size.
+            Valid formats: <https://docs.rs/bytesize/latest/bytesize/>
+          '';
+        };
+      };
+    };
   };
 
   config = lib.mkIf maintainerCliCfg.enable {
 
     environment.systemPackages = [ maintainerCliCfg.package ];
 
-    systemd.services.maintainer-cli-init-service = {
-      description = "HWaaS Maintainer CLI init task";
-      wantedBy = [ "multi-user.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = username;
-        ExecStart = "${initTaskScript}";
-        TimeoutStartSec = "30min";
+    systemd.services = {
+      maintainer-cli-init-service = {
+        description = "HWaaS Maintainer CLI init task";
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          User = username;
+          ExecStart = "${initTaskScript}";
+          TimeoutStartSec = "30min";
+        };
       };
-    };
+    }
+    // (lib.optionalAttrs maintenanceCfg.enable {
+      maintainer-cli-bmr-image-gc = {
+        description = "HWaaS Maintainer CLI Trigger for Maintenance Tasks";
+        wantedBy = [ "multi-user.target" ];
+        startAt = maintenanceCfg.schedule;
+        serviceConfig = {
+          Type = "oneshot";
+          User = username;
+          ExecStart = "${maintenanceTaskScript}";
+          TimeoutStartSec = "30min";
+        };
+      };
+    });
   };
 }
