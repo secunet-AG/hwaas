@@ -463,6 +463,11 @@
             "description": "The user specified file name of the image",
             "type": "string"
           },
+          "last_used": {
+            "description": "The time when the image was last used in a BMR",
+            "format": "date-time",
+            "type": "string"
+          },
           "sha256": {
             "$ref": "#/components/schemas/Sha256Hash",
             "description": "sha256 checksum of the full user image."
@@ -484,6 +489,7 @@
         "required": [
           "created",
           "file_name",
+          "last_used",
           "sha256",
           "size",
           "tags"

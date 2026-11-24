@@ -103,6 +103,63 @@ async fn gc_image_by_age() -> anyhow::Result<()> {
 }
 
 #[test_log::test(tokio::test)]
+async fn gc_image_by_age_with_usage_update() -> anyhow::Result<()> {
+    common::wrap(async |handler, _| {
+        let older_image = handler
+            .add_image(
+                TestStream::new(["content".as_bytes()]),
+                image_meta("my cool image.bmrimg"),
+            )
+            .await
+            .context("image should be added")?;
+        let newer_image = handler
+            .add_image(
+                TestStream::new(["other_content".as_bytes()]),
+                image_meta("my other cool image.bmrimg"),
+            )
+            .await
+            .context("image should be added")?;
+        // NOTE(hartan): I'm aware that it's not a great experience to make tests sleep like this.
+        // But in this case we cannot work around the "limitations" of monotone clocks since we're
+        // using `SystemTime` under the hood to record the timestamps of images during uploads. That
+        // means we cannot artificially slow down or speed up time during tests. Writing the test
+        // like this gives the host running the code ~3 seconds to get from uploading the second
+        // image to asserting the duration during garbage collection to pass the test. This should
+        // hopefully be enough even for slow GHA runners.
+        tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
+        handler
+            .resolve_image_path_from_hash_and_mark_used(newer_image.sha256.clone())
+            .await
+            .context("image should be valid and updated")?;
+
+        let images = handler
+            .list_image_metadatas()
+            .await
+            .context("image metadata should be readable")?;
+        assert_eq!(images.len(), 2);
+
+        let result = handler
+            .maintenance(vec![MaintenanceOperations::GarbageCollectImages(
+                GarbagePolicy::OlderThan(chrono::DateTime::<chrono::Utc>::from(
+                    older_image.created + std::time::Duration::from_secs(1),
+                )),
+            )])
+            .await;
+        assert!(result.is_ok());
+
+        let images = handler
+            .list_image_metadatas()
+            .await
+            .context("image metadata should be readable")?;
+        assert_eq!(images.len(), 1);
+        assert_eq!(images.first().unwrap().sha256, newer_image.sha256);
+
+        Ok(())
+    })
+    .await
+}
+
+#[test_log::test(tokio::test)]
 async fn gc_image_by_size() -> anyhow::Result<()> {
     common::wrap(async |handler, _| {
         let smaller_image = handler

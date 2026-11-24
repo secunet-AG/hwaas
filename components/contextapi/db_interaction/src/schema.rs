@@ -15,6 +15,7 @@ diesel::table! {
         // <https://github.com/diesel-rs/diesel/discussions/4192>
         created_utc -> TimestamptzSqlite,
         architecture -> Nullable<Text>,
+        last_used_utc -> TimestamptzSqlite,
     }
 }
 

@@ -41,6 +41,8 @@ pub struct ImageMetadata {
     pub created_utc: chrono::DateTime<chrono::Utc>,
     /// Architecture the image was built for
     pub architecture: Option<String>,
+    /// The time when the image was last used in a BMR
+    pub last_used_utc: chrono::DateTime<chrono::Utc>,
 }
 
 impl ImageMetadata {

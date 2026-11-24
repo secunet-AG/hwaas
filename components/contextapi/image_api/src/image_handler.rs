@@ -315,9 +315,9 @@ impl ImageHandler {
             .await
             .context("failed to query known BMR images")?;
         let is_garbage: Box<dyn Fn(&ImageMetadata) -> bool> = match policy {
-            GarbagePolicy::OlderThan(max_age) => Box::new(move |image: &ImageMetadata| -> bool {
-                chrono::DateTime::<chrono::Utc>::from(image.created) < max_age
-            }),
+            GarbagePolicy::OlderThan(max_age) => {
+                Box::new(move |image: &ImageMetadata| -> bool { image.last_used < max_age })
+            }
             GarbagePolicy::LargerThanBytes(size_bytes) => {
                 Box::new(move |image: &ImageMetadata| -> bool { image.size > (size_bytes as u64) })
             }
@@ -338,7 +338,10 @@ impl ImageHandler {
     }
 
     /// Resolve an image hash to an absolute image store location, if possible.
-    pub fn resolve_image_path_from_hash<H: TryInto<Sha256Hash> + std::fmt::Debug>(
+    ///
+    /// If the image is subsequently used by callers of this function e.g. as boot image for a BMR,
+    /// use the [`ImageHandler::resolve_image_path_from_hash_and_mark_used`] method instead.
+    fn resolve_image_path_from_hash<H: TryInto<Sha256Hash> + std::fmt::Debug>(
         &self,
         hash: H,
     ) -> anyhow::Result<ImageFilePath> {
@@ -351,6 +354,51 @@ impl ImageHandler {
         })?;
         ImageFilePath::resolve(&self.store_path, maybe_hash.0)
             .context("cannot resolve image file path")
+    }
+
+    /// Resolve an image hash to an absolute image store location, if possible.
+    ///
+    /// Update the `last_used` metadata entry if found.
+    #[tracing::instrument(skip(self))]
+    pub async fn resolve_image_path_from_hash_and_mark_used(
+        &self,
+        image_hash: Sha256Hash,
+    ) -> anyhow::Result<ImageFilePath> {
+        let path = self.resolve_image_path_from_hash(image_hash.clone())?;
+        if let Err(error) = self.update_last_used_for_image(&image_hash).await {
+            error!(
+                ?error,
+                "failed to update time of last usage in image metadata"
+            );
+        };
+        Ok(path)
+    }
+
+    /// Update the timestamp for when an image was last used in the database.
+    async fn update_last_used_for_image(
+        &self,
+        image_hash: &Sha256Hash,
+    ) -> Result<(), ImageHandlerError> {
+        let now = chrono::DateTime::<chrono::Utc>::from(std::time::SystemTime::now());
+        self.db_connection
+            .execute_on_current_thread(|con| {
+                use db_interaction::schema::bmr_image_metadatas::dsl::*;
+                use diesel::prelude::*;
+
+                diesel::update(bmr_image_metadatas.filter(sha256.eq(&image_hash.0)))
+                    .set(last_used_utc.eq(&now))
+                    .get_result::<ModelImageMetadata>(con)
+            })
+            .await
+            .map_err(|error| {
+                error!(
+                    ?error,
+                    "failed to update existing BMR image metadata in the database"
+                );
+                ImageHandlerError::MetadataError
+            })?;
+
+        Ok(())
     }
 
     /// Get the path to a subdirectory in the image store.
@@ -529,12 +577,14 @@ impl ImageHandler {
                         size_bytes.eq(i64::try_from(metadata.size)
                             .expect("image size should fit an i64 range")),
                         created_utc.eq(chrono::DateTime::<chrono::Utc>::from(metadata.created)),
+                        last_used_utc.eq(&metadata.last_used),
                         architecture.eq(&metadata.architecture.map(|a| a.to_string())),
                     ))
                     .on_conflict(sha256)
                     .do_update()
                     .set((
                         created_utc.eq(chrono::DateTime::<chrono::Utc>::from(metadata.created)),
+                        last_used_utc.eq(&metadata.last_used),
                         file_name.eq(&metadata.file_name),
                         architecture.eq(&metadata.architecture.map(|a| a.to_string())),
                     ))
@@ -1071,11 +1121,13 @@ impl ImageHandler {
             .map_err(to_storage_error(
                 "cannot move image from temporary to permanent storage",
             ))?;
+        let now = std::time::SystemTime::now();
         Ok(ImageMetadata {
             sha256: calculated_image_hash,
             file_name: user_specified_image_name,
             size: image_size as u64,
-            created: std::time::SystemTime::now(),
+            created: now,
+            last_used: chrono::DateTime::<chrono::Utc>::from(now),
             architecture: None,
             tags: Vec::new(),
         })

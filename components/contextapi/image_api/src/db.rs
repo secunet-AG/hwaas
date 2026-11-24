@@ -69,6 +69,8 @@ pub struct ImageMetadata {
     /// The time when the image was first stored
     // NOTE: `SystemTime` is chosen for compat with an earlier API version
     pub created: SystemTime,
+    /// The time when the image was last used in a BMR
+    pub last_used: chrono::DateTime<chrono::Utc>,
     /// Compilation target architecture
     pub architecture: Option<Architecture>,
     /// Arbitrary user-defined tags with extra information
@@ -110,6 +112,7 @@ impl ImageMetadata {
             file_name: metadata.file_name,
             size,
             created: metadata.created_utc.into(),
+            last_used: metadata.last_used_utc,
             architecture,
             tags,
         })
