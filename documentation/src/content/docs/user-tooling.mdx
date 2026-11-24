@@ -337,12 +337,22 @@ The below snippet illustrates what the `controlVM` usually looks like:
 nodes.controlVM = { ... }: {
   imports = with hwaasTestModules; [ user-tooling-hwaasTestVm ];
 
-  hwaas.testVm = {
-    enable = true;
-    networks = {
-      # Arbitrary networking configuration
+    hwaas.testVm = {
+      enable = true;
+
+      # An example network configuration with DHCP and BMR internet access
+      networks = {
+        "${controlVMInterface}" = {
+          ipv4Address = {
+            address = controlVMIp;
+            prefixLength = 24;
+          };
+          dhcp = true;
+          # Enable IP masquerading (NAT)
+          masqeruade = true;
+        };
+      };
     };
-  };
 };
 ```
 
