@@ -111,7 +111,7 @@ let
         *Machines on this network should use the control VM as their default
         gateway, otherwise you won't have external internet access!*
 
-        With `dhcp` enabled should be handled automatically.
+        With `dhcp` enabled this should be handled automatically.
       '';
     };
   };
