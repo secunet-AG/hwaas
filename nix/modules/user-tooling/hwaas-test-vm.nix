@@ -30,6 +30,8 @@
             # Can be any IP address you like
             ipv4Address = { address = "192.168.44.1"; prefixLength = 24; };
             dhcp = true;
+            # Use IP Masquerading via NAT to give the MUT internet access from the Control VM
+            masquerade = true;
           };
         };
       };
@@ -96,6 +98,21 @@ let
           PoolSize = 3;
         };
       };
+
+      # Default of false, we want this to be explicit
+      masquerade = lib.mkEnableOption ''
+        Enable IPv4 masquerading through NAT.
+
+        This lets the control VM forward traffic through,
+        giving the machine under test internet access.
+        The public address space will remain the same
+        as the host machine running the Nix test.
+
+        *Machines on this network should use the control VM as their default
+        gateway, otherwise you won't have external internet access!*
+
+        With `dhcp` enabled this should be handled automatically.
+      '';
     };
   };
 in
@@ -132,6 +149,12 @@ in
   };
 
   config = lib.mkIf testVmCfg.enable {
+    warnings = lib.mapAttrsToList (
+      iface: _:
+      "hwaas.testVm.networks.${iface}: masquerade is enabled without dhcp, so connected "
+      + "machines must be configured to use the control VM as their gateway manually."
+    ) (lib.filterAttrs (_: net: net.masquerade && !net.dhcp) testVmCfg.networks);
+
     networking = {
       useDHCP = lib.mkForce false;
       networkmanager.enable = lib.mkForce false;
@@ -187,24 +210,27 @@ in
       // lib.mapAttrs' (
         iface: net:
         lib.nameValuePair "20-${iface}" (
-          {
-            enable = true;
-            matchConfig.Name = iface;
-            address = with net.ipv4Address; [ "${address}/${builtins.toString prefixLength}" ];
-            linkConfig.RequiredForOnline = "no";
-            networkConfig.ConfigureWithoutCarrier = "yes";
-          }
-          // lib.optionalAttrs net.dhcp {
-            networkConfig.DHCPServer = true;
-            dhcpServerConfig =
-              if net.dhcpConfig != null then
-                net.dhcpConfig
-              else
-                {
-                  ServerAddress = with net.ipv4Address; "${address}/${builtins.toString prefixLength}";
-                  PoolSize = 2;
-                };
-          }
+          lib.mkMerge [
+            {
+              enable = true;
+              matchConfig.Name = iface;
+              address = with net.ipv4Address; [ "${address}/${builtins.toString prefixLength}" ];
+              linkConfig.RequiredForOnline = "no";
+              networkConfig.ConfigureWithoutCarrier = "yes";
+            }
+            (lib.mkIf net.dhcp {
+              networkConfig.DHCPServer = true;
+              dhcpServerConfig =
+                if net.dhcpConfig != null then
+                  net.dhcpConfig
+                else
+                  {
+                    ServerAddress = with net.ipv4Address; "${address}/${builtins.toString prefixLength}";
+                    PoolSize = 2;
+                  };
+            })
+            (lib.mkIf net.masquerade { networkConfig.IPMasquerade = "ipv4"; })
+          ]
         )
       ) testVmCfg.networks;
     };

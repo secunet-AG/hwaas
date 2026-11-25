@@ -206,6 +206,40 @@ nix build .#checks.x86_64-linux.my-first-hwaas-test.driver &&
     `templates.network-dhcp` attribute.
 </Callout>
 
+#### BMR Internet Access With IP Masquerading (NAT)
+
+You can use IP Masquerading to enable the BMR with internet access. This will have some performance impact,
+as the machine under test will be bottlenecked by the QEMU test VM (and the associated host).
+
+<Callout type="warning">
+    This setting requires DHCP to be enabled in the options as well, which provides a default
+    gateway. You can look at the user-tooling implementation for some ideas for setting this up with
+    a more bespoke networking setup.
+</Callout>
+
+This can be enabled with the following options:
+
+```nix
+nodes.controlVM = { ... }: {
+  imports = with hwaasTestModules; [ user-tooling-hwaasTestVm ];
+  hwaas.testVm = {
+    enable = true;
+    networks = {
+      your_network = {
+        # Can be any IP address you like
+        ipv4Address = {
+            address = "192.168.44.1";
+            prefixLength = 24;
+        };
+        dhcp = true;
+        # Use IP Masquerading via NAT to give the MUT internet access
+        masquerade = true;
+      };
+    };
+  };
+};
+```
+
 #### Local Networking via Static Network Configuration
 
 [bbb0]: #local-networking-via-static-network-configuration
