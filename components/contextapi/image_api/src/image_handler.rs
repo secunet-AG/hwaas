@@ -154,6 +154,16 @@ pub enum GarbagePolicy {
     LargerThanBytes(usize),
 }
 
+impl GarbagePolicy {
+    /// Check if an image is garbage based on the metadata.
+    pub fn is_garbage(&self, image: &ImageMetadata) -> bool {
+        match self {
+            Self::OlderThan(limit) => image.last_used < *limit,
+            Self::LargerThanBytes(limit) => image.size > (*limit as u64),
+        }
+    }
+}
+
 /// Supported operations for the [`ImageHandler::maintenance`] function.
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
@@ -314,17 +324,9 @@ impl ImageHandler {
             .list_image_metadatas()
             .await
             .context("failed to query known BMR images")?;
-        let is_garbage: Box<dyn Fn(&ImageMetadata) -> bool> = match policy {
-            GarbagePolicy::OlderThan(max_age) => {
-                Box::new(move |image: &ImageMetadata| -> bool { image.last_used < max_age })
-            }
-            GarbagePolicy::LargerThanBytes(size_bytes) => {
-                Box::new(move |image: &ImageMetadata| -> bool { image.size > (size_bytes as u64) })
-            }
-        };
 
         for image in images_in_db {
-            if is_garbage(&image) {
+            if policy.is_garbage(&image) {
                 match self.remove_image(&image.sha256).await {
                     Ok(_) => gc_images.push(image),
                     Err(error) => {
