@@ -145,6 +145,25 @@ where
     }
 }
 
+/// Retention policy for [MaintenanceOperations::GarbageCollectImages].
+#[derive(Debug, PartialEq)]
+pub enum GarbagePolicy {
+    /// Remove all images older than this point in time.
+    OlderThan(chrono::DateTime<chrono::Utc>),
+    /// Remove all images larger than this many bytes.
+    LargerThanBytes(usize),
+}
+
+impl GarbagePolicy {
+    /// Check if an image is garbage based on the metadata.
+    pub fn is_garbage(&self, image: &ImageMetadata) -> bool {
+        match self {
+            Self::OlderThan(limit) => image.last_used.is_some_and(|age| age < *limit),
+            Self::LargerThanBytes(limit) => image.size > (*limit as u64),
+        }
+    }
+}
+
 /// Supported operations for the [`ImageHandler::maintenance`] function.
 #[derive(Debug, PartialEq)]
 #[non_exhaustive]
@@ -153,12 +172,11 @@ pub enum MaintenanceOperations {
     ///
     /// Subdirectories are ignored by this operation.
     PruneUnusedFiles,
-}
 
-impl MaintenanceOperations {
-    pub fn all() -> Vec<Self> {
-        vec![Self::PruneUnusedFiles]
-    }
+    /// Run garbage collection on valid stored images.
+    ///
+    /// Invalid files and images are not touched by this operation.
+    GarbageCollectImages(GarbagePolicy),
 }
 
 impl ImageHandler {
@@ -193,19 +211,35 @@ impl ImageHandler {
         let shared_error = Err(anyhow::anyhow!(
             "a maintenance tasks exited with an error, aborting maintenance job..."
         ));
-        if operations.contains(&MaintenanceOperations::PruneUnusedFiles) {
-            match self.maintenance_prune_unused_files().await {
-                Ok(files) => {
-                    info!(
-                        ?files,
-                        "{} unused files were pruned from the image store directory",
-                        files.len()
-                    );
-                }
-                Err(error) => {
-                    let message = "failed to prune unused files from image store directory";
-                    error!(?error, "{message}");
-                    return shared_error.with_context(|| format!("{message}: {error}"));
+        for operation in operations {
+            use MaintenanceOperations::*;
+
+            match operation {
+                PruneUnusedFiles => match self.maintenance_prune_unused_files().await {
+                    Ok(files) => {
+                        info!(
+                            ?files,
+                            "{} unused files were pruned from the image store directory",
+                            files.len()
+                        );
+                    }
+                    Err(error) => {
+                        let message = "failed to prune unused files from image store directory";
+                        error!(?error, "{message}");
+                        return shared_error.with_context(|| format!("{message}: {error}"));
+                    }
+                },
+                GarbageCollectImages(policy) => {
+                    match self.maintenance_garbage_collect_images(policy).await {
+                        Ok(images) => {
+                            info!(?images, "{} images were garbage collected", images.len());
+                        }
+                        Err(error) => {
+                            let message = "failed to garbage collect image";
+                            error!(?error, "{message}");
+                            return shared_error.with_context(|| format!("{message}: {error}"));
+                        }
+                    }
                 }
             }
         }
@@ -277,8 +311,39 @@ impl ImageHandler {
         Ok(removed_files)
     }
 
+    /// Prune images fulfilling the garbage criteria from the database and image store.
+    ///
+    /// On success, a list of delete image metadatas is returned. On failure, no such list is
+    /// returned i.e. it's not possible to tell whether something has been deleted.
+    async fn maintenance_garbage_collect_images(
+        &self,
+        policy: GarbagePolicy,
+    ) -> anyhow::Result<Vec<ImageMetadata>> {
+        let mut gc_images = Vec::with_capacity(50);
+        let images_in_db = self
+            .list_image_metadatas()
+            .await
+            .context("failed to query known BMR images")?;
+
+        for image in images_in_db {
+            if policy.is_garbage(&image) {
+                match self.remove_image(&image.sha256).await {
+                    Ok(_) => gc_images.push(image),
+                    Err(error) => {
+                        error!(?error, metadata = ?image, "failed to remove image during garbage collection");
+                    }
+                };
+            }
+        }
+
+        Ok(gc_images)
+    }
+
     /// Resolve an image hash to an absolute image store location, if possible.
-    pub fn resolve_image_path_from_hash<H: TryInto<Sha256Hash> + std::fmt::Debug>(
+    ///
+    /// If the image is subsequently used by callers of this function e.g. as boot image for a BMR,
+    /// use the [`ImageHandler::resolve_image_path_from_hash_and_mark_used`] method instead.
+    fn resolve_image_path_from_hash<H: TryInto<Sha256Hash> + std::fmt::Debug>(
         &self,
         hash: H,
     ) -> anyhow::Result<ImageFilePath> {
@@ -291,6 +356,51 @@ impl ImageHandler {
         })?;
         ImageFilePath::resolve(&self.store_path, maybe_hash.0)
             .context("cannot resolve image file path")
+    }
+
+    /// Resolve an image hash to an absolute image store location, if possible.
+    ///
+    /// Update the `last_used` metadata entry if found.
+    #[tracing::instrument(skip(self))]
+    pub async fn resolve_image_path_from_hash_and_mark_used(
+        &self,
+        image_hash: Sha256Hash,
+    ) -> anyhow::Result<ImageFilePath> {
+        let path = self.resolve_image_path_from_hash(image_hash.clone())?;
+        if let Err(error) = self.update_last_used_for_image(&image_hash).await {
+            error!(
+                ?error,
+                "failed to update time of last usage in image metadata"
+            );
+        };
+        Ok(path)
+    }
+
+    /// Update the timestamp for when an image was last used in the database.
+    async fn update_last_used_for_image(
+        &self,
+        image_hash: &Sha256Hash,
+    ) -> Result<(), ImageHandlerError> {
+        let now = chrono::DateTime::<chrono::Utc>::from(std::time::SystemTime::now());
+        self.db_connection
+            .execute_on_current_thread(|con| {
+                use db_interaction::schema::bmr_image_metadatas::dsl::*;
+                use diesel::prelude::*;
+
+                diesel::update(bmr_image_metadatas.filter(sha256.eq(&image_hash.0)))
+                    .set(last_used_utc.eq(&now))
+                    .get_result::<ModelImageMetadata>(con)
+            })
+            .await
+            .map_err(|error| {
+                error!(
+                    ?error,
+                    "failed to update existing BMR image metadata in the database"
+                );
+                ImageHandlerError::MetadataError
+            })?;
+
+        Ok(())
     }
 
     /// Get the path to a subdirectory in the image store.
@@ -469,12 +579,14 @@ impl ImageHandler {
                         size_bytes.eq(i64::try_from(metadata.size)
                             .expect("image size should fit an i64 range")),
                         created_utc.eq(chrono::DateTime::<chrono::Utc>::from(metadata.created)),
+                        last_used_utc.eq(&metadata.last_used),
                         architecture.eq(&metadata.architecture.map(|a| a.to_string())),
                     ))
                     .on_conflict(sha256)
                     .do_update()
                     .set((
                         created_utc.eq(chrono::DateTime::<chrono::Utc>::from(metadata.created)),
+                        last_used_utc.eq(&metadata.last_used),
                         file_name.eq(&metadata.file_name),
                         architecture.eq(&metadata.architecture.map(|a| a.to_string())),
                     ))
@@ -1011,11 +1123,13 @@ impl ImageHandler {
             .map_err(to_storage_error(
                 "cannot move image from temporary to permanent storage",
             ))?;
+        let now = std::time::SystemTime::now();
         Ok(ImageMetadata {
             sha256: calculated_image_hash,
             file_name: user_specified_image_name,
             size: image_size as u64,
-            created: std::time::SystemTime::now(),
+            created: now,
+            last_used: Some(chrono::DateTime::<chrono::Utc>::from(now)),
             architecture: None,
             tags: Vec::new(),
         })

@@ -129,6 +129,7 @@ init-tracing-opentelemetry = { version = "0.24.2", default-features = false, fea
 itertools = { version = "0.15.0", default-features = false, features = [
   "use_std",
 ] }
+jiff = { version = "1.0.1", default-features = false, features = ["std"] }
 libc = { version = "0.2.132", default-features = false }
 machine_ops_lib = { path = "./contextapi/machine_ops_lib" }
 net_ctrl_client = { path = "./contextapi/net_ctrl_client" }

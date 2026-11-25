@@ -1,9 +1,8 @@
---- a/components/contextapi/db_interaction/src/schema.rs	2026-07-08 10:26:08.276166011 +0200
-+++ b/components/contextapi/db_interaction/src/schema.rs	2026-07-08 10:26:25.953159377 +0200
-@@ -3,13 +3,20 @@
- diesel::table! {
-     bmr_image_metadatas (id) {
-         id -> Integer,
+diff --git (-)/components/contextapi/db_interaction/src/schema.rs (+)/components/contextapi/db_interaction/src/schema.rs
+index a926476a..73b9d039 100644
+--- (-)/components/contextapi/db_interaction/src/schema.rs
++++ (+)/components/contextapi/db_interaction/src/schema.rs
+@@ -6,9 +6,16 @@ diesel::table! {
          sha256 -> Text,
          file_name -> Text,
          size_bytes -> BigInt,
@@ -17,8 +16,8 @@
 +        // <https://github.com/diesel-rs/diesel/discussions/4192>
 +        created_utc -> TimestamptzSqlite,
          architecture -> Nullable<Text>,
+-        last_used_utc -> Nullable<Timestamp>,
++        last_used_utc -> Nullable<TimestamptzSqlite>,
      }
  }
- 
- diesel::table! {
-     bmr_image_tag_map (bmr_image_metadata_id, bmr_image_tag_id) {
+

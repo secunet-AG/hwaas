@@ -60,9 +60,17 @@ pub(crate) async fn handle_create_drive(
     }
 
     // Initialize the drive if file exists
-
+    let valid_image_hash = std::str::FromStr::from_str(&image_hash).map_err(|error| {
+        error!(
+            ?error,
+            ?image_hash,
+            "cannot create drive with invalid image hash"
+        );
+        CreateDriveError::ImageNotFound
+    })?;
     let src = cfg
-        .resolve_image_path_from_hash(image_hash)
+        .resolve_image_path_from_hash_and_mark_used(valid_image_hash)
+        .await
         .map_err(|_| CreateDriveError::ImageNotFound)?;
     let dst = store_path.join(drive_hash.clone());
     if !src.is_file() {
