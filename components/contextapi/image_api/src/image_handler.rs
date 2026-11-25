@@ -158,7 +158,7 @@ impl GarbagePolicy {
     /// Check if an image is garbage based on the metadata.
     pub fn is_garbage(&self, image: &ImageMetadata) -> bool {
         match self {
-            Self::OlderThan(limit) => image.last_used < *limit,
+            Self::OlderThan(limit) => image.last_used.is_some_and(|age| age < *limit),
             Self::LargerThanBytes(limit) => image.size > (*limit as u64),
         }
     }
@@ -1129,7 +1129,7 @@ impl ImageHandler {
             file_name: user_specified_image_name,
             size: image_size as u64,
             created: now,
-            last_used: chrono::DateTime::<chrono::Utc>::from(now),
+            last_used: Some(chrono::DateTime::<chrono::Utc>::from(now)),
             architecture: None,
             tags: Vec::new(),
         })

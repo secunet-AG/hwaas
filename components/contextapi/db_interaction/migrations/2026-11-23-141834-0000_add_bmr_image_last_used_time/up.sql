@@ -2,4 +2,5 @@
 --
 -- SPDX-License-Identifier: Apache-2.0
 
-ALTER TABLE bmr_image_metadatas ADD COLUMN last_used_utc DATETIME NOT NULL default "1970-01-01T00:00:00";
+-- Nullable column to signal that a pre-existing metadata entry has never had this field filled in.
+ALTER TABLE bmr_image_metadatas ADD COLUMN last_used_utc DATETIME;
