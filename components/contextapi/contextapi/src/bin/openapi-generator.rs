@@ -49,7 +49,6 @@ fn main() -> Result<(), Report<OpenApiGeneratorError>> {
             "contextapi",
             "context_api_lib",
             "ws_proxy_gateway_lib",
-            "net_ctrl_client",
             "image_api",
             "network_id_store",
         ])

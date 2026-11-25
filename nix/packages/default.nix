@@ -49,9 +49,6 @@ _: {
     in
     {
       packages = rec {
-        net-ctrl-client = pkgs.callPackage ./net-ctrl-client.nix {
-          net-ctrl-openapi = oas-packages.net-ctrl-oas;
-        };
         contextapi-version = pkgs.callPackage ./contextapi-version.nix {
           inherit (config.packages) contextapi;
         };
