@@ -151,10 +151,11 @@ in
         };
       };
     }
-    // (lib.optionalAttrs maintenanceCfg.enable {
+    // (lib.optionalAttrs (maintenanceCfg.enable && config.services.contextApi.enable) {
       maintainer-cli-bmr-image-gc = {
         description = "HWaaS Maintainer CLI Trigger for Maintenance Tasks";
         wantedBy = [ "multi-user.target" ];
+        requires = [ "context-api.service" ];
         startAt = maintenanceCfg.schedule;
         serviceConfig = {
           Type = "oneshot";
